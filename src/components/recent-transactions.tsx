@@ -23,8 +23,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Address from "./address";
-import TransactionId from "./transaction-id";
+import Address from "@/components/address";
+import TransactionHash from "@/components/transaction-hash";
 
 export default function LatestTransactions() {
   return (
@@ -46,10 +46,9 @@ export default function LatestTransactions() {
             <TableRow>
               <TableHead>
                 <div className="flex items-center">
-                  <span className="mr-1">Slot</span>
                   <Popover>
                     <PopoverTrigger>
-                      <CircleHelp className="h-3.5 w-3.5" />
+                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
                     </PopoverTrigger>
                     <PopoverContent className="max-w-80">
                       <p className="mb-2">
@@ -63,14 +62,14 @@ export default function LatestTransactions() {
                       </p>
                     </PopoverContent>
                   </Popover>
+                  <span>Slot</span>
                 </div>
               </TableHead>
               <TableHead>
                 <div className="flex items-center">
-                  <span className="mr-1">Transaction Id</span>
                   <Popover>
                     <PopoverTrigger>
-                      <CircleHelp className="h-3.5 w-3.5" />
+                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
                     </PopoverTrigger>
                     <PopoverContent className="max-w-80">
                       <p>
@@ -80,14 +79,14 @@ export default function LatestTransactions() {
                       </p>
                     </PopoverContent>
                   </Popover>
+                  <span className="mr-1">Transaction Hash</span>
                 </div>
               </TableHead>
               <TableHead>
                 <div className="flex items-center">
-                  <span className="mr-1">Signer</span>
                   <Popover>
                     <PopoverTrigger>
-                      <CircleHelp className="h-3.5 w-3.5" />
+                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
                     </PopoverTrigger>
                     <PopoverContent className="max-w-80">
                       <p>
@@ -101,6 +100,7 @@ export default function LatestTransactions() {
                       </p>
                     </PopoverContent>
                   </Popover>
+                  <span>Signer</span>
                 </div>
               </TableHead>
               <TableHead>Status</TableHead>
@@ -109,60 +109,28 @@ export default function LatestTransactions() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell>260298528</TableCell>
-              <TableCell>
-                <TransactionId>
-                  3MrqbKPKZ7b7PmYrKff7kUK9svzJQEEUUGfbhmmNtgKhV98tLf8ruW7myjLYDjcr2ik8eSzopcDvYVppLLNB4Mk9
-                </TransactionId>
-              </TableCell>
-              <TableCell>
-                <Address>99ht3D5QcWuZKSVJqCycdB4fmF4Da8vzropvd1Sbr2UL</Address>
-              </TableCell>
-              <TableCell>
-                <Badge className="text-xs" variant="outline">
-                  Success
-                </Badge>
-              </TableCell>
-              <TableCell>0.0001105 SOL</TableCell>
-              <TableCell>2s ago</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>260298528</TableCell>
-              <TableCell>
-                <TransactionId>
-                  2siWWMYyBS3t5vLXdfcLH8oUizasvvyeehNNUS7ZqvpWjxxnk2xK1rxYCrjWFrBnS8jxJu7bMXfQbLNhmadLxgvA
-                </TransactionId>
-              </TableCell>
-              <TableCell>
-                <Address>99ht3D5QcWuZKSVJqCycdB4fmF4Da8vzropvd1Sbr2UL</Address>
-              </TableCell>
-              <TableCell>
-                <Badge className="text-xs" variant="outline">
-                  Success
-                </Badge>
-              </TableCell>
-              <TableCell>0.0001105 SOL</TableCell>
-              <TableCell>2s ago</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>260298528</TableCell>
-              <TableCell>
-                <TransactionId>
-                  2siWWMYyBS3t5vLXdfcLH8oUizasvvyeehNNUS7ZqvpWjxxnk2xK1rxYCrjWFrBnS8jxJu7bMXfQbLNhmadLxgvA
-                </TransactionId>
-              </TableCell>
-              <TableCell>
-                <Address>99ht3D5QcWuZKSVJqCycdB4fmF4Da8vzropvd1Sbr2UL</Address>
-              </TableCell>
-              <TableCell>
-                <Badge className="text-xs" variant="outline">
-                  Success
-                </Badge>
-              </TableCell>
-              <TableCell>0.0001105 SOL</TableCell>
-              <TableCell>2s ago</TableCell>
-            </TableRow>
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((key) => (
+              <TableRow key={key}>
+                <TableCell>260298528</TableCell>
+                <TableCell>
+                  <TransactionHash>
+                    3MrqbKPKZ7b7PmYrKff7kUK9svzJQEEUUGfbhmmNtgKhV98tLf8ruW7myjLYDjcr2ik8eSzopcDvYVppLLNB4Mk9
+                  </TransactionHash>
+                </TableCell>
+                <TableCell>
+                  <Address>
+                    99ht3D5QcWuZKSVJqCycdB4fmF4Da8vzropvd1Sbr2UL
+                  </Address>
+                </TableCell>
+                <TableCell>
+                  <Badge className="text-xs" variant="outline">
+                    Success
+                  </Badge>
+                </TableCell>
+                <TableCell>0.0001105 SOL</TableCell>
+                <TableCell>2s ago</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </CardContent>

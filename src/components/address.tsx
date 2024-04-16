@@ -11,11 +11,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export default function Address({
-  children,
-}: {
+interface AddressProps {
   children: string;
-} & ButtonProps) {
+  short?: boolean;
+}
+
+export default function Address({ children, short = true }: AddressProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -47,9 +48,11 @@ export default function Address({
         <Tooltip>
           <TooltipTrigger asChild>
             <Link href={`/address/${children}/`} className="hover:underline">
-              {children.slice(0, 5)}
-              {"..."}
-              {children.slice(-5)}
+              {short ? (
+                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+              ) : (
+                <>{children}</>
+              )}
             </Link>
           </TooltipTrigger>
           <TooltipContent>{children}</TooltipContent>

@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
-import { Inter as FontSans } from "next/font/google";
+import { Manrope as Fontface } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
-import ClusterSwitcher from "@/components/cluster-switcher";
-import { CommandMenu } from "@/components/command-menu";
-import { MainNav } from "@/components/main-nav";
-import { ModeToggle } from "@/components/mode-toggle";
-import { SecondaryNav } from "@/components/secondary-nav";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
-const fontSans = FontSans({
+const fontface = Fontface({
   subsets: ["latin"],
-  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -47,8 +43,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
+          "min-h-screen bg-background antialiased",
+          fontface.className,
         )}
       >
         <ThemeProvider
@@ -57,25 +53,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
-          <div>
-            <div className="border-b">
-              <div className="container flex h-16 items-center px-8">
-                <MainNav className="mr-6" />
-                <div className="ml-auto flex items-center space-x-4">
-                  <CommandMenu />
-                </div>
-                <div className="ml-auto flex items-center space-x-4">
-                  <SecondaryNav className="mx-6" />
-                  <ModeToggle />
-                  <ClusterSwitcher />
-                </div>
-              </div>
-            </div>
-
-            <div className="container flex-1 space-y-4 p-8 pt-6">
-              {children}
-            </div>
-          </div>
+          <Header />
+          <main className="container flex-1 space-y-4 p-8 pt-6">
+            {children}
+          </main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

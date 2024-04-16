@@ -11,11 +11,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export default function TransactionId({
-  children,
-}: {
+interface TransactionHashProps {
   children: string;
-} & ButtonProps) {
+  short?: boolean;
+}
+
+export default function TransactionHash({
+  children,
+  short = true,
+}: TransactionHashProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -47,9 +51,11 @@ export default function TransactionId({
         <Tooltip>
           <TooltipTrigger asChild>
             <Link href={`/tx/${children}/`} className="hover:underline">
-              {children.slice(0, 4)}
-              {"..."}
-              {children.slice(-4)}
+              {short ? (
+                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+              ) : (
+                <>{children}</>
+              )}
             </Link>
           </TooltipTrigger>
           <TooltipContent>{children}</TooltipContent>
