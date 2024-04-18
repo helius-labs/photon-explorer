@@ -3,7 +3,7 @@ import RecentTransactions from "@/components/recent-transactions";
 
 export const metadata: Metadata = {
   title: "Home | Photon Block Explorer",
-  description: "",
+  description: "The Photon Block Explorer",
 };
 
 export default function Home() {

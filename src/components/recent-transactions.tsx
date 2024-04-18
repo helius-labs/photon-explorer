@@ -49,6 +49,9 @@ export default function LatestTransactions() {
                   <Popover>
                     <PopoverTrigger>
                       <CircleHelp className="mr-1 h-3.5 w-3.5" />
+                      <span className="sr-only">
+                        What does this column mean?
+                      </span>
                     </PopoverTrigger>
                     <PopoverContent className="max-w-80">
                       <p className="mb-2">
@@ -70,6 +73,9 @@ export default function LatestTransactions() {
                   <Popover>
                     <PopoverTrigger>
                       <CircleHelp className="mr-1 h-3.5 w-3.5" />
+                      <span className="sr-only">
+                        What does this column mean?
+                      </span>
                     </PopoverTrigger>
                     <PopoverContent className="max-w-80">
                       <p>
@@ -87,6 +93,9 @@ export default function LatestTransactions() {
                   <Popover>
                     <PopoverTrigger>
                       <CircleHelp className="mr-1 h-3.5 w-3.5" />
+                      <span className="sr-only">
+                        What does this column mean?
+                      </span>
                     </PopoverTrigger>
                     <PopoverContent className="max-w-80">
                       <p>
