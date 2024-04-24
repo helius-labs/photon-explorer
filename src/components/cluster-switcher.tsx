@@ -12,40 +12,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-enum Cluster {
-  MainnetBeta = "Mainnet Beta",
-  Testnet = "Testnet",
-  Devnet = "Devnet",
-  Localnet = "Localnet",
-}
+import { useCluster } from "@/components/cluster-provider";
 
 export default function ClusterSwitcher() {
-  const [cluster, setCluster] = React.useState<string>(Cluster.MainnetBeta);
+  const { clusters, cluster, setCluster } = useCluster();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="min-w-32">
-          {cluster}
+          {clusters.find(({ value }) => value === cluster)?.label}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Choose a Cluster</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup value={cluster} onValueChange={setCluster}>
-          <DropdownMenuRadioItem value={Cluster.MainnetBeta}>
-            Mainnet Beta
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={Cluster.Testnet}>
-            Testnet
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={Cluster.Devnet}>
-            Devnet
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={Cluster.Localnet}>
-            Localnet
-          </DropdownMenuRadioItem>
+          {clusters.map(({ value, label }) => (
+            <DropdownMenuRadioItem key={value} value={value}>
+              {label}
+            </DropdownMenuRadioItem>
+          ))}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

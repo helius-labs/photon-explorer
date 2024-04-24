@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Manrope as Fontface } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ClusterProvider } from "@/components/cluster-provider";
+import { ReactQueryClientProvider } from "@/components/query-client-provider";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -53,11 +55,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <main className="container flex-1 space-y-4 p-8 pt-6">
-            {children}
-          </main>
-          <Footer />
+          <ReactQueryClientProvider>
+            <ClusterProvider>
+              <Header />
+              <main className="container flex-1 space-y-4 p-8 pt-6">
+                {children}
+              </main>
+              <Footer />
+            </ClusterProvider>
+          </ReactQueryClientProvider>
         </ThemeProvider>
       </body>
     </html>

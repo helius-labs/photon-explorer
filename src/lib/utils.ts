@@ -36,3 +36,42 @@ export function isSolanaAccountAddress(address: string): boolean {
     return false;
   }
 }
+
+export function timeAgoWithFormat(unixTimestamp: number): string {
+  // Convert Unix timestamp from seconds to milliseconds
+  const date = new Date(unixTimestamp * 1000);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  let timeAgo: string;
+
+  // Calculate relative time ago
+  if (diffInSeconds < 60) {
+    timeAgo = `${diffInSeconds} seconds ago`;
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    timeAgo = `${minutes} minutes ago`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    timeAgo = `${hours} hours ago`;
+  } else if (diffInSeconds < 2592000) {
+    const days = Math.floor(diffInSeconds / 86400);
+    timeAgo = `${days} days ago`;
+  } else {
+    const months = Math.floor(diffInSeconds / 2592000);
+    timeAgo = `${months} months ago`;
+  }
+
+  // Format date like "April 15, 2024 17:14:03 UTC"
+  const formattedDate = date.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short",
+    timeZone: "UTC",
+  });
+
+  return `${timeAgo} (${formattedDate})`;
+}
