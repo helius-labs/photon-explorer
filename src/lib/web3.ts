@@ -9,9 +9,6 @@ export function useTransaction(signature: string) {
   const { data, error, isLoading } = useQuery({
     queryKey: [endpoint, signature],
     queryFn: async () => {
-      console.log("endpoint", endpoint);
-      console.log("signature", signature);
-
       return fetch(endpoint, {
         method: "POST",
         headers: {
@@ -21,7 +18,10 @@ export function useTransaction(signature: string) {
           jsonrpc: "2.0",
           id: 1,
           method: "getTransaction",
-          params: [signature, "jsonParsed"],
+          params: [
+            signature,
+            { maxSupportedTransactionVersion: 0, encoding: "jsonParsed" },
+          ],
         }),
       })
         .then((res) => res.json())

@@ -1,110 +1,40 @@
 "use client";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import Address from "@/components/address";
-import TransactionHash from "@/components/transaction-hash";
-import { CircleHelp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { useTransaction } from "@/lib/web3";
-import { timeAgoWithFormat } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import TransactionOverview from "@/components/transaction-overview";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   const { transaction, isLoading, isError } = useTransaction(tx);
 
-  if (isError) return <div>failed to load</div>;
-  if (isLoading) return <div>loading...</div>;
-  if (!transaction) return <div>transaction not found</div>;
+  if (isError)
+    return (
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <div>failed to load</div>
+        </CardContent>
+      </Card>
+    );
+  if (isLoading)
+    return (
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <div>loading...</div>
+        </CardContent>
+      </Card>
+    );
+  if (!transaction)
+    return (
+      <Card className="w-full">
+        <CardContent className="pt-6">
+          <div>transaction not found</div>
+        </CardContent>
+      </Card>
+    );
 
   return (
-    <div className="grid grid-cols-4 gap-3">
-      <div className="col-span-1">
-        <div className="flex items-center">
-          <Popover>
-            <PopoverTrigger>
-              <CircleHelp className="mr-2 h-3.5 w-3.5" />
-            </PopoverTrigger>
-            <PopoverContent className="max-w-80">
-              <p>
-                The first signature in a transaction, which can be used to
-                uniquely identify the transaction across the complete ledger.
-              </p>
-            </PopoverContent>
-          </Popover>
-          <span className="mr-1 text-muted-foreground">Transaction Hash</span>
-        </div>
-      </div>
-      <div className="col-span-3">
-        {transaction?.transaction.signatures[0] && (
-          <TransactionHash short={false}>
-            {transaction?.transaction.signatures[0]}
-          </TransactionHash>
-        )}
-      </div>
-
-      <div className="col-span-1">
-        <span className="text-muted-foreground">Status</span>
-      </div>
-      <div className="col-span-3">
-        <Badge className="text-xs" variant="outline">
-          {transaction?.meta?.err === null ? "Success" : "Failed"}
-        </Badge>
-      </div>
-
-      <div className="col-span-1">
-        <span className="text-muted-foreground">Slot</span>
-      </div>
-      <div className="col-span-3">
-        <span>#{transaction?.slot}</span>
-      </div>
-
-      <div className="col-span-1">
-        <span className="text-muted-foreground">Timestamp</span>
-      </div>
-      <div className="col-span-3">
-        <span>
-          {transaction?.blockTime && timeAgoWithFormat(transaction?.blockTime)}
-        </span>
-      </div>
-
-      <Separator className="col-span-4 my-4" />
-
-      <div className="col-span-1">
-        <span className="text-muted-foreground">Signer</span>
-      </div>
-      <div className="col-span-3">
-        {transaction?.transaction.message.accountKeys[0].pubkey && (
-          <Address short={false}>
-            {transaction?.transaction.message.accountKeys[0].pubkey}
-          </Address>
-        )}
-      </div>
-
-      <Separator className="col-span-4 my-4" />
-
-      <div className="col-span-1">
-        <span className="text-muted-foreground">Fee Payer</span>
-      </div>
-      <div className="col-span-3">
-        {transaction?.transaction.message.accountKeys[0].pubkey && (
-          <Address short={false}>
-            {transaction?.transaction.message.accountKeys[0].pubkey}
-          </Address>
-        )}
-      </div>
-
-      <div className="col-span-1">
-        <span className="text-muted-foreground">Transaction Fee</span>
-      </div>
-      <div className="col-span-3">
-        {transaction?.meta?.fee && (
-          <span>{transaction?.meta?.fee / 1000000000} SOL</span>
-        )}
-      </div>
-    </div>
+    <>
+      <TransactionOverview transaction={transaction} />
+    </>
   );
 }
