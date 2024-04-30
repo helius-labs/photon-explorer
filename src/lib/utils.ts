@@ -5,6 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function getBaseUrl() {
+  return process.env.VERCEL_ENV === "production"
+    ? `https://photon.helius.dev`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : `http://localhost:3000`;
+}
+
 export function isSolanaTransactionHash(txHash: string): boolean {
   // Define the allowed Base58 characters for a Solana transaction hash
   const base58Chars: string =

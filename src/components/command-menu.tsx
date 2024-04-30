@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { DialogProps } from "@radix-ui/react-dialog";
-import { useTheme } from "next-themes";
 import {
   cn,
   isSolanaAccountAddress,
@@ -19,6 +18,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { CommandLoading } from "cmdk";
+import { useCluster } from "./cluster-provider";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
@@ -26,8 +26,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const [loading, setLoading] = React.useState(false);
   const [transaction, setTransaction] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
-
-  const { setTheme } = useTheme();
+  const { cluster } = useCluster();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -110,10 +109,12 @@ export function CommandMenu({ ...props }: DialogProps) {
                 key={`account-${address}`}
                 value={address}
                 onSelect={() => {
-                  runCommand(() => router.push(`/address/${address}/`));
+                  runCommand(() =>
+                    router.push(`/address/${address}/?cluster=${cluster}`),
+                  );
                 }}
               >
-                {address}
+                <span className="truncate">{address}</span>
               </CommandItem>
             </CommandGroup>
           )}
@@ -123,10 +124,13 @@ export function CommandMenu({ ...props }: DialogProps) {
                 key={`transaction-${transaction}`}
                 value={transaction}
                 onSelect={() => {
-                  runCommand(() => router.push(`/tx/${transaction}/`));
+                  runCommand(() =>
+                    router.push(`/tx/${transaction}/?cluster=${cluster}`),
+                  );
                 }}
+                className="truncate"
               >
-                {transaction}
+                <span className="truncate">{transaction}</span>
               </CommandItem>
             </CommandGroup>
           )}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { CheckIcon, ClipboardIcon } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/link";
 import { Button, ButtonProps } from "@/components/ui/button";
 import {
   Tooltip,

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/link";
 
 import { cn } from "@/lib/utils";
 import { CircleDotDashed } from "lucide-react";

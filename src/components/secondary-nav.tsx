@@ -1,7 +1,6 @@
-import Link from "next/link";
+import Link from "@/components/ui/link";
 
 import { cn } from "@/lib/utils";
-import { Telescope } from "lucide-react";
 
 export function SecondaryNav({
   className,
