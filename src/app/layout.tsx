@@ -7,6 +7,7 @@ import { ReactQueryClientProvider } from "@/components/query-client-provider";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { Suspense } from "react";
 
 const fontface = Fontface({
   subsets: ["latin"],
@@ -56,13 +57,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <ReactQueryClientProvider>
-            <ClusterProvider>
-              <Header />
-              <main className="container flex-1 space-y-4 p-8 pt-6">
-                {children}
-              </main>
-              <Footer />
-            </ClusterProvider>
+            <Suspense>
+              <ClusterProvider>
+                <Header />
+                <main className="container flex-1 space-y-4 p-8 pt-6">
+                  {children}
+                </main>
+                <Footer />
+              </ClusterProvider>
+            </Suspense>
           </ReactQueryClientProvider>
         </ThemeProvider>
       </body>
