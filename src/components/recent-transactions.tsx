@@ -1,7 +1,6 @@
 "use client";
 
-import { CircleHelp } from "lucide-react";
-
+import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,18 +20,29 @@ import Address from "@/components/address";
 import TransactionHash from "@/components/transaction-hash";
 import { useGetBlock, useGetSlot } from "@/lib/web3";
 import { timeAgoWithFormat } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export default function LatestTransactions() {
   // Get latest slot from cluster
-  const { slot } = useGetSlot();
+  const { slot, refetch } = useGetSlot();
 
-  // Get block for slot tog et the transactions
+  // Get block for slot to get the transactions
   // The query will not execute until the slot exists
   const { block, isLoading, isPending, isError } = useGetBlock(slot, !!slot);
 
+  // TODO: Refactor jsx
   if (isError)
     return (
       <Card className="col-span-12">
+        <CardHeader className="flex flex-row items-center">
+          <div className="grid gap-2">
+            <CardTitle>Recent Transactions</CardTitle>
+          </div>
+          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            Refresh
+            <RotateCw className="ml-1 h-4 w-4" />
+          </Button>
+        </CardHeader>
         <CardContent className="pt-6">
           <div>failed to load</div>
         </CardContent>
@@ -41,6 +51,15 @@ export default function LatestTransactions() {
   if (isLoading || isPending)
     return (
       <Card className="col-span-12">
+        <CardHeader className="flex flex-row items-center">
+          <div className="grid gap-2">
+            <CardTitle>Recent Transactions</CardTitle>
+          </div>
+          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            Refresh
+            <LoaderCircle className="ml-1 h-4 w-4 animate-spin" />
+          </Button>
+        </CardHeader>
         <CardContent className="pt-6">
           <div>loading...</div>
         </CardContent>
@@ -49,6 +68,15 @@ export default function LatestTransactions() {
   if (!block || !block.transactions.length)
     return (
       <Card className="col-span-12">
+        <CardHeader className="flex flex-row items-center">
+          <div className="grid gap-2">
+            <CardTitle>Recent Transactions</CardTitle>
+          </div>
+          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            Refresh
+            <RotateCw className="ml-1 h-4 w-4" />
+          </Button>
+        </CardHeader>
         <CardContent className="pt-6">
           <div>no transactions found</div>
         </CardContent>
@@ -64,6 +92,10 @@ export default function LatestTransactions() {
         <div className="grid gap-2">
           <CardTitle>Recent Transactions</CardTitle>
         </div>
+        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+          Refresh
+          <RotateCw className="ml-1 h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>

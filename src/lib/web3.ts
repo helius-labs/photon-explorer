@@ -6,7 +6,7 @@ import { useCluster } from "@/components/cluster-provider";
 export function useGetSlot(enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading, refetch } = useQuery({
     queryKey: [endpoint, "getSlot"],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -24,19 +24,21 @@ export function useGetSlot(enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
+    refetchOnWindowFocus: false,
   });
 
   return {
     slot: data,
     isLoading,
     isError: error,
+    refetch,
   };
 }
 
 export function useGetBlock(slot: number, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isPending } = useQuery({
+  const { data, error, isLoading, isPending, refetch } = useQuery({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -63,6 +65,7 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
+    refetchOnWindowFocus: false,
   });
 
   return {
@@ -70,13 +73,14 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
     isPending,
     isLoading,
     isError: error,
+    refetch,
   };
 }
 
 export function useGetTransaction(signature: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading } = useQuery({
+  const { data, error, isLoading, refetch } = useQuery({
     queryKey: [endpoint, "getTransaction", signature],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -98,11 +102,13 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
+    refetchOnWindowFocus: false,
   });
 
   return {
     transaction: data,
     isLoading,
     isError: error,
+    refetch,
   };
 }
