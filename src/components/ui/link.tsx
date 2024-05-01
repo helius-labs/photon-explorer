@@ -7,10 +7,9 @@ import { getBaseUrl } from "@/lib/utils";
 
 const Link = React.forwardRef<
   HTMLAnchorElement,
-  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkProps> &
-    LinkProps & {
-      children?: React.ReactNode;
-    }
+  LinkProps & {
+    children?: React.ReactNode;
+  }
 >((props, ref) => {
   const { href, children, ...otherProps } = props;
   const { cluster } = useCluster();
@@ -20,7 +19,7 @@ const Link = React.forwardRef<
   url.searchParams.set("cluster", cluster);
 
   return (
-    <NextLink href={`${url}`} {...otherProps} passHref>
+    <NextLink ref={ref} href={`${url}`} {...otherProps}>
       {children}
     </NextLink>
   );

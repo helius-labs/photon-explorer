@@ -1,15 +1,9 @@
-import Link from "@/components/ui/link";
-import { ArrowUpRight, CircleHelp } from "lucide-react";
+"use client";
+
+import { CircleHelp } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -25,20 +19,51 @@ import {
 } from "@/components/ui/popover";
 import Address from "@/components/address";
 import TransactionHash from "@/components/transaction-hash";
+import { useGetBlock, useGetSlot } from "@/lib/web3";
+import { timeAgoWithFormat } from "@/lib/utils";
 
 export default function LatestTransactions() {
+  // Get latest slot from cluster
+  const { slot } = useGetSlot();
+
+  // Get block for slot tog et the transactions
+  // The query will not execute until the slot exists
+  const { block, isLoading, isPending, isError } = useGetBlock(slot, !!slot);
+
+  if (isError)
+    return (
+      <Card className="col-span-12">
+        <CardContent className="pt-6">
+          <div>failed to load</div>
+        </CardContent>
+      </Card>
+    );
+  if (isLoading || isPending)
+    return (
+      <Card className="col-span-12">
+        <CardContent className="pt-6">
+          <div>loading...</div>
+        </CardContent>
+      </Card>
+    );
+  if (!block || !block.transactions.length)
+    return (
+      <Card className="col-span-12">
+        <CardContent className="pt-6">
+          <div>no transactions found</div>
+        </CardContent>
+      </Card>
+    );
+
+  // TODO: Use DataTable instead of Table for better pagination, sorting, and filtering
+  // Capped transactions at 50 for performance reasons for now
+
   return (
     <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle>Recent Transactions</CardTitle>
         </div>
-        <Button asChild size="sm" className="ml-auto hidden gap-1">
-          <Link href="#">
-            View All
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </Button>
       </CardHeader>
       <CardContent>
         <Table>
@@ -118,26 +143,28 @@ export default function LatestTransactions() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((key) => (
-              <TableRow key={key}>
-                <TableCell>260298528</TableCell>
+            {block.transactions.slice(0, 50).map((data: any) => (
+              <TableRow key={data.transaction.signatures[0]}>
+                <TableCell>{block.blockHeight}</TableCell>
                 <TableCell>
                   <TransactionHash>
-                    5h385St2d3Y7Pg7p3GsKejcHwA9n6pSCRmCSgf7sR5EsRogrX7wDG7N6WNerqKcL3ks6jXe3auy17KjWu7aftgEi
+                    {data.transaction.signatures[0]}
                   </TransactionHash>
                 </TableCell>
                 <TableCell>
                   <Address>
-                    CtLYbHpNvzm5MeM27G6B9t4pBpPRwVMUnbJSpCD8nNcD
+                    {data.transaction.message.accountKeys[0].pubkey}
                   </Address>
                 </TableCell>
                 <TableCell>
                   <Badge className="text-xs" variant="outline">
-                    Success
+                    {data.meta?.err === null ? "Success" : "Failed"}
                   </Badge>
                 </TableCell>
-                <TableCell>0.0001105 SOL</TableCell>
-                <TableCell>2s ago</TableCell>
+                <TableCell>{data.meta?.fee / 1e9} SOL</TableCell>
+                <TableCell>
+                  {timeAgoWithFormat(block.blockTime, true)}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

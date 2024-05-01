@@ -1,11 +1,11 @@
 "use client";
 
-import { useTransaction } from "@/lib/web3";
+import { useGetTransaction } from "@/lib/web3";
 import { Card, CardContent } from "@/components/ui/card";
 import TransactionOverview from "@/components/transaction-overview";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
-  const { transaction, isLoading, isError } = useTransaction(tx);
+  const { transaction, isLoading, isError } = useGetTransaction(tx);
 
   if (isError)
     return (
