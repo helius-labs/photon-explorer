@@ -39,8 +39,8 @@ export default function LatestTransactions() {
             <CardTitle>Recent Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            <RotateCw className="mr-1 h-4 w-4" />
             Refresh
-            <RotateCw className="ml-1 h-4 w-4" />
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -56,8 +56,8 @@ export default function LatestTransactions() {
             <CardTitle>Recent Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            Refresh
-            <LoaderCircle className="ml-1 h-4 w-4 animate-spin" />
+            <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+            Loading
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -73,8 +73,8 @@ export default function LatestTransactions() {
             <CardTitle>Recent Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            <RotateCw className="mr-1 h-4 w-4" />
             Refresh
-            <RotateCw className="ml-1 h-4 w-4" />
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -93,8 +93,8 @@ export default function LatestTransactions() {
           <CardTitle>Recent Transactions</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+          <RotateCw className="mr-1 h-4 w-4" />
           Refresh
-          <RotateCw className="ml-1 h-4 w-4" />
         </Button>
       </CardHeader>
       <CardContent>
