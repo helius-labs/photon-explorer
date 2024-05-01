@@ -1,6 +1,6 @@
-import { CircleHelp } from "lucide-react";
-
+import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -16,100 +16,154 @@ import {
 } from "@/components/ui/popover";
 import Address from "@/components/address";
 import TransactionHash from "@/components/transaction-hash";
+import { useGetSignaturesForAddress } from "@/lib/web3";
+import { Button } from "@/components/ui/button";
+import { timeAgoWithFormat } from "@/lib/utils";
 
-export default function Transactions() {
+export default function Transactions({ address }: { address: string }) {
+  const { signatures, isLoading, isError, refetch } =
+    useGetSignaturesForAddress(address);
+
+  console.log(signatures);
+  // TODO: Refactor jsx
+  if (isError)
+    return (
+      <Card className="col-span-12">
+        <CardHeader className="flex flex-row items-center">
+          <div className="grid gap-2">
+            <CardTitle>Transaction History</CardTitle>
+          </div>
+          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            <RotateCw className="mr-1 h-4 w-4" />
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div>failed to load</div>
+        </CardContent>
+      </Card>
+    );
+  if (isLoading)
+    return (
+      <Card className="col-span-12">
+        <CardHeader className="flex flex-row items-center">
+          <div className="grid gap-2">
+            <CardTitle>Transaction History</CardTitle>
+          </div>
+          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+            Loading
+          </Button>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div>loading...</div>
+        </CardContent>
+      </Card>
+    );
+  if (!signatures || !signatures.length)
+    return (
+      <Card className="col-span-12">
+        <CardHeader className="flex flex-row items-center">
+          <div className="grid gap-2">
+            <CardTitle>Transaction History</CardTitle>
+          </div>
+          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+            <RotateCw className="mr-1 h-4 w-4" />
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div>no transactions found</div>
+        </CardContent>
+      </Card>
+    );
+
+  // TODO: Use DataTable instead of Table for better pagination, sorting, and filtering
+  // Capped transactions at 50 for performance reasons for now
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>
-              <div className="flex items-center">
-                <Popover>
-                  <PopoverTrigger>
-                    <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                  </PopoverTrigger>
-                  <PopoverContent className="max-w-80">
-                    <p className="mb-2">
-                      The period of time for which each leader ingests
-                      transactions and produces a block.
-                    </p>
-                    <p>
-                      Collectively, slots create a logical clock. Slots are
-                      ordered sequentially and non-overlapping, comprising
-                      roughly equal real-world time as per PoH.
-                    </p>
-                  </PopoverContent>
-                </Popover>
-                <span>Slot</span>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center">
-                <Popover>
-                  <PopoverTrigger>
-                    <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                  </PopoverTrigger>
-                  <PopoverContent className="max-w-80">
-                    <p>
-                      The first signature in a transaction, which can be used to
-                      uniquely identify the transaction across the complete
-                      ledger.
-                    </p>
-                  </PopoverContent>
-                </Popover>
-                <span className="mr-1">Transaction Hash</span>
-              </div>
-            </TableHead>
-            <TableHead>
-              <div className="flex items-center">
-                <Popover>
-                  <PopoverTrigger>
-                    <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                  </PopoverTrigger>
-                  <PopoverContent className="max-w-80">
-                    <p>
-                      Transactions include one or more digital signatures each
-                      corresponding to an account address referenced by the
-                      transaction. Each of these addresses must be the public
-                      key of an ed25519 keypair, and the signature signifies
-                      that the holder of the matching private key signed, and
-                      thus, &quot;authorized&quot; the transaction. In this
-                      case, the account is referred to as a signer.
-                    </p>
-                  </PopoverContent>
-                </Popover>
-                <span>Signer</span>
-              </div>
-            </TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Fee</TableHead>
-            <TableHead>Timestamp</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((key) => (
-            <TableRow key={key}>
-              <TableCell>260298528</TableCell>
-              <TableCell>
-                <TransactionHash>
-                  3MrqbKPKZ7b7PmYrKff7kUK9svzJQEEUUGfbhmmNtgKhV98tLf8ruW7myjLYDjcr2ik8eSzopcDvYVppLLNB4Mk9
-                </TransactionHash>
-              </TableCell>
-              <TableCell>
-                <Address>99ht3D5QcWuZKSVJqCycdB4fmF4Da8vzropvd1Sbr2UL</Address>
-              </TableCell>
-              <TableCell>
-                <Badge className="text-xs" variant="outline">
-                  Success
-                </Badge>
-              </TableCell>
-              <TableCell>0.0001105 SOL</TableCell>
-              <TableCell>2s ago</TableCell>
+    <Card className="col-span-12">
+      <CardHeader className="flex flex-row items-center">
+        <div className="grid gap-2">
+          <CardTitle>Transaction History</CardTitle>
+        </div>
+        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+          <RotateCw className="mr-1 h-4 w-4" />
+          Refresh
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <div className="flex items-center">
+                  <Popover>
+                    <PopoverTrigger>
+                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
+                      <span className="sr-only">
+                        What does this column mean?
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-80">
+                      <p className="mb-2">
+                        The period of time for which each leader ingests
+                        transactions and produces a block.
+                      </p>
+                      <p>
+                        Collectively, slots create a logical clock. Slots are
+                        ordered sequentially and non-overlapping, comprising
+                        roughly equal real-world time as per PoH.
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                  <span>Slot</span>
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center">
+                  <Popover>
+                    <PopoverTrigger>
+                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
+                      <span className="sr-only">
+                        What does this column mean?
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent className="max-w-80">
+                      <p>
+                        The first signature in a transaction, which can be used
+                        to uniquely identify the transaction across the complete
+                        ledger.
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                  <span className="mr-1">Transaction Hash</span>
+                </div>
+              </TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Timestamp</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {signatures.slice(0, 50).map((data: any) => (
+              <TableRow key={data.signature}>
+                <TableCell>{data.slot}</TableCell>
+                <TableCell>
+                  <TransactionHash short={false}>
+                    {data.signature}
+                  </TransactionHash>
+                </TableCell>
+                <TableCell>
+                  <Badge className="text-xs" variant="outline">
+                    {data.err === null ? "Success" : "Failed"}
+                  </Badge>
+                </TableCell>
+                <TableCell>{timeAgoWithFormat(data.blockTime, true)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

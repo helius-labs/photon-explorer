@@ -45,7 +45,7 @@ export default function AccountDetails({ address }: { address: string }) {
           <TabsTrigger value="transfers">Transfers</TabsTrigger>
         </TabsList>
         <TabsContent value="transactions">
-          <Transactions />
+          <Transactions address={address} />
         </TabsContent>
         <TabsContent value="transfers">
           <Transfers />

@@ -178,3 +178,44 @@ export function useGetBalance(address: string, enabled: boolean = true) {
     refetch,
   };
 }
+
+export function useGetSignaturesForAddress(
+  address: string,
+  enabled: boolean = true,
+) {
+  const { endpoint } = useCluster();
+
+  const { data, error, isLoading, refetch } = useQuery({
+    queryKey: [endpoint, "getSignaturesForAddress", address],
+    queryFn: async () => {
+      return fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getConfirmedSignaturesForAddress2",
+          params: [
+            address,
+            {
+              limit: 25,
+            },
+          ],
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => res.result);
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+
+  return {
+    signatures: data,
+    isLoading,
+    isError: error,
+    refetch,
+  };
+}
