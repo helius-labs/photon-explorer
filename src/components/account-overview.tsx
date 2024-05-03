@@ -13,8 +13,6 @@ export default function AccountOverview({
 }) {
   const { balance } = useGetBalance(address);
 
-  console.log(balance);
-
   return (
     <Card className="mb-3 w-full">
       <CardHeader>

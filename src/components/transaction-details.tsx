@@ -3,6 +3,8 @@
 import { useGetTransaction } from "@/lib/web3";
 import { Card, CardContent } from "@/components/ui/card";
 import TransactionOverview from "@/components/transaction-overview";
+import TransactionAccountKeys from "@/components/transaction-account-keys";
+import TransactionInstructions from "@/components/transaction-instructions";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   const { transaction, isLoading, isError } = useGetTransaction(tx);
@@ -35,6 +37,8 @@ export default function TransactionDetails({ tx }: { tx: string }) {
   return (
     <>
       <TransactionOverview transaction={transaction} />
+      <TransactionAccountKeys transaction={transaction} />
+      <TransactionInstructions transaction={transaction} />
     </>
   );
 }

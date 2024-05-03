@@ -24,7 +24,6 @@ export default function Transactions({ address }: { address: string }) {
   const { signatures, isLoading, isError, refetch } =
     useGetSignaturesForAddress(address);
 
-  console.log(signatures);
   // TODO: Refactor jsx
   if (isError)
     return (

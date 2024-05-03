@@ -196,11 +196,11 @@ export function useGetSignaturesForAddress(
         body: JSON.stringify({
           jsonrpc: "2.0",
           id: 1,
-          method: "getConfirmedSignaturesForAddress2",
+          method: "getSignaturesForAddress",
           params: [
             address,
             {
-              limit: 25,
+              limit: 50,
             },
           ],
         }),
@@ -218,4 +218,19 @@ export function useGetSignaturesForAddress(
     isError: error,
     refetch,
   };
+}
+
+export function getTransfers(parsedTransaction: any) {
+  const SPL_TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+  const TRANSFER_IX_TYPES = ["transferchecked", "transfer"];
+
+  for (const instruction of parsedTransaction.transaction.message
+    .instructions) {
+    if (
+      instruction.programId == SPL_TOKEN_PROGRAM_ID &&
+      TRANSFER_IX_TYPES.includes(instruction.parsed.type.toLowerCase())
+    ) {
+      console.log("instruction data:", JSON.stringify(instruction, null, 1));
+    }
+  }
 }
