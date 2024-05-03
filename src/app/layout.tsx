@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
-import { Manrope as Fontface } from "next/font/google";
+import { Inter as Fontface } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClusterProvider } from "@/components/cluster-provider";
 import { ReactQueryClientProvider } from "@/components/query-client-provider";
