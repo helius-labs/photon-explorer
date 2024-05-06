@@ -28,9 +28,11 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Status</TableHead>
-                <TableHead>Hash</TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead>Balance</TableHead>
+                <TableHead>Account Hash</TableHead>
+                <TableHead>Account Owner</TableHead>
+                <TableHead>Token Mint</TableHead>
+                <TableHead>Token Owner</TableHead>
+                <TableHead>Token Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -39,30 +41,41 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                   <TableRow key={`opened-accounts-${index}`}>
                     <TableCell>Open</TableCell>
                     <TableCell>
-                      <Address short={false}>{item.account.hash}</Address>
+                      <Address>{item.account.hash}</Address>
                     </TableCell>
                     <TableCell>
-                      <Address short={false}>{item.account.owner}</Address>
+                      <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      {(item.account.lamports / 1e9).toFixed(7)} SOL
+                      <Address>{item.optional_token_data.mint}</Address>
+                    </TableCell>
+                    <TableCell>
+                      <Address>{item.optional_token_data.owner}</Address>
+                    </TableCell>
+                    <TableCell>
+                      {(item.optional_token_data.amount / 1e9).toFixed(7)} SOL
                     </TableCell>
                   </TableRow>
                 ),
               )}
               {transactionWithCompressionInfo.compression_info.closed_accounts.map(
                 (item: any, index: number) => (
-                  <TableRow key={`opened-accounts-${index}`}>
+                  <TableRow key={`closed-accounts-${index}`}>
                     <TableCell>Closed</TableCell>
-
                     <TableCell>
-                      <Address short={false}>{item.account.hash}</Address>
+                      <Address>{item.account.hash}</Address>
                     </TableCell>
                     <TableCell>
-                      <Address short={false}>{item.account.owner}</Address>
+                      <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      {(item.account.lamports / 1e9).toFixed(7)} SOL
+                      <Address>{item.optional_token_data.mint}</Address>
+                    </TableCell>
+                    <TableCell>
+                      <Address>{item.optional_token_data.owner}</Address>
+                    </TableCell>
+                    <TableCell>
+                      {(item.optional_token_data.amount / 1e9).toFixed(7)} SOL
                     </TableCell>
                   </TableRow>
                 ),
