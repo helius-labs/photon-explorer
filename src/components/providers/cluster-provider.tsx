@@ -6,6 +6,7 @@ import { useQueryState } from "nuqs";
 export interface Cluster {
   value: string;
   label: string;
+  disabled: boolean;
 }
 
 export interface UseClusterProps {
@@ -33,10 +34,10 @@ const defaultContext: UseClusterProps = {
 export const useCluster = () => useContext(ClusterContext) ?? defaultContext;
 
 const clusters: Cluster[] = [
-  { value: "mainnet-beta", label: "Mainnet Beta" },
-  { value: "devnet", label: "Devnet" },
-  { value: "localnet", label: "Localnet" },
-  { value: "custom", label: "Custom RPC URL" },
+  { value: "mainnet-beta", label: "Mainnet Beta", disabled: true },
+  { value: "devnet", label: "Devnet", disabled: true },
+  { value: "localnet", label: "Localnet", disabled: false },
+  { value: "custom", label: "Custom RPC URL", disabled: true },
 ];
 
 export function ClusterProvider({ children }: { children: React.ReactNode }) {
@@ -45,7 +46,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     process.env.NEXT_PUBLIC_LOCALNET!,
   );
   const [cluster, setCluster] = useQueryState("cluster", {
-    defaultValue: "mainnet-beta",
+    defaultValue: "localnet",
   });
 
   const endpointMap = useMemo(
@@ -69,11 +70,11 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
   );
 
   // Set default endpoint to mainnet-beta
-  const [endpoint, setEndpoint] = useState(endpointMap["mainnet-beta"]);
+  const [endpoint, setEndpoint] = useState(endpointMap["localnet"]);
 
-  // Set default endpoint to mainnet-beta
+  // Set compression endpoint to mainnet-beta
   const [compressionEndpoint, setCompressionEndpoint] = useState(
-    endpointMap["mainnet-beta"],
+    compressionEndpointMap["localnet"],
   );
 
   // Set endpoint based on cluster

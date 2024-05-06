@@ -10,16 +10,14 @@ export default function Instruction({
   instruction,
   index,
   innerInstructions,
-  key,
 }: {
   instruction: any;
   innerInstructions?: any;
   index: number;
-  key: string;
 }) {
   return (
     <>
-      <Card key={key} className="mb-6 w-full">
+      <Card key={`instruction-${index}`} className="mb-6 w-full">
         <CardHeader>
           <CardTitle>
             <Badge className="mr-2">#{index}</Badge>
@@ -54,7 +52,7 @@ export default function Instruction({
                           </Address>
                         </TableCell>
                       </TableRow>
-                      <TableRow key={`to-address-${index}`}>
+                      <TableRow key={`transfer-amount-${index}`}>
                         <TableCell>Transfer Amount</TableCell>
                         <TableCell>
                           {`${instruction.parsed.info.lamports / 1e9} SOL`}
@@ -118,7 +116,7 @@ export default function Instruction({
                     )
                     .instructions.map((instruction: any, index: number) => (
                       <Instruction
-                        key={`instruction-${index}`}
+                        key={`innerInstruction-${index}`}
                         index={index}
                         instruction={instruction}
                       />

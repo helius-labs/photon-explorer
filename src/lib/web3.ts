@@ -492,3 +492,45 @@ export function useGetCompressedBalance(hash: string, enabled: boolean = true) {
     refetch,
   };
 }
+
+export function useGetTransactionWithCompressionInfo(
+  signature: string,
+  enabled: boolean = true,
+) {
+  const { compressionEndpoint } = useCluster();
+
+  const { data, error, isLoading, refetch } = useQuery({
+    queryKey: [
+      compressionEndpoint,
+      "getTransactionWithCompressionInfo",
+      signature,
+    ],
+    queryFn: async () => {
+      return fetch(compressionEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getTransactionWithCompressionInfo",
+          params: {
+            signature: signature,
+          },
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => res.result);
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+
+  return {
+    transactionWithCompressionInfo: data,
+    isLoading,
+    isError: error,
+    refetch,
+  };
+}
