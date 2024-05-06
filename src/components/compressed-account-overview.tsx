@@ -21,7 +21,7 @@ export default function CompressedAccountOverview({
       <CardContent>
         <div className="grid grid-cols-4 gap-3">
           <div className="flex items-center">
-            <span className="mr-1 text-muted-foreground">Address</span>
+            <span className="mr-1 text-muted-foreground">Hash</span>
           </div>
           <div className="col-span-3">
             <Address short={false}>{address}</Address>

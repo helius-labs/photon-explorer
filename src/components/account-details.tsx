@@ -10,6 +10,7 @@ import CompressedTransactionsByAddress from "@/components/compressed-transaction
 import CompressedTransactionsByHash from "@/components/compressed-transactions-by-hash";
 import TokenAccounts from "@/components/token-accounts";
 import CompressedAccounts from "@/components/compressed-accounts";
+import CompressedTokenAccounts from "@/components/compressed-token-accounts";
 import { RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -77,6 +78,9 @@ export default function AccountDetails({ address }: { address: string }) {
             <TabsTrigger value="compressed-accounts">
               Compressed Accounts
             </TabsTrigger>
+            <TabsTrigger value="compressed-token-accounts">
+              Compressed Token Accounts
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="transactions">
             <Transactions address={address} />
@@ -89,6 +93,9 @@ export default function AccountDetails({ address }: { address: string }) {
           </TabsContent>
           <TabsContent value="compressed-accounts">
             <CompressedAccounts address={address} />
+          </TabsContent>
+          <TabsContent value="compressed-token-accounts">
+            <CompressedTokenAccounts address={address} />
           </TabsContent>
         </Tabs>
       </>

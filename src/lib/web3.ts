@@ -423,6 +423,48 @@ export function useGetCompressedAccountsByOwner(
   };
 }
 
+export function useGetCompressedTokenAccountsByOwner(
+  address: string,
+  enabled: boolean = true,
+) {
+  const { compressionEndpoint } = useCluster();
+
+  const { data, error, isLoading, refetch } = useQuery({
+    queryKey: [
+      compressionEndpoint,
+      "getCompressedTokenAccountsByOwner",
+      address,
+    ],
+    queryFn: async () => {
+      return fetch(compressionEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getCompressedTokenAccountsByOwner",
+          params: {
+            owner: address,
+          },
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => res.result);
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+
+  return {
+    accounts: data,
+    isLoading,
+    isError: error,
+    refetch,
+  };
+}
+
 export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
 

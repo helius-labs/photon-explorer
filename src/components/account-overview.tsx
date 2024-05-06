@@ -29,6 +29,36 @@ export default function AccountOverview({
             <Address short={false}>{address}</Address>
           </div>
 
+          <div className="col-span-1">
+            <span className="text-muted-foreground">Balance</span>
+          </div>
+          <div className="col-span-3">
+            <span>{balance && (balance.value / 1e9).toFixed(9)} SOL</span>
+          </div>
+
+          <div className="col-span-1">
+            <span className="text-muted-foreground">Allocated Data Size</span>
+          </div>
+          <div className="col-span-3">
+            <span>{account.value && account.value.space} byte(s)</span>
+          </div>
+
+          <div className="col-span-1">
+            <span className="text-muted-foreground">Owner Program</span>
+          </div>
+          <div className="col-span-3">
+            <Address short={false}>
+              {account.value && account.value.owner}
+            </Address>
+          </div>
+
+          <div className="col-span-1">
+            <span className="text-muted-foreground">Executable</span>
+          </div>
+          <div className="col-span-3">
+            {account.value && account.value.executable ? "Yes" : "No"}
+          </div>
+
           {account.value.data.parsed && (
             <>
               <div className="col-span-1">
@@ -76,39 +106,8 @@ export default function AccountOverview({
                   </div>
                 </>
               )}
-
-              <Separator className="col-span-4 my-4" />
             </>
           )}
-          <div className="col-span-1">
-            <span className="text-muted-foreground">Balance</span>
-          </div>
-          <div className="col-span-3">
-            <span>{balance && (balance.value / 1e9).toFixed(9)} SOL</span>
-          </div>
-
-          <div className="col-span-1">
-            <span className="text-muted-foreground">Allocated Data Size</span>
-          </div>
-          <div className="col-span-3">
-            <span>{account.value && account.value.space} byte(s)</span>
-          </div>
-
-          <div className="col-span-1">
-            <span className="text-muted-foreground">Owner Program</span>
-          </div>
-          <div className="col-span-3">
-            <Address short={false}>
-              {account.value && account.value.owner}
-            </Address>
-          </div>
-
-          <div className="col-span-1">
-            <span className="text-muted-foreground">Executable</span>
-          </div>
-          <div className="col-span-3">
-            {account.value && account.value.executable ? "Yes" : "No"}
-          </div>
 
           <Separator className="col-span-4 my-4" />
 

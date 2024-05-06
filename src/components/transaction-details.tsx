@@ -6,6 +6,7 @@ import TransactionOverview from "@/components/transaction-overview";
 import TransactionAccountKeys from "@/components/transaction-account-keys";
 import TransactionInstructions from "@/components/transaction-instructions";
 import TransactionInstructionLogs from "@/components/transaction-instruction-logs";
+import TransactionCompressionInfo from "@/components/transaction-compression-info";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   const { transaction, isLoading, isError } = useGetTransaction(tx);
@@ -38,6 +39,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
   return (
     <>
       <TransactionOverview transaction={transaction} />
+      <TransactionCompressionInfo tx={tx} />
       <TransactionAccountKeys transaction={transaction} />
       <TransactionInstructions transaction={transaction} />
       <TransactionInstructionLogs transaction={transaction} />
