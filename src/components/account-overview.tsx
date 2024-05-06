@@ -2,7 +2,8 @@
 
 import Address from "@/components/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetBalance } from "@/lib/web3";
+import { Separator } from "@/components/ui/separator";
+import { useGetBalance, useGetCompressedBalanceByOwner } from "@/lib/web3";
 
 export default function AccountOverview({
   address,
@@ -12,6 +13,7 @@ export default function AccountOverview({
   account: any;
 }) {
   const { balance } = useGetBalance(address);
+  const { compressedBalance } = useGetCompressedBalanceByOwner(address);
 
   return (
     <Card className="mb-3 w-full">
@@ -27,6 +29,57 @@ export default function AccountOverview({
             <Address short={false}>{address}</Address>
           </div>
 
+          {account.value.data.parsed && (
+            <>
+              <div className="col-span-1">
+                <span className="text-muted-foreground">Type</span>
+              </div>
+              <div className="col-span-3">Token Account</div>
+
+              <Separator className="col-span-4 my-4" />
+
+              {account.value.data.parsed.info.mint && (
+                <>
+                  <div className="col-span-1">
+                    <span className="text-muted-foreground">Token mint</span>
+                  </div>
+                  <div className="col-span-3">
+                    <Address short={false}>
+                      {account.value.data.parsed.info.mint}
+                    </Address>
+                  </div>
+                </>
+              )}
+
+              {account.value.data.parsed.info.owner && (
+                <>
+                  <div className="col-span-1">
+                    <span className="text-muted-foreground">Token owner</span>
+                  </div>
+                  <div className="col-span-3">
+                    <Address short={false}>
+                      {account.value.data.parsed.info.owner}
+                    </Address>
+                  </div>
+                </>
+              )}
+
+              {account.value.data.parsed.info.tokenAmount && (
+                <>
+                  <div className="col-span-1">
+                    <span className="text-muted-foreground">Token balance</span>
+                  </div>
+                  <div className="col-span-3">
+                    <span>
+                      {account.value.data.parsed.info.tokenAmount.uiAmount}
+                    </span>
+                  </div>
+                </>
+              )}
+
+              <Separator className="col-span-4 my-4" />
+            </>
+          )}
           <div className="col-span-1">
             <span className="text-muted-foreground">Balance</span>
           </div>
@@ -55,6 +108,18 @@ export default function AccountOverview({
           </div>
           <div className="col-span-3">
             {account.value && account.value.executable ? "Yes" : "No"}
+          </div>
+
+          <Separator className="col-span-4 my-4" />
+
+          <div className="col-span-1">
+            <span className="text-muted-foreground">Compressed Balance</span>
+          </div>
+          <div className="col-span-3">
+            <span>
+              {compressedBalance && (compressedBalance.value / 1e9).toFixed(9)}{" "}
+              SOL
+            </span>
           </div>
         </div>
       </CardContent>

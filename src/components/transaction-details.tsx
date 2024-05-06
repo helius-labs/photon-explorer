@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import TransactionOverview from "@/components/transaction-overview";
 import TransactionAccountKeys from "@/components/transaction-account-keys";
 import TransactionInstructions from "@/components/transaction-instructions";
+import TransactionInstructionLogs from "@/components/transaction-instruction-logs";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   const { transaction, isLoading, isError } = useGetTransaction(tx);
@@ -13,7 +14,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
-          <div>failed to load</div>
+          <div>Failed to load</div>
         </CardContent>
       </Card>
     );
@@ -21,7 +22,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
-          <div>loading...</div>
+          <div>Loading...</div>
         </CardContent>
       </Card>
     );
@@ -29,7 +30,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
-          <div>transaction not found</div>
+          <div>Transaction not found</div>
         </CardContent>
       </Card>
     );
@@ -39,6 +40,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       <TransactionOverview transaction={transaction} />
       <TransactionAccountKeys transaction={transaction} />
       <TransactionInstructions transaction={transaction} />
+      <TransactionInstructionLogs transaction={transaction} />
     </>
   );
 }

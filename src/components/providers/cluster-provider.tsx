@@ -15,6 +15,7 @@ export interface UseClusterProps {
   clusterCustomRpcUrl: string;
   setClusterCustomRpcUrl: React.Dispatch<React.SetStateAction<string>>;
   endpoint: string;
+  compressionEndpoint: string;
 }
 
 const ClusterContext = createContext<UseClusterProps | undefined>(undefined);
@@ -26,6 +27,7 @@ const defaultContext: UseClusterProps = {
   clusterCustomRpcUrl: "",
   setClusterCustomRpcUrl: (_) => {},
   endpoint: "",
+  compressionEndpoint: "",
 };
 
 export const useCluster = () => useContext(ClusterContext) ?? defaultContext;
@@ -56,8 +58,23 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const compressionEndpointMap = useMemo(
+    () => ({
+      custom: process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
+      localnet: process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
+      devnet: process.env.NEXT_PUBLIC_COMPRESSION_DEVNET!,
+      "mainnet-beta": process.env.NEXT_PUBLIC_COMPRESSION_MAINNET!,
+    }),
+    [],
+  );
+
   // Set default endpoint to mainnet-beta
   const [endpoint, setEndpoint] = useState(endpointMap["mainnet-beta"]);
+
+  // Set default endpoint to mainnet-beta
+  const [compressionEndpoint, setCompressionEndpoint] = useState(
+    endpointMap["mainnet-beta"],
+  );
 
   // Set endpoint based on cluster
   useEffect(() => {
@@ -68,8 +85,13 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
       if (newEndpoint) {
         setEndpoint(newEndpoint);
       }
+      const newCompressionEndpoint =
+        compressionEndpointMap[cluster as keyof typeof compressionEndpointMap];
+      if (newCompressionEndpoint) {
+        setCompressionEndpoint(newCompressionEndpoint);
+      }
     }
-  }, [cluster, endpointMap, clusterCustomRpcUrl]);
+  }, [cluster, endpointMap, clusterCustomRpcUrl, compressionEndpointMap]);
 
   const providerValue = useMemo(
     () => ({
@@ -79,6 +101,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
       clusterCustomRpcUrl,
       setClusterCustomRpcUrl,
       endpoint,
+      compressionEndpoint,
     }),
     [
       cluster,
@@ -86,6 +109,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
       clusterCustomRpcUrl,
       setClusterCustomRpcUrl,
       endpoint,
+      compressionEndpoint,
     ],
   );
 

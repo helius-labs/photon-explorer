@@ -2,7 +2,7 @@
 
 import NextLink, { LinkProps } from "next/link";
 import React from "react";
-import { useCluster } from "../cluster-provider";
+import { useCluster } from "@/components/providers/cluster-provider";
 import { getBaseUrl } from "@/lib/utils";
 
 const Link = React.forwardRef<

@@ -1,5 +1,3 @@
-"use client";
-
 import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,19 +14,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Address from "@/components/address";
 import Signature from "@/components/signature";
-import { useGetBlock, useGetSlot } from "@/lib/web3";
-import { timeAgoWithFormat } from "@/lib/utils";
+import { useGetCompressionSignaturesForOwner } from "@/lib/web3";
 import { Button } from "@/components/ui/button";
+import { timeAgoWithFormat } from "@/lib/utils";
 
-export default function RecentTransactions() {
-  // Get latest slot from cluster
-  const { slot, refetch } = useGetSlot();
-
-  // Get block for slot to get the transactions
-  // The query will not execute until the slot exists
-  const { block, isLoading, isPending, isError } = useGetBlock(slot, !!slot);
+export default function CompressedTransactionsByAddress({
+  address,
+}: {
+  address: string;
+}) {
+  const { compressedSignatures, isLoading, isError, refetch } =
+    useGetCompressionSignaturesForOwner(address);
 
   // TODO: Refactor jsx
   if (isError)
@@ -36,7 +33,7 @@ export default function RecentTransactions() {
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <RotateCw className="mr-1 h-4 w-4" />
@@ -48,12 +45,12 @@ export default function RecentTransactions() {
         </CardContent>
       </Card>
     );
-  if (isLoading || isPending)
+  if (isLoading)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
@@ -65,12 +62,12 @@ export default function RecentTransactions() {
         </CardContent>
       </Card>
     );
-  if (!block || !block.transactions.length)
+  if (!compressedSignatures || !compressedSignatures.value.items.length)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <RotateCw className="mr-1 h-4 w-4" />
@@ -90,7 +87,7 @@ export default function RecentTransactions() {
     <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>Compressed Transaction History</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
           <RotateCw className="mr-1 h-4 w-4" />
@@ -145,56 +142,17 @@ export default function RecentTransactions() {
                   <span className="mr-1">Signature</span>
                 </div>
               </TableHead>
-              <TableHead>
-                <div className="flex items-center">
-                  <Popover>
-                    <PopoverTrigger>
-                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                      <span className="sr-only">
-                        What does this column mean?
-                      </span>
-                    </PopoverTrigger>
-                    <PopoverContent className="max-w-80">
-                      <p>
-                        Transactions include one or more digital signatures each
-                        corresponding to an account address referenced by the
-                        transaction. Each of these addresses must be the public
-                        key of an ed25519 keypair, and the signature signifies
-                        that the holder of the matching private key signed, and
-                        thus, &quot;authorized&quot; the transaction. In this
-                        case, the account is referred to as a signer.
-                      </p>
-                    </PopoverContent>
-                  </Popover>
-                  <span>Signer</span>
-                </div>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Fee</TableHead>
               <TableHead>Timestamp</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {block.transactions.slice(0, 50).map((data: any) => (
-              <TableRow key={data.transaction.signatures[0]}>
-                <TableCell>{block.blockHeight}</TableCell>
+            {compressedSignatures.value.items.slice(0, 50).map((data: any) => (
+              <TableRow key={data.signature}>
+                <TableCell>{data.slot}</TableCell>
                 <TableCell>
-                  <Signature>{data.transaction.signatures[0]}</Signature>
+                  <Signature short={false}>{data.signature}</Signature>
                 </TableCell>
-                <TableCell>
-                  <Address>
-                    {data.transaction.message.accountKeys[0].pubkey}
-                  </Address>
-                </TableCell>
-                <TableCell>
-                  <Badge className="text-xs" variant="outline">
-                    {data.meta?.err === null ? "Success" : "Failed"}
-                  </Badge>
-                </TableCell>
-                <TableCell>{data.meta?.fee / 1e9} SOL</TableCell>
-                <TableCell>
-                  {timeAgoWithFormat(block.blockTime, true)}
-                </TableCell>
+                <TableCell>{timeAgoWithFormat(data.blockTime, true)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

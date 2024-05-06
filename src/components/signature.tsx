@@ -11,15 +11,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface TransactionHashProps {
+interface SignatureProps {
   children: string;
   short?: boolean;
 }
 
-export default function TransactionHash({
-  children,
-  short = true,
-}: TransactionHashProps) {
+export default function Signature({ children, short = true }: SignatureProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {

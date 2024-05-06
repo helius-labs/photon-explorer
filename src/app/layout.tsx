@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Inter as Fontface } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ClusterProvider } from "@/components/cluster-provider";
-import { ReactQueryClientProvider } from "@/components/query-client-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { ClusterProvider } from "@/components/providers/cluster-provider";
+import { ReactQueryClientProvider } from "@/components/providers/query-client-provider";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";

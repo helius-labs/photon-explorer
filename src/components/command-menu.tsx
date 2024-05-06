@@ -3,11 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { DialogProps } from "@radix-ui/react-dialog";
-import {
-  cn,
-  isSolanaAccountAddress,
-  isSolanaTransactionHash,
-} from "@/lib/utils";
+import { cn, isSolanaAccountAddress, isSolanaSignature } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
@@ -18,7 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { CommandLoading } from "cmdk";
-import { useCluster } from "./cluster-provider";
+import { useCluster } from "@/components/providers/cluster-provider";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
@@ -62,7 +58,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       setAddress(null);
 
       //Check if is transaction id
-      if (isSolanaTransactionHash(search)) {
+      if (isSolanaSignature(search)) {
         setTransaction(search);
       }
 

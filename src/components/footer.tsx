@@ -11,6 +11,15 @@ export function Footer() {
             className="font-medium underline underline-offset-4"
           >
             Helius
+          </a>{" "}
+          &{" "}
+          <a
+            href="https://lightprotocol.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium underline underline-offset-4"
+          >
+            Light
           </a>
           .
         </p>

@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Address from "@/components/address";
-import TransactionHash from "@/components/transaction-hash";
+import Signature from "@/components/signature";
 import { CircleHelp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -39,16 +39,14 @@ export default function TransactionOverview({
                   </p>
                 </PopoverContent>
               </Popover>
-              <span className="mr-1 text-muted-foreground">
-                Transaction Hash
-              </span>
+              <span className="mr-1 text-muted-foreground">Signature</span>
             </div>
           </div>
           <div className="col-span-3">
             {transaction?.transaction.signatures[0] && (
-              <TransactionHash short={false}>
+              <Signature short={false}>
                 {transaction?.transaction.signatures[0]}
-              </TransactionHash>
+              </Signature>
             )}
           </div>
 

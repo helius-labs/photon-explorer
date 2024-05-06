@@ -9,7 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
-import { useCluster } from "@/components/cluster-provider";
+import { useCluster } from "@/components/providers/cluster-provider";
 import Link from "@/components/ui/link";
 
 export default function ClusterSwitcher() {

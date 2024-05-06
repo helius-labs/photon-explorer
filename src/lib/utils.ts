@@ -13,7 +13,7 @@ export function getBaseUrl() {
       : `http://localhost:3000`;
 }
 
-export function isSolanaTransactionHash(txHash: string): boolean {
+export function isSolanaSignature(txHash: string): boolean {
   // Define the allowed Base58 characters for a Solana transaction hash
   const base58Chars: string =
     "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";

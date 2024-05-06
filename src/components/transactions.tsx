@@ -14,8 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Address from "@/components/address";
-import TransactionHash from "@/components/transaction-hash";
+import Signature from "@/components/signature";
 import { useGetSignaturesForAddress } from "@/lib/web3";
 import { Button } from "@/components/ui/button";
 import { timeAgoWithFormat } from "@/lib/utils";
@@ -38,7 +37,7 @@ export default function Transactions({ address }: { address: string }) {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>failed to load</div>
+          <div>Failed to load</div>
         </CardContent>
       </Card>
     );
@@ -55,7 +54,7 @@ export default function Transactions({ address }: { address: string }) {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>loading...</div>
+          <div>Loading...</div>
         </CardContent>
       </Card>
     );
@@ -72,7 +71,7 @@ export default function Transactions({ address }: { address: string }) {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>no transactions found</div>
+          <div>No transactions found</div>
         </CardContent>
       </Card>
     );
@@ -136,7 +135,7 @@ export default function Transactions({ address }: { address: string }) {
                       </p>
                     </PopoverContent>
                   </Popover>
-                  <span className="mr-1">Transaction Hash</span>
+                  <span className="mr-1">Signature</span>
                 </div>
               </TableHead>
               <TableHead>Status</TableHead>
@@ -148,9 +147,7 @@ export default function Transactions({ address }: { address: string }) {
               <TableRow key={data.signature}>
                 <TableCell>{data.slot}</TableCell>
                 <TableCell>
-                  <TransactionHash short={false}>
-                    {data.signature}
-                  </TransactionHash>
+                  <Signature short={false}>{data.signature}</Signature>
                 </TableCell>
                 <TableCell>
                   <Badge className="text-xs" variant="outline">
