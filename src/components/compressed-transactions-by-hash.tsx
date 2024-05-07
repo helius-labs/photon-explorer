@@ -1,3 +1,5 @@
+"use client";
+
 import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

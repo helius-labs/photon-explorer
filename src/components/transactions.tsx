@@ -1,3 +1,5 @@
+"use client";
+
 import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -143,7 +145,7 @@ export default function Transactions({ address }: { address: string }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {signatures.slice(0, 50).map((data: any) => (
+            {signatures.slice(0, 25).map((data: any) => (
               <TableRow key={data.signature}>
                 <TableCell>{data.slot}</TableCell>
                 <TableCell>

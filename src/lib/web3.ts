@@ -197,7 +197,7 @@ export function useGetSignaturesForAddress(
           params: [
             address,
             {
-              limit: 50,
+              limit: 25,
             },
           ],
         }),

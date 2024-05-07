@@ -1,5 +1,6 @@
-import Link from "@/components/ui/link";
+"use client";
 
+import Link from "@/components/ui/link";
 import { cn } from "@/lib/utils";
 
 export function SecondaryNav({
