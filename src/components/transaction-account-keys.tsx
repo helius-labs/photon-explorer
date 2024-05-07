@@ -46,7 +46,7 @@ export default function TransactionAccountKeys({
                   </TableCell>
                   <TableCell>{item.signer ? "Yes" : "No"}</TableCell>
                   <TableCell>{item.writer ? "Yes" : "No"}</TableCell>
-                  <TableCell>{item.source}</TableCell>
+                  <TableCell className="capitalize">{item.source}</TableCell>
                 </TableRow>
               ),
             )}

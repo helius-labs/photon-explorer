@@ -53,7 +53,10 @@ export default function AccountDetails({ address }: { address: string }) {
           <Button
             size="sm"
             className="ml-4"
-            onClick={() => accountInfo.refetch()}
+            onClick={() => {
+              accountInfo.refetch();
+              compressedAccount.refetch();
+            }}
           >
             <RotateCw className="mr-1 h-4 w-4" />
             Reload

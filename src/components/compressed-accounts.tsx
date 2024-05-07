@@ -88,6 +88,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
           <TableHeader>
             <TableRow>
               <TableHead>Hash</TableHead>
+              <TableHead>Address</TableHead>
               <TableHead>Owner</TableHead>
               <TableHead>Balance</TableHead>
             </TableRow>
@@ -98,10 +99,13 @@ export default function CompressedAccounts({ address }: { address: string }) {
               .map((data: any, index: number) => (
                 <TableRow key={`compressed-account-${index}`}>
                   <TableCell>
-                    <Address short={false}>{data.hash}</Address>
+                    <Address>{data.hash}</Address>
                   </TableCell>
                   <TableCell>
-                    <Address short={false}>{data.owner}</Address>
+                    {data.address ? <Address>{data.address}</Address> : <>-</>}
+                  </TableCell>
+                  <TableCell>
+                    <Address>{data.owner}</Address>
                   </TableCell>
                   <TableCell>{data.lamports / 1e9} SOL</TableCell>
                 </TableRow>

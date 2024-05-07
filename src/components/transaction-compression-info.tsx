@@ -17,22 +17,19 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
     useGetTransactionWithCompressionInfo(tx);
 
   if (!isError && !isLoading && transactionWithCompressionInfo) {
-    console.log(transactionWithCompressionInfo);
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Compression accounts</CardTitle>
+          <CardTitle>Compression Accounts</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Status</TableHead>
-                <TableHead>Account Hash</TableHead>
-                <TableHead>Account Owner</TableHead>
-                <TableHead>Token Mint</TableHead>
-                <TableHead>Token Owner</TableHead>
-                <TableHead>Token Amount</TableHead>
+                <TableHead>Hash</TableHead>
+                <TableHead>Owner</TableHead>
+                <TableHead>Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -47,13 +44,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                       <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      <Address>{item.optional_token_data.mint}</Address>
-                    </TableCell>
-                    <TableCell>
-                      <Address>{item.optional_token_data.owner}</Address>
-                    </TableCell>
-                    <TableCell>
-                      {(item.optional_token_data.amount / 1e9).toFixed(7)} SOL
+                      {(item.account.lamports / 1e9).toFixed(7)} SOL
                     </TableCell>
                   </TableRow>
                 ),
@@ -69,13 +60,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                       <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      <Address>{item.optional_token_data.mint}</Address>
-                    </TableCell>
-                    <TableCell>
-                      <Address>{item.optional_token_data.owner}</Address>
-                    </TableCell>
-                    <TableCell>
-                      {(item.optional_token_data.amount / 1e9).toFixed(7)} SOL
+                      {(item.account.lamports / 1e9).toFixed(7)} SOL
                     </TableCell>
                   </TableRow>
                 ),

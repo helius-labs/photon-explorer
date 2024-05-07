@@ -3,7 +3,12 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { DialogProps } from "@radix-ui/react-dialog";
-import { cn, isSolanaAccountAddress, isSolanaSignature } from "@/lib/utils";
+import {
+  cn,
+  isSolanaAccountAddress,
+  isSolanaProgramAddress,
+  isSolanaSignature,
+} from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
@@ -20,6 +25,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [program, setProgram] = React.useState<string | null>(null);
   const [transaction, setTransaction] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
   const { cluster } = useCluster();
@@ -54,17 +60,23 @@ export function CommandMenu({ ...props }: DialogProps) {
     async function check() {
       setLoading(true);
 
-      setTransaction(null);
+      setProgram(null);
       setAddress(null);
+      setTransaction(null);
 
-      //Check if is transaction id
-      if (isSolanaSignature(search)) {
-        setTransaction(search);
+      // Check if is program address
+      if (isSolanaProgramAddress(search)) {
+        setProgram(search);
       }
 
-      // Check if address
-      if (isSolanaAccountAddress(search)) {
+      // Check if address and not program address
+      if (isSolanaAccountAddress(search) && !isSolanaProgramAddress(search)) {
         setAddress(search);
+      }
+
+      // Check if is transaction id
+      if (isSolanaSignature(search)) {
+        setTransaction(search);
       }
 
       setLoading(false);
@@ -99,6 +111,21 @@ export function CommandMenu({ ...props }: DialogProps) {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           {loading && <CommandLoading>Fetching..</CommandLoading>}
+          {program && (
+            <CommandGroup heading="Program">
+              <CommandItem
+                key={`account-${program}`}
+                value={program}
+                onSelect={() => {
+                  runCommand(() =>
+                    router.push(`/address/${program}/?cluster=${cluster}`),
+                  );
+                }}
+              >
+                <span className="truncate">{program}</span>
+              </CommandItem>
+            </CommandGroup>
+          )}
           {address && (
             <CommandGroup heading="Account">
               <CommandItem

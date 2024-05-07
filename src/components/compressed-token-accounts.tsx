@@ -92,6 +92,7 @@ export default function CompressedTokenAccounts({
           <TableHeader>
             <TableRow>
               <TableHead>Account Hash</TableHead>
+              <TableHead>Account Address</TableHead>
               <TableHead>Account Owner</TableHead>
               <TableHead>Token Mint</TableHead>
               <TableHead>Token Owner</TableHead>
@@ -105,6 +106,13 @@ export default function CompressedTokenAccounts({
                 <TableRow key={`compressed-token-account-${index}`}>
                   <TableCell>
                     <Address>{data.account.hash}</Address>
+                  </TableCell>
+                  <TableCell>
+                    {data.account.address ? (
+                      <Address>{data.account.address}</Address>
+                    ) : (
+                      <>-</>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Address>{data.account.owner}</Address>

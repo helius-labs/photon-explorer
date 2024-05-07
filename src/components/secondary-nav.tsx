@@ -12,10 +12,11 @@ export function SecondaryNav({
       {...props}
     >
       <Link
-        href="/about"
+        href="https://www.zkcompression.com/"
+        target="_blank"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        About
+        Docs
       </Link>
     </nav>
   );

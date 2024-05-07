@@ -4,6 +4,7 @@ import Address from "@/components/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useGetBalance, useGetCompressedBalanceByOwner } from "@/lib/web3";
+import Data from "@/components/data";
 
 export default function AccountOverview({
   address,
@@ -61,12 +62,34 @@ export default function AccountOverview({
 
           {account.value.data.parsed && (
             <>
+              <Separator className="col-span-4 my-4" />
+
               <div className="col-span-1">
                 <span className="text-muted-foreground">Type</span>
               </div>
-              <div className="col-span-3">Token Account</div>
+              <div className="col-span-3 capitalize">
+                {account.value.data.parsed.type}
+              </div>
 
-              <Separator className="col-span-4 my-4" />
+              {account.value.data.program && (
+                <>
+                  <div className="col-span-1">
+                    <span className="text-muted-foreground">Program</span>
+                  </div>
+                  <div className="col-span-3">{account.value.data.program}</div>
+                </>
+              )}
+
+              {account.value.data.parsed.info.programData && (
+                <>
+                  <div className="col-span-1">
+                    <span className="text-muted-foreground">Program Data</span>
+                  </div>
+                  <div className="col-span-3">
+                    <Data>{account.value.data.parsed.info.programData}</Data>
+                  </div>
+                </>
+              )}
 
               {account.value.data.parsed.info.mint && (
                 <>
