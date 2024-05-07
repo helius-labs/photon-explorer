@@ -26,7 +26,6 @@ export function useGetSlot(enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -67,7 +66,6 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -104,7 +102,6 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -137,7 +134,6 @@ export function useGetAccountInfo(address: string, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -170,7 +166,6 @@ export function useGetBalance(address: string, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -211,7 +206,6 @@ export function useGetSignaturesForAddress(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -256,7 +250,6 @@ export function useGetTokenAccountsByOwner(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -298,7 +291,6 @@ export function useGetCompressionSignaturesForOwner(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -336,7 +328,6 @@ export function useGetCompressionSignaturesForAccount(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -374,7 +365,6 @@ export function useGetCompressedBalanceByOwner(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -412,7 +402,6 @@ export function useGetCompressedAccountsByOwner(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -454,7 +443,6 @@ export function useGetCompressedTokenAccountsByOwner(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -489,7 +477,6 @@ export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -524,7 +511,6 @@ export function useGetCompressedBalance(hash: string, enabled: boolean = true) {
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
@@ -566,7 +552,6 @@ export function useGetTransactionWithCompressionInfo(
         .then((res) => res.result);
     },
     enabled,
-    refetchOnWindowFocus: false,
   });
 
   return {
