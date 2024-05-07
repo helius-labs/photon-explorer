@@ -35,6 +35,7 @@ export const useCluster = () => useContext(ClusterContext) ?? defaultContext;
 
 const clusters: Cluster[] = [
   { value: "mainnet-beta", label: "Mainnet Beta", disabled: true },
+  { value: "testnet", label: "Testnet", disabled: true },
   { value: "devnet", label: "Devnet", disabled: true },
   { value: "localnet", label: "Localnet", disabled: false },
   { value: "custom", label: "Custom RPC URL", disabled: true },
@@ -53,6 +54,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     () => ({
       custom: process.env.NEXT_PUBLIC_LOCALNET!,
       localnet: process.env.NEXT_PUBLIC_LOCALNET!,
+      testnet: process.env.NEXT_PUBLIC_TESTNET!,
       devnet: process.env.NEXT_PUBLIC_DEVNET!,
       "mainnet-beta": process.env.NEXT_PUBLIC_MAINNET!,
     }),
@@ -63,6 +65,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     () => ({
       custom: process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
       localnet: process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
+      testnet: process.env.NEXT_PUBLIC_COMPRESSION_TESTNET!,
       devnet: process.env.NEXT_PUBLIC_COMPRESSION_DEVNET!,
       "mainnet-beta": process.env.NEXT_PUBLIC_COMPRESSION_MAINNET!,
     }),
