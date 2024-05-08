@@ -24,14 +24,14 @@ import { Button } from "@/components/ui/button";
 
 export default function RecentTransactions() {
   // Get latest slot from cluster
-  const { slot, refetch } = useGetSlot();
+  const { slot, isError: slotError, refetch } = useGetSlot();
 
   // Get block for slot to get the transactions
   // The query will not execute until the slot exists
   const { block, isLoading, isPending, isError } = useGetBlock(slot, !!slot);
 
   // TODO: Refactor jsx
-  if (isError)
+  if (isError || slotError)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
@@ -44,7 +44,7 @@ export default function RecentTransactions() {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>Failed to load</div>
+          <div>There was a problem loading the recent transactions.</div>
         </CardContent>
       </Card>
     );
