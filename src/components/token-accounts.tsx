@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/table";
 import { useGetTokenAccountsByOwner } from "@/lib/web3";
 import { Button } from "@/components/ui/button";
-import Address from "./address";
+import Address from "@/components/address";
+import Loading from "@/components/loading";
 
 export default function TokenAccounts({ address }: { address: string }) {
   const { accounts, isLoading, isError, refetch } =
@@ -49,7 +50,7 @@ export default function TokenAccounts({ address }: { address: string }) {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );

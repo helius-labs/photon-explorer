@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/table";
 import { useGetCompressedTokenAccountsByOwner } from "@/lib/web3";
 import { Button } from "@/components/ui/button";
-import Address from "./address";
+import Address from "@/components/address";
+import Loading from "@/components/loading";
 
 export default function CompressedTokenAccounts({
   address,
@@ -53,7 +54,7 @@ export default function CompressedTokenAccounts({
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );

@@ -20,6 +20,7 @@ import Signature from "@/components/signature";
 import { useGetCompressionSignaturesForOwner } from "@/lib/web3";
 import { Button } from "@/components/ui/button";
 import { timeAgoWithFormat } from "@/lib/utils";
+import Loading from "@/components/loading";
 
 export default function CompressedTransactionsByAddress({
   address,
@@ -60,7 +61,7 @@ export default function CompressedTransactionsByAddress({
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );

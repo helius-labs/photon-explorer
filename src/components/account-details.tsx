@@ -13,6 +13,7 @@ import CompressedAccounts from "@/components/compressed-accounts";
 import CompressedTokenAccounts from "@/components/compressed-token-accounts";
 import { RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Loading from "@/components/loading";
 
 export default function AccountDetails({ address }: { address: string }) {
   const accountInfo = useGetAccountInfo(address);
@@ -41,7 +42,7 @@ export default function AccountDetails({ address }: { address: string }) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );

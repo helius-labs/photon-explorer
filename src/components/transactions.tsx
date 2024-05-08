@@ -20,6 +20,7 @@ import Signature from "@/components/signature";
 import { useGetSignaturesForAddress } from "@/lib/web3";
 import { Button } from "@/components/ui/button";
 import { timeAgoWithFormat } from "@/lib/utils";
+import Loading from "@/components/loading";
 
 export default function Transactions({ address }: { address: string }) {
   const { signatures, isLoading, isError, refetch } =
@@ -56,7 +57,7 @@ export default function Transactions({ address }: { address: string }) {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );

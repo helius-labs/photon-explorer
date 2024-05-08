@@ -7,6 +7,7 @@ import TransactionAccountKeys from "@/components/transaction-account-keys";
 import TransactionInstructions from "@/components/transaction-instructions";
 import TransactionInstructionLogs from "@/components/transaction-instruction-logs";
 import TransactionCompressionInfo from "@/components/transaction-compression-info";
+import Loading from "@/components/loading";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   const { transaction, isLoading, isError } = useGetTransaction(tx);
@@ -23,7 +24,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );

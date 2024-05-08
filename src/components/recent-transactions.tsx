@@ -21,6 +21,7 @@ import Signature from "@/components/signature";
 import { useGetBlock, useGetSlot } from "@/lib/web3";
 import { timeAgoWithFormat } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Loading from "@/components/loading";
 
 export default function RecentTransactions() {
   // Get latest slot from cluster
@@ -33,7 +34,7 @@ export default function RecentTransactions() {
   // TODO: Refactor jsx
   if (isError || slotError)
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 min-h-[200px]">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Recent Transactions</CardTitle>
@@ -50,7 +51,7 @@ export default function RecentTransactions() {
     );
   if (isLoading || isPending)
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 min-h-[200px]">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Recent Transactions</CardTitle>
@@ -61,13 +62,13 @@ export default function RecentTransactions() {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>Loading...</div>
+          <Loading />
         </CardContent>
       </Card>
     );
   if (!block || !block.transactions.length)
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 min-h-[200px]">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Recent Transactions</CardTitle>
@@ -87,7 +88,7 @@ export default function RecentTransactions() {
   // Capped transactions at 50 for performance reasons for now
 
   return (
-    <Card className="col-span-12">
+    <Card className="col-span-12 min-h-[200px]">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle>Recent Transactions</CardTitle>

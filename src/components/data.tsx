@@ -10,12 +10,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface AddressProps {
+interface DataProps {
   children: string;
-  short?: boolean;
 }
 
-export default function Data({ children, short = true }: AddressProps) {
+export default function Data({ children }: DataProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
   React.useEffect(() => {
