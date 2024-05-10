@@ -35,7 +35,7 @@ export const useCluster = () => useContext(ClusterContext) ?? defaultContext;
 
 const clusters: Cluster[] = [
   { value: "mainnet-beta", label: "Mainnet Beta", disabled: true },
-  { value: "testnet", label: "Testnet", disabled: true },
+  { value: "testnet", label: "Testnet", disabled: false },
   { value: "devnet", label: "Devnet", disabled: true },
   { value: "localnet", label: "Localnet", disabled: false },
   { value: "custom", label: "Custom RPC URL", disabled: true },
