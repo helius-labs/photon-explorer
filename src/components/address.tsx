@@ -47,7 +47,7 @@ export default function Address({ children, short = true }: AddressProps) {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link href={`/address/${children}/`} className="hover:underline">
+            <Link href={`/address/${children}`} className="hover:underline">
               {short ? (
                 <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
               ) : (

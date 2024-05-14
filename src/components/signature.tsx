@@ -47,7 +47,7 @@ export default function Signature({ children, short = true }: SignatureProps) {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link href={`/tx/${children}/`} className="hover:underline">
+            <Link href={`/tx/${children}`} className="hover:underline">
               {short ? (
                 <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
               ) : (

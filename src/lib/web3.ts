@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useCluster } from "@/components/providers/cluster-provider";
+import { Transaction } from "@/types/Transaction";
 
 // TODO Add typed responses when web3.js lib is updated
 
@@ -101,7 +102,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
         }),
       })
         .then((res) => res.json())
-        .then((res) => res.result);
+        .then((res) => res.result as Transaction[]);
     },
     enabled,
   });
@@ -202,13 +203,13 @@ export function useGetSignaturesForAddress(
           params: [
             address,
             {
-              limit: 25,
+              limit: 1000,
             },
           ],
         }),
       })
         .then((res) => res.json())
-        .then((res) => res.result);
+        .then((res) => res.result as Transaction[]);
     },
     enabled,
   });

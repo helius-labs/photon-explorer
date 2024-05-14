@@ -1,28 +1,67 @@
 "use client";
 
-import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import Signature from "@/components/signature";
-import { useGetSignaturesForAddress } from "@/lib/web3";
-import { Button } from "@/components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import { LoaderCircle, RotateCw } from "lucide-react";
+import { useMemo } from "react";
+
 import { timeAgoWithFormat } from "@/lib/utils";
+import { useGetSignaturesForAddress } from "@/lib/web3";
+
+import { Transaction } from "@/types/Transaction";
+
+import { DataTable } from "@/components/data-table";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import Loading from "@/components/loading";
+import Signature from "@/components/signature";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Transactions({ address }: { address: string }) {
+  const columns = useMemo<ColumnDef<Transaction>[]>(
+    () => [
+      {
+        accessorKey: "slot",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Slot" />
+        ),
+        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "signature",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Signature" />
+        ),
+        cell: ({ row }) => (
+          <Signature short={false}>{row.getValue("signature")}</Signature>
+        ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "err",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => (
+          <Badge className="text-xs" variant="outline">
+            {row.getValue("err") === null ? "Success" : "Failed"}
+          </Badge>
+        ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "blockTime",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
+        enableSorting: true,
+      },
+    ],
+    [],
+  );
+
   const { signatures, isLoading, isFetching, isError, refetch } =
     useGetSignaturesForAddress(address);
 
@@ -97,9 +136,6 @@ export default function Transactions({ address }: { address: string }) {
       </Card>
     );
 
-  // TODO: Use DataTable instead of Table for better pagination, sorting, and filtering
-  // Capped transactions at 50 for performance reasons for now
-
   return (
     <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
@@ -121,74 +157,7 @@ export default function Transactions({ address }: { address: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <div className="flex items-center">
-                  <Popover>
-                    <PopoverTrigger>
-                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                      <span className="sr-only">
-                        What does this column mean?
-                      </span>
-                    </PopoverTrigger>
-                    <PopoverContent className="max-w-80">
-                      <p className="mb-2">
-                        The period of time for which each leader ingests
-                        transactions and produces a block.
-                      </p>
-                      <p>
-                        Collectively, slots create a logical clock. Slots are
-                        ordered sequentially and non-overlapping, comprising
-                        roughly equal real-world time as per PoH.
-                      </p>
-                    </PopoverContent>
-                  </Popover>
-                  <span>Slot</span>
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center">
-                  <Popover>
-                    <PopoverTrigger>
-                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                      <span className="sr-only">
-                        What does this column mean?
-                      </span>
-                    </PopoverTrigger>
-                    <PopoverContent className="max-w-80">
-                      <p>
-                        The first signature in a transaction, which can be used
-                        to uniquely identify the transaction across the complete
-                        ledger.
-                      </p>
-                    </PopoverContent>
-                  </Popover>
-                  <span className="mr-1">Signature</span>
-                </div>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Timestamp</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {signatures.slice(0, 25).map((data: any) => (
-              <TableRow key={data.signature}>
-                <TableCell>{data.slot}</TableCell>
-                <TableCell>
-                  <Signature short={false}>{data.signature}</Signature>
-                </TableCell>
-                <TableCell>
-                  <Badge className="text-xs" variant="outline">
-                    {data.err === null ? "Success" : "Failed"}
-                  </Badge>
-                </TableCell>
-                <TableCell>{timeAgoWithFormat(data.blockTime, true)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable data={signatures} columns={columns} />
       </CardContent>
     </Card>
   );
