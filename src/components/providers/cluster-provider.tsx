@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, useEffect } from "react";
 import { useQueryState } from "nuqs";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export interface Cluster {
   value: string;
@@ -41,13 +41,15 @@ const clusters: Cluster[] = [
   { value: "custom", label: "Custom RPC URL", disabled: true },
 ];
 
+const defaultCluster = "testnet";
+
 export function ClusterProvider({ children }: { children: React.ReactNode }) {
   // TODO: Store this in local storage and persist across page refreshes
   const [clusterCustomRpcUrl, setClusterCustomRpcUrl] = useState(
     process.env.NEXT_PUBLIC_LOCALNET!,
   );
   const [cluster, setCluster] = useQueryState("cluster", {
-    defaultValue: "localnet",
+    defaultValue: defaultCluster,
   });
 
   const endpointMap = useMemo(
@@ -72,12 +74,12 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  // Set default endpoint to mainnet-beta
-  const [endpoint, setEndpoint] = useState(endpointMap["localnet"]);
+  // Set default endpoint to testnet
+  const [endpoint, setEndpoint] = useState(endpointMap[defaultCluster]);
 
-  // Set compression endpoint to mainnet-beta
+  // Set compression endpoint to testnet
   const [compressionEndpoint, setCompressionEndpoint] = useState(
-    compressionEndpointMap["localnet"],
+    compressionEndpointMap[defaultCluster],
   );
 
   // Set endpoint based on cluster
