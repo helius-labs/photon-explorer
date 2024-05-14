@@ -23,7 +23,7 @@ import { timeAgoWithFormat } from "@/lib/utils";
 import Loading from "@/components/loading";
 
 export default function Transactions({ address }: { address: string }) {
-  const { signatures, isLoading, isError, refetch } =
+  const { signatures, isLoading, isFetching, isError, refetch } =
     useGetSignaturesForAddress(address);
 
   // TODO: Refactor jsx
@@ -35,8 +35,17 @@ export default function Transactions({ address }: { address: string }) {
             <CardTitle>Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -69,8 +78,17 @@ export default function Transactions({ address }: { address: string }) {
             <CardTitle>Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -89,8 +107,17 @@ export default function Transactions({ address }: { address: string }) {
           <CardTitle>Transaction History</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          <RotateCw className="mr-1 h-4 w-4" />
-          Refresh
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+              Loading
+            </>
+          ) : (
+            <>
+              <RotateCw className="mr-1 h-4 w-4" />
+              Refresh
+            </>
+          )}
         </Button>
       </CardHeader>
       <CardContent>

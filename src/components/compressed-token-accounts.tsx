@@ -20,7 +20,7 @@ export default function CompressedTokenAccounts({
 }: {
   address: string;
 }) {
-  const { accounts, isLoading, isError, refetch } =
+  const { accounts, isLoading, isFetching, isError, refetch } =
     useGetCompressedTokenAccountsByOwner(address);
 
   // TODO: Refactor jsx
@@ -32,8 +32,17 @@ export default function CompressedTokenAccounts({
             <CardTitle>Compressed Accounts</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -66,8 +75,17 @@ export default function CompressedTokenAccounts({
             <CardTitle>Compressed Accounts</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -86,8 +104,17 @@ export default function CompressedTokenAccounts({
           <CardTitle>Compressed Token Accounts</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          <RotateCw className="mr-1 h-4 w-4" />
-          Refresh
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+              Loading
+            </>
+          ) : (
+            <>
+              <RotateCw className="mr-1 h-4 w-4" />
+              Refresh
+            </>
+          )}
         </Button>
       </CardHeader>
       <CardContent>

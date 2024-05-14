@@ -29,7 +29,10 @@ export default function RecentTransactions() {
 
   // Get block for slot to get the transactions
   // The query will not execute until the slot exists
-  const { block, isLoading, isPending, isError } = useGetBlock(slot, !!slot);
+  const { block, isLoading, isFetching, isPending, isError } = useGetBlock(
+    slot,
+    !!slot,
+  );
 
   // TODO: Refactor jsx
   if (isError || slotError)
@@ -40,8 +43,17 @@ export default function RecentTransactions() {
             <CardTitle>Recent Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -74,8 +86,17 @@ export default function RecentTransactions() {
             <CardTitle>Recent Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -94,8 +115,17 @@ export default function RecentTransactions() {
           <CardTitle>Recent Transactions</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          <RotateCw className="mr-1 h-4 w-4" />
-          Refresh
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+              Loading
+            </>
+          ) : (
+            <>
+              <RotateCw className="mr-1 h-4 w-4" />
+              Refresh
+            </>
+          )}
         </Button>
       </CardHeader>
       <CardContent>

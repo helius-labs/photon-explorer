@@ -8,7 +8,7 @@ import { useCluster } from "@/components/providers/cluster-provider";
 export function useGetSlot(enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getSlot"],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -31,6 +31,7 @@ export function useGetSlot(enabled: boolean = true) {
   return {
     slot: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -39,7 +40,7 @@ export function useGetSlot(enabled: boolean = true) {
 export function useGetBlock(slot: number, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isPending, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, isPending, refetch } = useQuery({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -72,6 +73,7 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
     block: data,
     isPending,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -80,7 +82,7 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
 export function useGetTransaction(signature: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getTransaction", signature],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -107,6 +109,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
   return {
     transaction: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -115,7 +118,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
 export function useGetAccountInfo(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getAccountInfo", address],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -139,6 +142,7 @@ export function useGetAccountInfo(address: string, enabled: boolean = true) {
   return {
     account: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -147,7 +151,7 @@ export function useGetAccountInfo(address: string, enabled: boolean = true) {
 export function useGetBalance(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getBalance", address],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -171,6 +175,7 @@ export function useGetBalance(address: string, enabled: boolean = true) {
   return {
     balance: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -182,7 +187,7 @@ export function useGetSignaturesForAddress(
 ) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getSignaturesForAddress", address],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -211,6 +216,7 @@ export function useGetSignaturesForAddress(
   return {
     signatures: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -222,7 +228,7 @@ export function useGetTokenAccountsByOwner(
 ) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getTokenAccountsByOwner", address],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -255,6 +261,7 @@ export function useGetTokenAccountsByOwner(
   return {
     accounts: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -266,7 +273,7 @@ export function useGetCompressionSignaturesForOwner(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [
       compressionEndpoint,
       "getCompressionSignaturesForOwner",
@@ -296,6 +303,7 @@ export function useGetCompressionSignaturesForOwner(
   return {
     compressedSignatures: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -307,7 +315,7 @@ export function useGetCompressionSignaturesForAccount(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressionSignaturesForAccount", hash],
     queryFn: async () => {
       return fetch(compressionEndpoint, {
@@ -333,6 +341,7 @@ export function useGetCompressionSignaturesForAccount(
   return {
     compressedSignatures: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -344,7 +353,7 @@ export function useGetCompressedBalanceByOwner(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressedBalanceByOwner", address],
     queryFn: async () => {
       return fetch(compressionEndpoint, {
@@ -370,6 +379,7 @@ export function useGetCompressedBalanceByOwner(
   return {
     compressedBalance: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -381,7 +391,7 @@ export function useGetCompressedAccountsByOwner(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressedAccountsByOwner", address],
     queryFn: async () => {
       return fetch(compressionEndpoint, {
@@ -407,6 +417,7 @@ export function useGetCompressedAccountsByOwner(
   return {
     accounts: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -418,7 +429,7 @@ export function useGetCompressedTokenAccountsByOwner(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [
       compressionEndpoint,
       "getCompressedTokenAccountsByOwner",
@@ -448,6 +459,7 @@ export function useGetCompressedTokenAccountsByOwner(
   return {
     accounts: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -456,7 +468,7 @@ export function useGetCompressedTokenAccountsByOwner(
 export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressedAccount", hash],
     queryFn: async () => {
       return fetch(compressionEndpoint, {
@@ -482,6 +494,7 @@ export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
   return {
     account: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -490,7 +503,7 @@ export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
 export function useGetCompressedBalance(hash: string, enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressedBalance", hash],
     queryFn: async () => {
       return fetch(compressionEndpoint, {
@@ -516,6 +529,7 @@ export function useGetCompressedBalance(hash: string, enabled: boolean = true) {
   return {
     compressedBalance: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };
@@ -527,7 +541,7 @@ export function useGetTransactionWithCompressionInfo(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, refetch } = useQuery({
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [
       compressionEndpoint,
       "getTransactionWithCompressionInfo",
@@ -557,6 +571,7 @@ export function useGetTransactionWithCompressionInfo(
   return {
     transactionWithCompressionInfo: data,
     isLoading,
+    isFetching,
     isError: error,
     refetch,
   };

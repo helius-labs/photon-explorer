@@ -27,7 +27,7 @@ export default function CompressedTransactionsByAddress({
 }: {
   address: string;
 }) {
-  const { compressedSignatures, isLoading, isError, refetch } =
+  const { compressedSignatures, isLoading, isFetching, isError, refetch } =
     useGetCompressionSignaturesForOwner(address);
 
   // TODO: Refactor jsx
@@ -39,8 +39,17 @@ export default function CompressedTransactionsByAddress({
             <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -73,8 +82,17 @@ export default function CompressedTransactionsByAddress({
             <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
+            {isFetching ? (
+              <>
+                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+                Loading
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-1 h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
@@ -93,8 +111,17 @@ export default function CompressedTransactionsByAddress({
           <CardTitle>Compressed Transaction History</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          <RotateCw className="mr-1 h-4 w-4" />
-          Refresh
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+              Loading
+            </>
+          ) : (
+            <>
+              <RotateCw className="mr-1 h-4 w-4" />
+              Refresh
+            </>
+          )}
         </Button>
       </CardHeader>
       <CardContent>
