@@ -110,7 +110,9 @@ export default function CompressedAccounts({ address }: { address: string }) {
                   <TableCell>
                     <Address>{data.owner}</Address>
                   </TableCell>
-                  <TableCell>{data.lamports / 1e9} SOL</TableCell>
+                  <TableCell>
+                    {`${(data.lamports / 1e9).toFixed(7)} SOL`}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

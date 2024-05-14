@@ -55,7 +55,7 @@ export default function Instruction({
                       <TableRow key={`transfer-amount-${index}`}>
                         <TableCell>Transfer Amount</TableCell>
                         <TableCell>
-                          {`${instruction.parsed.info.lamports / 1e9} SOL`}
+                          {`${(instruction.parsed.info.lamports / 1e9).toFixed(7)} SOL`}
                         </TableCell>
                       </TableRow>
                     </>

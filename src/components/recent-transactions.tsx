@@ -192,7 +192,7 @@ export default function RecentTransactions() {
                     {data.meta?.err === null ? "Success" : "Failed"}
                   </Badge>
                 </TableCell>
-                <TableCell>{data.meta?.fee / 1e9} SOL</TableCell>
+                <TableCell>{(data.meta?.fee / 1e9).toFixed(7)} SOL</TableCell>
                 <TableCell>
                   {timeAgoWithFormat(block.blockTime, true)}
                 </TableCell>

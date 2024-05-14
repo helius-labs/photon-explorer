@@ -107,7 +107,7 @@ export default function TransactionOverview({
           </div>
           <div className="col-span-3">
             {transaction?.meta?.fee && (
-              <span>{transaction?.meta?.fee / 1e9} SOL</span>
+              <span>{(transaction?.meta?.fee / 1e9).toFixed(7)} SOL</span>
             )}
           </div>
         </div>

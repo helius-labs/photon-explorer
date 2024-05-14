@@ -126,7 +126,9 @@ export default function CompressedTokenAccounts({
                   <TableCell>
                     <Address>{data.tokenData.owner}</Address>
                   </TableCell>
-                  <TableCell>{data.tokenData.amount / 1e9} SOL</TableCell>
+                  <TableCell>
+                    {(data.tokenData.amount / 1e9).toFixed(9)} SOL
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

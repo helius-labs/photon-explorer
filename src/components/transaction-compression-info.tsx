@@ -44,7 +44,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                       <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      {(item.account.lamports / 1e9).toFixed(7)} SOL
+                      {`${(item.account.lamports / 1e9).toFixed(7)} SOL`}
                     </TableCell>
                   </TableRow>
                 ),
@@ -60,7 +60,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                       <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      {(item.account.lamports / 1e9).toFixed(7)} SOL
+                      {`${(item.account.lamports / 1e9).toFixed(7)} SOL`}
                     </TableCell>
                   </TableRow>
                 ),
