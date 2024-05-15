@@ -53,7 +53,7 @@ export default function Transactions({ address }: { address: string }) {
       {
         accessorKey: "blockTime",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
+          <DataTableColumnHeader column={column} title="Age" />
         ),
         cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
         enableSorting: true,
