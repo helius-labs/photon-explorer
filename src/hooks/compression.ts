@@ -4,6 +4,39 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useCluster } from "@/components/providers/cluster-provider";
 
+export function useGetLatestCompressionSignatures(enabled: boolean = true) {
+  const { compressionEndpoint } = useCluster();
+
+  const { data, error, isLoading, isFetching, refetch } = useQuery({
+    queryKey: [compressionEndpoint, "getLatestCompressionSignatures"],
+    queryFn: async () => {
+      return fetch(compressionEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getLatestCompressionSignatures",
+          params: {},
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => res.result.value.items);
+    },
+    enabled,
+  });
+
+  return {
+    signatures: data,
+    isLoading,
+    isFetching,
+    isError: error,
+    refetch,
+  };
+}
+
 export function useGetLatestNonVotingSignatures(enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
 

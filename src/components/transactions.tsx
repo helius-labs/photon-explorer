@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Transaction } from "@/types/Transaction";
+import { Transaction } from "@/types/transaction";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";

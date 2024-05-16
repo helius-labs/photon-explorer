@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
+import { useGetLatestCompressionSignatures } from "@/hooks/compression";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function LatestNonVotingSignatures() {
+export default function LatestCompressionSignatures() {
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
       {
@@ -63,7 +63,7 @@ export default function LatestNonVotingSignatures() {
   );
 
   const { signatures, isLoading, isFetching, isError, refetch } =
-    useGetLatestNonVotingSignatures();
+    useGetLatestCompressionSignatures();
 
   // TODO: Refactor jsx
   if (isError)
@@ -71,7 +71,7 @@ export default function LatestNonVotingSignatures() {
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
+            <CardTitle>Latest Compression Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -97,7 +97,7 @@ export default function LatestNonVotingSignatures() {
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
+            <CardTitle>Latest Compression Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
@@ -114,7 +114,7 @@ export default function LatestNonVotingSignatures() {
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
+            <CardTitle>Latest Compression Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -140,7 +140,7 @@ export default function LatestNonVotingSignatures() {
     <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Latest Non-Voting Transactions</CardTitle>
+          <CardTitle>Latest Compression Transactions</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
           {isFetching ? (

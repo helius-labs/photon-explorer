@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { Transaction } from "@/types/Transaction";
+import { Transaction } from "@/types/transaction";
 
 import { useCluster } from "@/components/providers/cluster-provider";
 

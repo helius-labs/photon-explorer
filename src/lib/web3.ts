@@ -1,8 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+
+import { Transaction } from "@/types/transaction";
+
 import { useCluster } from "@/components/providers/cluster-provider";
-import { Transaction } from "@/types/Transaction";
 
 // TODO Add typed responses when web3.js lib is updated
 
