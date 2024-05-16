@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetCompressedTokenAccountsByOwner } from "@/hooks/web3";
+import { useGetCompressedTokenAccountsByOwner } from "@/hooks/compression";
 import { LoaderCircle, RotateCw } from "lucide-react";
 
 import Address from "@/components/address";
