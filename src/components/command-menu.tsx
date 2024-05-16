@@ -1,14 +1,18 @@
 "use client";
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
 import { DialogProps } from "@radix-ui/react-dialog";
+import { CommandLoading } from "cmdk";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+
 import {
   cn,
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
 } from "@/lib/utils";
+
+import { useCluster } from "@/components/providers/cluster-provider";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
@@ -18,8 +22,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { CommandLoading } from "cmdk";
-import { useCluster } from "@/components/providers/cluster-provider";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
