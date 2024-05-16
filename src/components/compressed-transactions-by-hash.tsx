@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetCompressionSignaturesForAccount } from "@/hooks/web3";
+import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
