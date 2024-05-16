@@ -1,11 +1,11 @@
 "use client";
 
+import { useGetSignaturesForAddress } from "@/hooks/web3";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
-import { useGetSignaturesForAddress } from "@/lib/web3";
 
 import { Transaction } from "@/types/Transaction";
 

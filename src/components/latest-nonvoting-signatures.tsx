@@ -1,24 +1,69 @@
 "use client";
 
-import { useGetCompressedAccountsByOwner } from "@/hooks/compression";
+import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
+import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
+import { useMemo } from "react";
 
-import Address from "@/components/address";
+import { timeAgoWithFormat } from "@/lib/utils";
+
+import { Transaction } from "@/types/Transaction";
+
+import { DataTable } from "@/components/data-table";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import Loading from "@/components/loading";
+import Signature from "@/components/signature";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
-export default function CompressedAccounts({ address }: { address: string }) {
-  const { accounts, isLoading, isFetching, isError, refetch } =
-    useGetCompressedAccountsByOwner(address);
+export default function LatestNonVotingSignatures() {
+  const columns = useMemo<ColumnDef<Transaction>[]>(
+    () => [
+      {
+        accessorKey: "slot",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Slot" />
+        ),
+        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "signature",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Signature" />
+        ),
+        cell: ({ row }) => (
+          <Signature short={false}>{row.getValue("signature")}</Signature>
+        ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "err",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => (
+          <Badge className="text-xs" variant="outline">
+            Success
+          </Badge>
+        ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "blockTime",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Age" />
+        ),
+        cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
+        enableSorting: true,
+      },
+    ],
+    [],
+  );
+
+  const { signatures, isLoading, isFetching, isError, refetch } =
+    useGetLatestNonVotingSignatures();
 
   // TODO: Refactor jsx
   if (isError)
@@ -26,7 +71,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Compressed Accounts</CardTitle>
+            <CardTitle>Latest Non-Voting Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -52,7 +97,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Compressed Accounts</CardTitle>
+            <CardTitle>Latest Non-Voting Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
@@ -64,12 +109,12 @@ export default function CompressedAccounts({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
-  if (!accounts || !accounts.value.items.length)
+  if (!signatures || !signatures.length)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Compressed Accounts</CardTitle>
+            <CardTitle>Latest Non-Voting Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -86,19 +131,16 @@ export default function CompressedAccounts({ address }: { address: string }) {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>No compressed accounts found</div>
+          <div>No transactions found</div>
         </CardContent>
       </Card>
     );
-
-  // TODO: Use DataTable instead of Table for better pagination, sorting, and filtering
-  // Capped transactions at 50 for performance reasons for now
 
   return (
     <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Compressed Accounts</CardTitle>
+          <CardTitle>Latest Non-Voting Transactions</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
           {isFetching ? (
@@ -115,36 +157,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Hash</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Balance</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {accounts.value.items
-              .slice(0, 50)
-              .map((data: any, index: number) => (
-                <TableRow key={`compressed-account-${index}`}>
-                  <TableCell>
-                    <Address>{data.hash}</Address>
-                  </TableCell>
-                  <TableCell>
-                    {data.address ? <Address>{data.address}</Address> : <>-</>}
-                  </TableCell>
-                  <TableCell>
-                    <Address>{data.owner}</Address>
-                  </TableCell>
-                  <TableCell>
-                    {`${(data.lamports / 1e9).toFixed(7)} SOL`}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+        <DataTable data={signatures} columns={columns} />
       </CardContent>
     </Card>
   );

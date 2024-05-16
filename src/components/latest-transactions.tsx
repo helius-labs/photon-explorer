@@ -1,8 +1,21 @@
 "use client";
 
-import { CircleHelp, RotateCw, LoaderCircle } from "lucide-react";
+import { useGetBlock, useGetSlot } from "@/hooks/web3";
+import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
+
+import { timeAgoWithFormat } from "@/lib/utils";
+
+import Address from "@/components/address";
+import Loading from "@/components/loading";
+import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Table,
   TableBody,
@@ -11,19 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import Address from "@/components/address";
-import Signature from "@/components/signature";
-import { useGetBlock, useGetSlot } from "@/lib/web3";
-import { timeAgoWithFormat } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import Loading from "@/components/loading";
 
-export default function RecentTransactions() {
+export default function LatestTransactions() {
   // Get latest slot from cluster
   const { slot, isError: slotError, refetch } = useGetSlot();
 
@@ -37,10 +39,10 @@ export default function RecentTransactions() {
   // TODO: Refactor jsx
   if (isError || slotError)
     return (
-      <Card className="col-span-12 min-h-[200px]">
+      <Card className="min-h-[200px]">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Latest Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -57,7 +59,7 @@ export default function RecentTransactions() {
           </Button>
         </CardHeader>
         <CardContent className="pt-6">
-          <div>There was a problem loading the recent transactions.</div>
+          <div>There was a problem loading the Latest transactions.</div>
         </CardContent>
       </Card>
     );
@@ -66,7 +68,7 @@ export default function RecentTransactions() {
       <Card className="col-span-12 min-h-[200px]">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Latest Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
@@ -83,7 +85,7 @@ export default function RecentTransactions() {
       <Card className="col-span-12 min-h-[200px]">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Transactions</CardTitle>
+            <CardTitle>Latest Transactions</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -112,7 +114,7 @@ export default function RecentTransactions() {
     <Card className="col-span-12 min-h-[200px]">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>Latest Transactions</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
           {isFetching ? (

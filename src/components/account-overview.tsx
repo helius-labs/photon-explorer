@@ -1,10 +1,12 @@
 "use client";
 
+import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
+import { useGetBalance } from "@/hooks/web3";
+
 import Address from "@/components/address";
+import Data from "@/components/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useGetBalance, useGetCompressedBalanceByOwner } from "@/lib/web3";
-import Data from "@/components/data";
 
 export default function AccountOverview({
   address,

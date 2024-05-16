@@ -1,13 +1,14 @@
 "use client";
 
-import { useGetTransaction } from "@/lib/web3";
-import { Card, CardContent } from "@/components/ui/card";
-import TransactionOverview from "@/components/transaction-overview";
-import TransactionAccountKeys from "@/components/transaction-account-keys";
-import TransactionInstructions from "@/components/transaction-instructions";
-import TransactionInstructionLogs from "@/components/transaction-instruction-logs";
-import TransactionCompressionInfo from "@/components/transaction-compression-info";
+import { useGetTransaction } from "@/hooks/web3";
+
 import Loading from "@/components/loading";
+import TransactionAccountKeys from "@/components/transaction-account-keys";
+import TransactionCompressionInfo from "@/components/transaction-compression-info";
+import TransactionInstructionLogs from "@/components/transaction-instruction-logs";
+import TransactionInstructions from "@/components/transaction-instructions";
+import TransactionOverview from "@/components/transaction-overview";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   const { transaction, isLoading, isError } = useGetTransaction(tx);

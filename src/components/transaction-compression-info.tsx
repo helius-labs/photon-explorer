@@ -1,8 +1,9 @@
 "use client";
 
+import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
+
 import Address from "@/components/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetTransactionWithCompressionInfo } from "@/lib/web3";
 import {
   Table,
   TableBody,

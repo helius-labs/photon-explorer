@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import { cn } from "@/lib/utils";
 import { Inter as Fontface } from "next/font/google";
-import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Suspense } from "react";
+
+import { cn } from "@/lib/utils";
+
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import { ClusterProvider } from "@/components/providers/cluster-provider";
 import { ReactQueryClientProvider } from "@/components/providers/query-client-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+
 import "./globals.css";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Suspense } from "react";
 
 const fontface = Fontface({
   subsets: ["latin"],
@@ -50,13 +53,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontface.className,
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ReactQueryClientProvider>
+        <ReactQueryClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <Suspense>
               <ClusterProvider>
                 <Header />
@@ -66,8 +69,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 <Footer />
               </ClusterProvider>
             </Suspense>
-          </ReactQueryClientProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </ReactQueryClientProvider>
       </body>
     </html>
   );

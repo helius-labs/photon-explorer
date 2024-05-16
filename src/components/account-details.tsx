@@ -1,19 +1,21 @@
 "use client";
 
-import { useGetAccountInfo, useGetCompressedAccount } from "@/lib/web3";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Transactions from "@/components/transactions";
+import { useGetCompressedAccount } from "@/hooks/compression";
+import { useGetAccountInfo } from "@/hooks/web3";
+import { RotateCw } from "lucide-react";
+
 import AccountOverview from "@/components/account-overview";
 import CompressedAccountOverview from "@/components/compressed-account-overview";
-import CompressedTransactionsByAddress from "@/components/compressed-transactions-by-address";
-import CompressedTransactionsByHash from "@/components/compressed-transactions-by-hash";
-import TokenAccounts from "@/components/token-accounts";
 import CompressedAccounts from "@/components/compressed-accounts";
 import CompressedTokenAccounts from "@/components/compressed-token-accounts";
-import { RotateCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import CompressedTransactionsByAddress from "@/components/compressed-transactions-by-address";
+import CompressedTransactionsByHash from "@/components/compressed-transactions-by-hash";
 import Loading from "@/components/loading";
+import TokenAccounts from "@/components/token-accounts";
+import Transactions from "@/components/transactions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AccountDetails({ address }: { address: string }) {
   const accountInfo = useGetAccountInfo(address);

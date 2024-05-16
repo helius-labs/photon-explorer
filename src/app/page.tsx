@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import RecentTransactions from "@/components/recent-transactions";
+
+import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
+import LatestTransactions from "@/components/latest-transactions";
 
 export const metadata: Metadata = {
   title: "Home | Photon - The ZK Compression Block Explorer",
@@ -11,12 +13,17 @@ export default function Home() {
     <>
       <div className="flex items-center justify-between space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          Photon - The ZK Compression Block Explorer
+          Photon - Block Explorer with ZK Compression support
         </h1>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <RecentTransactions />
+      <div className="grid gap-4 grid-cols-4">
+        <div className="col-span-4">
+          <LatestNonVotingSignatures />
+        </div>
+        <div className="col-span-4">
+          <LatestTransactions />
+        </div>
       </div>
     </>
   );

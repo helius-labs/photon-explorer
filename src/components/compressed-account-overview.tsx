@@ -1,8 +1,9 @@
 "use client";
 
+import { useGetCompressedBalance } from "@/hooks/compression";
+
 import Address from "@/components/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetCompressedBalance } from "@/lib/web3";
 
 export default function CompressedAccountOverview({
   address,

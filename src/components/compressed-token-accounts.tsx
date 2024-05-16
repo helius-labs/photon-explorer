@@ -1,6 +1,11 @@
 "use client";
 
-import { RotateCw, LoaderCircle } from "lucide-react";
+import { useGetCompressedTokenAccountsByOwner } from "@/hooks/web3";
+import { LoaderCircle, RotateCw } from "lucide-react";
+
+import Address from "@/components/address";
+import Loading from "@/components/loading";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -10,10 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetCompressedTokenAccountsByOwner } from "@/lib/web3";
-import { Button } from "@/components/ui/button";
-import Address from "@/components/address";
-import Loading from "@/components/loading";
 
 export default function CompressedTokenAccounts({
   address,
