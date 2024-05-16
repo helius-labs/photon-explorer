@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import TransactionDetails from "@/components/transaction-details";
 import AccountDetails from "@/components/account-details";
 
 export const metadata: Metadata = {

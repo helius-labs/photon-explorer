@@ -2,7 +2,7 @@
 
 import { useGetBlock, useGetSlot } from "@/hooks/web3";
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
+import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
@@ -17,19 +17,6 @@ import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 export default function LatestTransactions() {
   // Get latest slot from cluster
@@ -77,7 +64,8 @@ export default function LatestTransactions() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Fee" />
         ),
-        cell: ({ row }) => `${(row.getValue("fee") / 1e9).toFixed(7)} SOL`,
+        cell: ({ row }) =>
+          `${((row.getValue("fee") as number) / 1e9).toFixed(7)} SOL`,
         enableSorting: true,
       },
       {
