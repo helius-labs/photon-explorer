@@ -68,7 +68,7 @@ export default function LatestNonVotingSignatures() {
   // TODO: Refactor jsx
   if (isError)
     return (
-      <Card className="col-span-12">
+      <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Latest Non-Voting Transactions</CardTitle>
@@ -92,9 +92,9 @@ export default function LatestNonVotingSignatures() {
         </CardContent>
       </Card>
     );
-  if (isLoading)
+  if (isLoading || isFetching)
     return (
-      <Card className="col-span-12">
+      <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Latest Non-Voting Transactions</CardTitle>
@@ -109,35 +109,9 @@ export default function LatestNonVotingSignatures() {
         </CardContent>
       </Card>
     );
-  if (!signatures || !signatures.length)
-    return (
-      <Card className="col-span-12">
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            {isFetching ? (
-              <>
-                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              <>
-                <RotateCw className="mr-1 h-4 w-4" />
-                Refresh
-              </>
-            )}
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div>No transactions found</div>
-        </CardContent>
-      </Card>
-    );
 
   return (
-    <Card className="col-span-12">
+    <Card>
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle>Latest Non-Voting Transactions</CardTitle>

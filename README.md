@@ -28,6 +28,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] Improve meta tags
 - [ ] Add zod for schema and validation of fetched data
 - [ ] Performance optimizations using SSR: https://tanstack.com/query/latest/docs/framework/react/guides/ssr
-- [ ] Improve overall design
+- [ ] Improve overall design/UX
 - [ ] Improve mobile/tablet responsiveness
 - [x] Connect to https://photon.helius.dev

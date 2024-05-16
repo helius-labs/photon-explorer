@@ -68,7 +68,7 @@ export default function LatestCompressionSignatures() {
   // TODO: Refactor jsx
   if (isError)
     return (
-      <Card className="col-span-12">
+      <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Latest Compression Transactions</CardTitle>
@@ -92,9 +92,9 @@ export default function LatestCompressionSignatures() {
         </CardContent>
       </Card>
     );
-  if (isLoading)
+  if (isLoading || isFetching)
     return (
-      <Card className="col-span-12">
+      <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Latest Compression Transactions</CardTitle>
@@ -111,7 +111,7 @@ export default function LatestCompressionSignatures() {
     );
   if (!signatures || !signatures.length)
     return (
-      <Card className="col-span-12">
+      <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Latest Compression Transactions</CardTitle>
@@ -137,7 +137,7 @@ export default function LatestCompressionSignatures() {
     );
 
   return (
-    <Card className="col-span-12">
+    <Card>
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle>Latest Compression Transactions</CardTitle>
