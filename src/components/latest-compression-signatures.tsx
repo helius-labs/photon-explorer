@@ -1,13 +1,15 @@
 "use client";
 
-import { useGetLatestCompressionSignatures } from "@/hooks/compression";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
+import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Transaction } from "@/types/transaction";
+import { itemSchema } from "@/schemas/getLatestCompressionSignatures";
+
+import { useGetLatestCompressionSignatures } from "@/hooks/compression";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
@@ -18,14 +20,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LatestCompressionSignatures() {
-  const columns = useMemo<ColumnDef<Transaction>[]>(
+  type Item = z.infer<typeof itemSchema>;
+
+  const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {
         accessorKey: "slot",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Slot" />
         ),
-        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
+        cell: ({ row }) => <div>{row.original.slot}</div>,
         enableSorting: true,
       },
       {
@@ -34,7 +38,7 @@ export default function LatestCompressionSignatures() {
           <DataTableColumnHeader column={column} title="Signature" />
         ),
         cell: ({ row }) => (
-          <Signature short={false}>{row.getValue("signature")}</Signature>
+          <Signature short={false}>{row.original.signature}</Signature>
         ),
         enableSorting: true,
       },
@@ -55,14 +59,14 @@ export default function LatestCompressionSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Age" />
         ),
-        cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
+        cell: ({ row }) => timeAgoWithFormat(row.original.blockTime, true),
         enableSorting: true,
       },
     ],
     [],
   );
 
-  const { signatures, isLoading, isFetching, isError, refetch } =
+  const { data, isLoading, isFetching, isError, refetch } =
     useGetLatestCompressionSignatures();
 
   // TODO: Refactor jsx
@@ -109,32 +113,6 @@ export default function LatestCompressionSignatures() {
         </CardContent>
       </Card>
     );
-  if (!signatures || !signatures.length)
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Latest Compression Transactions</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            {isFetching ? (
-              <>
-                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              <>
-                <RotateCw className="mr-1 h-4 w-4" />
-                Refresh
-              </>
-            )}
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div>No transactions found</div>
-        </CardContent>
-      </Card>
-    );
 
   return (
     <Card>
@@ -157,7 +135,7 @@ export default function LatestCompressionSignatures() {
         </Button>
       </CardHeader>
       <CardContent>
-        <DataTable data={signatures} columns={columns} />
+        <DataTable data={data?.result.value.items!} columns={columns} />
       </CardContent>
     </Card>
   );

@@ -1,13 +1,15 @@
 "use client";
 
-import { useGetBlock, useGetSlot } from "@/hooks/web3";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
+import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Transaction } from "@/types/transaction";
+import { transactionItemSchema } from "@/schemas/getBlock";
+
+import { useGetBlock, useGetSlot } from "@/hooks/web3";
 
 import Address from "@/components/address";
 import { DataTable } from "@/components/data-table";
@@ -19,15 +21,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LatestTransactions() {
-  // Get latest slot from cluster
-  const { slot, isError: slotError, refetch } = useGetSlot();
+  type Transaction = {
+    slot: number;
+    signature: string;
+    signer: string;
+    fee: number;
+    err: string | null;
+    blockTime: number;
+  };
 
-  // Get block for slot to get the transactions
-  // The query will not execute until the slot exists
-  const { block, isLoading, isFetching, isPending, isError } = useGetBlock(
-    slot,
-    !!slot,
-  );
+  type TransactionItem = z.infer<typeof transactionItemSchema>;
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
@@ -92,6 +95,16 @@ export default function LatestTransactions() {
     [],
   );
 
+  // Get latest slot from cluster
+  const { slot, isError: slotError, refetch } = useGetSlot();
+
+  // Get block for slot to get the transactions
+  // The query will not execute until the slot exists
+  const { data, isLoading, isFetching, isPending, isError } = useGetBlock(
+    slot,
+    !!slot,
+  );
+
   // TODO: Refactor jsx
   if (isError || slotError)
     return (
@@ -138,14 +151,16 @@ export default function LatestTransactions() {
     );
 
   // TODO: Refactor to zod schema
-  const signatures: Transaction[] = block.transactions.map((data: any) => ({
-    slot: block.blockHeight,
-    signature: data.transaction.signatures[0],
-    signer: data.transaction.message.accountKeys[0].pubkey,
-    err: data.meta?.err,
-    fee: data.meta?.fee,
-    blockTime: block.blockTime,
-  }));
+  const signatures: Transaction[] | undefined = data?.result.transactions.map(
+    (item: TransactionItem): Transaction => ({
+      slot: data.result.blockHeight,
+      signature: item.transaction.signatures[0],
+      signer: item.transaction.message.accountKeys[0].pubkey,
+      err: item.meta?.err,
+      fee: item.meta?.fee,
+      blockTime: data.result.blockTime,
+    }),
+  );
 
   return (
     <Card>
@@ -168,7 +183,7 @@ export default function LatestTransactions() {
         </Button>
       </CardHeader>
       <CardContent>
-        <DataTable data={signatures} columns={columns} />
+        <DataTable data={signatures!} columns={columns} />
       </CardContent>
     </Card>
   );

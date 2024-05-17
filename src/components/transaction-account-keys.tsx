@@ -1,5 +1,7 @@
 "use client";
 
+import { Result } from "@/schemas/getTransaction";
+
 import Address from "@/components/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,11 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionAccountKeys({
-  transaction,
-}: {
-  transaction: any;
-}) {
+export default function TransactionAccountKeys({ result }: { result: Result }) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -37,7 +35,7 @@ export default function TransactionAccountKeys({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transaction.transaction.message.accountKeys.map(
+            {result.transaction.message.accountKeys.map(
               (item: any, index: number) => (
                 <TableRow key={`account-key-${index}`}>
                   <TableCell>{index}</TableCell>

@@ -1,11 +1,13 @@
 "use client";
 
+import { Result } from "@/schemas/getTransaction";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function TransactionInstructionLogs({
-  transaction,
+  result,
 }: {
-  transaction: any;
+  result: Result;
 }) {
   return (
     <>
@@ -15,7 +17,7 @@ export default function TransactionInstructionLogs({
         </CardHeader>
         <CardContent>
           <pre className="whitespace-pre-wrap">
-            {JSON.stringify(transaction.meta.logMessages, null, 2)}
+            {JSON.stringify(result.meta.logMessages, null, 2)}
           </pre>
         </CardContent>
       </Card>

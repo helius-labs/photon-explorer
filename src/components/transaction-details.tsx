@@ -11,7 +11,7 @@ import TransactionOverview from "@/components/transaction-overview";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
-  const { transaction, isLoading, isError } = useGetTransaction(tx);
+  const { data, isLoading, isError } = useGetTransaction(tx);
 
   if (isError)
     return (
@@ -29,7 +29,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
         </CardContent>
       </Card>
     );
-  if (!transaction)
+  if (!data)
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
@@ -40,11 +40,11 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   return (
     <>
-      <TransactionOverview transaction={transaction} />
+      <TransactionOverview result={data.result} />
       <TransactionCompressionInfo tx={tx} />
-      <TransactionAccountKeys transaction={transaction} />
-      <TransactionInstructions transaction={transaction} />
-      <TransactionInstructionLogs transaction={transaction} />
+      <TransactionAccountKeys result={data.result} />
+      <TransactionInstructions result={data.result} />
+      <TransactionInstructionLogs result={data.result} />
     </>
   );
 }

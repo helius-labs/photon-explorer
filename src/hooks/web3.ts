@@ -1,10 +1,11 @@
 "use client";
 
-import { Transaction } from "@/types/transaction";
 import { useQuery } from "@tanstack/react-query";
 
+import { getBlockSchema } from "@/schemas/getBlock";
 import { getSignaturesForAddressSchema } from "@/schemas/getSignaturesForAddress";
 import { getTokenAccountsByOwnerSchema } from "@/schemas/getTokenAccountsByOwner";
+import { getTransactionSchema } from "@/schemas/getTransaction";
 
 import { useCluster } from "@/components/providers/cluster-provider";
 
@@ -48,7 +49,7 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
   const { data, error, isLoading, isFetching, isPending, refetch } = useQuery({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
-      return fetch(endpoint, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,15 +68,15 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
             },
           ],
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      }).then((res) => res.json());
+
+      return getBlockSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    block: data,
+    data,
     isPending,
     isLoading,
     isFetching,
@@ -90,7 +91,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getTransaction", signature],
     queryFn: async () => {
-      return fetch(endpoint, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,15 +105,15 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
             { maxSupportedTransactionVersion: 0, encoding: "jsonParsed" },
           ],
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result as Transaction[]);
+      }).then((res) => res.json());
+
+      return getTransactionSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    transaction: data,
+    data,
     isLoading,
     isFetching,
     isError: error,

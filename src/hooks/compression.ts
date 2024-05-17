@@ -6,6 +6,8 @@ import { getCompressedAccountsByOwnerSchema } from "@/schemas/getCompressedAccou
 import { getCompressedTokenAccountsByOwnerSchema } from "@/schemas/getCompressedTokenAccountsByOwner";
 import { getCompressionSignaturesForAccountSchema } from "@/schemas/getCompressionSignaturesForAccount";
 import { getCompressionSignaturesForTokenOwnerSchema } from "@/schemas/getCompressionSignaturesForTokenOwner";
+import { getLatestCompressionSignaturesSchema } from "@/schemas/getLatestCompressionSignatures";
+import { getLatestNonVotingSignaturesSchema } from "@/schemas/getLatestNonVotingSignatures";
 
 import { useCluster } from "@/components/providers/cluster-provider";
 
@@ -17,7 +19,7 @@ export function useGetLatestCompressionSignatures(enabled: boolean = true) {
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getLatestCompressionSignatures"],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
+      const response = await fetch(compressionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,15 +30,15 @@ export function useGetLatestCompressionSignatures(enabled: boolean = true) {
           method: "getLatestCompressionSignatures",
           params: {},
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result.value.items);
+      }).then((res) => res.json());
+
+      return getLatestCompressionSignaturesSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    signatures: data,
+    data,
     isLoading,
     isFetching,
     isError: error,
@@ -50,7 +52,7 @@ export function useGetLatestNonVotingSignatures(enabled: boolean = true) {
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getLatestNonVotingSignatures"],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
+      const response = await fetch(compressionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,15 +63,15 @@ export function useGetLatestNonVotingSignatures(enabled: boolean = true) {
           method: "getLatestNonVotingSignatures",
           params: {},
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result.value.items);
+      }).then((res) => res.json());
+
+      return getLatestNonVotingSignaturesSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    signatures: data,
+    data,
     isLoading,
     isFetching,
     isError: error,

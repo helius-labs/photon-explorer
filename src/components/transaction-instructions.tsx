@@ -1,11 +1,13 @@
 "use client";
 
+import { Result } from "@/schemas/getTransaction";
+
 import Instruction from "@/components/instruction";
 
 export default function TransactionInstructions({
-  transaction,
+  result,
 }: {
-  transaction: any;
+  result: Result;
 }) {
   return (
     <>
@@ -13,13 +15,13 @@ export default function TransactionInstructions({
         <h2 className="text-2xl font-bold tracking-tight">Instructions</h2>
       </div>
 
-      {transaction.transaction.message.instructions.map(
+      {result.transaction.message.instructions.map(
         (instruction: any, index: number) => (
           <Instruction
             key={`instruction-${index}`}
             index={index}
             instruction={instruction}
-            innerInstructions={transaction.meta.innerInstructions}
+            innerInstructions={result.meta.innerInstructions}
           />
         ),
       )}

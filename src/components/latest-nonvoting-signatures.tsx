@@ -1,13 +1,15 @@
 "use client";
 
-import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
+import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Transaction } from "@/types/transaction";
+import { itemSchema } from "@/schemas/getLatestNonVotingSignatures";
+
+import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
@@ -18,7 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LatestNonVotingSignatures() {
-  const columns = useMemo<ColumnDef<Transaction>[]>(
+  type Item = z.infer<typeof itemSchema>;
+
+  const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {
         accessorKey: "slot",
@@ -62,7 +66,7 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { signatures, isLoading, isFetching, isError, refetch } =
+  const { data, isLoading, isFetching, isError, refetch } =
     useGetLatestNonVotingSignatures();
 
   // TODO: Refactor jsx
@@ -131,7 +135,7 @@ export default function LatestNonVotingSignatures() {
         </Button>
       </CardHeader>
       <CardContent>
-        <DataTable data={signatures} columns={columns} />
+        <DataTable data={data?.result.value.items!} columns={columns} />
       </CardContent>
     </Card>
   );

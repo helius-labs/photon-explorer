@@ -1,23 +1,23 @@
 "use client";
 
+import { CircleHelp } from "lucide-react";
+
+import { timeAgoWithFormat } from "@/lib/utils";
+
+import { Result } from "@/schemas/getTransaction";
+
+import Address from "@/components/address";
+import Signature from "@/components/signature";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Address from "@/components/address";
-import Signature from "@/components/signature";
-import { CircleHelp } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { timeAgoWithFormat } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function TransactionOverview({
-  transaction,
-}: {
-  transaction: any;
-}) {
+export default function TransactionOverview({ result }: { result: Result }) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -43,9 +43,9 @@ export default function TransactionOverview({
             </div>
           </div>
           <div className="col-span-3">
-            {transaction?.transaction.signatures[0] && (
+            {result?.transaction.signatures[0] && (
               <Signature short={false}>
-                {transaction?.transaction.signatures[0]}
+                {result?.transaction.signatures[0]}
               </Signature>
             )}
           </div>
@@ -55,7 +55,7 @@ export default function TransactionOverview({
           </div>
           <div className="col-span-3">
             <Badge className="text-xs" variant="outline">
-              {transaction?.meta?.err === null ? "Success" : "Failed"}
+              {result?.meta?.err === null ? "Success" : "Failed"}
             </Badge>
           </div>
 
@@ -63,7 +63,7 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Slot</span>
           </div>
           <div className="col-span-3">
-            <span>#{transaction?.slot}</span>
+            <span>#{result?.slot}</span>
           </div>
 
           <div className="col-span-1">
@@ -71,8 +71,7 @@ export default function TransactionOverview({
           </div>
           <div className="col-span-3">
             <span>
-              {transaction?.blockTime &&
-                timeAgoWithFormat(transaction?.blockTime)}
+              {result?.blockTime && timeAgoWithFormat(result?.blockTime)}
             </span>
           </div>
 
@@ -82,9 +81,9 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Signer</span>
           </div>
           <div className="col-span-3">
-            {transaction?.transaction.message.accountKeys[0].pubkey && (
+            {result?.transaction.message.accountKeys[0].pubkey && (
               <Address short={false}>
-                {transaction?.transaction.message.accountKeys[0].pubkey}
+                {result?.transaction.message.accountKeys[0].pubkey}
               </Address>
             )}
           </div>
@@ -95,9 +94,9 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Fee Payer</span>
           </div>
           <div className="col-span-3">
-            {transaction?.transaction.message.accountKeys[0].pubkey && (
+            {result?.transaction.message.accountKeys[0].pubkey && (
               <Address short={false}>
-                {transaction?.transaction.message.accountKeys[0].pubkey}
+                {result?.transaction.message.accountKeys[0].pubkey}
               </Address>
             )}
           </div>
@@ -106,8 +105,8 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Transaction Fee</span>
           </div>
           <div className="col-span-3">
-            {transaction?.meta?.fee && (
-              <span>{(transaction?.meta?.fee / 1e9).toFixed(7)} SOL</span>
+            {result?.meta?.fee && (
+              <span>{(result?.meta?.fee / 1e9).toFixed(7)} SOL</span>
             )}
           </div>
         </div>
