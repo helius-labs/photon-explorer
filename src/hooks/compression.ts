@@ -136,7 +136,7 @@ export function useGetCompressionSignaturesForAccount(
         }),
       })
         .then((res) => res.json())
-        .then((res) => res.result as Transaction[]);
+        .then((res) => res.result);
     },
     enabled,
   });
