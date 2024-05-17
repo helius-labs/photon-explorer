@@ -109,7 +109,8 @@ export default function Transactions({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
-  if (!signatures || !signatures.length)
+
+  if (signatures)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
@@ -130,35 +131,9 @@ export default function Transactions({ address }: { address: string }) {
             )}
           </Button>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div>No transactions found</div>
+        <CardContent>
+          <DataTable data={signatures} columns={columns} />
         </CardContent>
       </Card>
     );
-
-  return (
-    <Card className="col-span-12">
-      <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle>Transaction History</CardTitle>
-        </div>
-        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          {isFetching ? (
-            <>
-              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-              Loading
-            </>
-          ) : (
-            <>
-              <RotateCw className="mr-1 h-4 w-4" />
-              Refresh
-            </>
-          )}
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <DataTable data={signatures} columns={columns} />
-      </CardContent>
-    </Card>
-  );
 }

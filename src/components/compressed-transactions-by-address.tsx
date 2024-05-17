@@ -1,10 +1,16 @@
 "use client";
 
 import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
+import { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
+import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
+import { Transaction } from "@/types/transaction";
+
+import { DataTable } from "@/components/data-table";
+import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import Loading from "@/components/loading";
 import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +35,50 @@ export default function CompressedTransactionsByAddress({
 }: {
   address: string;
 }) {
+  const columns = useMemo<ColumnDef<Transaction>[]>(
+    () => [
+      {
+        accessorKey: "slot",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Slot" />
+        ),
+        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "signature",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Signature" />
+        ),
+        cell: ({ row }) => (
+          <Signature short={false}>{row.getValue("signature")}</Signature>
+        ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "err",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => (
+          <Badge className="text-xs" variant="outline">
+            {row.getValue("err") === null ? "Success" : "Failed"}
+          </Badge>
+        ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "blockTime",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Age" />
+        ),
+        cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
+        enableSorting: true,
+      },
+    ],
+    [],
+  );
+
   const { compressedSignatures, isLoading, isFetching, isError, refetch } =
     useGetCompressionSignaturesForOwner(address);
 
@@ -76,7 +126,17 @@ export default function CompressedTransactionsByAddress({
         </CardContent>
       </Card>
     );
-  if (!compressedSignatures || !compressedSignatures.value.items.length)
+
+  const signatures: Transaction[] = compressedSignatures.value.items.map(
+    (data: any) => ({
+      slot: data.slot,
+      signature: data.signature,
+      err: null,
+      blockTime: data.blockTime,
+    }),
+  );
+
+  if (signatures)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
@@ -97,99 +157,9 @@ export default function CompressedTransactionsByAddress({
             )}
           </Button>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div>No transactions found</div>
+        <CardContent>
+          <DataTable data={signatures} columns={columns} />
         </CardContent>
       </Card>
     );
-
-  // TODO: Use DataTable instead of Table for better pagination, sorting, and filtering
-  // Capped transactions at 50 for performance reasons for now
-
-  return (
-    <Card className="col-span-12">
-      <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle>Compressed Transaction History</CardTitle>
-        </div>
-        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          {isFetching ? (
-            <>
-              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-              Loading
-            </>
-          ) : (
-            <>
-              <RotateCw className="mr-1 h-4 w-4" />
-              Refresh
-            </>
-          )}
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <div className="flex items-center">
-                  <Popover>
-                    <PopoverTrigger>
-                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                      <span className="sr-only">
-                        What does this column mean?
-                      </span>
-                    </PopoverTrigger>
-                    <PopoverContent className="max-w-80">
-                      <p className="mb-2">
-                        The period of time for which each leader ingests
-                        transactions and produces a block.
-                      </p>
-                      <p>
-                        Collectively, slots create a logical clock. Slots are
-                        ordered sequentially and non-overlapping, comprising
-                        roughly equal real-world time as per PoH.
-                      </p>
-                    </PopoverContent>
-                  </Popover>
-                  <span>Slot</span>
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center">
-                  <Popover>
-                    <PopoverTrigger>
-                      <CircleHelp className="mr-1 h-3.5 w-3.5" />
-                      <span className="sr-only">
-                        What does this column mean?
-                      </span>
-                    </PopoverTrigger>
-                    <PopoverContent className="max-w-80">
-                      <p>
-                        The first signature in a transaction, which can be used
-                        to uniquely identify the transaction across the complete
-                        ledger.
-                      </p>
-                    </PopoverContent>
-                  </Popover>
-                  <span className="mr-1">Signature</span>
-                </div>
-              </TableHead>
-              <TableHead>Timestamp</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {compressedSignatures.value.items.slice(0, 50).map((data: any) => (
-              <TableRow key={data.signature}>
-                <TableCell>{data.slot}</TableCell>
-                <TableCell>
-                  <Signature short={false}>{data.signature}</Signature>
-                </TableCell>
-                <TableCell>{timeAgoWithFormat(data.blockTime, true)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
 }

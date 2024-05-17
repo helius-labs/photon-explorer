@@ -1,6 +1,7 @@
 export type Transaction = {
-  signature: string;
   slot: number;
+  signature: string;
+  signer?: string;
   err: string | null;
   fee?: number;
   blockTime: number;
