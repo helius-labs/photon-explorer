@@ -2,7 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { getCompressedAccountsByOwnerSchema } from "@/schemas/getCompressedAccountsByOwner";
+import { getCompressedTokenAccountsByOwnerSchema } from "@/schemas/getCompressedTokenAccountsByOwner";
+import { getCompressionSignaturesForAccountSchema } from "@/schemas/getCompressionSignaturesForAccount";
+import { getCompressionSignaturesForTokenOwnerSchema } from "@/schemas/getCompressionSignaturesForTokenOwner";
+
 import { useCluster } from "@/components/providers/cluster-provider";
+
+// TODO: Validate all responses with zod schemas
 
 export function useGetLatestCompressionSignatures(enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
@@ -83,7 +90,7 @@ export function useGetCompressionSignaturesForOwner(
       address,
     ],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
+      const response = await fetch(compressionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,15 +103,15 @@ export function useGetCompressionSignaturesForOwner(
             owner: address,
           },
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      }).then((res) => res.json());
+
+      return getCompressionSignaturesForTokenOwnerSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    compressedSignatures: data,
+    data,
     isLoading,
     isFetching,
     isError: error,
@@ -121,7 +128,7 @@ export function useGetCompressionSignaturesForAccount(
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressionSignaturesForAccount", hash],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
+      const response = await fetch(compressionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -134,15 +141,15 @@ export function useGetCompressionSignaturesForAccount(
             hash: hash,
           },
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      }).then((res) => res.json());
+
+      return getCompressionSignaturesForAccountSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    compressedSignatures: data,
+    data,
     isLoading,
     isFetching,
     isError: error,
@@ -197,7 +204,7 @@ export function useGetCompressedAccountsByOwner(
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getCompressedAccountsByOwner", address],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
+      const results = await fetch(compressionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -210,15 +217,15 @@ export function useGetCompressedAccountsByOwner(
             owner: address,
           },
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      }).then((res) => res.json());
+
+      return getCompressedAccountsByOwnerSchema.parse(results);
     },
     enabled,
   });
 
   return {
-    accounts: data,
+    data,
     isLoading,
     isFetching,
     isError: error,
@@ -239,7 +246,7 @@ export function useGetCompressedTokenAccountsByOwner(
       address,
     ],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
+      const results = await fetch(compressionEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -252,15 +259,15 @@ export function useGetCompressedTokenAccountsByOwner(
             owner: address,
           },
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      }).then((res) => res.json());
+
+      return getCompressedTokenAccountsByOwnerSchema.parse(results);
     },
     enabled,
   });
 
   return {
-    accounts: data,
+    data,
     isLoading,
     isFetching,
     isError: error,

@@ -137,6 +137,7 @@ export default function LatestTransactions() {
       </Card>
     );
 
+  // TODO: Refactor to zod schema
   const signatures: Transaction[] = block.transactions.map((data: any) => ({
     slot: block.blockHeight,
     signature: data.transaction.signatures[0],

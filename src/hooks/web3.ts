@@ -1,12 +1,14 @@
 "use client";
 
+import { Transaction } from "@/types/transaction";
 import { useQuery } from "@tanstack/react-query";
 
-import { Transaction } from "@/types/transaction";
+import { getSignaturesForAddressSchema } from "@/schemas/getSignaturesForAddress";
+import { getTokenAccountsByOwnerSchema } from "@/schemas/getTokenAccountsByOwner";
 
 import { useCluster } from "@/components/providers/cluster-provider";
 
-// TODO Add typed responses when web3.js V2 comes out
+// TODO: Validate all responses with zod schemas
 
 export function useGetSlot(enabled: boolean = true) {
   const { endpoint } = useCluster();
@@ -193,7 +195,7 @@ export function useGetSignaturesForAddress(
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getSignaturesForAddress", address],
     queryFn: async () => {
-      return fetch(endpoint, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -209,15 +211,15 @@ export function useGetSignaturesForAddress(
             },
           ],
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result as Transaction[]);
+      }).then((res) => res.json());
+
+      return getSignaturesForAddressSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    signatures: data,
+    data,
     isLoading,
     isFetching,
     isError: error,
@@ -234,7 +236,7 @@ export function useGetTokenAccountsByOwner(
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: [endpoint, "getTokenAccountsByOwner", address],
     queryFn: async () => {
-      return fetch(endpoint, {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -254,15 +256,15 @@ export function useGetTokenAccountsByOwner(
             },
           ],
         }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      }).then((res) => res.json());
+
+      return getTokenAccountsByOwnerSchema.parse(response);
     },
     enabled,
   });
 
   return {
-    accounts: data,
+    data,
     isLoading,
     isFetching,
     isError: error,

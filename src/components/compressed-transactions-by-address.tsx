@@ -1,13 +1,15 @@
 "use client";
 
-import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
+import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
+import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Transaction } from "@/types/transaction";
+import { itemSchema } from "@/schemas/getCompressionSignaturesForTokenOwner";
+
+import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
@@ -16,26 +18,15 @@ import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 export default function CompressedTransactionsByAddress({
   address,
 }: {
   address: string;
 }) {
-  const columns = useMemo<ColumnDef<Transaction>[]>(
+  type Item = z.infer<typeof itemSchema>;
+
+  const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {
         accessorKey: "slot",
@@ -62,7 +53,7 @@ export default function CompressedTransactionsByAddress({
         ),
         cell: ({ row }) => (
           <Badge className="text-xs" variant="outline">
-            {row.getValue("err") === null ? "Success" : "Failed"}
+            Success
           </Badge>
         ),
         enableSorting: true,
@@ -79,7 +70,7 @@ export default function CompressedTransactionsByAddress({
     [],
   );
 
-  const { compressedSignatures, isLoading, isFetching, isError, refetch } =
+  const { data, isLoading, isFetching, isError, refetch } =
     useGetCompressionSignaturesForOwner(address);
 
   // TODO: Refactor jsx
@@ -127,39 +118,29 @@ export default function CompressedTransactionsByAddress({
       </Card>
     );
 
-  const signatures: Transaction[] = compressedSignatures.value.items.map(
-    (data: any) => ({
-      slot: data.slot,
-      signature: data.signature,
-      err: null,
-      blockTime: data.blockTime,
-    }),
+  return (
+    <Card className="col-span-12">
+      <CardHeader className="flex flex-row items-center">
+        <div className="grid gap-2">
+          <CardTitle>Compressed Transaction History</CardTitle>
+        </div>
+        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+              Loading
+            </>
+          ) : (
+            <>
+              <RotateCw className="mr-1 h-4 w-4" />
+              Refresh
+            </>
+          )}
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <DataTable data={data?.result.value.items!} columns={columns} />
+      </CardContent>
+    </Card>
   );
-
-  if (signatures)
-    return (
-      <Card className="col-span-12">
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Compressed Transaction History</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            {isFetching ? (
-              <>
-                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              <>
-                <RotateCw className="mr-1 h-4 w-4" />
-                Refresh
-              </>
-            )}
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <DataTable data={signatures} columns={columns} />
-        </CardContent>
-      </Card>
-    );
 }
