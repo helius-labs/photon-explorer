@@ -20,10 +20,10 @@ export default function Home() {
 
       <div className="grid gap-4 grid-cols-4">
         <div className="col-span-4">
-          <LatestCompressionSignatures />
+          <LatestNonVotingSignatures />
         </div>
         <div className="col-span-4">
-          <LatestNonVotingSignatures />
+          <LatestCompressionSignatures />
         </div>
       </div>
     </>
