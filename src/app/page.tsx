@@ -5,8 +5,8 @@ import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures"
 import LatestTransactions from "@/components/latest-transactions";
 
 export const metadata: Metadata = {
-  title: "Home | Photon - The ZK Compression Block Explorer",
-  description: "Photon - The ZK Compression Block Explorer",
+  title: "Home | Photon - Solana Explorer",
+  description: "Photon - Solana Explorer",
 };
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
     <>
       <div className="flex items-center justify-between space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">
-          Photon - Block Explorer with ZK Compression support
+          Photon - Solana Explorer
         </h1>
       </div>
 
