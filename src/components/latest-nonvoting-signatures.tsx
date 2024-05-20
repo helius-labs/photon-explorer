@@ -8,7 +8,10 @@ import { timeAgoWithFormat } from "@/lib/utils";
 
 import { Item } from "@/schemas/getLatestNonVotingSignatures";
 
-import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
+import {
+  useGetLatestCompressionSignatures,
+  useGetLatestNonVotingSignatures,
+} from "@/hooks/compression";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
@@ -19,7 +22,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LatestNonVotingSignatures() {
-  const columns = useMemo<ColumnDef<Item>[]>(
+  type Transaction = {
+    slot: number;
+    signature: string;
+    err: object | null;
+    blockTime: number | null;
+    compression: boolean;
+  };
+
+  const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
       {
         accessorKey: "slot",
@@ -40,13 +51,21 @@ export default function LatestNonVotingSignatures() {
         enableSorting: true,
       },
       {
+        accessorKey: "compression",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Compression" />
+        ),
+        cell: ({ row }) => <>{row.getValue("compression") ? "Yes" : "No"}</>,
+        enableSorting: true,
+      },
+      {
         accessorKey: "err",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Status" />
         ),
         cell: ({ row }) => (
           <Badge className="text-xs" variant="outline">
-            Success
+            {row.getValue("err") === null ? "Success" : "Failed"}
           </Badge>
         ),
         enableSorting: true,
@@ -63,8 +82,30 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, isLoading, isFetching, isError, refetch } =
-    useGetLatestNonVotingSignatures();
+  const { data, refetch } = useGetLatestNonVotingSignatures();
+
+  const {
+    data: dataCompressions,
+    isLoading,
+    isPending,
+    isFetching,
+    isError,
+  } = useGetLatestCompressionSignatures(!!data);
+
+  // Check if there are any compression signatures
+  const signatures: Transaction[] | undefined = data?.result.value.items?.map(
+    (item: Item): Transaction => ({
+      slot: item.slot,
+      signature: item.signature,
+      err: null,
+      blockTime: item.blockTime,
+      compression: dataCompressions?.result.value.items.some(
+        (compressionItem) => compressionItem.signature === item.signature,
+      )
+        ? true
+        : false,
+    }),
+  );
 
   // TODO: Refactor jsx
   if (isError)
@@ -93,7 +134,7 @@ export default function LatestNonVotingSignatures() {
         </CardContent>
       </Card>
     );
-  if (isLoading || isFetching)
+  if (isLoading || isPending || isFetching)
     return (
       <Card>
         <CardHeader className="flex flex-row items-center">
@@ -132,7 +173,7 @@ export default function LatestNonVotingSignatures() {
         </Button>
       </CardHeader>
       <CardContent>
-        <DataTable data={data?.result.value.items!} columns={columns} />
+        <DataTable data={signatures!} columns={columns} />
       </CardContent>
     </Card>
   );

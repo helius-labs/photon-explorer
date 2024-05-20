@@ -16,7 +16,7 @@ import { useCluster } from "@/components/providers/cluster-provider";
 export function useGetLatestCompressionSignatures(enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  const { data, error, isLoading, isPending, isFetching, refetch } = useQuery({
     queryKey: [compressionEndpoint, "getLatestCompressionSignatures"],
     queryFn: async () => {
       const response = await fetch(compressionEndpoint, {
@@ -40,6 +40,7 @@ export function useGetLatestCompressionSignatures(enabled: boolean = true) {
   return {
     data,
     isLoading,
+    isPending,
     isFetching,
     isError: error,
     refetch,
