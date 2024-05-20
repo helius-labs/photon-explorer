@@ -1,14 +1,14 @@
 "use client";
 
+import { RotateCw } from "lucide-react";
+
 import { useGetCompressedAccount } from "@/hooks/compression";
 import { useGetAccountInfo } from "@/hooks/web3";
-import { RotateCw } from "lucide-react";
 
 import AccountOverview from "@/components/account-overview";
 import CompressedAccountOverview from "@/components/compressed-account-overview";
 import CompressedAccounts from "@/components/compressed-accounts";
 import CompressedTokenAccounts from "@/components/compressed-token-accounts";
-import CompressedTransactionsByAddress from "@/components/compressed-transactions-by-address";
 import CompressedTransactionsByHash from "@/components/compressed-transactions-by-hash";
 import Loading from "@/components/loading";
 import TokenAccounts from "@/components/token-accounts";
@@ -77,9 +77,6 @@ export default function AccountDetails({ address }: { address: string }) {
         <Tabs defaultValue="transactions">
           <TabsList>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="compressed-transactions">
-              Compressed Transactions
-            </TabsTrigger>
             <TabsTrigger value="token-accounts">Token Accounts</TabsTrigger>
             <TabsTrigger value="compressed-accounts">
               Compressed Accounts
@@ -90,9 +87,6 @@ export default function AccountDetails({ address }: { address: string }) {
           </TabsList>
           <TabsContent value="transactions">
             <Transactions address={address} />
-          </TabsContent>
-          <TabsContent value="compressed-transactions">
-            <CompressedTransactionsByAddress address={address} />
           </TabsContent>
           <TabsContent value="token-accounts">
             <TokenAccounts address={address} />

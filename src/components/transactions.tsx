@@ -8,6 +8,7 @@ import { timeAgoWithFormat } from "@/lib/utils";
 
 import { Result } from "@/schemas/getSignaturesForAddress";
 
+import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 
 import { DataTable } from "@/components/data-table";
@@ -19,7 +20,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Transactions({ address }: { address: string }) {
-  const columns = useMemo<ColumnDef<Result>[]>(
+  type Transaction = {
+    slot: number;
+    signature: string;
+    err: object | null;
+    blockTime: number | null;
+    compression: boolean;
+  };
+
+  const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
       {
         accessorKey: "slot",
@@ -37,6 +46,14 @@ export default function Transactions({ address }: { address: string }) {
         cell: ({ row }) => (
           <Signature short={false}>{row.getValue("signature")}</Signature>
         ),
+        enableSorting: true,
+      },
+      {
+        accessorKey: "compression",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Compression" />
+        ),
+        cell: ({ row }) => <>{row.getValue("compression") ? "Yes" : "No"}</>,
         enableSorting: true,
       },
       {
@@ -63,8 +80,15 @@ export default function Transactions({ address }: { address: string }) {
     [],
   );
 
-  const { data, isLoading, isFetching, isError, refetch } =
-    useGetSignaturesForAddress(address);
+  const { data, refetch } = useGetSignaturesForAddress(address);
+
+  const {
+    data: dataCompressions,
+    isLoading,
+    isFetching,
+    isPending,
+    isError,
+  } = useGetCompressionSignaturesForOwner(address, !!data);
 
   // TODO: Refactor jsx
   if (isError)
@@ -93,7 +117,7 @@ export default function Transactions({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
-  if (isLoading)
+  if (isLoading || isPending || isFetching)
     return (
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
@@ -110,6 +134,21 @@ export default function Transactions({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
+
+  // Check if there are any compression signatures
+  const signatures: Transaction[] | undefined = data?.result.map(
+    (item: Result): Transaction => ({
+      slot: item.slot,
+      signature: item.signature,
+      err: item.err,
+      blockTime: item.blockTime,
+      compression: dataCompressions?.result.value.items.some(
+        (compressionItem) => compressionItem.signature === item.signature,
+      )
+        ? true
+        : false,
+    }),
+  );
 
   return (
     <Card className="col-span-12">
@@ -132,7 +171,7 @@ export default function Transactions({ address }: { address: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        <DataTable data={data?.result!} columns={columns} />
+        <DataTable data={signatures!} columns={columns} />
       </CardContent>
     </Card>
   );
