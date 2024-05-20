@@ -3,27 +3,20 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
-import { timeAgoWithFormat } from "@/lib/utils";
-
-import { itemSchema } from "@/schemas/getCompressedAccountsByOwner";
+import { Item } from "@/schemas/getCompressedAccountsByOwner";
 
 import { useGetCompressedAccountsByOwner } from "@/hooks/compression";
 
 import { DataTable } from "@/components/data-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import Loading from "@/components/loading";
-import Signature from "@/components/signature";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import Address from "./address";
 
 export default function CompressedAccounts({ address }: { address: string }) {
-  type Item = z.infer<typeof itemSchema>;
-
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {

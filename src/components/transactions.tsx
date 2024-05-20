@@ -3,11 +3,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { resultSchema } from "@/schemas/getSignaturesForAddress";
+import { Result } from "@/schemas/getSignaturesForAddress";
 
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 
@@ -20,8 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Transactions({ address }: { address: string }) {
-  type Result = z.infer<typeof resultSchema>;
-
   const columns = useMemo<ColumnDef<Result>[]>(
     () => [
       {

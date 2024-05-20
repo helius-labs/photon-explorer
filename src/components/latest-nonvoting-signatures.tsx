@@ -3,11 +3,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { itemSchema } from "@/schemas/getLatestNonVotingSignatures";
+import { Item } from "@/schemas/getLatestNonVotingSignatures";
 
 import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 
@@ -20,8 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LatestNonVotingSignatures() {
-  type Item = z.infer<typeof itemSchema>;
-
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {

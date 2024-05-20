@@ -3,9 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
-import { valueSchema } from "@/schemas/getTokenAccountsByOwner";
+import { Value } from "@/schemas/getTokenAccountsByOwner";
 
 import { useGetTokenAccountsByOwner } from "@/hooks/web3";
 
@@ -17,8 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function TokenAccounts({ address }: { address: string }) {
-  type Value = z.infer<typeof valueSchema>;
-
   const columns = useMemo<ColumnDef<Value>[]>(
     () => [
       {

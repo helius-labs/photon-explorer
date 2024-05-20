@@ -40,6 +40,8 @@ export const valueSchema = z.object({
   pubkey: z.string(),
 });
 
+export type Value = z.infer<typeof valueSchema>;
+
 export const contextSchema = z.object({
   slot: z.number(),
 });

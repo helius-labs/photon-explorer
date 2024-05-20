@@ -3,11 +3,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { transactionItemSchema } from "@/schemas/getBlock";
+import { TransactionItem } from "@/schemas/getBlock";
 
 import { useGetBlock, useGetSlot } from "@/hooks/web3";
 
@@ -29,8 +28,6 @@ export default function LatestTransactions() {
     err: string | null;
     blockTime: number;
   };
-
-  type TransactionItem = z.infer<typeof transactionItemSchema>;
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [

@@ -3,11 +3,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { itemSchema } from "@/schemas/getCompressionSignaturesForTokenOwner";
+import { Item } from "@/schemas/getCompressionSignaturesForTokenOwner";
 
 import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
 
@@ -24,8 +23,6 @@ export default function CompressedTransactionsByAddress({
 }: {
   address: string;
 }) {
-  type Item = z.infer<typeof itemSchema>;
-
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {

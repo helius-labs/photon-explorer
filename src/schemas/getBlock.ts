@@ -53,6 +53,8 @@ export const transactionItemSchema = z.object({
   transaction: transactionSchema,
 });
 
+export type TransactionItem = z.infer<typeof transactionItemSchema>;
+
 // Define the result object schema
 export const resultSchema = z.object({
   blockHeight: z.number(),

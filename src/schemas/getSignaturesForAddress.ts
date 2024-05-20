@@ -17,6 +17,8 @@ export const resultSchema = z.object({
   blockTime: z.nullable(z.number()),
 });
 
+export type Result = z.infer<typeof resultSchema>;
+
 export const getSignaturesForAddressSchema = z.object({
   jsonrpc: z.string(),
   result: z.array(resultSchema),

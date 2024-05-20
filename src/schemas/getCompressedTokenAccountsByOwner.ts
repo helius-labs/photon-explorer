@@ -27,6 +27,8 @@ export const itemSchema = z.object({
   }),
 });
 
+export type Item = z.infer<typeof itemSchema>;
+
 export const resultSchema = z.object({
   context: z.object({
     slot: z.number(),

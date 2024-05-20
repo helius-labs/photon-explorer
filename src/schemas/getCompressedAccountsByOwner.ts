@@ -18,6 +18,8 @@ export const itemSchema = z.object({
   tree: z.string(),
 });
 
+export type Item = z.infer<typeof itemSchema>;
+
 export const resultSchema = z.object({
   context: z.object({
     slot: z.number(),

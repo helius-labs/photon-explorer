@@ -3,9 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
-import { z } from "zod";
 
-import { itemSchema } from "@/schemas/getCompressedTokenAccountsByOwner";
+import { Item } from "@/schemas/getCompressedTokenAccountsByOwner";
 
 import { useGetCompressedTokenAccountsByOwner } from "@/hooks/compression";
 
@@ -21,8 +20,6 @@ export default function CompressedTokenAccounts({
 }: {
   address: string;
 }) {
-  type Item = z.infer<typeof itemSchema>;
-
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {
