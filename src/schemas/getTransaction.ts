@@ -8,9 +8,11 @@ export const InstructionSchema = z.object({
   parsed: z
     .object({
       info: z.object({
-        destination: z.string(),
-        lamports: z.number(),
-        source: z.string(),
+        destination: z.string().optional(),
+        lamports: z.number().optional(),
+        source: z.string().optional(),
+        account: z.string().optional(),
+        space: z.number().optional(),
       }),
       type: z.string(),
     })
