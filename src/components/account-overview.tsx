@@ -36,7 +36,9 @@ export default function AccountOverview({
             <span className="text-muted-foreground">Balance</span>
           </div>
           <div className="col-span-3">
-            <span>{balance && (balance.value / 1e9).toFixed(9)} SOL</span>
+            <span>
+              {balance && Number((balance.value / 1e9).toFixed(9))} SOL
+            </span>
           </div>
 
           <div className="col-span-1">
@@ -141,7 +143,9 @@ export default function AccountOverview({
           </div>
           <div className="col-span-3">
             <span>
-              {compressedBalance && (compressedBalance.value / 1e9).toFixed(9)}{" "}
+              {compressedBalance &&
+                compressedBalance.value &&
+                Number((compressedBalance.value / 1e9).toFixed(9))}{" "}
               SOL
             </span>
           </div>

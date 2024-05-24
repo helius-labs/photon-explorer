@@ -55,7 +55,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
           <DataTableColumnHeader column={column} title="Amount" />
         ),
         cell: ({ row }) =>
-          `${((row.getValue("lamports") as number) / 1e9).toFixed(7)} SOL`,
+          `${Number(((row.getValue("lamports") as number) / 1e9).toFixed(7))} SOL`,
         enableSorting: true,
       },
     ],

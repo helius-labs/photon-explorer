@@ -46,9 +46,7 @@ export default function TokenAccounts({ address }: { address: string }) {
           <DataTableColumnHeader column={column} title="Balance" />
         ),
         cell: ({ row }) =>
-          row.original.account.data.parsed.info.tokenAmount?.uiAmount.toFixed(
-            9,
-          ),
+          row.original.account.data.parsed.info.tokenAmount?.uiAmountString,
         enableSorting: true,
       },
     ],

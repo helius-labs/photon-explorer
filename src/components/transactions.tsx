@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
+import { compressions } from "@/lib/data";
 import { timeAgoWithFormat } from "@/lib/utils";
 
 import { Result } from "@/schemas/getSignaturesForAddress";
@@ -53,8 +54,28 @@ export default function Transactions({ address }: { address: string }) {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Compression" />
         ),
-        cell: ({ row }) => <>{row.getValue("compression") ? "Yes" : "No"}</>,
+        cell: ({ row }) => {
+          const compression = compressions.find(
+            (compression) => compression.value === row.getValue("compression"),
+          );
+
+          if (!compression) {
+            return null;
+          }
+
+          return (
+            <div className="flex w-[100px] items-center">
+              {compression.icon && (
+                <compression.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+              )}
+              <span>{compression.label}</span>
+            </div>
+          );
+        },
         enableSorting: true,
+        filterFn: (row, id, value) => {
+          return value.includes(row.getValue(id));
+        },
       },
       {
         accessorKey: "err",

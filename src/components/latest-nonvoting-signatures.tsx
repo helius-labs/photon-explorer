@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
+import { compressions, statuses } from "@/lib/data";
 import { timeAgoWithFormat } from "@/lib/utils";
 
 import { Item } from "@/schemas/getLatestNonVotingSignatures";
@@ -25,7 +26,7 @@ export default function LatestNonVotingSignatures() {
   type Transaction = {
     slot: number;
     signature: string;
-    err: object | null;
+    status: boolean;
     blockTime: number | null;
     compression: boolean;
   };
@@ -55,20 +56,56 @@ export default function LatestNonVotingSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Compression" />
         ),
-        cell: ({ row }) => <>{row.getValue("compression") ? "Yes" : "No"}</>,
+        cell: ({ row }) => {
+          const compression = compressions.find(
+            (compression) => compression.value === row.getValue("compression"),
+          );
+
+          if (!compression) {
+            return null;
+          }
+
+          return (
+            <div className="flex w-[100px] items-center">
+              {compression.icon && (
+                <compression.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+              )}
+              <span>{compression.label}</span>
+            </div>
+          );
+        },
         enableSorting: true,
+        filterFn: (row, id, value) => {
+          return value.includes(row.getValue(id));
+        },
       },
       {
-        accessorKey: "err",
+        accessorKey: "status",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Status" />
         ),
-        cell: ({ row }) => (
-          <Badge className="text-xs" variant="outline">
-            {row.getValue("err") === null ? "Success" : "Failed"}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const status = statuses.find(
+            (status) => status.value === row.getValue("status"),
+          );
+
+          if (!status) {
+            return null;
+          }
+
+          return (
+            <div className="flex w-[100px] items-center">
+              {status.icon && (
+                <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+              )}
+              <span>{status.label}</span>
+            </div>
+          );
+        },
         enableSorting: true,
+        filterFn: (row, id, value) => {
+          return value.includes(row.getValue(id));
+        },
       },
       {
         accessorKey: "blockTime",
@@ -97,7 +134,7 @@ export default function LatestNonVotingSignatures() {
     (item: Item): Transaction => ({
       slot: item.slot,
       signature: item.signature,
-      err: null,
+      status: true,
       blockTime: item.blockTime,
       compression: dataCompressions?.result.value.items.some(
         (compressionItem) => compressionItem.signature === item.signature,

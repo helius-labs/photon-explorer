@@ -1,10 +1,10 @@
 "use client";
 
 import Address from "@/components/address";
+import Data from "@/components/data";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import Data from "@/components/data";
 
 export default function Instruction({
   instruction,
@@ -55,7 +55,7 @@ export default function Instruction({
                       <TableRow key={`transfer-amount-${index}`}>
                         <TableCell>Transfer Amount</TableCell>
                         <TableCell>
-                          {`${(instruction.parsed.info.lamports / 1e9).toFixed(7)} SOL`}
+                          {`${Number((instruction.parsed.info.lamports / 1e9).toFixed(7))} SOL`}
                         </TableCell>
                       </TableRow>
                     </>
