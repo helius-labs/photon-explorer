@@ -143,10 +143,11 @@ export default function AccountOverview({
           </div>
           <div className="col-span-3">
             <span>
-              {compressedBalance &&
-                compressedBalance.value &&
-                Number((compressedBalance.value / 1e9).toFixed(9))}{" "}
-              SOL
+              {compressedBalance && compressedBalance.value ? (
+                <>{Number((compressedBalance.value / 1e9).toFixed(9))} SOL</>
+              ) : (
+                <>-</>
+              )}
             </span>
           </div>
         </div>
