@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
-import { compressions } from "@/lib/data";
+import { compressions, statuses } from "@/lib/data";
 import { timeAgoWithFormat } from "@/lib/utils";
 
 import { Result } from "@/schemas/getSignaturesForAddress";
@@ -24,7 +24,7 @@ export default function Transactions({ address }: { address: string }) {
   type Transaction = {
     slot: number;
     signature: string;
-    err: object | null;
+    status: boolean;
     blockTime: number | null;
     compression: boolean;
   };
@@ -78,16 +78,32 @@ export default function Transactions({ address }: { address: string }) {
         },
       },
       {
-        accessorKey: "err",
+        accessorKey: "status",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Status" />
         ),
-        cell: ({ row }) => (
-          <Badge className="text-xs" variant="outline">
-            {row.getValue("err") === null ? "Success" : "Failed"}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const status = statuses.find(
+            (status) => status.value === row.getValue("status"),
+          );
+
+          if (!status) {
+            return null;
+          }
+
+          return (
+            <div className="flex w-[100px] items-center">
+              {status.icon && (
+                <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+              )}
+              <span>{status.label}</span>
+            </div>
+          );
+        },
         enableSorting: true,
+        filterFn: (row, id, value) => {
+          return value.includes(row.getValue(id));
+        },
       },
       {
         accessorKey: "blockTime",
@@ -161,7 +177,7 @@ export default function Transactions({ address }: { address: string }) {
     (item: Result): Transaction => ({
       slot: item.slot,
       signature: item.signature,
-      err: item.err,
+      status: item.err === null ? true : false,
       blockTime: item.blockTime,
       compression: dataCompressions?.result.value.items.some(
         (compressionItem) => compressionItem.signature === item.signature,

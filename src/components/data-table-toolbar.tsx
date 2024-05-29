@@ -22,7 +22,7 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {table.getColumn("signature") && (
+        {table.getAllColumns().find((x) => x.id === "signature") && (
           <Input
             placeholder="Filter signature..."
             value={
@@ -34,14 +34,14 @@ export function DataTableToolbar<TData>({
             className="h-8 w-[150px] lg:w-[250px]"
           />
         )}
-        {table.getColumn("compression") && (
+        {table.getAllColumns().find((x) => x.id === "compression") && (
           <DataTableFacetedFilter
             column={table.getColumn("compression")}
             title="Compression"
             options={compressions}
           />
         )}
-        {table.getColumn("status") && (
+        {table.getAllColumns().find((x) => x.id === "status") && (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"

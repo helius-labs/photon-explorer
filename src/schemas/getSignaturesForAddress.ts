@@ -5,9 +5,12 @@ export const resultSchema = z.object({
     z.object({
       InstructionError: z.tuple([
         z.number(),
-        z.object({
-          Custom: z.number(),
-        }),
+        z.union([
+          z.string(),
+          z.object({
+            Custom: z.number(),
+          }),
+        ]),
       ]),
     }),
   ),
