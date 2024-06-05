@@ -35,7 +35,7 @@ export default function AccountDetails({ address }: { address: string }) {
             }}
           >
             <RotateCw className="mr-1 h-4 w-4" />
-            Reload
+            Refresh
           </Button>
         </CardContent>
       </Card>
@@ -62,7 +62,7 @@ export default function AccountDetails({ address }: { address: string }) {
             }}
           >
             <RotateCw className="mr-1 h-4 w-4" />
-            Reload
+            Refresh
           </Button>
         </CardContent>
       </Card>

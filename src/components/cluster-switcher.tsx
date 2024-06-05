@@ -1,6 +1,9 @@
 "use client";
 
+import { useCluster } from "@/components/providers/cluster-provider";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Link from "@/components/ui/link";
 import {
   Sheet,
   SheetContent,
@@ -8,9 +11,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { useCluster } from "@/components/providers/cluster-provider";
-import Link from "@/components/ui/link";
 
 export default function ClusterSwitcher() {
   const {

@@ -1,5 +1,3 @@
-"use client";
-
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 
 import Address from "@/components/address";

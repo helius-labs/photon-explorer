@@ -88,7 +88,7 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
 export function useGetTransaction(signature: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [endpoint, "getTransaction", signature],
     queryFn: async () => {
       const response = await fetch(endpoint, {
@@ -111,14 +111,6 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
     },
     enabled,
   });
-
-  return {
-    data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetAccountInfo(address: string, enabled: boolean = true) {

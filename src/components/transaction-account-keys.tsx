@@ -1,5 +1,3 @@
-"use client";
-
 import { Result } from "@/schemas/getTransaction";
 
 import Address from "@/components/address";

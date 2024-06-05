@@ -1,6 +1,4 @@
-"use client";
-
-import { CircleHelp } from "lucide-react";
+import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
@@ -9,6 +7,7 @@ import { Result } from "@/schemas/getTransaction";
 import Address from "@/components/address";
 import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Popover,
@@ -17,11 +16,34 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
-export default function TransactionOverview({ result }: { result: Result }) {
+export default function TransactionOverview({
+  result,
+  refetch,
+  isFetching,
+}: {
+  result: Result;
+  refetch: () => void;
+  isFetching: boolean;
+}) {
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Overview</CardTitle>
+      <CardHeader className="flex flex-row items-center">
+        <div className="grid gap-2">
+          <CardTitle>Overview</CardTitle>
+        </div>
+        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
+          {isFetching ? (
+            <>
+              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
+              Loading
+            </>
+          ) : (
+            <>
+              <RotateCw className="mr-1 h-4 w-4" />
+              Refresh
+            </>
+          )}
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-4 gap-3">

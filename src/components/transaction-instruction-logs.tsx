@@ -1,5 +1,3 @@
-"use client";
-
 import { Result } from "@/schemas/getTransaction";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
