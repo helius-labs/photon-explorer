@@ -20,7 +20,35 @@ export default function TransactionTokenBalances({
 }: {
   result: Result;
 }) {
-  if (result.meta.postTokenBalances.length === 0) return null;
+  type TokenBalanace = {
+    address: string;
+    mint: string;
+    change: number;
+    postBalance: string;
+  };
+
+  if (result.meta.preTokenBalances.length === 0) return null;
+
+  // Calculate token balances
+  const tokenBalances: TokenBalanace[] | undefined =
+    result.meta.preTokenBalances.map(
+      (item: any): TokenBalanace => ({
+        address:
+          result.transaction.message.accountKeys[item.accountIndex].pubkey,
+        mint: item.mint,
+        change:
+          item.uiTokenAmount.uiAmount -
+          (result.meta.postTokenBalances.find(
+            (postBalance: any) =>
+              postBalance.accountIndex === item.accountIndex,
+          )?.uiTokenAmount.uiAmount || 0),
+        postBalance:
+          result.meta.postTokenBalances.find(
+            (postBalance: any) =>
+              postBalance.accountIndex === item.accountIndex,
+          )?.uiTokenAmount.uiAmountString || "0",
+      }),
+    );
 
   return (
     <Card className="w-full">
@@ -38,25 +66,22 @@ export default function TransactionTokenBalances({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {result.meta.postTokenBalances.map((item: any, index: number) => (
+            {tokenBalances?.map((item: any, index: number) => (
               <TableRow key={`token-balance-${index}`}>
                 <TableCell>
-                  <Address short={false}>
-                    {
-                      result.transaction.message.accountKeys[item.accountIndex]
-                        .pubkey
-                    }
-                  </Address>
+                  <Address short={false}>{item.address}</Address>
                 </TableCell>
                 <TableCell>
                   <Address short={false}>{item.mint}</Address>
                 </TableCell>
                 <TableCell>
-                  <Badge>{`+ ${item.uiTokenAmount.uiAmountString}`}</Badge>
+                  <Badge variant="outline">
+                    {item.change > 0 ? "+" : ""}
+                    {item.change !== 0 ? item.change.toFixed(9) : item.change}
+                  </Badge>
                 </TableCell>
                 <TableCell>
-                  {item.uiTokenAmount.uiAmountString}{" "}
-                  <TokenSymbol>{item.mint}</TokenSymbol>
+                  {item.postBalance} <TokenSymbol>{item.mint}</TokenSymbol>
                 </TableCell>
               </TableRow>
             ))}
