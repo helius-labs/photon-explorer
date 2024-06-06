@@ -65,7 +65,12 @@ export default function LatestTransactions() {
           <DataTableColumnHeader column={column} title="Fee" />
         ),
         cell: ({ row }) =>
-          `${Number(((row.getValue("fee") as number) / 1e9).toFixed(7))} SOL`,
+          `${Number((row.getValue("fee") as number) / 1e9).toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 7,
+            },
+          )} SOL`,
         enableSorting: true,
       },
       {

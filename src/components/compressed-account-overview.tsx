@@ -48,7 +48,12 @@ export default function CompressedAccountOverview({
           <div className="col-span-3">
             <span>
               {compressedBalance &&
-                Number((compressedBalance.value / 1e9).toFixed(9))}{" "}
+                Number(compressedBalance.value / 1e9).toLocaleString(
+                  undefined,
+                  {
+                    minimumFractionDigits: 9,
+                  },
+                )}{" "}
               SOL
             </span>
           </div>

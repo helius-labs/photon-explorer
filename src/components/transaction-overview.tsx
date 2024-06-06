@@ -128,7 +128,12 @@ export default function TransactionOverview({
           </div>
           <div className="col-span-3">
             {result?.meta?.fee && (
-              <span>{Number((result?.meta?.fee / 1e9).toFixed(7))} SOL</span>
+              <span>
+                {Number(result?.meta?.fee / 1e9).toLocaleString(undefined, {
+                  minimumFractionDigits: 7,
+                })}{" "}
+                SOL
+              </span>
             )}
           </div>
         </div>

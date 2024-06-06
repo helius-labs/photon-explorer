@@ -37,7 +37,11 @@ export default function AccountOverview({
           </div>
           <div className="col-span-3">
             <span>
-              {balance && Number((balance.value / 1e9).toFixed(9))} SOL
+              {balance &&
+                Number(balance.value / 1e9).toLocaleString(undefined, {
+                  minimumFractionDigits: 9,
+                })}{" "}
+              SOL
             </span>
           </div>
 
@@ -144,7 +148,15 @@ export default function AccountOverview({
           <div className="col-span-3">
             <span>
               {compressedBalance && compressedBalance.value ? (
-                <>{Number((compressedBalance.value / 1e9).toFixed(9))} SOL</>
+                <>
+                  {Number(compressedBalance.value / 1e9).toLocaleString(
+                    undefined,
+                    {
+                      minimumFractionDigits: 9,
+                    },
+                  )}{" "}
+                  SOL
+                </>
               ) : (
                 <>-</>
               )}

@@ -78,7 +78,12 @@ export default function CompressedTokenAccounts({
           <DataTableColumnHeader column={column} title="Token Balance" />
         ),
         cell: ({ row }) =>
-          `${Number((row.original.tokenData.amount / 1e9).toFixed(9))} SOL`,
+          `${Number(row.original.tokenData.amount / 1e9).toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 9,
+            },
+          )} SOL`,
         enableSorting: true,
       },
     ],

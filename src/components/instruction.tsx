@@ -56,7 +56,11 @@ export default function Instruction({
                         <TableRow key={`transfer-amount-${index}`}>
                           <TableCell>Transfer Amount</TableCell>
                           <TableCell>
-                            {`${Number((instruction.parsed.info.lamports / 1e9).toFixed(7))} SOL`}
+                            {Number(
+                              instruction.parsed.info.lamports / 1_000_000_000,
+                            ).toLocaleString(undefined, {
+                              minimumFractionDigits: 7,
+                            })}
                           </TableCell>
                         </TableRow>
                       )}

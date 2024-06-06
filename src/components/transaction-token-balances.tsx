@@ -77,7 +77,11 @@ export default function TransactionTokenBalances({
                 <TableCell>
                   <Badge variant="outline">
                     {item.change > 0 ? "+" : ""}
-                    {item.change !== 0 ? item.change.toFixed(9) : item.change}
+                    {item.change !== 0
+                      ? item.change.toLocaleString(undefined, {
+                          minimumFractionDigits: 9,
+                        })
+                      : item.change}
                   </Badge>
                 </TableCell>
                 <TableCell>
