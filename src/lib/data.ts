@@ -148,4 +148,20 @@ export const addressLookupTable: Record<string, string> = {
   stkBL96RZkjY5ine4TvPihGqW8UHJfch2cokjAPzV8i: "Cardinal Staking",
   vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn: "Token Vault",
   whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc: "Orca Whirlpools",
+  C83cpRN6oaafjNgMQJvaYgAz592EP5wunKvbokeTKPLn: "Address Merkle Tree Program",
+  HNjtNrjt6irUPYEgxhx2Vcs42koK9fxzm3aFLHVaaRWz:
+    "Address Merkle Tree Queue Program",
+  "3MtrKu5Mjgh3JqeE5PeRzw2Ld28XjFgbbph67E6UERSx":
+    "Governance Authority Pda Program",
+  Edo2YjXU5eE17CejPBkupPgFLcYuAX47pGZmM7s2hAkj: "Group Pda Program",
+  "5bdFnXU47QjzGpzHfXnxcEi5WXyxzEAZzd1vrE39bf1W": "Merkle Tree Pubkey Program",
+  "44J4oDXpjPAbzHCSc24q7NEiPekss4sAbLd8ka4gd9CZ":
+    "Nullifier Queue Pubkey Program",
+  ytwwVWhQUMoTKdirKmvEW5xCRVr4B2dJZnToiHtE2L2: "Registered Program Pda Program",
+  "5QPEJ5zDsVou9FQS3KCauKswM3VwBEBu4dpL9xTqkWwN": "Account Compression Program",
+  "6UqiSPd2mRCTTwkzhcs1M6DGYsqHWd5jiPueX3LwDMXQ":
+    "Light Compressed Pda Program",
+  "9sixVEthz2kMSKfeApZXHwuboT6DZuT6crAYJTciUCqE":
+    "Light Compressed Token Program",
+  noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV: "Noop Program",
 };
