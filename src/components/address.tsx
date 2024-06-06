@@ -1,9 +1,12 @@
 "use client";
 
-import * as React from "react";
 import { CheckIcon, ClipboardIcon } from "lucide-react";
-import Link from "@/components/ui/link";
+import * as React from "react";
+
+import { addressLookupTable } from "@/lib/data";
+
 import { Button, ButtonProps } from "@/components/ui/button";
+import Link from "@/components/ui/link";
 import {
   Tooltip,
   TooltipContent,
@@ -18,6 +21,8 @@ interface AddressProps {
 
 export default function Address({ children, short = true }: AddressProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
+
+  const name = addressLookupTable[children] ?? null;
 
   React.useEffect(() => {
     setTimeout(() => {
@@ -48,10 +53,10 @@ export default function Address({ children, short = true }: AddressProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Link href={`/address/${children}`} className="hover:underline">
-              {short ? (
+              {short && !name ? (
                 <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
               ) : (
-                <>{children}</>
+                <>{name ?? children}</>
               )}
             </Link>
           </TooltipTrigger>

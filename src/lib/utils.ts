@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { addressLookupTable } from "./data";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -28,24 +30,6 @@ export function isSolanaSignature(txHash: string): boolean {
     return false;
   }
 }
-
-const addressLookupTable: Record<string, string> = {
-  "11111111111111111111111111111111": "System Program",
-  AddressLookupTab1e1111111111111111111111111: "Address Lookup Table Program",
-  ComputeBudget111111111111111111111111111111: "Compute Budget Program",
-  Config1111111111111111111111111111111111111: "Config Program",
-  Ed25519SigVerify111111111111111111111111111: "Ed25519 SigVerify Precompile",
-  KeccakSecp256k11111111111111111111111111111: "Secp256k1 SigVerify Precompile",
-  Stake11111111111111111111111111111111111111: "Stake Program",
-  TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA: "Token Program",
-  TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb: "Token-2022 Program",
-  Vote111111111111111111111111111111111111111: "Vote Program",
-  BPFLoader1111111111111111111111111111111111: "BPF Loader",
-  BPFLoader2111111111111111111111111111111111: "BPF Loader 2",
-  BPFLoaderUpgradeab1e11111111111111111111111: "BPF Upgradeable Loader",
-  MoveLdr111111111111111111111111111111111111: "Move Loader",
-  NativeLoader1111111111111111111111111111111: "Native Loader",
-};
 
 export function isSolanaProgramAddress(address: string): boolean {
   const programName = addressLookupTable[address];
