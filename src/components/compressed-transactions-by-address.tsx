@@ -10,8 +10,8 @@ import { Item } from "@/schemas/getCompressionSignaturesForTokenOwner";
 
 import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
 
-import { DataTable } from "@/components/data-table";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import Loading from "@/components/loading";
 import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";

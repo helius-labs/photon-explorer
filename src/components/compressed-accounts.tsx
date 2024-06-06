@@ -8,8 +8,8 @@ import { Item } from "@/schemas/getCompressedAccountsByOwner";
 
 import { useGetCompressedAccountsByOwner } from "@/hooks/compression";
 
-import { DataTable } from "@/components/data-table";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
