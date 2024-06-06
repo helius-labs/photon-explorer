@@ -69,10 +69,10 @@ export default function TransactionTokenBalances({
             {tokenBalances?.map((item: any, index: number) => (
               <TableRow key={`token-balance-${index}`}>
                 <TableCell>
-                  <Address short={false}>{item.address}</Address>
+                  <Address short={true}>{item.address}</Address>
                 </TableCell>
                 <TableCell>
-                  <Address short={false}>{item.mint}</Address>
+                  <Address short={true}>{item.mint}</Address>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">

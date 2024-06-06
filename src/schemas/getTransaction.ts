@@ -25,6 +25,33 @@ export const InnerInstructionSchema = z.object({
   instructions: z.array(InstructionSchema),
 });
 
+export const uiTokenAmountSchema = z.object({
+  amount: z.string(),
+  decimals: z.number(),
+  uiAmount: z.number().nullable(),
+  uiAmountString: z.string(),
+});
+
+export const postTokenBalanceSchema = z.object({
+  accountIndex: z.number(),
+  mint: z.string(),
+  owner: z.string(),
+  programId: z.string(),
+  uiTokenAmount: uiTokenAmountSchema,
+});
+
+export const postTokenBalancesSchema = z.array(postTokenBalanceSchema);
+
+const preTokenBalanceSchema = z.object({
+  accountIndex: z.number(),
+  mint: z.string(),
+  owner: z.string(),
+  programId: z.string(),
+  uiTokenAmount: uiTokenAmountSchema,
+});
+
+const preTokenBalancesSchema = z.array(preTokenBalanceSchema);
+
 export const MetaSchema = z.object({
   computeUnitsConsumed: z.number(),
   err: z.null(),
@@ -32,9 +59,9 @@ export const MetaSchema = z.object({
   innerInstructions: z.array(InnerInstructionSchema),
   logMessages: z.array(z.string()),
   postBalances: z.array(z.number()),
-  postTokenBalances: z.array(z.unknown()),
+  postTokenBalances: postTokenBalancesSchema,
   preBalances: z.array(z.number()),
-  preTokenBalances: z.array(z.unknown()),
+  preTokenBalances: preTokenBalancesSchema,
   rewards: z.array(z.unknown()),
   status: z.object({
     Ok: z.null(),

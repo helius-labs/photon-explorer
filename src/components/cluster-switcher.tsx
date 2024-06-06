@@ -3,6 +3,7 @@
 import { useCluster } from "@/components/providers/cluster-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Link from "@/components/ui/link";
 import {
   Sheet,
@@ -17,8 +18,10 @@ export default function ClusterSwitcher() {
     clusters,
     cluster,
     setCluster,
-    clusterCustomRpcUrl,
-    setClusterCustomRpcUrl,
+    customEndpoint,
+    setCustomEndpoint,
+    customCompressionEndpoint,
+    setCustomCompressionEndpoint,
   } = useCluster();
 
   return (
@@ -44,13 +47,38 @@ export default function ClusterSwitcher() {
               {label}
             </Button>
           ))}
-          <Input
-            type="url"
-            placeholder="Custom RPC URL"
-            value={clusterCustomRpcUrl}
-            onChange={(e) => setClusterCustomRpcUrl(e.target.value)}
-            className={cluster !== "custom" ? "hidden" : ""}
-          />
+          <div
+            className={
+              cluster !== "custom"
+                ? "hidden"
+                : "grid w-full max-w-sm items-center gap-2"
+            }
+          >
+            <Label htmlFor="customEndpoint">Custom RPC URL</Label>
+            <Input
+              id="customEndpoint"
+              type="url"
+              value={customEndpoint}
+              onChange={(e) => setCustomEndpoint(e.target.value)}
+            />{" "}
+          </div>
+          <div
+            className={
+              cluster !== "custom"
+                ? "hidden"
+                : "grid w-full max-w-sm items-center gap-2"
+            }
+          >
+            <Label htmlFor="customCompressionEndpoint">
+              Custom Compression RPC URL
+            </Label>
+            <Input
+              id="customCompressionEndpoint"
+              type="url"
+              value={customCompressionEndpoint}
+              onChange={(e) => setCustomCompressionEndpoint(e.target.value)}
+            />
+          </div>
         </div>
         <div
           className={

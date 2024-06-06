@@ -52,12 +52,14 @@ export default function Instruction({
                           </Address>
                         </TableCell>
                       </TableRow>
-                      <TableRow key={`transfer-amount-${index}`}>
-                        <TableCell>Transfer Amount</TableCell>
-                        <TableCell>
-                          {`${Number((instruction.parsed.info.lamports / 1e9).toFixed(7))} SOL`}
-                        </TableCell>
-                      </TableRow>
+                      {instruction.parsed.info.lamports && (
+                        <TableRow key={`transfer-amount-${index}`}>
+                          <TableCell>Transfer Amount</TableCell>
+                          <TableCell>
+                            {`${Number((instruction.parsed.info.lamports / 1e9).toFixed(7))} SOL`}
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </>
                   ) : (
                     <>
