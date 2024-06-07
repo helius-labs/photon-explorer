@@ -7,7 +7,19 @@ export const statusSchema = z.object({
 
 // Define the meta object schema
 export const metaSchema = z.object({
-  err: z.null(),
+  err: z.nullable(
+    z.object({
+      InstructionError: z.tuple([
+        z.number(),
+        z.union([
+          z.string(),
+          z.object({
+            Custom: z.number(),
+          }),
+        ]),
+      ]),
+    }),
+  ),
   fee: z.number(),
   innerInstructions: z.array(z.unknown()),
   logMessages: z.array(z.unknown()),

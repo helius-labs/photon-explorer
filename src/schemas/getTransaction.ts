@@ -36,7 +36,6 @@ export const postTokenBalanceSchema = z.object({
   accountIndex: z.number(),
   mint: z.string(),
   owner: z.string(),
-  programId: z.string(),
   uiTokenAmount: uiTokenAmountSchema,
 });
 
@@ -46,15 +45,26 @@ const preTokenBalanceSchema = z.object({
   accountIndex: z.number(),
   mint: z.string(),
   owner: z.string(),
-  programId: z.string(),
   uiTokenAmount: uiTokenAmountSchema,
 });
 
 const preTokenBalancesSchema = z.array(preTokenBalanceSchema);
 
 export const MetaSchema = z.object({
-  computeUnitsConsumed: z.number(),
-  err: z.null(),
+  computeUnitsConsumed: z.number().optional(),
+  err: z.nullable(
+    z.object({
+      InstructionError: z.tuple([
+        z.number(),
+        z.union([
+          z.string(),
+          z.object({
+            Custom: z.number(),
+          }),
+        ]),
+      ]),
+    }),
+  ),
   fee: z.number(),
   innerInstructions: z.array(InnerInstructionSchema),
   logMessages: z.array(z.string()),
@@ -64,7 +74,22 @@ export const MetaSchema = z.object({
   preTokenBalances: preTokenBalancesSchema,
   rewards: z.array(z.unknown()),
   status: z.object({
-    Ok: z.null(),
+    Ok: z.null().optional(),
+    Err: z
+      .nullable(
+        z.object({
+          InstructionError: z.tuple([
+            z.number(),
+            z.union([
+              z.string(),
+              z.object({
+                Custom: z.number(),
+              }),
+            ]),
+          ]),
+        }),
+      )
+      .optional(),
   }),
 });
 
@@ -78,7 +103,7 @@ export const AccountKeySchema = z.object({
 export const TransactionSchema = z.object({
   message: z.object({
     accountKeys: z.array(AccountKeySchema),
-    addressTableLookups: z.array(z.unknown()),
+    addressTableLookups: z.array(z.unknown()).optional(),
     instructions: z.array(InstructionSchema),
     recentBlockhash: z.string(),
   }),
@@ -90,7 +115,7 @@ export const ResultSchema = z.object({
   meta: MetaSchema,
   slot: z.number(),
   transaction: TransactionSchema,
-  version: z.number(),
+  version: z.union([z.string(), z.number()]),
 });
 
 export type Result = z.infer<typeof ResultSchema>;
