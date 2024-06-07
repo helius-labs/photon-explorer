@@ -1,7 +1,14 @@
 "use client";
 
 import { useQueryState } from "nuqs";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 export interface Cluster {
   value: string;
@@ -62,15 +69,24 @@ const clusters: Cluster[] = [
 ];
 
 const defaultCluster = "testnet";
+const storageKeyCustomEndPoint = "CustomEndPoint";
+const storageKeyCustomCompressionEndPoint = "CustomCompressionEndPoint";
 
 export function ClusterProvider({ children }: { children: React.ReactNode }) {
-  // TODO: Store this in local storage and persist across page refreshes
-  const [customEndpoint, setCustomEndpoint] = useState(
-    process.env.NEXT_PUBLIC_LOCALNET!,
+  const [customEndpoint, setCustomEndpointState] = useState(() =>
+    getCustomEndpoint(
+      storageKeyCustomEndPoint,
+      process.env.NEXT_PUBLIC_LOCALNET!,
+    ),
   );
-  const [customCompressionEndpoint, setCustomCompressionEndpoint] = useState(
-    process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
-  );
+
+  const [customCompressionEndpoint, setCustomCompressionEndpointState] =
+    useState(() =>
+      getCustomEndpoint(
+        storageKeyCustomCompressionEndPoint,
+        process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
+      ),
+    );
 
   const [cluster, setCluster] = useQueryState("cluster", {
     defaultValue: defaultCluster,
@@ -83,6 +99,28 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
   const [compressionEndpoint, setCompressionEndpoint] = useState(() =>
     getCompressionEndpoint(cluster),
   );
+
+  const setCustomEndpoint = useCallback((value: any) => {
+    setCustomEndpointState(() => value);
+
+    // Save to storage
+    try {
+      localStorage.setItem(storageKeyCustomEndPoint, value);
+    } catch (e) {
+      // Unsupported
+    }
+  }, []);
+
+  const setCustomCompressionEndpoint = useCallback((value: any) => {
+    setCustomCompressionEndpointState(() => value);
+
+    // Save to storage
+    try {
+      localStorage.setItem(storageKeyCustomCompressionEndPoint, value);
+    } catch (e) {
+      // Unsupported
+    }
+  }, []);
 
   // Set endpoint based on cluster
   useEffect(() => {
@@ -139,4 +177,14 @@ const getEndpoint = (cluster: string) => {
 
 const getCompressionEndpoint = (cluster: string) => {
   return compressionEndpointMap[cluster as keyof typeof compressionEndpointMap];
+};
+
+const getCustomEndpoint = (key: string, fallback: string) => {
+  let customEndpoint;
+  try {
+    customEndpoint = localStorage.getItem(key) || undefined;
+  } catch (e) {
+    // Unsupported
+  }
+  return customEndpoint || fallback;
 };
