@@ -68,7 +68,7 @@ const clusters: Cluster[] = [
   { value: "custom", label: "Custom RPC URL", disabled: false },
 ];
 
-const defaultCluster = "testnet";
+const defaultCluster = "mainnet-beta";
 const storageKeyCustomEndPoint = "CustomEndPoint";
 const storageKeyCustomCompressionEndPoint = "CustomCompressionEndPoint";
 
