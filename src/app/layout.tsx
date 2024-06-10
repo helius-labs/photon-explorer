@@ -63,7 +63,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <Suspense>
               <ClusterProvider>
                 <Header />
-                <main className="container flex-1 space-y-4 p-8 pt-6">
+                <main className="container flex-1 space-y-4 p-8 pt-8">
                   {children}
                 </main>
                 <Footer />

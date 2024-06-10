@@ -116,7 +116,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
 export function useGetAccountInfo(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [endpoint, "getAccountInfo", address],
     queryFn: async () => {
       return fetch(endpoint, {
@@ -136,14 +136,6 @@ export function useGetAccountInfo(address: string, enabled: boolean = true) {
     },
     enabled,
   });
-
-  return {
-    account: data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetBalance(address: string, enabled: boolean = true) {

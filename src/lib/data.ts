@@ -96,7 +96,7 @@ export const addressLookupTable: Record<string, string> = {
   Dooar9JkhdZ7J3LHN3A7YCuoGRUggXhQaG4kijfLGU2j: "Stepn",
   E1XRkj9fPF2NQUdoq41AHPqwMDHykYfn5PzBXAyDs7Be: "Elixir V2",
   EA15T2W45BJFm71XmB5VGcsiWGKZTNfnK6aCmE2Hb5eC: "English Auction",
-  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: "Usdc Token",
+  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: "USDC Token",
   EUqojwWA2rd19FZrzeBncJsm38Jm1hEhE3zsmX3bRc2o: "Serum Dex V2",
   EewxydAPCCVuNEyrVN68PuSYdQ7wKn27V9Gjeoi8dy3S: "Lifinity",
   FFAUags5SYJEioBUkPtKuArccNzcNgUubhssCH2jSbeH: "Foxy Auction",

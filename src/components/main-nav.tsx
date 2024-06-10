@@ -1,6 +1,8 @@
-import Link from "@/components/ui/link";
+import { SquareX } from "lucide-react";
+
 import { cn } from "@/lib/utils";
-import { CircleDotDashed } from "lucide-react";
+
+import Link from "@/components/ui/link";
 
 export function MainNav({
   className,
@@ -15,8 +17,8 @@ export function MainNav({
         href="/"
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
-        <CircleDotDashed className="h-6 w-6" />
-        <span>Photon</span>
+        <SquareX className="h-6 w-6" />
+        <span>XRAY</span>
       </Link>
     </nav>
   );
