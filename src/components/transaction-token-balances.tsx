@@ -1,9 +1,6 @@
 import { Result } from "@/schemas/getTransaction";
 
-import { useGetTokenListAll } from "@/hooks/tokenlist";
-
 import Address from "@/components/address";
-import TokenSymbol from "@/components/token-symbol";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -85,7 +82,7 @@ export default function TransactionTokenBalances({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {item.postBalance} <TokenSymbol>{item.mint}</TokenSymbol>
+                  {item.postBalance} {item.mint}
                 </TableCell>
               </TableRow>
             ))}
