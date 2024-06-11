@@ -36,17 +36,21 @@ export default function ClusterSwitcher() {
           <SheetTitle>Choose a Cluster</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 py-4">
-          {clusters.map(({ value, label, disabled }) => (
-            <Button
-              variant="outline"
-              key={value}
-              onClick={() => setCluster(value)}
-              className={cluster === value ? "ring-1" : ""}
-              disabled={disabled}
-            >
-              {label}
-            </Button>
-          ))}
+          {clusters
+            .filter(({ disabled }) => {
+              return !disabled;
+            })
+            .map(({ value, label, disabled }) => (
+              <Button
+                variant="outline"
+                key={value}
+                onClick={() => setCluster(value)}
+                className={cluster === value ? "ring-1" : ""}
+                disabled={disabled}
+              >
+                {label}
+              </Button>
+            ))}
           <div
             className={
               cluster !== "custom"
