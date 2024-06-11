@@ -2,10 +2,11 @@
 
 import { LoaderCircle, RotateCw } from "lucide-react";
 
-import { Token } from "@/schemas/getTokenAccountsByOwner";
-
-import { useGetTokenListAll } from "@/hooks/tokenlist";
-import { useGetTokenAccountsByOwner } from "@/hooks/web3";
+import {
+  TokenInfoWithAddress,
+  useGetAccountTokens,
+} from "@/hooks/useGetAccountTokens";
+import { useGetTokenListAll } from "@/hooks/useGetTokenListAll";
 
 import Loading from "@/components/loading";
 import TokenCard from "@/components/token-card";
@@ -13,11 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Tokens({ address }: { address: string }) {
-  const { data, isLoading, isFetching, isError, refetch } =
-    useGetTokenAccountsByOwner(address);
-
-  const tokenList = useGetTokenListAll();
+export default function AccountTokens({ address }: { address: string }) {
+  const { data, isLoading, isFetching, isPending, isError, refetch } =
+    useGetAccountTokens(address);
 
   // TODO: Refactor jsx
   if (isError)
@@ -46,7 +45,7 @@ export default function Tokens({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
-  if (isLoading || tokenList.isLoading)
+  if (isLoading || isPending)
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col pt-6 gap-4">
@@ -63,29 +62,25 @@ export default function Tokens({ address }: { address: string }) {
       </Card>
     );
 
-  // Filter out tokens that are not in the token list
-  let tokens = data?.result.value.filter((value: Token) => {
-    const token = tokenList.data?.find(
-      (item: { address: string }) =>
-        item.address === value.account.data.parsed.info.mint,
-    );
-
-    return token && value.account.data.parsed.info.tokenAmount?.uiAmount! > 0;
-  });
-
-  tokens = tokens?.sort((a: Token, b: Token) => {
+  // Filter out tokens that are not in the token list and
+  const tokens = data?.filter((tokenInfoWithPubkey: TokenInfoWithAddress) => {
     return (
-      b.account.data.parsed.info.tokenAmount?.uiAmount! -
-      a.account.data.parsed.info.tokenAmount?.uiAmount!
+      tokenInfoWithPubkey.name &&
+      tokenInfoWithPubkey.info.tokenAmount?.uiAmount! > 0
     );
   });
+
+  // Sort by token amount
+  tokens?.sort(
+    (a, b) => b.info.tokenAmount?.uiAmount! - a.info.tokenAmount?.uiAmount!,
+  );
 
   return (
     <Card className="col-span-12">
       <CardContent className="flex flex-col pt-6 gap-4">
         {isLoading && <Loading />}
-        {tokens?.map((token: Token) => (
-          <TokenCard key={token.pubkey} token={token} />
+        {tokens?.map((token: TokenInfoWithAddress) => (
+          <TokenCard key={token.address} token={token} />
         ))}
       </CardContent>
     </Card>

@@ -1,41 +1,27 @@
 "use client";
 
-import { Token } from "@/schemas/getTokenAccountsByOwner";
+import { lamportsToSolString } from "@/lib/utils";
 
-import { useGetTokenListAll } from "@/hooks/tokenlist";
+import { TokenInfoWithAddress } from "@/hooks/useGetAccountTokens";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function TokenCard({ token }: { token: Token }) {
-  const { data, isLoading, isFetching, isError } = useGetTokenListAll();
-
-  if (isError || isLoading || isFetching) return;
-
-  const jupiterTokenInfo = data?.find(
-    (item) => item.address === token.account.data.parsed.info.mint,
-  );
-
+export default function TokenCard({ token }: { token: TokenInfoWithAddress }) {
   return (
     <div className="flex items-center gap-3">
       <Avatar className="h-12 w-12">
-        <AvatarImage
-          src={jupiterTokenInfo?.logoURI}
-          alt={jupiterTokenInfo?.name}
-        />
-        <AvatarFallback>{jupiterTokenInfo?.name}</AvatarFallback>
+        <AvatarImage src={token?.logoURI} alt={token?.name} />
+        <AvatarFallback>
+          {token?.name?.slice(0, 1)}
+          {token?.name?.slice(-1)}
+        </AvatarFallback>
       </Avatar>
       <div className="grid gap-1">
         <div className="text-lg font-semibold leading-none">
-          {jupiterTokenInfo?.name || token.account.data.parsed.info.mint}
+          {token?.name || token.info.mint}
         </div>
         <div className="text-sm text-muted-foreground">
-          {token.account.data.parsed.info.tokenAmount?.uiAmount.toLocaleString(
-            undefined,
-            {
-              minimumFractionDigits: 5,
-            },
-          )}{" "}
-          {jupiterTokenInfo?.symbol}
+          {`${new Intl.NumberFormat("en-US", { maximumFractionDigits: 5 }).format(token?.info.tokenAmount?.uiAmount!)} ${token?.symbol}`}
         </div>
       </div>
     </div>

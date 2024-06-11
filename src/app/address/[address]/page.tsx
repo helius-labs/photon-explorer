@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
 
-import AccountDetails from "@/components/account-details";
+import AccountTokens from "@/components/account/AccountTokens";
 
-export const metadata: Metadata = {
-  title: "Account Details | Photon Block Explorer",
-  description: "",
-};
+type Props = Readonly<{
+  params: {
+    address: string;
+  };
+}>;
 
-export default function Page({ params }: { params: { address: string } }) {
-  return (
-    <>
-      <div className="grid gap-3">
-        <AccountDetails address={params.address} />
-      </div>
-    </>
-  );
+// or Dynamic metadata
+export async function generateMetadata({ params }: Props) {
+  return {
+    title: `Tokens | ${params.address} | Solana`,
+    description: `All Tokens owned by the address ${params.address} on Solana`,
+  };
+}
+
+export default function Page({ params }: Props) {
+  return <AccountTokens address={params.address} />;
 }

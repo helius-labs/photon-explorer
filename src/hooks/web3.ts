@@ -1,5 +1,6 @@
 "use client";
 
+import { address, createSolanaRpc } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
 import { getBlockSchema } from "@/schemas/getBlock";
@@ -113,62 +114,40 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
   });
 }
 
-export function useGetAccountInfo(address: string, enabled: boolean = true) {
+export function useGetAccountInfo(
+  addressInput: string,
+  enabled: boolean = true,
+) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getAccountInfo", address],
+    queryKey: [endpoint, "getAccountInfo", addressInput],
     queryFn: async () => {
-      return fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getAccountInfo",
-          params: [address, { encoding: "jsonParsed" }],
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      const rpc = createSolanaRpc(endpoint);
+
+      return await rpc
+        .getAccountInfo(address(addressInput), {
+          encoding: "jsonParsed",
+          commitment: "processed",
+        })
+        .send();
     },
     enabled,
   });
 }
 
-export function useGetBalance(address: string, enabled: boolean = true) {
+export function useGetBalance(addressInput: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
-    queryKey: [endpoint, "getBalance", address],
+  return useQuery({
+    queryKey: [endpoint, "getBalance", addressInput],
     queryFn: async () => {
-      return fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getBalance",
-          params: [address],
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      const rpc = createSolanaRpc(endpoint);
+
+      return await rpc.getBalance(address(addressInput)).send();
     },
     enabled,
   });
-
-  return {
-    balance: data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetSignaturesForAddress(

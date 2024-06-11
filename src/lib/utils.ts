@@ -3,6 +3,9 @@ import { twMerge } from "tailwind-merge";
 
 import { addressLookupTable } from "./data";
 
+export const LAMPORTS_PER_SOL = 1_000_000_000;
+export const MICRO_LAMPORTS_PER_LAMPORT = 1_000_000;
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -13,6 +16,34 @@ export function getBaseUrl() {
     : process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
       : `http://localhost:3000`;
+}
+
+export function lamportsToSol(lamports: number | bigint): number {
+  if (typeof lamports === "number") {
+    return lamports / LAMPORTS_PER_SOL;
+  }
+
+  let signMultiplier = 1;
+  if (lamports < 0) {
+    signMultiplier = -1;
+  }
+
+  const absLamports = lamports < 0 ? -lamports : lamports;
+  const lamportsString = absLamports.toString(10).padStart(10, "0");
+  const splitIndex = lamportsString.length - 9;
+  const solString =
+    lamportsString.slice(0, splitIndex) +
+    "." +
+    lamportsString.slice(splitIndex);
+  return signMultiplier * parseFloat(solString);
+}
+
+export function lamportsToSolString(
+  lamports: number | bigint,
+  maximumFractionDigits = 9,
+): string {
+  const sol = lamportsToSol(lamports);
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits }).format(sol);
 }
 
 export function isSolanaSignature(txHash: string): boolean {

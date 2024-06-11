@@ -31,11 +31,6 @@ export const compressions = [
   },
 ];
 
-/**
- * There are 1-billion lamports in one SOL
- */
-export const LAMPORTS_PER_SOL = 1000000000;
-
 export const addressLookupTable: Record<string, string> = {
   "11111111111111111111111111111111": "System Program",
   AddressLookupTab1e1111111111111111111111111: "Address Lookup Table Program",
