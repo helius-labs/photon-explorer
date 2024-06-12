@@ -50,34 +50,6 @@ export default function LatestNonVotingSignatures() {
         enableSorting: true,
       },
       {
-        accessorKey: "compression",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Compression" />
-        ),
-        cell: ({ row }) => {
-          const compression = compressions.find(
-            (compression) => compression.value === row.getValue("compression"),
-          );
-
-          if (!compression) {
-            return null;
-          }
-
-          return (
-            <div className="flex w-[100px] items-center">
-              {compression.icon && (
-                <compression.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-              )}
-              <span>{compression.label}</span>
-            </div>
-          );
-        },
-        enableSorting: true,
-        filterFn: (row, id, value) => {
-          return value.includes(row.getValue(id));
-        },
-      },
-      {
         accessorKey: "status",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Status" />
@@ -146,70 +118,17 @@ export default function LatestNonVotingSignatures() {
   if (isError)
     return (
       <Card>
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            {isFetching ? (
-              <>
-                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              <>
-                <RotateCw className="mr-1 h-4 w-4" />
-                Refresh
-              </>
-            )}
-          </Button>
-        </CardHeader>
         <CardContent className="pt-6">
           <div>Failed to load</div>
         </CardContent>
       </Card>
     );
-  if (isLoading || isPending || isFetching)
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-            Loading
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <Loading />
-        </CardContent>
-      </Card>
-    );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle>Latest Non-Voting Transactions</CardTitle>
-        </div>
-        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          {isFetching ? (
-            <>
-              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-              Loading
-            </>
-          ) : (
-            <>
-              <RotateCw className="mr-1 h-4 w-4" />
-              Refresh
-            </>
-          )}
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <DataTable data={signatures!} columns={columns} />
-      </CardContent>
-    </Card>
+    <div
+      className={`min-h-[500px] transition-opacity duration-700 ease-in-out ${isPending ? "opacity-0" : "opacity-100"}`}
+    >
+      {signatures && <DataTable data={signatures!} columns={columns} />}
+    </div>
   );
 }

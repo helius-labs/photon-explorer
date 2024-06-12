@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import TransactionDetails from "@/components/transaction/transaction-details";
 
 export const metadata: Metadata = {
-  title: "Transaction Details | Photon Block Explorer",
+  title: "Transaction Details | XRAY Beta - Solana Explorer",
   description: "",
 };
 

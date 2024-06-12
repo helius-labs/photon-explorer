@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
 
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
+import { Search } from "@/components/search";
 
 export const metadata: Metadata = {
-  title: "Home | Photon - Solana Explorer",
-  description: "Photon - Solana Explorer",
+  title: "Home | XRAY Beta - Solana Explorer",
+  description:
+    "The simplest, clearest and most readable explorer for everyday people.",
 };
 
 export default function Home() {
   return (
     <>
-      <div className="flex items-center justify-between space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Photon - Solana Explorer
-        </h1>
-      </div>
+      <div className="grid pt-40">
+        <div className="flex flex-col items-center space-y-10">
+          <h1 className="text-9xl font-bold">XRAY</h1>
 
-      <div className="grid gap-4 grid-cols-4">
-        <div className="col-span-4">
-          <LatestNonVotingSignatures />
+          <div className="w-[500px]">
+            <Search />
+          </div>
+
+          <div className="w-[700px] pb-16">
+            <LatestNonVotingSignatures />
+          </div>
         </div>
       </div>
     </>

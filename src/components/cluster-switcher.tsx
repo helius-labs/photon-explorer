@@ -831,7 +831,7 @@ export default function ClusterSwitcher() {
                   mkcert -install
                 </code>
               </div>
-              <div className="mb-[24px]">3. Reload Photon Explorer</div>
+              <div className="mb-[24px]">3. Reload XRAY</div>
             </div>
             <div>For Brave you can just disable Brave Shields.</div>
           </div>
