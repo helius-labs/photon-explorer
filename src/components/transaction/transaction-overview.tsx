@@ -78,13 +78,6 @@ export default function TransactionOverview({
           </div>
 
           <div className="col-span-1">
-            <span className="text-muted-foreground">Slot</span>
-          </div>
-          <div className="col-span-3">
-            <span>#{Number(data?.slot)}</span>
-          </div>
-
-          <div className="col-span-1">
             <span className="text-muted-foreground">Timestamp</span>
           </div>
           <div className="col-span-3">
