@@ -1,6 +1,6 @@
-import { Result } from "@/schemas/getTransaction";
+import { lamportsToSolString } from "@/lib/utils";
 
-import Address from "@/components/address";
+import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,11 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionTokenBalances({
-  result,
-}: {
-  result: Result;
-}) {
+export default function TransactionTokenBalances({ data }: { data: any }) {
   type TokenBalanace = {
     address: string;
     mint: string;
@@ -24,23 +20,22 @@ export default function TransactionTokenBalances({
     postBalance: string;
   };
 
-  if (result.meta.preTokenBalances.length === 0) return null;
+  if (data.meta.preTokenBalances.length === 0) return null;
 
   // Calculate token balances
   const tokenBalances: TokenBalanace[] | undefined =
-    result.meta.preTokenBalances.map(
+    data.meta.preTokenBalances.map(
       (item: any): TokenBalanace => ({
-        address:
-          result.transaction.message.accountKeys[item.accountIndex].pubkey,
+        address: data.transaction.message.accountKeys[item.accountIndex].pubkey,
         mint: item.mint,
         change:
           item.uiTokenAmount.uiAmount -
-          (result.meta.postTokenBalances.find(
+          (data.meta.postTokenBalances.find(
             (postBalance: any) =>
               postBalance.accountIndex === item.accountIndex,
           )?.uiTokenAmount.uiAmount || 0),
         postBalance:
-          result.meta.postTokenBalances.find(
+          data.meta.postTokenBalances.find(
             (postBalance: any) =>
               postBalance.accountIndex === item.accountIndex,
           )?.uiTokenAmount.uiAmountString || "0",
@@ -75,9 +70,7 @@ export default function TransactionTokenBalances({
                   <Badge variant="outline">
                     {item.change > 0 ? "+" : ""}
                     {item.change !== 0
-                      ? item.change.toLocaleString(undefined, {
-                          minimumFractionDigits: 9,
-                        })
+                      ? lamportsToSolString(item.change, 9)
                       : item.change}
                   </Badge>
                 </TableCell>

@@ -3,10 +3,11 @@
 import { isAddress } from "@solana/web3.js";
 import { PropsWithChildren } from "react";
 
+import { useGetCompressedAccount } from "@/hooks/compression";
 import { useGetAccountInfo } from "@/hooks/web3";
 
-import { AccountTabs } from "@/components/account/AccountTabs";
-import { WalletAccountHeader } from "@/components/account/WalletAccountHeader";
+import { AccountHeader } from "@/components/account/account-header";
+import { AccountTabs } from "@/components/account/account-tabs";
 
 type Props = PropsWithChildren<{ params: { address: string } }>;
 
@@ -15,14 +16,23 @@ export default function AddressLayout({
   params: { address },
 }: Props) {
   const accountInfo = useGetAccountInfo(address);
+  const compressedAccount = useGetCompressedAccount(address);
 
   if (!isAddress(address)) {
     return <div>Invalid address</div>;
   }
 
+  if (accountInfo.isError) {
+    return <div>Error...</div>;
+  }
+
   return (
     <>
-      <WalletAccountHeader address={address} accountInfo={accountInfo} />
+      <AccountHeader
+        address={address}
+        accountInfo={accountInfo}
+        compressedAccount={compressedAccount}
+      />
       <AccountTabs address={address} />
       <div>{children}</div>
     </>

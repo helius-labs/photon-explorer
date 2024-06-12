@@ -1,6 +1,4 @@
-import { Result } from "@/schemas/getTransaction";
-
-import Address from "@/components/address";
+import Address from "@/components/common/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -11,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionAccountKeys({ result }: { result: Result }) {
+export default function TransactionAccountKeys({ data }: { data: any }) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -33,12 +31,12 @@ export default function TransactionAccountKeys({ result }: { result: Result }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {result.transaction.message.accountKeys.map(
+            {data.transaction.message.accountKeys.map(
               (item: any, index: number) => (
                 <TableRow key={`account-key-${index}`}>
                   <TableCell>{index}</TableCell>
                   <TableCell>
-                    <Address short={false}>{item.pubkey}</Address>
+                    <Address>{item.pubkey}</Address>
                   </TableCell>
                   <TableCell>{item.signer ? "Yes" : "No"}</TableCell>
                   <TableCell>{item.writer ? "Yes" : "No"}</TableCell>

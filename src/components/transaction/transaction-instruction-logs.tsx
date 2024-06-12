@@ -1,12 +1,6 @@
-import { Result } from "@/schemas/getTransaction";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function TransactionInstructionLogs({
-  result,
-}: {
-  result: Result;
-}) {
+export default function TransactionInstructionLogs({ data }: { data: any }) {
   return (
     <>
       <Card className="w-full">
@@ -15,7 +9,7 @@ export default function TransactionInstructionLogs({
         </CardHeader>
         <CardContent>
           <pre className="whitespace-pre-wrap">
-            {JSON.stringify(result.meta.logMessages, null, 2)}
+            {JSON.stringify(data.meta.logMessages, null, 2)}
           </pre>
         </CardContent>
       </Card>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCluster } from "@/components/providers/cluster-provider";
+import { useCluster } from "@/providers/cluster-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

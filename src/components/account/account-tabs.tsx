@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
+import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface AccountTabsProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -30,6 +30,14 @@ export function AccountTabs({
     {
       name: "History",
       href: `/address/${address}/history`,
+    },
+    {
+      name: "Compressed Accounts",
+      href: `/address/${address}/compressed-accounts`,
+    },
+    {
+      name: "Compressed Transactions",
+      href: `/address/${address}/compressed-transactions`,
     },
   ];
 

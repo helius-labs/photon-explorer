@@ -1,6 +1,8 @@
+import { lamportsToSolString } from "@/lib/utils";
+
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 
-import Address from "@/components/address";
+import Address from "@/components/common/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -43,12 +45,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                       <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      {`${Number(item.account.lamports / 1e9).toLocaleString(
-                        undefined,
-                        {
-                          minimumFractionDigits: 7,
-                        },
-                      )} SOL`}
+                      {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
                     </TableCell>
                   </TableRow>
                 ),
@@ -64,12 +61,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                       <Address>{item.account.owner}</Address>
                     </TableCell>
                     <TableCell>
-                      {`${Number(item.account.lamports / 1e9).toLocaleString(
-                        undefined,
-                        {
-                          minimumFractionDigits: 7,
-                        },
-                      )} SOL`}
+                      {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
                     </TableCell>
                   </TableRow>
                 ),

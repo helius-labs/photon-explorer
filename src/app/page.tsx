@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
-import LatestCompressionSignatures from "@/components/latest-compression-signatures";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
-import LatestTransactions from "@/components/latest-transactions";
 
 export const metadata: Metadata = {
   title: "Home | Photon - Solana Explorer",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import TransactionDetails from "@/components/transaction-details";
+import TransactionDetails from "@/components/transaction/transaction-details";
 
 export const metadata: Metadata = {
   title: "Transaction Details | Photon Block Explorer",

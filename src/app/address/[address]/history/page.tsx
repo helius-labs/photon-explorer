@@ -1,4 +1,4 @@
-import { Metadata } from "next/types";
+import AcccountHistory from "@/components/account/account-history";
 
 type Props = Readonly<{
   params: {
@@ -15,5 +15,5 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default function Page({ params }: Props) {
-  return <>TODO: Add history</>;
+  return <AcccountHistory address={params.address} />;
 }

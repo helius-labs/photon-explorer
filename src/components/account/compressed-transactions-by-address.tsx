@@ -6,19 +6,23 @@ import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Item } from "@/schemas/getLatestCompressionSignatures";
+import { Item } from "@/schemas/getCompressionSignaturesForTokenOwner";
 
-import { useGetLatestCompressionSignatures } from "@/hooks/compression";
+import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
 
+import Loading from "@/components/common/loading";
+import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import Loading from "@/components/loading";
-import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function LatestCompressionSignatures() {
+export default function CompressedTransactionsByAddress({
+  address,
+}: {
+  address: string;
+}) {
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {
@@ -26,7 +30,7 @@ export default function LatestCompressionSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Slot" />
         ),
-        cell: ({ row }) => <div>{row.original.slot}</div>,
+        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
         enableSorting: true,
       },
       {
@@ -34,9 +38,7 @@ export default function LatestCompressionSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => (
-          <Signature short={false}>{row.original.signature}</Signature>
-        ),
+        cell: ({ row }) => <Signature>{row.getValue("signature")}</Signature>,
         enableSorting: true,
       },
       {
@@ -56,7 +58,7 @@ export default function LatestCompressionSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Age" />
         ),
-        cell: ({ row }) => timeAgoWithFormat(row.original.blockTime, true),
+        cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
         enableSorting: true,
       },
     ],
@@ -64,15 +66,15 @@ export default function LatestCompressionSignatures() {
   );
 
   const { data, isLoading, isFetching, isError, refetch } =
-    useGetLatestCompressionSignatures();
+    useGetCompressionSignaturesForOwner(address);
 
   // TODO: Refactor jsx
   if (isError)
     return (
-      <Card>
+      <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Latest Compression Transactions</CardTitle>
+            <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -93,12 +95,12 @@ export default function LatestCompressionSignatures() {
         </CardContent>
       </Card>
     );
-  if (isLoading || isFetching)
+  if (isLoading)
     return (
-      <Card>
+      <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Latest Compression Transactions</CardTitle>
+            <CardTitle>Compressed Transaction History</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
@@ -112,10 +114,10 @@ export default function LatestCompressionSignatures() {
     );
 
   return (
-    <Card>
+    <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Latest Compression Transactions</CardTitle>
+          <CardTitle>Compressed Transaction History</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
           {isFetching ? (

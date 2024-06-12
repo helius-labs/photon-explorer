@@ -14,10 +14,10 @@ import {
   useGetLatestNonVotingSignatures,
 } from "@/hooks/compression";
 
+import Loading from "@/components/common/loading";
+import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import Loading from "@/components/loading";
-import Signature from "@/components/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,9 +46,7 @@ export default function LatestNonVotingSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => (
-          <Signature short={false}>{row.getValue("signature")}</Signature>
-        ),
+        cell: ({ row }) => <Signature>{row.getValue("signature")}</Signature>,
         enableSorting: true,
       },
       {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import AccountTokens from "@/components/account/AccountTokens";
+import AccountTokens from "@/components/account/account-tokens";
 
 type Props = Readonly<{
   params: {

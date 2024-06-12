@@ -1,5 +1,6 @@
 "use client";
 
+import { useCluster } from "@/providers/cluster-provider";
 import { useQuery } from "@tanstack/react-query";
 
 import { getCompressedAccountsByOwnerSchema } from "@/schemas/getCompressedAccountsByOwner";
@@ -8,8 +9,6 @@ import { getCompressionSignaturesForAccountSchema } from "@/schemas/getCompressi
 import { getCompressionSignaturesForTokenOwnerSchema } from "@/schemas/getCompressionSignaturesForTokenOwner";
 import { getLatestCompressionSignaturesSchema } from "@/schemas/getLatestCompressionSignatures";
 import { getLatestNonVotingSignaturesSchema } from "@/schemas/getLatestNonVotingSignatures";
-
-import { useCluster } from "@/components/providers/cluster-provider";
 
 // TODO: Validate all responses with zod schemas
 
@@ -129,7 +128,7 @@ export function useGetCompressionSignaturesForAccount(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [compressionEndpoint, "getCompressionSignaturesForAccount", hash],
     queryFn: async () => {
       const response = await fetch(compressionEndpoint, {
@@ -151,14 +150,6 @@ export function useGetCompressionSignaturesForAccount(
     },
     enabled,
   });
-
-  return {
-    data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetCompressedBalanceByOwner(
@@ -282,7 +273,7 @@ export function useGetCompressedTokenAccountsByOwner(
 export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [compressionEndpoint, "getCompressedAccount", hash],
     queryFn: async () => {
       return fetch(compressionEndpoint, {
@@ -304,14 +295,6 @@ export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
     },
     enabled,
   });
-
-  return {
-    account: data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetCompressedBalance(hash: string, enabled: boolean = true) {

@@ -8,8 +8,8 @@ import {
 } from "@/hooks/useGetAccountTokens";
 import { useGetTokenListAll } from "@/hooks/useGetTokenListAll";
 
-import Loading from "@/components/loading";
-import TokenCard from "@/components/token-card";
+import TokenCard from "@/components/account/token-card";
+import Loading from "@/components/common/loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -79,6 +79,7 @@ export default function AccountTokens({ address }: { address: string }) {
     <Card className="col-span-12">
       <CardContent className="flex flex-col pt-6 gap-4">
         {isLoading && <Loading />}
+        {tokens?.length === 0 && <p>No tokens found</p>}
         {tokens?.map((token: TokenInfoWithAddress) => (
           <TokenCard key={token.address} token={token} />
         ))}

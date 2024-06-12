@@ -1,7 +1,9 @@
 "use client";
 
-import Address from "@/components/address";
-import Data from "@/components/data";
+import { lamportsToSolString } from "@/lib/utils";
+
+import Address from "@/components/common/address";
+import Data from "@/components/common/data";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -29,7 +31,7 @@ export default function Instruction({
               <TableRow key={`program-${index}`}>
                 <TableCell className="w-1/6">Program</TableCell>
                 <TableCell className="w-5/6">
-                  <Address short={false}>{instruction.programId}</Address>
+                  <Address>{instruction.programId}</Address>
                 </TableCell>
               </TableRow>
               {instruction.parsed && (
@@ -39,15 +41,13 @@ export default function Instruction({
                       <TableRow key={`from-address-${index}`}>
                         <TableCell>From Address</TableCell>
                         <TableCell>
-                          <Address short={false}>
-                            {instruction.parsed.info.source}
-                          </Address>
+                          <Address>{instruction.parsed.info.source}</Address>
                         </TableCell>
                       </TableRow>
                       <TableRow key={`to-address-${index}`}>
                         <TableCell>To Address</TableCell>
                         <TableCell>
-                          <Address short={false}>
+                          <Address>
                             {instruction.parsed.info.destination}
                           </Address>
                         </TableCell>
@@ -56,11 +56,7 @@ export default function Instruction({
                         <TableRow key={`transfer-amount-${index}`}>
                           <TableCell>Transfer Amount</TableCell>
                           <TableCell>
-                            {Number(
-                              instruction.parsed.info.lamports / 1_000_000_000,
-                            ).toLocaleString(undefined, {
-                              minimumFractionDigits: 7,
-                            })}
+                            {`${lamportsToSolString(instruction.parsed.info.lamports, 7)} SOL`}
                           </TableCell>
                         </TableRow>
                       )}
@@ -86,7 +82,7 @@ export default function Instruction({
                   <TableRow key={`account-key-${index}`}>
                     <TableCell>Account #{index}</TableCell>
                     <TableCell>
-                      <Address short={false}>{account}</Address>
+                      <Address>{account}</Address>
                     </TableCell>
                   </TableRow>
                 ))}

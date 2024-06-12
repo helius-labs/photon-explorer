@@ -1,4 +1,4 @@
-import { Metadata } from "next/types";
+import AcccountNFTs from "@/components/account/account-nfts";
 
 type Props = Readonly<{
   params: {
@@ -15,5 +15,5 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default function Page({ params }: Props) {
-  return <>TODO: Add NFTs</>;
+  return <AcccountNFTs address={params.address} />;
 }

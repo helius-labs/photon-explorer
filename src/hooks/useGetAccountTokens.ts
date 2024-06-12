@@ -1,3 +1,4 @@
+import { useCluster } from "@/providers/cluster-provider";
 import {
   Address,
   JsonParsedTokenAccount,
@@ -5,8 +6,6 @@ import {
   createSolanaRpc,
 } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
-
-import { useCluster } from "@/components/providers/cluster-provider";
 
 import { useGetTokenListAll } from "./useGetTokenListAll";
 

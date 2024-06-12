@@ -1,11 +1,9 @@
 import { CircleHelp, LoaderCircle, RotateCw } from "lucide-react";
 
-import { timeAgoWithFormat } from "@/lib/utils";
+import { lamportsToSolString, timeAgoWithFormat } from "@/lib/utils";
 
-import { Result } from "@/schemas/getTransaction";
-
-import Address from "@/components/address";
-import Signature from "@/components/signature";
+import Address from "@/components/common/address";
+import Signature from "@/components/common/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,11 +15,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 export default function TransactionOverview({
-  result,
+  data,
   refetch,
   isFetching,
 }: {
-  result: Result;
+  data: any;
   refetch: () => void;
   isFetching: boolean;
 }) {
@@ -65,10 +63,8 @@ export default function TransactionOverview({
             </div>
           </div>
           <div className="col-span-3">
-            {result?.transaction.signatures[0] && (
-              <Signature short={false}>
-                {result?.transaction.signatures[0]}
-              </Signature>
+            {data?.transaction.signatures[0] && (
+              <Signature>{data?.transaction.signatures[0]}</Signature>
             )}
           </div>
 
@@ -77,7 +73,7 @@ export default function TransactionOverview({
           </div>
           <div className="col-span-3">
             <Badge className="text-xs" variant="outline">
-              {result?.meta?.err === null ? "Success" : "Failed"}
+              {data?.meta?.err === null ? "Success" : "Failed"}
             </Badge>
           </div>
 
@@ -85,7 +81,7 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Slot</span>
           </div>
           <div className="col-span-3">
-            <span>#{result?.slot}</span>
+            <span>#{Number(data?.slot)}</span>
           </div>
 
           <div className="col-span-1">
@@ -93,7 +89,7 @@ export default function TransactionOverview({
           </div>
           <div className="col-span-3">
             <span>
-              {result?.blockTime && timeAgoWithFormat(result?.blockTime)}
+              {data?.blockTime && timeAgoWithFormat(Number(data?.blockTime))}
             </span>
           </div>
 
@@ -103,9 +99,9 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Signer</span>
           </div>
           <div className="col-span-3">
-            {result?.transaction.message.accountKeys[0].pubkey && (
-              <Address short={false}>
-                {result?.transaction.message.accountKeys[0].pubkey}
+            {data?.transaction.message.accountKeys[0].pubkey && (
+              <Address>
+                {data?.transaction.message.accountKeys[0].pubkey}
               </Address>
             )}
           </div>
@@ -116,9 +112,9 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Fee Payer</span>
           </div>
           <div className="col-span-3">
-            {result?.transaction.message.accountKeys[0].pubkey && (
-              <Address short={false}>
-                {result?.transaction.message.accountKeys[0].pubkey}
+            {data?.transaction.message.accountKeys[0].pubkey && (
+              <Address>
+                {data?.transaction.message.accountKeys[0].pubkey}
               </Address>
             )}
           </div>
@@ -127,13 +123,8 @@ export default function TransactionOverview({
             <span className="text-muted-foreground">Transaction Fee</span>
           </div>
           <div className="col-span-3">
-            {result?.meta?.fee && (
-              <span>
-                {Number(result?.meta?.fee / 1e9).toLocaleString(undefined, {
-                  minimumFractionDigits: 7,
-                })}{" "}
-                SOL
-              </span>
+            {data?.meta?.fee && (
+              <span>{`${lamportsToSolString(data?.meta?.fee, 5)} SOL`}</span>
             )}
           </div>
         </div>

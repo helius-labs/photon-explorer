@@ -4,21 +4,20 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
-import { timeAgoWithFormat } from "@/lib/utils";
+import { lamportsToSolString } from "@/lib/utils";
 
-import { Item } from "@/schemas/getCompressionSignaturesForTokenOwner";
+import { Item } from "@/schemas/getCompressedTokenAccountsByOwner";
 
-import { useGetCompressionSignaturesForOwner } from "@/hooks/compression";
+import { useGetCompressedTokenAccountsByOwner } from "@/hooks/compression";
 
+import Address from "@/components/common/address";
+import Loading from "@/components/common/loading";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import Loading from "@/components/loading";
-import Signature from "@/components/signature";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function CompressedTransactionsByAddress({
+export default function CompressedTokenAccounts({
   address,
 }: {
   address: string;
@@ -26,41 +25,52 @@ export default function CompressedTransactionsByAddress({
   const columns = useMemo<ColumnDef<Item>[]>(
     () => [
       {
-        accessorKey: "slot",
+        accessorKey: "row.original.account.hash",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Slot" />
+          <DataTableColumnHeader column={column} title="Account Hash" />
         ),
-        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
+        cell: ({ row }) => <Address>{row.original.account.hash}</Address>,
         enableSorting: true,
       },
       {
-        accessorKey: "signature",
+        accessorKey: "row.original.account.address",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Signature" />
+          <DataTableColumnHeader column={column} title="Account Address" />
         ),
-        cell: ({ row }) => (
-          <Signature short={false}>{row.getValue("signature")}</Signature>
-        ),
+        cell: ({ row }) => <Address>{row.original.account.address}</Address>,
         enableSorting: true,
       },
       {
-        accessorKey: "err",
+        accessorKey: "row.original.account.owner",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
+          <DataTableColumnHeader column={column} title="Account Owner" />
         ),
-        cell: ({ row }) => (
-          <Badge className="text-xs" variant="outline">
-            Success
-          </Badge>
-        ),
+        cell: ({ row }) => <Address>{row.original.account.owner}</Address>,
         enableSorting: true,
       },
       {
-        accessorKey: "blockTime",
+        accessorKey: "row.original.tokenData.mint",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Age" />
+          <DataTableColumnHeader column={column} title="Token Mint" />
         ),
-        cell: ({ row }) => timeAgoWithFormat(row.getValue("blockTime"), true),
+        cell: ({ row }) => <Address>{row.original.tokenData.mint}</Address>,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "row.original.tokenData.owner",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Token Owner" />
+        ),
+        cell: ({ row }) => <Address>{row.original.tokenData.owner}</Address>,
+        enableSorting: true,
+      },
+      {
+        accessorKey: "row.original.tokenData.amount",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Token Balance" />
+        ),
+        cell: ({ row }) =>
+          `${lamportsToSolString(row.original.tokenData.amount, 9)} SOL`,
         enableSorting: true,
       },
     ],
@@ -68,7 +78,7 @@ export default function CompressedTransactionsByAddress({
   );
 
   const { data, isLoading, isFetching, isError, refetch } =
-    useGetCompressionSignaturesForOwner(address);
+    useGetCompressedTokenAccountsByOwner(address);
 
   // TODO: Refactor jsx
   if (isError)
@@ -76,7 +86,7 @@ export default function CompressedTransactionsByAddress({
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Compressed Transaction History</CardTitle>
+            <CardTitle>Compressed Accounts</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             {isFetching ? (
@@ -102,7 +112,7 @@ export default function CompressedTransactionsByAddress({
       <Card className="col-span-12">
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Compressed Transaction History</CardTitle>
+            <CardTitle>Compressed Accounts</CardTitle>
           </div>
           <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
             <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
@@ -119,7 +129,7 @@ export default function CompressedTransactionsByAddress({
     <Card className="col-span-12">
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
-          <CardTitle>Compressed Transaction History</CardTitle>
+          <CardTitle>Compressed Accounts</CardTitle>
         </div>
         <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
           {isFetching ? (
