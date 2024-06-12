@@ -48,7 +48,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
   return (
     <>
       <TransactionOverview data={data} refetch={refetch} isFetching={isFetching} />
-      <div className="flex items-center mt-4 mb-6">
+      <div className="flex w-full max-w-md mx-auto mt-4 mb-6">
         <Badge className="mr-2">Advanced Details</Badge>
         <Switch checked={showDetails} onCheckedChange={toggleDetails} />
       </div>
