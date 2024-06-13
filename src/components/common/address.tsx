@@ -3,7 +3,7 @@
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
 
-import { addressLookupTable } from "@/lib/data";
+import { programAddressLookupTable, tokenAddressLookupTable } from "@/lib/data";
 
 import { Button, ButtonProps } from "@/components/ui/button";
 import Link from "@/components/ui/link";
@@ -22,7 +22,7 @@ interface AddressProps {
 export default function Address({ children, short = true }: AddressProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
-  const name = addressLookupTable[children] ?? null;
+  const name = tokenAddressLookupTable[children] ?? null;
 
   React.useEffect(() => {
     setTimeout(() => {

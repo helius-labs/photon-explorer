@@ -4,7 +4,6 @@ import * as React from "react";
 import { CheckIcon, Copy } from "lucide-react";
 import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
-import Link from "@/components/ui/link";
 import {
   Tooltip,
   TooltipContent,
