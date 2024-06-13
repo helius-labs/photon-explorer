@@ -28,6 +28,7 @@ export default function TransactionOverview({
   const token2ImageUri = "https://wormhole.com/token.png";
   const renderProvider = (pubkey: string) => (
     <div className="flex items-center">
+      <Providers pubkey={pubkey} />
     </div>
   );
   
