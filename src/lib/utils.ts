@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { addressLookupTable } from "./data";
+import { programAddressLookupTable } from "./data";
 
 export const LAMPORTS_PER_SOL = 1_000_000_000;
 export const MICRO_LAMPORTS_PER_LAMPORT = 1_000_000;
@@ -63,7 +63,7 @@ export function isSolanaSignature(txHash: string): boolean {
 }
 
 export function isSolanaProgramAddress(address: string): boolean {
-  const programName = addressLookupTable[address];
+  const programName = programAddressLookupTable[address];
 
   if (programName) {
     return true;
