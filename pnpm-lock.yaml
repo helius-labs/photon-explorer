@@ -50,6 +50,9 @@ importers:
       '@solana/web3.js':
         specifier: 2.0.0-preview.3.20240611073317.69a564689e2a8be604504b1137c96733467e2ec0
         version: 2.0.0-preview.3.20240611073317.69a564689e2a8be604504b1137c96733467e2ec0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.5)(ws@8.17.0(bufferutil@4.0.8)(utf-8-validate@5.0.10))
+      '@tabler/icons-react':
+        specifier: ^3.6.0
+        version: 3.6.0(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.36.2
         version: 5.36.2(react@18.3.1)
@@ -942,6 +945,14 @@ packages:
 
   '@swc/helpers@0.5.2':
     resolution: {integrity: sha512-E4KcWTpoLHqwPHLxidpOqQbcrZVgi0rsmmZXUle1jXmJfuIf/UWpczUJ7MZZ5tlxytgJXyp0w4PGkkeLiuIdZw==}
+
+  '@tabler/icons-react@3.6.0':
+    resolution: {integrity: sha512-mkYGxlphNzvKq32teL+Z8wZW7I9zDftmNPX38UnZVCGjss2qbg0puqLhi1unfm5Y0CSefg+iAQrsjSL+DHx9YA==}
+    peerDependencies:
+      react: '>= 16'
+
+  '@tabler/icons@3.6.0':
+    resolution: {integrity: sha512-Zv0Ofc64RCMpZ2F8CvsWAphrSjerx5hEErt/RMmE+W8r4E5l5Lizi+My9KbbZQ4NyAtrtrOX80OY1oROZrRzEA==}
 
   '@tanstack/query-core@5.36.1':
     resolution: {integrity: sha512-BteWYEPUcucEu3NBcDAgKuI4U25R9aPrHSP6YSf2NvaD2pSlIQTdqOfLRsxH9WdRYg7k0Uom35Uacb6nvbIMJg==}
@@ -3587,6 +3598,13 @@ snapshots:
   '@swc/helpers@0.5.2':
     dependencies:
       tslib: 2.6.2
+
+  '@tabler/icons-react@3.6.0(react@18.3.1)':
+    dependencies:
+      '@tabler/icons': 3.6.0
+      react: 18.3.1
+
+  '@tabler/icons@3.6.0': {}
 
   '@tanstack/query-core@5.36.1': {}
 
