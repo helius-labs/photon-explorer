@@ -39,7 +39,7 @@ export default function Signature({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                variant="outline"
+                variant={null}
                 className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
                 onClick={() => {
                   navigator.clipboard.writeText(children);

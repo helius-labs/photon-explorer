@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 import ClusterSwitcher from "@/components/cluster-switcher";
 import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
+// import { Header } from "@/components/header";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
-import { ModeToggle } from "@/components/mode-toggle";
 import { Search } from "@/components/search";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Home | XRAY Beta - Solana Explorer",
@@ -19,7 +19,7 @@ export default function Home() {
       <div>
         <div className="flex h-16 items-center px-8">
           <div className="ml-auto flex items-center space-x-4">
-            <ModeToggle />
+            <ThemeToggle />
             <ClusterSwitcher />
           </div>
         </div>
