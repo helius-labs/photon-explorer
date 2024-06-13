@@ -105,6 +105,7 @@ export const addressLookupTable: Record<string, string> = {
   HYPERfwdTjyJ2SCaKHmpF2MtrXqWxrsotYDsTrshHWq8: "Hyperspace",
   HedgeEohwU6RqokrvPU4Hb6XKPub8NuKbnPmY7FoMMtN: "Hedge",
   JCFRaPv7852ESRwJJGRy2mysUMydXZgVVhrMLmExvmVp: "Foxy Citrus",
+  JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4: "Jupiter Aggregator V6",
   JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo: "Jupiter V2",
   JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph: "Jupiter V3",
   JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk: "Jupiter V1",
