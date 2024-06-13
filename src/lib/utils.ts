@@ -129,6 +129,6 @@ export function timeAgoWithFormat(
   if (onlyTimeAgo) {
     return timeAgo;
   } else {
-    return `${timeAgo} (${formattedDate})`;
+    return `${timeAgo} (${formattedDate}`;
   }
 }

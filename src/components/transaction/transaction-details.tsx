@@ -22,7 +22,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   if (isError)
     return (
-      <Card className="w-full">
+      <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
           <div>Failed to load</div>
         </CardContent>
@@ -30,7 +30,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     );
   if (isLoading)
     return (
-      <Card className="w-full">
+      <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
           <Loading />
         </CardContent>
@@ -38,7 +38,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     );
   if (!data)
     return (
-      <Card className="w-full">
+      <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
           <div>Transaction not found</div>
         </CardContent>
@@ -50,7 +50,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       <TransactionOverview data={data} refetch={refetch} isFetching={isFetching} />
       <div className="flex w-full max-w-md mx-auto mt-4 mb-6">
         <Badge className="mr-2" variant="outline">Advanced Details</Badge>
-        <Switch checked={showDetails} onCheckedChange={toggleDetails} />
+        <Switch checked={showDetails} onCheckedChange={toggleDetails} /> 
       </div>
       {showDetails && (
         <>

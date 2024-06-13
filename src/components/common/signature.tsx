@@ -32,7 +32,7 @@ export default function Signature({ children, short = true }: SignatureProps) {
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              variant="outline"
+              variant={null}
               className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
               onClick={() => {
                 navigator.clipboard.writeText(children);
@@ -49,7 +49,7 @@ export default function Signature({ children, short = true }: SignatureProps) {
           <TooltipTrigger asChild>
             <Link href={`/tx/${children}`} className="hover:underline">
               {short ? (
-                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+                <>{`${children.slice(0, 12)}...${children.slice(-6)}`}</>
               ) : (
                 <>{children}</>
               )}

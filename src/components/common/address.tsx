@@ -37,7 +37,7 @@ export default function Address({ children, short = true }: AddressProps) {
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              variant="outline"
+              variant={null}
               className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
               onClick={() => {
                 navigator.clipboard.writeText(children);
@@ -54,7 +54,7 @@ export default function Address({ children, short = true }: AddressProps) {
           <TooltipTrigger asChild>
             <Link href={`/address/${children}`} className="hover:underline">
               {short && !name ? (
-                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+                <>{`${children.slice(0, 6)}...${children.slice(-4)}`}</>
               ) : (
                 <>{name ?? children}</>
               )}
