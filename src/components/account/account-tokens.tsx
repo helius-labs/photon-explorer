@@ -6,7 +6,6 @@ import {
   TokenInfoWithAddress,
   useGetAccountTokens,
 } from "@/hooks/useGetAccountTokens";
-import { useGetTokenListAll } from "@/hooks/useGetTokenListAll";
 
 import TokenCard from "@/components/account/token-card";
 import Loading from "@/components/common/loading";

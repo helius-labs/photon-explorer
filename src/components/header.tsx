@@ -7,14 +7,14 @@ import { SecondaryNav } from "@/components/secondary-nav";
 export function Header() {
   return (
     <div className="border-b">
-      <div className="container flex h-16 items-center px-8">
+      <div className="flex h-16 items-center px-8">
         <MainNav className="mr-6" />
         <div className="ml-auto flex items-center space-x-4">
           <CommandMenu />
         </div>
         <div className="ml-auto flex items-center space-x-4">
-          {/* <SecondaryNav className="mx-6" /> */}
-          {/* <ModeToggle /> */}
+          <SecondaryNav className="mx-6" />
+          <ModeToggle />
           <ClusterSwitcher />
         </div>
       </div>

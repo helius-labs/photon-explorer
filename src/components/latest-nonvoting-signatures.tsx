@@ -126,7 +126,7 @@ export default function LatestNonVotingSignatures() {
 
   return (
     <div
-      className={`min-h-[500px] transition-opacity duration-700 ease-in-out ${isPending ? "opacity-0" : "opacity-100"}`}
+      className={`min-h-[400px] transition-opacity duration-700 ease-in-out ${isPending ? "opacity-0" : "opacity-100"}`}
     >
       {signatures && <DataTable data={signatures!} columns={columns} />}
     </div>

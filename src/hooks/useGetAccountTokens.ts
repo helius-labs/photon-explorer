@@ -7,7 +7,7 @@ import {
 } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-import { useGetTokenListAll } from "./useGetTokenListAll";
+import { useGetTokenListStrict } from "./tokenlist";
 
 export type TokenInfoWithAddress = {
   info: JsonParsedTokenAccount;
@@ -29,7 +29,7 @@ export function useGetAccountTokens(
   enabled: boolean = true,
 ) {
   const { endpoint } = useCluster();
-  const tokenList = useGetTokenListAll();
+  const tokenList = useGetTokenListStrict();
 
   return useQuery({
     queryKey: [endpoint, "getAccountTokens", addressInput],

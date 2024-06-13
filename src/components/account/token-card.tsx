@@ -21,7 +21,7 @@ export default function TokenCard({ token }: { token: TokenInfoWithAddress }) {
           {token?.name || token.info.mint}
         </div>
         <div className="text-sm text-muted-foreground">
-          {`${lamportsToSolString(token?.info.tokenAmount?.uiAmount!, 5)} ${token?.symbol}`}
+          {`${lamportsToSolString(Number(token?.info.tokenAmount?.amount), 5)} ${token?.symbol}`}
         </div>
       </div>
     </div>

@@ -40,7 +40,7 @@ export function AccountHeader({
         <div className="text-3xl font-medium leading-none">
           <Address>{address}</Address>
         </div>
-        {accountInfo.isLoading || compressedAccount.isLoading ? (
+        {accountInfo.isLoading ? (
           <Skeleton className="h-7 w-[200px]" />
         ) : (
           <div>

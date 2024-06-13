@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
+import ClusterSwitcher from "@/components/cluster-switcher";
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
+import { ModeToggle } from "@/components/mode-toggle";
 import { Search } from "@/components/search";
 
 export const metadata: Metadata = {
@@ -12,6 +16,14 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      <div>
+        <div className="flex h-16 items-center px-8">
+          <div className="ml-auto flex items-center space-x-4">
+            <ModeToggle />
+            <ClusterSwitcher />
+          </div>
+        </div>
+      </div>
       <div className="grid pt-40">
         <div className="flex flex-col items-center space-y-10">
           <h1 className="text-9xl font-bold">XRAY</h1>
@@ -25,6 +37,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
