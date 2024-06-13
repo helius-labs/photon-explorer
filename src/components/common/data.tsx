@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ClipboardIcon } from "lucide-react";
+import { CheckIcon, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -38,7 +38,7 @@ export default function Data({ children }: DataProps) {
               }}
             >
               <span className="sr-only">Copy</span>
-              {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+              {hasCopied ? <CheckIcon /> : <Copy />}
             </Button>
           </TooltipTrigger>
           <TooltipContent>Copy data</TooltipContent>

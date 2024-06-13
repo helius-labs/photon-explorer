@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, ClipboardIcon } from "lucide-react";
+import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
 
 import { addressLookupTable } from "@/lib/data";
@@ -45,7 +45,7 @@ export default function Address({ children, short = true }: AddressProps) {
               }}
             >
               <span className="sr-only">Copy</span>
-              {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+              {hasCopied ? <CheckIcon /> : <Copy />}
             </Button>
           </TooltipTrigger>
           <TooltipContent>Copy address</TooltipContent>

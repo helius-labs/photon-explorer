@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ClipboardIcon } from "lucide-react";
+import { CheckIcon, Copy } from "lucide-react";
 import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +40,7 @@ export default function Signature({ children, short = true }: SignatureProps) {
               }}
             >
               <span className="sr-only">Copy</span>
-              {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+              {hasCopied ? <CheckIcon /> : <Copy />}
             </Button>
           </TooltipTrigger>
           <TooltipContent>Copy transaction id</TooltipContent>
