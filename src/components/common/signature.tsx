@@ -1,8 +1,8 @@
 "use client";
 
-import { CheckIcon, ClipboardIcon } from "lucide-react";
 import * as React from "react";
-
+import { CheckIcon, Copy } from "lucide-react";
+import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
 import {
@@ -47,7 +47,7 @@ export default function Signature({
                 }}
               >
                 <span className="sr-only">Copy</span>
-                {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+                {hasCopied ? <CheckIcon /> : <Copy />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>Copy transaction id</TooltipContent>
@@ -57,7 +57,7 @@ export default function Signature({
           <TooltipTrigger asChild>
             <Link href={`/tx/${children}`} className="hover:underline">
               {short ? (
-                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+                <>{`${children.slice(0, 12)}...${children.slice(-6)}`}</>
               ) : (
                 <>{children}</>
               )}

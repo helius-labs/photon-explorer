@@ -1,8 +1,9 @@
 import ClusterSwitcher from "@/components/cluster-switcher";
 import { CommandMenu } from "@/components/command-menu";
 import { MainNav } from "@/components/main-nav";
-import { ModeToggle } from "@/components/mode-toggle";
+// import { ModeToggle } from "@/components/mode-toggle";
 import { SecondaryNav } from "@/components/secondary-nav";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   return (
@@ -14,7 +15,7 @@ export function Header() {
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <SecondaryNav className="mx-6" />
-          <ModeToggle />
+          <ThemeToggle />
           <ClusterSwitcher />
         </div>
       </div>

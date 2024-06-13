@@ -5,7 +5,7 @@ import * as React from "react";
 
 import { addressLookupTable } from "@/lib/data";
 
-import { Button, ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
 import {
   Tooltip,
@@ -14,20 +14,22 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface AddressProps {
-  children: string;
-  short?: boolean;
+interface ProvidersProps {
+  pubkey: string;
 }
 
-export default function Address({ children, short = true }: AddressProps) {
+export default function Providers({ pubkey }: ProvidersProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
-
-  const name = addressLookupTable[children] ?? null;
+  const providerImageUri = "https://static.jup.ag/jup/icon.png";
+  const name = addressLookupTable[pubkey] ?? null;
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timer = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
   }, [hasCopied]);
 
   return (
@@ -40,7 +42,7 @@ export default function Address({ children, short = true }: AddressProps) {
               variant={null}
               className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
               onClick={() => {
-                navigator.clipboard.writeText(children);
+                navigator.clipboard.writeText(pubkey);
                 setHasCopied(true);
               }}
             >
@@ -51,17 +53,13 @@ export default function Address({ children, short = true }: AddressProps) {
           <TooltipContent>Copy address</TooltipContent>
         </Tooltip>
         <Tooltip>
-
+          <img src={providerImageUri} alt={name} className="h-5 w-5 mr-1 rounded-md" />
           <TooltipTrigger asChild>
-            <Link href={`/address/${children}`} className="hover:underline">
-              {short && !name ? (
-                <>{`${children.slice(0, 6)}...${children.slice(-4)}`}</>
-              ) : (
-                <>{name ?? children}</>
-              )}
+            <Link href={`/address/${pubkey}`} className="hover:underline">
+              {name}
             </Link>
           </TooltipTrigger>
-          <TooltipContent>{children}</TooltipContent>
+          <TooltipContent>{pubkey}</TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>

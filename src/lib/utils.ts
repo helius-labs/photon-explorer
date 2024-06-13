@@ -122,7 +122,6 @@ export function timeAgoWithFormat(
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
     timeZoneName: "short",
     timeZone: "UTC",
   });
@@ -130,6 +129,6 @@ export function timeAgoWithFormat(
   if (onlyTimeAgo) {
     return timeAgo;
   } else {
-    return `${timeAgo} (${formattedDate})`;
+    return `${timeAgo} (${formattedDate}`;
   }
 }
