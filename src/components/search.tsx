@@ -28,6 +28,10 @@ export function Search({
   const onFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!search) {
+      return;
+    }
+
     // Check if is transaction id
     if (isSolanaSignature(search)) {
       router.push(`/tx/${search}/?cluster=${cluster}`);
@@ -49,7 +53,7 @@ export function Search({
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <Button type="submit" variant="outline">
+      <Button type="submit" variant="outline" disabled={!search}>
         Search
       </Button>
     </form>

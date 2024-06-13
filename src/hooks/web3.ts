@@ -106,6 +106,7 @@ export function useGetBalance(addressInput: string, enabled: boolean = true) {
 export function useGetSignaturesForAddress(
   addressInput: string,
   enabled: boolean = true,
+  limit: number = 10,
 ) {
   const { endpoint } = useCluster();
 
@@ -116,7 +117,7 @@ export function useGetSignaturesForAddress(
 
       return await rpc
         .getSignaturesForAddress(address(addressInput), {
-          limit: 1000,
+          limit,
         })
         .send();
     },

@@ -6,7 +6,6 @@ import {
   TokenInfoWithAddress,
   useGetAccountTokens,
 } from "@/hooks/useGetAccountTokens";
-import { useGetTokenListAll } from "@/hooks/useGetTokenListAll";
 
 import TokenCard from "@/components/account/token-card";
 import Loading from "@/components/common/loading";
@@ -18,28 +17,9 @@ export default function AccountTokens({ address }: { address: string }) {
   const { data, isLoading, isFetching, isPending, isError, refetch } =
     useGetAccountTokens(address);
 
-  // TODO: Refactor jsx
   if (isError)
     return (
       <Card className="col-span-12">
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Token Accounts</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            {isFetching ? (
-              <>
-                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              <>
-                <RotateCw className="mr-1 h-4 w-4" />
-                Retry
-              </>
-            )}
-          </Button>
-        </CardHeader>
         <CardContent className="pt-6">
           <div>Failed to load</div>
         </CardContent>
