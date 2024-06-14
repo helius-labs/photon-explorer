@@ -1,19 +1,12 @@
 import {
-    IconBolt,
     IconBook,
-    IconBox,
     IconBrandDiscordFilled,
     IconBrandGithubFilled,
     IconBrandTelegram,
     IconBrandX,
-    IconBuildingBank,
     IconHelp,
-    IconInfoCircle,
-    IconInfoCircleFilled,
-    IconKey,
-    IconWallet,
-    IconWorld,
     IconX,
+    IconBrandYoutube
   } from "@tabler/icons-react";
   
   export type IconProps = {
@@ -751,24 +744,18 @@ import {
   );
   
   export {
-    // tabler icons
+    // @tabler/icons-react icons
     IconBrandX,
     IconBrandTelegram,
     IconEthereum,
-    IconWallet,
     IconX,
     IconBrandDiscordFilled,
-    IconInfoCircle,
-    IconInfoCircleFilled,
     IconBrandGithubFilled,
-    IconBolt,
-    IconBuildingBank,
     IconHelp,
     IconBook,
-    IconKey,
-    IconBox,
+    IconBrandYoutube,
   
-    // customed icons
+    // custom icons
     IconBrandGoogle,
     IconBraveWallet,
     IconCoinbaseWallet,
@@ -794,5 +781,4 @@ import {
     IconOrca,
     IconSol,
     IconUsd,
-    IconWorld,
   };

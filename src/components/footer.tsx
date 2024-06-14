@@ -4,7 +4,7 @@ import {
   IconBrandDiscordFilled,
   IconBrandGithubFilled,
   IconBrandX,
-  IconHelp,
+  IconBrandYoutube,
 } from "@/components/Icons";
 import Link from "next/link";
 
@@ -27,7 +27,7 @@ const footerLinks = [
   },
   {
     href: "https://www.youtube.com/@helius_labs",
-    icon: <IconHelp />,
+    icon: <IconBrandYoutube />,
   },
 ];
 
