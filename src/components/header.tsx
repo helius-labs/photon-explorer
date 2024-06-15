@@ -1,7 +1,6 @@
 import ClusterSwitcher from "@/components/cluster-switcher";
 import { CommandMenu } from "@/components/command-menu";
 import { MainNav } from "@/components/main-nav";
-// import { ModeToggle } from "@/components/mode-toggle";
 import { SecondaryNav } from "@/components/secondary-nav";
 import { ThemeToggle } from "./theme-toggle";
 import { NetworkStatusDropdown } from "@/components/network-status";

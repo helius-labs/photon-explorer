@@ -152,3 +152,20 @@ export function useGetTokenAccountsByOwner(
     enabled,
   });
 }
+
+export function useGetAverageTps(enabled: boolean = true) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getAverageTps"],
+    queryFn: async () => {
+      const rpc = createSolanaRpc(endpoint);
+      const performanceSamples = await rpc.getRecentPerformanceSamples(1).send();
+      const totalTransactions = Number(performanceSamples[0].numTransactions);
+      const samplePeriodSecs = performanceSamples[0].samplePeriodSecs;
+      const avgTps = totalTransactions / samplePeriodSecs;
+      return avgTps;
+    },
+    enabled,
+  });
+}
