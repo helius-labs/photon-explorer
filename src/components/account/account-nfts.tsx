@@ -41,7 +41,7 @@ export default function AccountNFTs({ address }: { address: string }) {
         const nftsData = result.items.slice(0, 12).map((item: any) => ({
           mint: item.id,
           name: item.metadata?.name ?? 'Mad Lads #2197',
-          image: item.metadata?.image ?? '/assets/nft-placeholder.png', // Ensure this path is correct
+          image: item.metadata?.image ?? '/assets/nft-placeholder.png',
         }));
         setNfts(nftsData);
         setLoading(false);

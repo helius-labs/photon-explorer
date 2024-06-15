@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import Providers from "@/components/common/providers";
+import Programs from "@/components/common/programs";
 
 export default function TransactionOverview({
   data,
@@ -26,9 +26,10 @@ export default function TransactionOverview({
 
   const tokenImageUri = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png";
   const token2ImageUri = "https://wormhole.com/token.png";
+  
   const renderProvider = (pubkey: string) => (
     <div className="flex items-center">
-      <Providers pubkey={pubkey} />
+      <Programs pubkey={pubkey} />
     </div>
   );
   

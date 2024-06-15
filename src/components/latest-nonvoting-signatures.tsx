@@ -34,14 +34,6 @@ export default function LatestNonVotingSignatures() {
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
       {
-        accessorKey: "slot",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Slot" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
-        enableSorting: true,
-      },
-      {
         accessorKey: "signature",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />

@@ -56,7 +56,7 @@ export default function Signature({
           <TooltipTrigger asChild>
             <Link href={`/tx/${children}`} className="hover:underline">
               {short ? (
-                <>{`${children.slice(0, 12)}...${children.slice(-6)}`}</>
+                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
               ) : (
                 <>{children}</>
               )}

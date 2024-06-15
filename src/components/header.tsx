@@ -4,6 +4,7 @@ import { MainNav } from "@/components/main-nav";
 // import { ModeToggle } from "@/components/mode-toggle";
 import { SecondaryNav } from "@/components/secondary-nav";
 import { ThemeToggle } from "./theme-toggle";
+import { NetworkStatusDropdown } from "@/components/network-status";
 
 export function Header() {
   return (
@@ -14,6 +15,7 @@ export function Header() {
           <CommandMenu />
         </div>
         <div className="ml-auto flex items-center space-x-4">
+          <NetworkStatusDropdown />
           <SecondaryNav className="mx-6" />
           <ThemeToggle />
           <ClusterSwitcher />
