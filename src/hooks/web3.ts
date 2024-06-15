@@ -153,18 +153,29 @@ export function useGetTokenAccountsByOwner(
   });
 }
 
-export function useGetAverageTps(enabled: boolean = true) {
+export function useGetRecentPerformanceSamples(enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getAverageTps"],
+    queryKey: [endpoint, "getRecentPerformanceSamples"],
     queryFn: async () => {
       const rpc = createSolanaRpc(endpoint);
       const performanceSamples = await rpc.getRecentPerformanceSamples(1).send();
       const totalTransactions = Number(performanceSamples[0].numTransactions);
       const samplePeriodSecs = performanceSamples[0].samplePeriodSecs;
       const avgTps = totalTransactions / samplePeriodSecs;
-      return avgTps;
+      
+      // TODO: Calculate the true average ping time
+      const start = Date.now();
+      await rpc.getSlot().send();
+      const end = Date.now();
+      const roundTripTime = end - start;
+
+      const status = {
+        avgTps,
+        roundTripTime,
+      };
+      return status;
     },
     enabled,
   });
