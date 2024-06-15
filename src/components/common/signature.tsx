@@ -4,7 +4,6 @@ import * as React from "react";
 import { CheckIcon, Copy } from "lucide-react";
 import Link from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
-import Link from "@/components/ui/link";
 import {
   Tooltip,
   TooltipContent,
@@ -39,7 +38,7 @@ export default function Signature({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                variant="outline"
+                variant={null}
                 className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
                 onClick={() => {
                   navigator.clipboard.writeText(children);
@@ -57,7 +56,7 @@ export default function Signature({
           <TooltipTrigger asChild>
             <Link href={`/tx/${children}`} className="hover:underline">
               {short ? (
-                <>{`${children.slice(0, 12)}...${children.slice(-6)}`}</>
+                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
               ) : (
                 <>{children}</>
               )}

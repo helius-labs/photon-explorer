@@ -3,7 +3,7 @@
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
 
-import { addressLookupTable } from "@/lib/data";
+import { programAddressLookupTable } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
@@ -21,7 +21,7 @@ interface ProvidersProps {
 export default function Providers({ pubkey }: ProvidersProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
   const providerImageUri = "https://static.jup.ag/jup/icon.png";
-  const name = addressLookupTable[pubkey] ?? null;
+  const name = programAddressLookupTable[pubkey] ?? null;
 
   React.useEffect(() => {
     if (hasCopied) {
