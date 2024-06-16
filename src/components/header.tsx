@@ -14,10 +14,9 @@ export function Header() {
           <CommandMenu />
         </div>
         <div className="ml-auto flex items-center space-x-4">
+          <ThemeToggle />
           <NetworkStatusDropdown />
           <SecondaryNav className="mx-6" />
-          <ThemeToggle />
-          <ClusterSwitcher />
         </div>
       </div>
     </div>

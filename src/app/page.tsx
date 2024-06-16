@@ -5,6 +5,7 @@ import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures"
 import { Search } from "@/components/search";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NetworkStatusDropdown } from "@/components/network-status";
+import { MainNav } from "@/components/main-nav";
 
 export const metadata: Metadata = {
   title: "Home | XRAY Beta - Solana Explorer",
@@ -16,10 +17,10 @@ export default function Home() {
     <>
       <div>
         <div className="flex h-16 items-center px-4 md:px-8">
+          <MainNav />
           <div className="ml-auto flex items-center space-x-2 md:space-x-4">
-            <NetworkStatusDropdown />
             <ThemeToggle />
-            <ClusterSwitcher />
+            <NetworkStatusDropdown />
           </div>
         </div>
       </div>
