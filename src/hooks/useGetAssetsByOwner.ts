@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { nftsResponseSchema } from "@/schemas/nftList"; // Adjust the import path as needed
+import { nftsResponseSchema } from "@/schemas/nftList";
+import { useCluster } from "@/providers/cluster-provider";
 
-export function useHeliusNFTs(address: string, enabled: boolean = true) {
-  const endpoint = 'https://mainnet.helius-rpc.com/?api-key=fdb842cc-15ee-4ecc-9618-3eb85ccb19cb';
+export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
+  const { endpoint } = useCluster();
 
   const { data, error, isLoading, isPending, isFetching, refetch } = useQuery({
     queryKey: [endpoint, address, "getAssetsByOwner"],

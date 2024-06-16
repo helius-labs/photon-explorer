@@ -5,17 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useHeliusNFTs } from "@/hooks/useHeliusNFTs"; // Adjust the import path as needed
-
-type NFT = {
-  mint: string;
-  name: string;
-  image: string;
-  compressed: boolean;
-};
+import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
 
 export default function AccountNFTs({ address }: { address: string }) {
-  const { data: nfts, isLoading, isError } = useHeliusNFTs(address);
+  const { data: nfts, isLoading, isError } = useGetAssetsByOwner(address);
   const [showCompressed, setShowCompressed] = useState(false);
 
   const regularNfts = nfts?.filter(nft => !nft.compressed) ?? [];
