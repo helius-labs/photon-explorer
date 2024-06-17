@@ -35,10 +35,6 @@ export function AccountTabs({
       name: "Compressed Accounts",
       href: `/address/${address}/compressed-accounts`,
     },
-    {
-      name: "Compressed Transactions",
-      href: `/address/${address}/compressed-transactions`,
-    },
   ];
 
   return (

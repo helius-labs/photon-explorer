@@ -85,7 +85,7 @@ export function useGetCompressionSignaturesForOwner(
 ) {
   const { compressionEndpoint } = useCluster();
 
-  const { data, error, isLoading, isPending, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [
       compressionEndpoint,
       "getCompressionSignaturesForOwner",
@@ -111,15 +111,6 @@ export function useGetCompressionSignaturesForOwner(
     },
     enabled,
   });
-
-  return {
-    data,
-    isLoading,
-    isPending,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetCompressionSignaturesForAccount(

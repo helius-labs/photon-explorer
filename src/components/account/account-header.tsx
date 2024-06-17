@@ -83,10 +83,6 @@ export function AccountHeader({
       </div>
       <div className="ml-auto font-medium self-start">
         <div className="ml-auto flex items-center gap-1">
-          <Button size="sm" variant="outline" className="h-8 gap-1">
-            <Star className="h-3.5 w-3.5" />
-            <span className="sr-only">Star</span>
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="outline" className="h-8 w-8">

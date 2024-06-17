@@ -6,6 +6,7 @@ import {
   UnixTimestamp,
 } from "@solana/web3.js";
 
+import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 
 import TransactionCard from "@/components/account/transaction-card";
@@ -13,25 +14,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AccountHistory({ address }: { address: string }) {
-  type Signature = {
-    blockTime: UnixTimestamp | null;
-    status: boolean;
-    signature: SignatureType;
-    slot: Slot;
-  };
+  const signatures = useGetSignaturesForAddress(address);
 
-  const { data, isLoading, isFetching, isPending, isError } =
-    useGetSignaturesForAddress(address);
+  // Load possible compression signatures if this is a compression hash instead of an address
+  const compressionSignatures = useGetCompressionSignaturesForAccount(address);
 
-  // const {
-  //   data: dataCompressions,
-  //   isLoading,
-  //   isFetching,
-  //   isPending,
-  //   isError,
-  // } = useGetCompressionSignaturesForOwner(address, !!data);
-
-  if (isError)
+  // First check for non compression signatures
+  if (signatures.isError)
     return (
       <Card className="col-span-12">
         <CardContent className="pt-6">
@@ -39,7 +28,7 @@ export default function AccountHistory({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
-  if (isLoading || isPending)
+  if (signatures.isLoading || signatures.isPending)
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col pt-6 gap-4">
@@ -56,26 +45,32 @@ export default function AccountHistory({ address }: { address: string }) {
       </Card>
     );
 
-  // Check if there are any compression signatures
-  const signatures: Signature[] | undefined = data?.map(
-    (transaction): Signature => ({
-      slot: transaction.slot,
-      signature: transaction.signature,
-      status: transaction.err === null ? true : false,
-      blockTime: transaction.blockTime,
-    }),
-  );
-
-  return (
-    <Card className="col-span-12">
-      <CardContent className="grid pt-6 gap-4">
-        {signatures?.map((transaction) => (
-          <TransactionCard
-            key={transaction.signature}
-            transaction={transaction}
-          />
-        ))}
-      </CardContent>
-    </Card>
-  );
+  if (signatures.data.length > 0) {
+    return (
+      <Card className="col-span-12">
+        <CardContent className="grid pt-6 gap-4">
+          {signatures.data?.map((transaction) => (
+            <TransactionCard
+              key={transaction.signature}
+              transaction={transaction}
+            />
+          ))}
+        </CardContent>
+      </Card>
+    );
+  } else if (compressionSignatures.data) {
+    // If no signatures found, show compression signatures based on the hash (address)
+    return (
+      <Card className="col-span-12">
+        <CardContent className="grid pt-6 gap-4">
+          {compressionSignatures.data?.result.value.items.map((transaction) => (
+            <TransactionCard
+              key={transaction.signature}
+              transaction={transaction}
+            />
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
 }

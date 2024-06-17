@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getBaseUrl() {
   return process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-    ? `https://photon.helius.dev`
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
     : process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
       : `http://localhost:3000`;
