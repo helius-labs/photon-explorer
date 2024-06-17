@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
+
 import ClusterSwitcher from "@/components/cluster-switcher";
 import { Footer } from "@/components/footer";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
+import { MainNav } from "@/components/main-nav";
+import { NetworkStatusDropdown } from "@/components/network-status";
 import { Search } from "@/components/search";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { NetworkStatusDropdown } from "@/components/network-status";
-import { MainNav } from "@/components/main-nav";
 
 export const metadata: Metadata = {
   title: "Home | XRAY Beta - Solana Explorer",
-  description: "The simplest, clearest and most readable explorer for everyday people.",
+  description:
+    "The simplest, clearest and most readable explorer for everyday people.",
 };
 
 export default function Home() {
@@ -32,7 +34,7 @@ export default function Home() {
             <Search />
           </div>
 
-          <div className="w-full max-w-lg md:max-w-xl lg:max-w-2xl pb-8 md:pb-16">
+          <div className="w-full max-w-md md:max-w-lg lg:max-w-xl pb-8 md:pb-16">
             <LatestNonVotingSignatures />
           </div>
         </div>
