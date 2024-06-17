@@ -152,3 +152,33 @@ export function useGetTokenAccountsByOwner(
     enabled,
   });
 }
+
+export function useGetRecentPerformanceSamples(
+  enabled: boolean = true
+) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getRecentPerformanceSamples"],
+    queryFn: async () => {
+      const rpc = createSolanaRpc(endpoint);
+
+      const performanceSamples = await rpc.getRecentPerformanceSamples(1).send();
+      const sample = performanceSamples[0];
+
+      const totalTransactions = Number(performanceSamples[0].numTransactions);
+      const samplePeriodSecs = performanceSamples[0].samplePeriodSecs;
+      const avgTps = totalTransactions / samplePeriodSecs;
+
+      const avgSlotTime_1min = Math.round((sample.samplePeriodSecs * 1000) / Number(sample.numSlots));
+
+      const start = Date.now();
+      await rpc.getSlot().send();
+      const end = Date.now();
+      const latency = end - start;
+
+      return { avgTps, latency, avgSlotTime_1min };
+    },
+    enabled,
+  });
+}

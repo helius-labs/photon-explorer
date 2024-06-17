@@ -1,10 +1,9 @@
 "use client";
 
-import { CheckIcon, ClipboardIcon } from "lucide-react";
 import * as React from "react";
-
-import { Button } from "@/components/ui/button";
+import { CheckIcon, Copy } from "lucide-react";
 import Link from "@/components/ui/link";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -39,7 +38,7 @@ export default function Signature({
             <TooltipTrigger asChild>
               <Button
                 size="icon"
-                variant="outline"
+                variant={null}
                 className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
                 onClick={() => {
                   navigator.clipboard.writeText(children);
@@ -47,7 +46,7 @@ export default function Signature({
                 }}
               >
                 <span className="sr-only">Copy</span>
-                {hasCopied ? <CheckIcon /> : <ClipboardIcon />}
+                {hasCopied ? <CheckIcon /> : <Copy />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>Copy transaction id</TooltipContent>

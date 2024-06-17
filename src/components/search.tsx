@@ -51,10 +51,13 @@ export function Search({
         placeholder="Search for accounts or transactions..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        className="h-12"
+        iconClassName="left-4"
+        inputPaddingClassName="pl-12"
       />
 
       <Button type="submit" variant="outline" disabled={!search}>
-        Search
+        Helius Search
       </Button>
     </form>
   );
