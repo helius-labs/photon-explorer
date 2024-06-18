@@ -166,18 +166,16 @@ export function useGetRecentPerformanceSamples(
       const performanceSamples = await rpc.getRecentPerformanceSamples(1).send();
       const sample = performanceSamples[0];
 
-      const totalTransactions = Number(performanceSamples[0].numTransactions);
-      const samplePeriodSecs = performanceSamples[0].samplePeriodSecs;
+      const totalTransactions = Number(sample.numTransactions);
+      const samplePeriodSecs = sample.samplePeriodSecs;
       const avgTps = totalTransactions / samplePeriodSecs;
-
-      const avgSlotTime_1min = Math.round((sample.samplePeriodSecs * 1000) / Number(sample.numSlots));
 
       const start = Date.now();
       await rpc.getSlot().send();
       const end = Date.now();
       const latency = end - start;
 
-      return { avgTps, latency, avgSlotTime_1min };
+      return { avgTps, latency };
     },
     enabled,
   });

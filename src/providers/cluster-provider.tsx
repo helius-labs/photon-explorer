@@ -61,7 +61,7 @@ const compressionEndpointMap = {
 export const useCluster = () => useContext(ClusterContext) ?? defaultContext;
 
 const clusters: Cluster[] = [
-  { value: "mainnet-beta", label: "Mainnet Beta", disabled: false },
+  { value: "mainnet-beta", label: "Mainnet", disabled: false },
   { value: "testnet", label: "Testnet", disabled: false },
   { value: "devnet", label: "Devnet", disabled: false },
   { value: "localnet", label: "Localnet", disabled: false },

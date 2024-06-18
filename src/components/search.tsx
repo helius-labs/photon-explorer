@@ -57,7 +57,7 @@ export function Search({
       />
 
       <Button type="submit" variant="outline" disabled={!search}>
-        Helius Search
+        Search
       </Button>
     </form>
   );

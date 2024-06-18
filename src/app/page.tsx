@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 
-import ClusterSwitcher from "@/components/cluster-switcher";
 import { Footer } from "@/components/footer";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
 import { MainNav } from "@/components/main-nav";
-import { NetworkStatusDropdown } from "@/components/network-status";
+import { NetworkStatusDropdown } from "@/components/network-dropdown";
 import { Search } from "@/components/search";
 import { ThemeToggle } from "@/components/theme-toggle";
 

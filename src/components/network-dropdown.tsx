@@ -1,14 +1,17 @@
 "use client";
 
-import React from 'react';
 import { useGetRecentPerformanceSamples } from '@/hooks/web3';
 import { useCluster } from '@/providers/cluster-provider';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
-import { Separator } from '@/components/ui/separator';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Loading from '@/components/common/loading';
 
 export function NetworkStatusDropdown() {
   const { data: networkStatus, isLoading } = useGetRecentPerformanceSamples();
@@ -29,24 +32,25 @@ export function NetworkStatusDropdown() {
   if (networkStatus?.avgTps !== undefined) {
     if (networkStatus.avgTps >= 800) {
       networkConditionColor = 'bg-green-500';
-    } else if (networkStatus.avgTps >= 300) {
+    } else if (networkStatus.avgTps >= 50) {
       networkConditionColor = 'bg-yellow-500';
-    } else {
     }
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center space-x-2">
-        <Button variant="outline" className="min-w-32">
-          Network
-          <div className={`w-2 h-2 ml-4 rounded-full ${networkConditionColor}`}></div>
+    <HoverCard openDelay={100} closeDelay={400}>
+      <HoverCardTrigger asChild>
+        <Button variant="outline" className="flex items-center space-x-2">
+          <div className="min-w-24 px-1 rounded flex items-center justify-between">
+            {clusters.find(({ value }) => value === cluster)?.label}
+            <div className={`w-2 h-2 mr-2 rounded-full ${networkConditionColor}`}></div>
+          </div>
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-96 bg-background text-foreground rounded-lg shadow-lg mt-2">
+      </HoverCardTrigger>
+      <HoverCardContent className="w-96 bg-background text-foreground rounded-lg shadow-lg mt-2">
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">Network Info</h2>
+            <h2 className="text-lg font-semibold">Network Status</h2>
             <div className="flex items-center">
               <div className="text-sm mr-2">
                 {clusters.find(({ value }) => value === cluster)?.label}
@@ -55,7 +59,7 @@ export function NetworkStatusDropdown() {
           </div>
           <Separator />
           {isLoading ? (
-            <div>Loading...</div>
+            <div><Loading /></div>
           ) : (
             <div className="flex flex-col mb-4 mt-4">
               <div className="flex flex-col space-y-4">
@@ -82,46 +86,40 @@ export function NetworkStatusDropdown() {
               </div>
             </div>
           )}
-          <div className="text-xs mb-4">
-          </div>
+          <div className="text-xs mb-4"></div>
           <div>
-            <h2 className="text-lg font-semibold mb-2">Choose a Cluster</h2>
+            <h2 className="text-md font-semibold mb-2">Choose a Network</h2>
             <div className="grid gap-4">
               {clusters
                 .filter(({ value }) => value === 'mainnet-beta')
                 .map(({ value, label, disabled }) => (
-                  <Button
-                    variant="outline"
+                  <div
                     key={value}
                     onClick={() => setCluster(value)}
-                    className={cluster === value ? "ring-1" : ""}
-                    disabled={disabled}
+                    className={`cursor-pointer px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                   >
                     {label}
-                  </Button>
+                  </div>
                 ))}
               <div className="flex space-x-2">
                 {clusters
                   .filter(({ value }) => value === 'testnet' || value === 'devnet' || value === 'localnet')
                   .map(({ value, label, disabled }) => (
-                    <Button
-                      variant="outline"
+                    <div
                       key={value}
                       onClick={() => setCluster(value)}
-                      className={`flex-1 ${cluster === value ? "ring-1" : ""}`}
-                      disabled={disabled}
+                      className={`flex-1 cursor-pointer px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                     >
                       {label}
-                    </Button>
+                    </div>
                   ))}
               </div>
-              <Button
-                variant="outline"
+              <div
                 onClick={() => setCluster('custom')}
-                className={cluster === 'custom' ? "ring-1" : ""}
+                className={`cursor-pointer px-4 py-2 border rounded text-center ${cluster === 'custom' ? "ring-1" : ""}`}
               >
                 Custom
-              </Button>
+              </div>
               {cluster === "custom" && (
                 <>
                   <div className="grid w-full max-w-sm items-center gap-2">
@@ -149,7 +147,7 @@ export function NetworkStatusDropdown() {
             </div>
           </div>
         </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </HoverCardContent>
+    </HoverCard>
   );
 }

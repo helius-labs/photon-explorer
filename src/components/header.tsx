@@ -1,9 +1,8 @@
-import ClusterSwitcher from "@/components/cluster-switcher";
 import { CommandMenu } from "@/components/command-menu";
 import { MainNav } from "@/components/main-nav";
 import { SecondaryNav } from "@/components/secondary-nav";
 import { ThemeToggle } from "./theme-toggle";
-import { NetworkStatusDropdown } from "@/components/network-status";
+import { NetworkStatusDropdown } from "@/components/network-dropdown";
 
 export function Header() {
   return (
