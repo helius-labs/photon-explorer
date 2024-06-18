@@ -1,13 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import {
-  Signature,
-  Slot,
-  address,
-  createSolanaRpc,
-  signature,
-} from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetSlot(enabled: boolean = true) {
@@ -16,154 +10,108 @@ export function useGetSlot(enabled: boolean = true) {
   return useQuery({
     queryKey: [endpoint, "getSlot"],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "processed");
 
-      return await rpc.getSlot().send();
+      return await connection.getSlot();
     },
     enabled,
   });
 }
 
-export function useGetBlock(slot: Slot, enabled: boolean = true) {
+export function useGetBlock(slot: number, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "processed");
 
-      return await rpc
-        .getBlock(slot, {
-          maxSupportedTransactionVersion: 0,
-          transactionDetails: "full",
-          encoding: "jsonParsed",
-          rewards: false,
-        })
-        .send();
+      return await connection.getParsedBlock(slot, {
+        maxSupportedTransactionVersion: 0,
+        transactionDetails: "full",
+        rewards: false,
+      });
     },
     enabled,
   });
 }
 
-export function useGetTransaction(
-  signatureInput: string,
-  enabled: boolean = true,
-) {
+export function useGetTransaction(signature: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getTransaction", signatureInput],
+    queryKey: [endpoint, "getTransaction", signature],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "confirmed");
 
-      return await rpc
-        .getTransaction(signature(signatureInput), {
-          maxSupportedTransactionVersion: 0,
-          encoding: "jsonParsed",
-        })
-        .send();
+      return await connection.getParsedTransaction(signature, {
+        maxSupportedTransactionVersion: 0,
+      });
     },
     enabled,
   });
 }
 
-export function useGetAccountInfo(
-  addressInput: string,
-  enabled: boolean = true,
-) {
+export function useGetAccountInfo(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getAccountInfo", addressInput],
+    queryKey: [endpoint, "getAccountInfo", address],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "processed");
 
-      return await rpc
-        .getAccountInfo(address(addressInput), {
-          encoding: "jsonParsed",
-          commitment: "processed",
-        })
-        .send();
+      return await connection.getParsedAccountInfo(new PublicKey(address), {
+        commitment: "processed",
+      });
     },
     enabled,
   });
 }
 
-export function useGetBalance(addressInput: string, enabled: boolean = true) {
+export function useGetBalance(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getBalance", addressInput],
+    queryKey: [endpoint, "getBalance", address],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "processed");
 
-      return await rpc.getBalance(address(addressInput)).send();
+      return await connection.getBalance(new PublicKey(address));
     },
     enabled,
   });
 }
 
 export function useGetSignaturesForAddress(
-  addressInput: string,
+  address: string,
   enabled: boolean = true,
   limit: number = 10,
 ) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getSignaturesForAddress", addressInput],
+    queryKey: [endpoint, "getSignaturesForAddress", address],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "confirmed");
 
-      return await rpc
-        .getSignaturesForAddress(address(addressInput), {
-          limit,
-        })
-        .send();
+      return await connection.getSignaturesForAddress(new PublicKey(address), {
+        limit,
+      });
     },
     enabled,
   });
 }
 
-export function useGetTokenAccountsByOwner(
-  addressInput: string,
-  enabled: boolean = true,
-) {
-  const { endpoint } = useCluster();
-
-  return useQuery({
-    queryKey: [endpoint, "getTokenAccountsByOwner", addressInput],
-    queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
-
-      return await rpc
-        .getTokenAccountsByOwner(
-          address(addressInput),
-          {
-            programId: address("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-          },
-          {
-            encoding: "jsonParsed",
-            commitment: "processed",
-          },
-        )
-        .send();
-    },
-    enabled,
-  });
-}
-
-export function useGetRecentPerformanceSamples(
-  enabled: boolean = true
-) {
+export function useGetRecentPerformanceSamples(enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
     queryKey: [endpoint, "getRecentPerformanceSamples"],
     queryFn: async () => {
-      const rpc = createSolanaRpc(endpoint);
+      const connection = new Connection(endpoint, "processed");
 
-      const performanceSamples = await rpc.getRecentPerformanceSamples(1).send();
+      const performanceSamples =
+        await connection.getRecentPerformanceSamples(1);
       const sample = performanceSamples[0];
 
       const totalTransactions = Number(sample.numTransactions);
@@ -171,7 +119,7 @@ export function useGetRecentPerformanceSamples(
       const avgTps = totalTransactions / samplePeriodSecs;
 
       const start = Date.now();
-      await rpc.getSlot().send();
+      await connection.getSlot();
       const end = Date.now();
       const latency = end - start;
 

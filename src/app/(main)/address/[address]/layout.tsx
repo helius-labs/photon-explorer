@@ -1,7 +1,7 @@
 "use client";
 
-import { isAddress } from "@solana/web3.js";
 import { PropsWithChildren } from "react";
+import { isAddress } from "web3js-experimental";
 
 import { useGetCompressedAccount } from "@/hooks/compression";
 import { useGetAccountInfo } from "@/hooks/web3";

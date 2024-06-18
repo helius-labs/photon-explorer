@@ -1,11 +1,5 @@
 "use client";
 
-import {
-  Signature as SignatureType,
-  Slot,
-  UnixTimestamp,
-} from "@solana/web3.js";
-
 import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 

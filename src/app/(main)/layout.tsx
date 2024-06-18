@@ -1,9 +1,3 @@
-import { isAddress } from "@solana/web3.js";
-import { PropsWithChildren } from "react";
-
-import { useGetCompressedAccount } from "@/hooks/compression";
-import { useGetAccountInfo } from "@/hooks/web3";
-
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
