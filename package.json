@@ -42,7 +42,7 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "use-tab-visibility": "^1.0.9",
-    "web3js-experimental": "^2.0.0-preview.3.20240612221755.1a540969173023a465aaa7581dc469ffbd56d270",
+    "web3js-experimental": "npm:@solana/web3.js@2.0.0-experimental.7adc22b",
     "zod": "^3.23.8"
   },
   "devDependencies": {
