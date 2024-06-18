@@ -33,8 +33,8 @@ export function NetworkStatusDropdown() {
   const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
   const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
   const priorityFeeInSol = priorityFeeLevels !== undefined
-  ? lamportsToSolString(priorityFeeLevels.medium * 100)
-  : 'N/A';
+    ? lamportsToSolString(priorityFeeLevels.medium * 100)
+    : 'N/A';
 
   let networkConditionColor = 'bg-yellow-500';
   if (networkStatus?.avgTps !== undefined) {
@@ -55,7 +55,7 @@ export function NetworkStatusDropdown() {
           </div>
         </Button>
       </HoverCardTrigger>
-      <HoverCardContent className="w-96 bg-background text-foreground rounded-lg shadow-lg mt-2">
+      <HoverCardContent align="end" className="w-96 bg-background text-foreground rounded-lg shadow-lg mt-2">
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold">Network Status</h2>
@@ -66,22 +66,20 @@ export function NetworkStatusDropdown() {
             </div>
           </div>
           <Separator />
-          {isNetworkLoading ? (
-            <div><Loading /></div>
+          {isNetworkLoading && cluster !== 'localnet' ? (
+            <div className="mt-2"><Loading /></div>
           ) : (
             <div className="flex flex-col mb-4 mt-4">
-              <div className="flex flex-col space-y-4">
+              {cluster !== 'localnet' && (
                 <div className="flex items-center space-x-4">
-                  <div className="flex flex-col">
+                  <div className="flex-1 flex flex-col">
                     <div className="text-xs font-medium">TPS</div>
                     <div className="flex items-center space-x-2">
                       <div className={`w-3 h-3 rounded-full ${networkConditionColor}`}></div>
                       <div className="text-lg font-semibold">{averageTps}</div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="flex flex-col">
+                  <div className="flex-1 flex flex-col">
                     <div className="text-xs font-medium">Ping</div>
                     <div className="flex items-center space-x-2">
                       <div className={`w-3 h-3 rounded-full ${networkConditionColor}`}></div>
@@ -91,17 +89,19 @@ export function NetworkStatusDropdown() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4">
+              )}
+              {cluster === 'mainnet-beta' && (
+                <div className="flex items-center space-x-4 mt-4">
                   <div className="flex flex-col">
                     <div className="text-xs font-medium">Median Fee</div>
                     <div className="flex items-center space-x-2">
                       <div className="text-lg font-semibold">
-                        {isFeeLoading ? <Loading /> : `${priorityFeeInSol} SOL`}
+                        {isFeeLoading ? <div className="mt-2"><Loading /></div> : `${priorityFeeInSol} SOL`}
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
           <div className="text-xs mb-4"></div>
