@@ -28,12 +28,12 @@ export function NetworkStatusDropdown() {
   const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
   const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
 
-  let networkConditionColor = 'bg-red-500';
+  let networkConditionColor = 'bg-yellow-500';
   if (networkStatus?.avgTps !== undefined) {
     if (networkStatus.avgTps >= 800) {
       networkConditionColor = 'bg-green-500';
-    } else if (networkStatus.avgTps >= 50) {
-      networkConditionColor = 'bg-yellow-500';
+    } else if (networkStatus.avgTps < 1) {
+      networkConditionColor = 'bg-red-500';
     }
   }
 

@@ -5,16 +5,14 @@ import Link from "@/components/ui/link";
 import Image from "next/image";
 import LogoBlack from "../../public/assets/logo-text-black.svg";
 import LogoWhite from "../../public/assets/logo-text-white.svg";
-import { useThemeWithMounted } from "@/hooks/useThemeWithMounted";
+import { useTheme } from "next-themes"
 
 export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
-  const { theme, mounted } = useThemeWithMounted();
 
-  if (!mounted) return null;
-
+  const { theme } = useTheme()
   const Logo = theme === 'dark' ? LogoWhite : LogoBlack;
 
   return (
