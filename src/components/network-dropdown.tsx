@@ -33,7 +33,7 @@ export function NetworkStatusDropdown() {
   const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
   const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
   const priorityFeeInSol = priorityFeeLevels !== undefined
-  ? lamportsToSolString(priorityFeeLevels.medium * 1000)
+  ? lamportsToSolString(priorityFeeLevels.medium * 100)
   : 'N/A';
 
   let networkConditionColor = 'bg-yellow-500';
