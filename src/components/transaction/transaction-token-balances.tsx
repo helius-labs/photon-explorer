@@ -1,3 +1,8 @@
+import {
+  ParsedTransactionWithMeta,
+  TokenBalance as TokenBalanceType,
+} from "@solana/web3.js";
+
 import { lamportsToSolString } from "@/lib/utils";
 
 import Address from "@/components/common/address";
@@ -12,30 +17,43 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionTokenBalances({ data }: { data: any }) {
-  type TokenBalanace = {
+export default function TransactionTokenBalances({
+  data,
+}: {
+  data: ParsedTransactionWithMeta;
+}) {
+  type TokenBalance = {
     address: string;
     mint: string;
     change: number;
     postBalance: string;
   };
 
-  if (data.meta.preTokenBalances.length === 0) return null;
+  if (
+    data.meta &&
+    data.meta?.preTokenBalances &&
+    data.meta?.preTokenBalances.length === 0
+  )
+    return null;
 
   // Calculate token balances
-  const tokenBalances: TokenBalanace[] | undefined =
-    data.meta.preTokenBalances.map(
-      (item: any): TokenBalanace => ({
-        address: data.transaction.message.accountKeys[item.accountIndex].pubkey,
+  const tokenBalances: TokenBalance[] | undefined =
+    data.meta?.preTokenBalances?.map(
+      (item: TokenBalanceType): TokenBalance => ({
+        address:
+          data.transaction.message.accountKeys[
+            item.accountIndex
+          ].pubkey.toString(),
         mint: item.mint,
         change:
-          item.uiTokenAmount.uiAmount -
-          (data.meta.postTokenBalances.find(
-            (postBalance: any) =>
-              postBalance.accountIndex === item.accountIndex,
-          )?.uiTokenAmount.uiAmount || 0),
+          item.uiTokenAmount.uiAmount ||
+          0 -
+            (data.meta?.postTokenBalances?.find(
+              (postBalance: any) =>
+                postBalance.accountIndex === item.accountIndex,
+            )?.uiTokenAmount.uiAmount || 0),
         postBalance:
-          data.meta.postTokenBalances.find(
+          data.meta?.postTokenBalances?.find(
             (postBalance: any) =>
               postBalance.accountIndex === item.accountIndex,
           )?.uiTokenAmount.uiAmountString || "0",
@@ -58,7 +76,7 @@ export default function TransactionTokenBalances({ data }: { data: any }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tokenBalances?.map((item: any, index: number) => (
+            {tokenBalances?.map((item: TokenBalance, index: number) => (
               <TableRow key={`token-balance-${index}`}>
                 <TableCell>
                   <Address short={true}>{item.address}</Address>

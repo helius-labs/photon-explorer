@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  ParsedInnerInstruction,
+  ParsedInstruction,
+  PartiallyDecodedInstruction,
+  PublicKey,
+} from "@solana/web3.js";
+
 import { lamportsToSolString } from "@/lib/utils";
 
 import Address from "@/components/common/address";
@@ -13,8 +20,8 @@ export default function Instruction({
   index,
   innerInstructions,
 }: {
-  instruction: any;
-  innerInstructions?: any;
+  instruction: ParsedInstruction | PartiallyDecodedInstruction;
+  innerInstructions?: ParsedInnerInstruction[] | null;
   index: number;
 }) {
   return (
@@ -31,10 +38,10 @@ export default function Instruction({
               <TableRow key={`program-${index}`}>
                 <TableCell className="w-1/6">Program</TableCell>
                 <TableCell className="w-5/6">
-                  <Address>{instruction.programId}</Address>
+                  <Address>{instruction.programId.toString()}</Address>
                 </TableCell>
               </TableRow>
-              {instruction.parsed && (
+              {"parsed" in instruction && (
                 <>
                   {instruction.parsed.type === "transfer" ? (
                     <>
@@ -77,16 +84,16 @@ export default function Instruction({
                   )}
                 </>
               )}
-              {instruction.accounts &&
-                instruction.accounts.map((account: any, index: number) => (
+              {"accounts" in instruction &&
+                instruction.accounts.map((account, index) => (
                   <TableRow key={`account-key-${index}`}>
                     <TableCell>Account #{index}</TableCell>
                     <TableCell>
-                      <Address>{account}</Address>
+                      <Address>{account.toString()}</Address>
                     </TableCell>
                   </TableRow>
                 ))}
-              {instruction.data && (
+              {"data" in instruction && (
                 <TableRow key={`data-${index}`}>
                   <TableCell className="align-top">Data (base-58)</TableCell>
                   <TableCell>
@@ -107,16 +114,17 @@ export default function Instruction({
                     Inner instructions
                   </h2>
                 </div>
-                {innerInstructions.find(
-                  (innerInstruction: { index: number }) =>
-                    innerInstruction.index === index,
-                ).instructions &&
+                {innerInstructions &&
+                  innerInstructions.find(
+                    (innerInstruction: { index: number }) =>
+                      innerInstruction.index === index,
+                  )?.instructions &&
                   innerInstructions
                     .find(
                       (innerInstruction: { index: number }) =>
                         innerInstruction.index === index,
                     )
-                    .instructions.map((instruction: any, index: number) => (
+                    ?.instructions.map((instruction, index: number) => (
                       <Instruction
                         key={`innerInstruction-${index}`}
                         index={index}

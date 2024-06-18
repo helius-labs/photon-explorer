@@ -1,3 +1,5 @@
+import { ParsedTransactionWithMeta } from "@solana/web3.js";
+
 import Address from "@/components/common/address";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,7 +11,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionAccountKeys({ data }: { data: any }) {
+export default function TransactionAccountKeys({
+  data,
+}: {
+  data: ParsedTransactionWithMeta;
+}) {
   return (
     <Card className="w-full">
       <CardHeader>
@@ -36,7 +42,7 @@ export default function TransactionAccountKeys({ data }: { data: any }) {
                 <TableRow key={`account-key-${index}`}>
                   <TableCell>{index}</TableCell>
                   <TableCell>
-                    <Address>{item.pubkey}</Address>
+                    <Address>{item.pubkey.toString()}</Address>
                   </TableCell>
                   <TableCell>{item.signer ? "Yes" : "No"}</TableCell>
                   <TableCell>{item.writer ? "Yes" : "No"}</TableCell>

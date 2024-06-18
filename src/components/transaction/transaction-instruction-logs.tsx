@@ -1,6 +1,12 @@
+import { ParsedTransactionWithMeta } from "@solana/web3.js";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function TransactionInstructionLogs({ data }: { data: any }) {
+export default function TransactionInstructionLogs({
+  data,
+}: {
+  data: ParsedTransactionWithMeta;
+}) {
   return (
     <>
       <Card className="w-full">
@@ -9,7 +15,10 @@ export default function TransactionInstructionLogs({ data }: { data: any }) {
         </CardHeader>
         <CardContent>
           <pre className="whitespace-pre-wrap">
-            {JSON.stringify(data.meta.logMessages, null, 2)}
+            {data.meta &&
+              data.meta.logMessages &&
+              data.meta.logMessages.length > 0 &&
+              JSON.stringify(data.meta.logMessages, null, 2)}
           </pre>
         </CardContent>
       </Card>
