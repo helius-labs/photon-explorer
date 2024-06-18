@@ -2,6 +2,7 @@
 
 import { useGetRecentPerformanceSamples } from '@/hooks/web3';
 import { useCluster } from '@/providers/cluster-provider';
+import { useGetPriorityFeeEstimate } from '@/hooks/useGetPriorityFeeEstimate';
 import {
   HoverCard,
   HoverCardContent,
@@ -12,9 +13,13 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Loading from '@/components/common/loading';
+import { lamportsToSolString } from '@/lib/utils';
+
+const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
 
 export function NetworkStatusDropdown() {
-  const { data: networkStatus, isLoading } = useGetRecentPerformanceSamples();
+  const { data: networkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples();
+  const { data: priorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys);
   const {
     clusters,
     cluster,
@@ -27,6 +32,9 @@ export function NetworkStatusDropdown() {
 
   const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
   const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
+  const priorityFeeInSol = priorityFeeLevels !== undefined
+  ? lamportsToSolString(priorityFeeLevels.medium * 1000)
+  : 'N/A';
 
   let networkConditionColor = 'bg-yellow-500';
   if (networkStatus?.avgTps !== undefined) {
@@ -40,8 +48,8 @@ export function NetworkStatusDropdown() {
   return (
     <HoverCard openDelay={100} closeDelay={400}>
       <HoverCardTrigger asChild>
-        <Button variant="outline" className="flex items-center space-x-2">
-          <div className="min-w-24 px-1 rounded flex items-center justify-between">
+        <Button variant="outline" className="flex rounded-md items-center space-x-2">
+          <div className="min-w-24 px-1 flex items-center justify-between">
             {clusters.find(({ value }) => value === cluster)?.label}
             <div className={`w-2 h-2 mr-2 rounded-full ${networkConditionColor}`}></div>
           </div>
@@ -58,7 +66,7 @@ export function NetworkStatusDropdown() {
             </div>
           </div>
           <Separator />
-          {isLoading ? (
+          {isNetworkLoading ? (
             <div><Loading /></div>
           ) : (
             <div className="flex flex-col mb-4 mt-4">
@@ -83,6 +91,16 @@ export function NetworkStatusDropdown() {
                     </div>
                   </div>
                 </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex flex-col">
+                    <div className="text-xs font-medium">Median Fee</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-lg font-semibold">
+                        {isFeeLoading ? <Loading /> : `${priorityFeeInSol} SOL`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -96,7 +114,7 @@ export function NetworkStatusDropdown() {
                   <div
                     key={value}
                     onClick={() => setCluster(value)}
-                    className={`cursor-pointer px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+                    className={`cursor-pointer rounded-md px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                   >
                     {label}
                   </div>
@@ -108,7 +126,7 @@ export function NetworkStatusDropdown() {
                     <div
                       key={value}
                       onClick={() => setCluster(value)}
-                      className={`flex-1 cursor-pointer px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+                      className={`flex-1 cursor-pointer rounded-md px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                     >
                       {label}
                     </div>
@@ -116,7 +134,7 @@ export function NetworkStatusDropdown() {
               </div>
               <div
                 onClick={() => setCluster('custom')}
-                className={`cursor-pointer px-4 py-2 border rounded text-center ${cluster === 'custom' ? "ring-1" : ""}`}
+                className={`cursor-pointer rounded-md px-4 py-2 border rounded text-center ${cluster === 'custom' ? "ring-1" : ""}`}
               >
                 Custom
               </div>

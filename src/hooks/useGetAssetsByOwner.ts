@@ -17,7 +17,7 @@ export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
         },
         body: JSON.stringify({
           jsonrpc: "2.0",
-          id: "my-id",
+          id: "1",
           method: "getAssetsByOwner",
           params: {
             ownerAddress: address,
@@ -38,6 +38,7 @@ export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
         name: item.content?.metadata?.name ?? 'Unknown NFT',
         image: item.content?.files?.[0]?.uri ?? '/assets/nft-placeholder.png',
         compressed: item.interface === 'V1_NFT',
+        verifiedCollection: item.groupings?.some((group: any) => group.group_type === 'verified_collection') ?? false
       }));
     },
     enabled,

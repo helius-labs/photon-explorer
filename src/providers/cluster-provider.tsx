@@ -65,7 +65,7 @@ const clusters: Cluster[] = [
   { value: "testnet", label: "Testnet", disabled: false },
   { value: "devnet", label: "Devnet", disabled: false },
   { value: "localnet", label: "Localnet", disabled: false },
-  { value: "custom", label: "Custom RPC URL", disabled: false },
+  { value: "custom", label: "Custom", disabled: false },
 ];
 
 const defaultCluster = "mainnet-beta";
