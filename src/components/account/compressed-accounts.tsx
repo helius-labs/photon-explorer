@@ -23,7 +23,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Hash" />
         ),
-        cell: ({ row }) => <Address>{row.getValue("hash")}</Address>,
+        cell: ({ row }) => <Address pubkey={row.getValue("hash")} />,
         enableSorting: true,
       },
       {
@@ -33,7 +33,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
         ),
         cell: ({ row }) => {
           if (row.getValue("address")) {
-            return <Address>{row.getValue("address")}</Address>;
+            return <Address pubkey={row.getValue("address")} />;
           } else {
             return <>-</>;
           }
@@ -45,7 +45,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Owner" />
         ),
-        cell: ({ row }) => <Address>{row.getValue("owner")}</Address>,
+        cell: ({ row }) => <Address pubkey={row.getValue("owner")} />,
         enableSorting: true,
       },
       {

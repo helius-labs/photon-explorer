@@ -1,11 +1,9 @@
 "use client";
 
+import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { CircleArrowDown } from "lucide-react";
 
-import { lamportsToSolString } from "@/lib/utils";
 import { timeAgoWithFormat } from "@/lib/utils";
-
-import { TokenInfoWithAddress } from "@/hooks/useGetAccountTokens";
 
 import Signature from "@/components/common/signature";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

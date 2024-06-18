@@ -112,9 +112,9 @@ export default function TransactionOverview({
           <div className="w-3/4">
             {data?.transaction.message.accountKeys.length > 0 &&
               data?.transaction.message.accountKeys[0].pubkey && (
-                <Address>
-                  {data?.transaction.message.accountKeys[0].pubkey.toString()}
-                </Address>
+                <Address
+                  pubkey={data?.transaction.message.accountKeys[0].pubkey}
+                />
               )}
           </div>
         </div>

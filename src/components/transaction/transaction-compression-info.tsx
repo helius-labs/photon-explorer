@@ -1,3 +1,5 @@
+import { PublicKey } from "@solana/web3.js";
+
 import { lamportsToSolString } from "@/lib/utils";
 
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
@@ -39,10 +41,10 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                   <TableRow key={`opened-accounts-${index}`}>
                     <TableCell>Open</TableCell>
                     <TableCell>
-                      <Address>{item.account.hash}</Address>
+                      <Address pubkey={new PublicKey(item.account.hash)} />
                     </TableCell>
                     <TableCell>
-                      <Address>{item.account.owner}</Address>
+                      <Address pubkey={new PublicKey(item.account.owner)} />
                     </TableCell>
                     <TableCell>
                       {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
@@ -55,10 +57,10 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                   <TableRow key={`closed-accounts-${index}`}>
                     <TableCell>Closed</TableCell>
                     <TableCell>
-                      <Address>{item.account.hash}</Address>
+                      <Address pubkey={new PublicKey(item.account.hash)} />
                     </TableCell>
                     <TableCell>
-                      <Address>{item.account.owner}</Address>
+                      <Address pubkey={new PublicKey(item.account.owner)} />
                     </TableCell>
                     <TableCell>
                       {`${lamportsToSolString(item.account.lamports, 7)} SOL`}

@@ -38,7 +38,7 @@ export default function Instruction({
               <TableRow key={`program-${index}`}>
                 <TableCell className="w-1/6">Program</TableCell>
                 <TableCell className="w-5/6">
-                  <Address>{instruction.programId.toString()}</Address>
+                  <Address pubkey={instruction.programId} />
                 </TableCell>
               </TableRow>
               {"parsed" in instruction && (
@@ -48,15 +48,21 @@ export default function Instruction({
                       <TableRow key={`from-address-${index}`}>
                         <TableCell>From Address</TableCell>
                         <TableCell>
-                          <Address>{instruction.parsed.info.source}</Address>
+                          <Address
+                            pubkey={
+                              new PublicKey(instruction.parsed.info.source)
+                            }
+                          />
                         </TableCell>
                       </TableRow>
                       <TableRow key={`to-address-${index}`}>
                         <TableCell>To Address</TableCell>
                         <TableCell>
-                          <Address>
-                            {instruction.parsed.info.destination}
-                          </Address>
+                          <Address
+                            pubkey={
+                              new PublicKey(instruction.parsed.info.destination)
+                            }
+                          />
                         </TableCell>
                       </TableRow>
                       {instruction.parsed.info.lamports && (
@@ -89,7 +95,7 @@ export default function Instruction({
                   <TableRow key={`account-key-${index}`}>
                     <TableCell>Account #{index}</TableCell>
                     <TableCell>
-                      <Address>{account.toString()}</Address>
+                      <Address pubkey={account} />
                     </TableCell>
                   </TableRow>
                 ))}

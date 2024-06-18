@@ -1,27 +1,42 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import Link from "@/components/ui/link";
+import { useTheme } from "next-themes";
 import Image from "next/image";
-import LogoBlack from "../../public/assets/logo-text-black.svg";
-import LogoWhite from "../../public/assets/logo-text-white.svg";
-import { useTheme } from "next-themes"
+
+import { cn } from "@/lib/utils";
+
+import Link from "@/components/ui/link";
+
+import LogoBlack from "/public/assets/logo-text-black.svg";
+import LogoWhite from "/public/assets/logo-text-white.svg";
 
 export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
-
-  const { theme } = useTheme()
-  const Logo = theme === 'dark' ? LogoWhite : LogoBlack;
-
   return (
     <nav
       className={cn("flex items-center space-x-4 lg:space-x-6", className)}
       {...props}
     >
-      <Link href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
-        <Image alt="Solana Explorer" height={38} src={Logo} width={150} />
+      <Link
+        href="/"
+        className="flex items-center gap-2 text-lg font-semibold md:text-base"
+      >
+        <Image
+          className="hidden dark:block"
+          alt="XRAY logo"
+          height={32}
+          priority
+          src={LogoWhite}
+        />
+        <Image
+          className="block dark:hidden"
+          alt="XRAY logo"
+          height={32}
+          priority
+          src={LogoBlack}
+        />
       </Link>
     </nav>
   );

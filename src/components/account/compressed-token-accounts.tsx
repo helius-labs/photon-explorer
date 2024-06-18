@@ -1,5 +1,6 @@
 "use client";
 
+import { PublicKey } from "@solana/web3.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
@@ -29,7 +30,9 @@ export default function CompressedTokenAccounts({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Account Hash" />
         ),
-        cell: ({ row }) => <Address>{row.original.account.hash}</Address>,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.original.account.hash)} />
+        ),
         enableSorting: true,
       },
       {
@@ -37,7 +40,9 @@ export default function CompressedTokenAccounts({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Account Address" />
         ),
-        cell: ({ row }) => <Address>{row.original.account.address}</Address>,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.original.account.address)} />
+        ),
         enableSorting: true,
       },
       {
@@ -45,7 +50,9 @@ export default function CompressedTokenAccounts({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Account Owner" />
         ),
-        cell: ({ row }) => <Address>{row.original.account.owner}</Address>,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.original.account.owner)} />
+        ),
         enableSorting: true,
       },
       {
@@ -53,7 +60,9 @@ export default function CompressedTokenAccounts({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Token Mint" />
         ),
-        cell: ({ row }) => <Address>{row.original.tokenData.mint}</Address>,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.original.tokenData.mint)} />
+        ),
         enableSorting: true,
       },
       {
@@ -61,7 +70,9 @@ export default function CompressedTokenAccounts({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Token Owner" />
         ),
-        cell: ({ row }) => <Address>{row.original.tokenData.owner}</Address>,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.original.tokenData.owner)} />
+        ),
         enableSorting: true,
       },
       {

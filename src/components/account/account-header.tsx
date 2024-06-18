@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  AccountInfo,
+  ParsedAccountData,
+  PublicKey,
+  RpcResponseAndContext,
+} from "@solana/web3.js";
+import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
 import { MoreVertical, Star } from "lucide-react";
 
@@ -22,23 +29,28 @@ export function AccountHeader({
   accountInfo,
   compressedAccount,
 }: {
-  address: string;
-  accountInfo: any;
-  compressedAccount: any;
+  address: PublicKey;
+  accountInfo: UseQueryResult<
+    RpcResponseAndContext<AccountInfo<Buffer | ParsedAccountData> | null>,
+    Error
+  >;
+  compressedAccount: UseQueryResult<any, Error>;
 }) {
-  const { compressedBalance } = useGetCompressedBalanceByOwner(address);
+  const { compressedBalance } = useGetCompressedBalanceByOwner(
+    address.toBase58(),
+  );
 
   return (
     <div className="flex items-center gap-4 mb-8">
       <Avatar
         size={80}
-        name={address}
+        name={address.toBase58()}
         variant="marble"
         colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
       />
       <div className="grid gap-2">
         <div className="text-3xl font-medium leading-none">
-          <Address>{address}</Address>
+          <Address pubkey={address} />
         </div>
         {accountInfo.isLoading ? (
           <Skeleton className="h-7 w-[200px]" />

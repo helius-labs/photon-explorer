@@ -1,5 +1,6 @@
 "use client";
 
+import { PublicKey } from "@solana/web3.js";
 import { PropsWithChildren } from "react";
 import { isAddress } from "web3js-experimental";
 
@@ -29,7 +30,7 @@ export default function AddressLayout({
   return (
     <>
       <AccountHeader
-        address={address}
+        address={new PublicKey(address)}
         accountInfo={accountInfo}
         compressedAccount={compressedAccount}
       />

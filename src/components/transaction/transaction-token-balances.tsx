@@ -1,5 +1,6 @@
 import {
   ParsedTransactionWithMeta,
+  PublicKey,
   TokenBalance as TokenBalanceType,
 } from "@solana/web3.js";
 
@@ -23,8 +24,8 @@ export default function TransactionTokenBalances({
   data: ParsedTransactionWithMeta;
 }) {
   type TokenBalance = {
-    address: string;
-    mint: string;
+    address: PublicKey;
+    mint: PublicKey;
     change: number;
     postBalance: string;
   };
@@ -40,11 +41,8 @@ export default function TransactionTokenBalances({
   const tokenBalances: TokenBalance[] | undefined =
     data.meta?.preTokenBalances?.map(
       (item: TokenBalanceType): TokenBalance => ({
-        address:
-          data.transaction.message.accountKeys[
-            item.accountIndex
-          ].pubkey.toString(),
-        mint: item.mint,
+        address: data.transaction.message.accountKeys[item.accountIndex].pubkey,
+        mint: new PublicKey(item.mint),
         change:
           item.uiTokenAmount.uiAmount ||
           0 -
@@ -79,10 +77,10 @@ export default function TransactionTokenBalances({
             {tokenBalances?.map((item: TokenBalance, index: number) => (
               <TableRow key={`token-balance-${index}`}>
                 <TableCell>
-                  <Address short={true}>{item.address}</Address>
+                  <Address pubkey={item.address} short={true} />
                 </TableCell>
                 <TableCell>
-                  <Address short={true}>{item.mint}</Address>
+                  <Address pubkey={item.mint} short={true} />
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">
@@ -92,9 +90,7 @@ export default function TransactionTokenBalances({
                       : item.change}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  {item.postBalance} {item.mint}
-                </TableCell>
+                <TableCell>{item.postBalance}</TableCell>
               </TableRow>
             ))}
           </TableBody>
