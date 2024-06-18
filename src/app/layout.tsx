@@ -1,14 +1,11 @@
+import { ClusterProvider } from "@/providers/cluster-provider";
+import { ReactQueryClientProvider } from "@/providers/query-client-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import { Inter as Fontface } from "next/font/google";
 import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
-
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
-import { ClusterProvider } from "@/components/providers/cluster-provider";
-import { ReactQueryClientProvider } from "@/components/providers/query-client-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 
 import "./globals.css";
 
@@ -17,7 +14,7 @@ const fontface = Fontface({
 });
 
 export const metadata: Metadata = {
-  title: "Photon Block Explorer",
+  title: "XRAY Beta",
   description: "",
   icons: [
     {
@@ -61,13 +58,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             disableTransitionOnChange
           >
             <Suspense>
-              <ClusterProvider>
-                <Header />
-                <main className="container flex-1 space-y-4 p-8 pt-6">
-                  {children}
-                </main>
-                <Footer />
-              </ClusterProvider>
+              <ClusterProvider>{children}</ClusterProvider>
             </Suspense>
           </ThemeProvider>
         </ReactQueryClientProvider>

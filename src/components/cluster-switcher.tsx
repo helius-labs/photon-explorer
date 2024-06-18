@@ -1,6 +1,7 @@
 "use client";
 
-import { useCluster } from "@/components/providers/cluster-provider";
+import { useCluster } from "@/providers/cluster-provider";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,17 +37,21 @@ export default function ClusterSwitcher() {
           <SheetTitle>Choose a Cluster</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 py-4">
-          {clusters.map(({ value, label, disabled }) => (
-            <Button
-              variant="outline"
-              key={value}
-              onClick={() => setCluster(value)}
-              className={cluster === value ? "ring-1" : ""}
-              disabled={disabled}
-            >
-              {label}
-            </Button>
-          ))}
+          {clusters
+            .filter(({ disabled }) => {
+              return !disabled;
+            })
+            .map(({ value, label, disabled }) => (
+              <Button
+                variant="outline"
+                key={value}
+                onClick={() => setCluster(value)}
+                className={cluster === value ? "ring-1" : ""}
+                disabled={disabled}
+              >
+                {label}
+              </Button>
+            ))}
           <div
             className={
               cluster !== "custom"
@@ -826,7 +831,7 @@ export default function ClusterSwitcher() {
                   mkcert -install
                 </code>
               </div>
-              <div className="mb-[24px]">3. Reload Photon Explorer</div>
+              <div className="mb-[24px]">3. Reload XRAY</div>
             </div>
             <div>For Brave you can just disable Brave Shields.</div>
           </div>

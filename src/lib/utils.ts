@@ -1,7 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { addressLookupTable } from "./data";
+import { programAddressLookupTable } from "./data";
+
+export const LAMPORTS_PER_SOL = 1_000_000_000;
+export const MICRO_LAMPORTS_PER_LAMPORT = 1_000_000;
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -9,10 +12,38 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getBaseUrl() {
   return process.env.NEXT_PUBLIC_VERCEL_ENV === "production"
-    ? `https://photon.helius.dev`
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
     : process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
       : `http://localhost:3000`;
+}
+
+export function lamportsToSol(lamports: number | bigint): number {
+  if (typeof lamports === "number") {
+    return lamports / LAMPORTS_PER_SOL;
+  }
+
+  let signMultiplier = 1;
+  if (lamports < 0) {
+    signMultiplier = -1;
+  }
+
+  const absLamports = lamports < 0 ? -lamports : lamports;
+  const lamportsString = absLamports.toString(10).padStart(10, "0");
+  const splitIndex = lamportsString.length - 9;
+  const solString =
+    lamportsString.slice(0, splitIndex) +
+    "." +
+    lamportsString.slice(splitIndex);
+  return signMultiplier * parseFloat(solString);
+}
+
+export function lamportsToSolString(
+  lamports: number | bigint,
+  maximumFractionDigits = 9,
+): string {
+  const sol = lamportsToSol(lamports);
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits }).format(sol);
 }
 
 export function isSolanaSignature(txHash: string): boolean {
@@ -32,7 +63,7 @@ export function isSolanaSignature(txHash: string): boolean {
 }
 
 export function isSolanaProgramAddress(address: string): boolean {
-  const programName = addressLookupTable[address];
+  const programName = programAddressLookupTable[address];
 
   if (programName) {
     return true;
@@ -91,7 +122,6 @@ export function timeAgoWithFormat(
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    second: "2-digit",
     timeZoneName: "short",
     timeZone: "UTC",
   });
@@ -99,6 +129,6 @@ export function timeAgoWithFormat(
   if (onlyTimeAgo) {
     return timeAgo;
   } else {
-    return `${timeAgo} (${formattedDate})`;
+    return `${timeAgo} (${formattedDate}`;
   }
 }

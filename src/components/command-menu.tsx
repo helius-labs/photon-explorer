@@ -1,5 +1,6 @@
 "use client";
 
+import { useCluster } from "@/providers/cluster-provider";
 import { DialogProps } from "@radix-ui/react-dialog";
 import { CommandLoading } from "cmdk";
 import { useRouter } from "next/navigation";
@@ -12,7 +13,6 @@ import {
   isSolanaSignature,
 } from "@/lib/utils";
 
-import { useCluster } from "@/components/providers/cluster-provider";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
