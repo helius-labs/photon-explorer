@@ -1,14 +1,15 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { nftsResponseSchema } from "@/schemas/nftList";
 import { useCluster } from "@/providers/cluster-provider";
+import { useQuery } from "@tanstack/react-query";
+
+import { getAssetsByOwnerSchema } from "@/schemas/getAssetsByOwner";
 
 export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isPending, isFetching, refetch } = useQuery({
-    queryKey: [endpoint, address, "getAssetsByOwner"],
+  return useQuery({
+    queryKey: [endpoint, "getAssetsByOwner", address],
     queryFn: async () => {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -31,25 +32,16 @@ export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
         }),
       }).then((res) => res.json());
 
-      const parsedResponse = nftsResponseSchema.parse(response);
+      const parsedResponse = getAssetsByOwnerSchema.parse(response);
 
-      return parsedResponse.result.items.map((item: any) => ({
+      return parsedResponse.result.items.map((item) => ({
         mint: item.id,
-        name: item.content?.metadata?.name ?? 'Unknown NFT',
-        image: item.content?.files?.[0]?.uri ?? '/assets/nft-placeholder.png',
-        compressed: item.interface === 'V1_NFT',
-        verifiedCollection: item.groupings?.some((group: any) => group.group_type === 'verified_collection') ?? false
+        name: item.content?.metadata?.name ?? "Unknown NFT",
+        image: item.content?.files?.[0]?.uri ?? "/assets/nft-placeholder.png",
+        compressed: item.interface === "V1_NFT",
+        verifiedCollection: item.creators?.some((creator) => creator.verified),
       }));
     },
     enabled,
   });
-
-  return {
-    data,
-    isLoading,
-    isPending,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }

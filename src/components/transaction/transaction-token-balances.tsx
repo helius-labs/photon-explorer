@@ -47,13 +47,11 @@ export default function TransactionTokenBalances({
           item.uiTokenAmount.uiAmount ||
           0 -
             (data.meta?.postTokenBalances?.find(
-              (postBalance: any) =>
-                postBalance.accountIndex === item.accountIndex,
+              (postBalance) => postBalance.accountIndex === item.accountIndex,
             )?.uiTokenAmount.uiAmount || 0),
         postBalance:
           data.meta?.postTokenBalances?.find(
-            (postBalance: any) =>
-              postBalance.accountIndex === item.accountIndex,
+            (postBalance) => postBalance.accountIndex === item.accountIndex,
           )?.uiTokenAmount.uiAmountString || "0",
       }),
     );
@@ -74,7 +72,7 @@ export default function TransactionTokenBalances({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tokenBalances?.map((item: TokenBalance, index: number) => (
+            {tokenBalances?.map((item: TokenBalance, index) => (
               <TableRow key={`token-balance-${index}`}>
                 <TableCell>
                   <Address pubkey={item.address} short={true} />
