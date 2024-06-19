@@ -1,25 +1,25 @@
 import * as React from "react";
 import {
-  IconBook,
-  IconBrandDiscordFilled,
-  IconBrandGithubFilled,
-  IconBrandX,
-  IconBrandYoutube,
+  IconTwitterX,
+  IconGithub,
+  IconYoutube,
+  IconDiscord,
+  IconBook
 } from "@/components/Icons";
 import Link from "next/link";
 
 const footerLinks = [
   {
     href: "https://x.com/heliuslabs",
-    icon: <IconBrandX />,
+    icon: <IconTwitterX />,
   },
   {
     href: "https://discord.gg/HjummjUXgq",
-    icon: <IconBrandDiscordFilled />,
+    icon: <IconDiscord />,
   },
   {
     href: "https://github.com/helius-labs",
-    icon: <IconBrandGithubFilled />,
+    icon: <IconGithub />,
   },
   {
     href: "https://docs.helius.dev/",
@@ -27,7 +27,7 @@ const footerLinks = [
   },
   {
     href: "https://www.youtube.com/@helius_labs",
-    icon: <IconBrandYoutube />,
+    icon: <IconYoutube />,
   },
 ];
 
