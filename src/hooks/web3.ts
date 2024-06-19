@@ -126,5 +126,6 @@ export function useGetRecentPerformanceSamples(enabled: boolean = true) {
       return { avgTps, latency };
     },
     enabled,
+    refetchInterval: enabled ? 2000 : false,
   });
 }
