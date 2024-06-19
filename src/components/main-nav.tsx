@@ -26,14 +26,14 @@ export function MainNav({
         <Image
           className="hidden dark:block"
           alt="XRAY logo"
-          height={32}
+          height={24}
           priority
           src={LogoWhite}
         />
         <Image
           className="block dark:hidden"
           alt="XRAY logo"
-          height={32}
+          height={24}
           priority
           src={LogoBlack}
         />
