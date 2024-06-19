@@ -95,14 +95,14 @@ export function NetworkStatusDropdown() {
                 <div className="flex items-center space-x-4">
                   <div className="flex-1 flex flex-col">
                     <div className="text-xs font-medium">TPS</div>
-                    <div className="flex items-center space-x-2 flash transition duration-300 ease-in-out transform-gpu hover:scale-105">
+                    <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
                       <div className={`w-3 h-3 rounded-full ${networkConditionColor}`}></div>
                       <div className="text-lg font-semibold">{averageTps}</div>
                     </div>
                   </div>
                   <div className="flex-1 flex flex-col">
                     <div className="text-xs font-medium">Ping</div>
-                    <div className="flex items-center space-x-2 animate-flash transition duration-300 ease-in-out transform-gpu hover:scale-105">
+                    <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
                       <div className={`w-3 h-3 rounded-full ${networkConditionColor}`}></div>
                       <div className="text-lg font-semibold">
                         {latency} <span className="text-xs">ms</span>
