@@ -24,11 +24,13 @@ async function getPriorityFeeEstimate(endpoint: string, accounts: string[]) {
   return response.result.priorityFeeLevels;
 }
 
-export function useGetPriorityFeeEstimate(accounts: string[]) {
+export function useGetPriorityFeeEstimate(accounts: string[], enabled: boolean = true) {
   const { endpoint } = useCluster();
 
   return useQuery({
     queryKey: [endpoint, "getPriorityFeeEstimate", accounts],
     queryFn: () => getPriorityFeeEstimate(endpoint, accounts),
+    enabled,
+    refetchInterval: enabled ? 2000 : false,
   });
 }
