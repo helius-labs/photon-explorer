@@ -8,6 +8,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   endIcon?: LucideIcon;
   iconClassName?: string;
   inputPaddingClassName?: string;
+  endiconclassname?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
