@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useGetRecentPerformanceSamples } from '@/hooks/web3';
-import { useCluster } from '@/providers/cluster-provider';
 import { useGetPriorityFeeEstimate } from '@/hooks/useGetPriorityFeeEstimate';
+import { useCluster } from '@/providers/cluster-provider';
 import {
   HoverCard,
   HoverCardContent,
@@ -15,37 +15,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Loading from '@/components/common/loading';
 import { lamportsToSolString } from '@/lib/utils';
-import { useInterval } from '@/hooks/useInterval';
 
 const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
 
 export function NetworkStatusDropdown() {
-  const { data: networkStatus, refetch: refetchNetworkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples();
-  const { data: priorityFeeLevels, refetch: refetchPriorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys);
-  const {
-    clusters,
-    cluster,
-    setCluster,
-    customEndpoint,
-    setCustomEndpoint,
-    customCompressionEndpoint,
-    setCustomCompressionEndpoint,
-  } = useCluster();
-  
+  const { clusters, cluster, setCluster, customEndpoint, setCustomEndpoint, customCompressionEndpoint, setCustomCompressionEndpoint } = useCluster();
   const [isHovered, setIsHovered] = useState(false);
 
-  useInterval(() => {
-    if (isHovered) {
-      refetchNetworkStatus();
-      refetchPriorityFeeLevels();
-    }
-  }, isHovered ? 2000 : null); // Update every 2 seconds while hovered
+  const { data: networkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples(isHovered);
+  const { data: priorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys, isHovered);
 
   const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
   const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
-  const priorityFeeInSol = priorityFeeLevels !== undefined
-    ? lamportsToSolString(priorityFeeLevels.medium * 100, 5)
-    : 'N/A';
+  const priorityFeeInSol = priorityFeeLevels?.medium !== undefined ? lamportsToSolString(priorityFeeLevels.medium * 100, 5) : 'N/A';
 
   let networkConditionColor = 'bg-yellow-500';
   if (networkStatus?.avgTps !== undefined) {
