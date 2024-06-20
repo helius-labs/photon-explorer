@@ -1,9 +1,10 @@
 "use client";
 
-import * as React from "react";
 import { CheckIcon, Copy } from "lucide-react";
-import Link from "@/components/ui/link";
+import * as React from "react";
+
 import { Button } from "@/components/ui/button";
+import Link from "@/components/ui/link";
 import {
   Tooltip,
   TooltipContent,
@@ -15,12 +16,14 @@ interface SignatureProps {
   children: string;
   short?: boolean;
   copy?: boolean;
+  link?: boolean;
 }
 
 export default function Signature({
   children,
   short = true,
   copy = true,
+  link = true,
 }: SignatureProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
 
@@ -54,13 +57,23 @@ export default function Signature({
         )}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link href={`/tx/${children}`} className="hover:underline">
-              {short ? (
-                <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
-              ) : (
-                <>{children}</>
-              )}
-            </Link>
+            {link ? (
+              <Link href={`/tx/${children}`} className="hover:underline">
+                {short ? (
+                  <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+                ) : (
+                  <>{children}</>
+                )}
+              </Link>
+            ) : (
+              <>
+                {short ? (
+                  <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
+                ) : (
+                  <>{children}</>
+                )}
+              </>
+            )}
           </TooltipTrigger>
           <TooltipContent>{children}</TooltipContent>
         </Tooltip>
