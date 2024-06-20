@@ -4,11 +4,11 @@ import { CircleArrowDown } from "lucide-react";
 
 import { lamportsToSolString } from "@/lib/utils";
 
-import { TokenInfoWithAddress } from "@/hooks/useGetAccountTokens";
+import { TokenInfoWithPubkey } from "@/hooks/useGetAccountTokens";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function TokenCard({ token }: { token: TokenInfoWithAddress }) {
+export default function TokenCard({ token }: { token: TokenInfoWithPubkey }) {
   return (
     <div className="grid grid-flow-col-3 items-center gap-8 border-b pb-3">
       <div className="flex items-center gap-2">

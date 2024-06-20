@@ -3,7 +3,7 @@
 import { LoaderCircle, RotateCw } from "lucide-react";
 
 import {
-  TokenInfoWithAddress,
+  TokenInfoWithPubkey,
   useGetAccountTokens,
 } from "@/hooks/useGetAccountTokens";
 
@@ -43,7 +43,7 @@ export default function AccountTokens({ address }: { address: string }) {
     );
 
   // Filter out tokens that are not in the token list and
-  const tokens = data?.filter((tokenInfoWithPubkey: TokenInfoWithAddress) => {
+  const tokens = data?.filter((tokenInfoWithPubkey: TokenInfoWithPubkey) => {
     return (
       tokenInfoWithPubkey.name &&
       tokenInfoWithPubkey.info.tokenAmount?.uiAmount! > 0
@@ -60,8 +60,8 @@ export default function AccountTokens({ address }: { address: string }) {
       <CardContent className="flex flex-col pt-6 gap-4">
         {isLoading && <Loading />}
         {tokens?.length === 0 && <p>No tokens found</p>}
-        {tokens?.map((token: TokenInfoWithAddress) => (
-          <TokenCard key={token.address} token={token} />
+        {tokens?.map((token: TokenInfoWithPubkey) => (
+          <TokenCard key={token.pubkey.toString()} token={token} />
         ))}
       </CardContent>
     </Card>

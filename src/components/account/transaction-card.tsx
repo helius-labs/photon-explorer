@@ -5,21 +5,33 @@ import { CircleArrowDown } from "lucide-react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
+import { useGetParsedTransactions } from "@/hooks/parser";
+
 import Signature from "@/components/common/signature";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function TransactionCard({ transaction }: { transaction: any }) {
+export default function TransactionCard({
+  transaction,
+}: {
+  transaction:
+    | ConfirmedSignatureInfo
+    | {
+        slot: number;
+        blockTime: number;
+        signature: string;
+      };
+}) {
   return (
     <div className="grid grid-flow-col grid-cols-3 items-center gap-8 border-b pb-3">
       <div className="flex items-center gap-2">
         <CircleArrowDown strokeWidth={1} className="h-12 w-12" />
         <div className="grid gap-1">
-          <p className="text-sm font-base leading-none">Received</p>
-          <p className="text-sm text-muted-foreground">
+          <div className="text-sm font-base leading-none">Received</div>
+          <div className="text-sm text-muted-foreground">
             {transaction.blockTime
               ? timeAgoWithFormat(Number(transaction.blockTime), true)
               : ""}
-          </p>
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -36,10 +48,10 @@ export default function TransactionCard({ transaction }: { transaction: any }) {
         </div>
       </div>
       <div className="grid gap-1">
-        <p className="text-sm text-muted-foreground">From</p>
-        <p className="text-sm font-base leading-none">
+        <div className="text-sm text-muted-foreground">From</div>
+        <div className="text-sm font-base leading-none">
           <Signature copy={false}>{transaction.signature}</Signature>
-        </p>
+        </div>
       </div>
     </div>
   );

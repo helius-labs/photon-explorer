@@ -33,8 +33,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
-    "cross-fetch": "^4.0.0",
-    "lucide-react": "^0.367.0",
+    "@/types/helius-sdkct": "^0.367.0",
     "next": "14.1.4",
     "next-themes": "^0.3.0",
     "nuqs": "^1.17.4",
@@ -42,7 +41,6 @@
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "use-tab-visibility": "^1.0.9",
     "web3js-experimental": "npm:@solana/web3.js@2.0.0-experimental.7adc22b",
     "zod": "^3.23.8"
   },
