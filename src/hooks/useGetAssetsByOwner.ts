@@ -2,7 +2,8 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 import { useQuery } from "@tanstack/react-query";
-import { nftsResponseSchema } from "@/schemas/nftList";
+
+import { nonFungibleApiResponseSchema } from "@/schemas/nonFungibleTokens";
 
 export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
@@ -31,9 +32,9 @@ export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
         }),
       }).then((res) => res.json());
 
-      const parsedResponse = getAssetsByOwnerSchema.parse(response);
+      const parsedResponse = nonFungibleApiResponseSchema.parse(response);
 
-      return parsedResponse.result.items.map((item) => ({
+      return parsedResponse.items.map((item) => ({
         mint: item.id,
         name: item.content?.metadata?.name ?? "Unknown NFT",
         image: item.content?.files?.[0]?.uri ?? "/assets/nft-placeholder.png",
