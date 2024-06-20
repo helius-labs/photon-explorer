@@ -36,19 +36,11 @@ export default function TransactionDetails({ tx }: { tx: string }) {
         </CardContent>
       </Card>
     );
-  if (parsed.isLoading)
+  if (parsed.isLoading || transaction.isLoading)
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
           <Loading />
-        </CardContent>
-      </Card>
-    );
-  if (!transaction.data)
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardContent className="pt-6">
-          <div>Transaction not found</div>
         </CardContent>
       </Card>
     );
@@ -57,8 +49,14 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     <>
       {parsed.data && parsed.data.length > 0 ? (
         <TransactionOverviewParsed data={parsed.data[0]} />
-      ) : (
+      ) : transaction.data ? (
         <TransactionOverview data={transaction.data} />
+      ) : (
+        <Card className="w-full max-w-md mx-auto">
+          <CardContent className="pt-6">
+            <div>Transaction not found</div>
+          </CardContent>
+        </Card>
       )}
       {transaction.data && (
         <div className="flex w-full max-w-md mx-auto mt-4 mb-6">
@@ -68,7 +66,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
           <Switch checked={showDetails} onCheckedChange={toggleDetails} />
         </div>
       )}
-      {showDetails && (
+      {showDetails && transaction.data && (
         <>
           <TransactionCompressionInfo tx={tx} />
           <TransactionAccountKeys data={transaction.data} />
