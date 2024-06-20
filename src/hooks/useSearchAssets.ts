@@ -1,15 +1,25 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useCluster } from "@/providers/cluster-provider";
 import { FungibleToken, NonFungibleToken } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 
-export function useSearchAssets(address: string, page: number, limit: number, enabled: boolean = true) {
+export function useSearchAssets(
+  address: string,
+  page: number,
+  limit: number,
+  enabled: boolean = true,
+) {
   const { endpoint } = useCluster();
 
   const { data, error, isLoading, isPending, isFetching, refetch } = useQuery({
     queryKey: [endpoint, address, "searchAssets", page, limit],
-    queryFn: async (): Promise<{ fungibleTokens: FungibleToken[]; nonFungibleTokens: NonFungibleToken[]; totalItems: number; totalPages: number }> => {
+    queryFn: async (): Promise<{
+      fungibleTokens: FungibleToken[];
+      nonFungibleTokens: NonFungibleToken[];
+      totalItems: number;
+      totalPages: number;
+    }> => {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -24,6 +34,7 @@ export function useSearchAssets(address: string, page: number, limit: number, en
             tokenType: "all",
             page,
             limit,
+            sortBy: { sortBy: "id", sortDirection: "asc" },
             displayOptions: {
               showNativeBalance: true,
               showInscription: true,
@@ -39,13 +50,14 @@ export function useSearchAssets(address: string, page: number, limit: number, en
 
       const data = await response.json();
       const items: (FungibleToken | NonFungibleToken)[] = data.result.items;
-      const totalItems = data.result.total; // Ensure API returns total number of items
+      const totalItems = data.result.total;
       const totalPages = Math.ceil(totalItems / limit);
 
       // Split the items into fungible and non-fungible tokens
       let fungibleTokens: FungibleToken[] = items.filter(
         (item): item is FungibleToken =>
-          item.interface === "FungibleToken" || item.interface === "FungibleAsset",
+          item.interface === "FungibleToken" ||
+          item.interface === "FungibleAsset",
       );
 
       const nonFungibleTokens: NonFungibleToken[] = items.filter(
@@ -132,6 +144,13 @@ export function useSearchAssets(address: string, page: number, limit: number, en
       if (solBalance > 0) {
         fungibleTokens.push(solToken);
       }
+
+      // Sort fungible tokens by their total value in descending order
+      fungibleTokens.sort(
+        (a, b) =>
+          (b.token_info.price_info?.total_price || 0) -
+          (a.token_info.price_info?.total_price || 0),
+      );
 
       return { fungibleTokens, nonFungibleTokens, totalItems, totalPages };
     },

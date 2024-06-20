@@ -2,8 +2,7 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 import { useQuery } from "@tanstack/react-query";
-
-import { getAssetsByOwnerSchema } from "@/schemas/getAssetsByOwner";
+import { nftsResponseSchema } from "@/schemas/nftList";
 
 export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
@@ -39,7 +38,6 @@ export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
         name: item.content?.metadata?.name ?? "Unknown NFT",
         image: item.content?.files?.[0]?.uri ?? "/assets/nft-placeholder.png",
         compressed: item.interface === "V1_NFT",
-        verifiedCollection: item.creators?.some((creator) => creator.verified),
       }));
     },
     enabled,

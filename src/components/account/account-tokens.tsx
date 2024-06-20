@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import Image from "next/image";
 import { useSearchAssets } from "@/hooks/useSearchAssets";
+import { TokenInfoWithPubkey } from "@/hooks/useGetAccountTokens";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Loading from "@/components/common/loading";
@@ -14,10 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import birdeyeIcon from "@/../public/assets/birdeye.svg";
+import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 
-export default function AccountTokens({ address }: { address: string }) {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(50);
+export default function AccountTokens({ token, address }: { token: TokenInfoWithPubkey, address: string }) {
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(100);
   const { data, isLoading, isPending, isError, refetch } = useSearchAssets(address, page, limit);
 
   if (isError)
@@ -38,19 +42,15 @@ export default function AccountTokens({ address }: { address: string }) {
       </Card>
     );
 
-  const fungibleTokens = data?.fungibleTokens.sort(
-    (a, b) => (b.token_info.price_info?.total_price || 0) - (a.token_info.price_info?.total_price || 0)
-  );
+  const fungibleTokens = data?.fungibleTokens;
 
   const handleNextPage = () => {
     setPage((prevPage) => prevPage + 1);
-    refetch();
   };
 
   const handlePreviousPage = () => {
     if (page > 1) {
       setPage((prevPage) => prevPage - 1);
-      refetch();
     }
   };
 
@@ -61,44 +61,66 @@ export default function AccountTokens({ address }: { address: string }) {
         <div className="overflow-x-auto">
           <div className="flex flex-col space-y-4">
             <div className="flex items-center justify-between text-sm font-semibold py-2">
-              <div className="w-16"></div>
-              <div className="flex-1 pl-6"></div>
-              <div className="w-52 text-right">Balance</div>
-              <div className="w-52 text-right">Value</div>
-              <div className="w-52 text-right">Price</div>
+              <div className="w-40"></div>
+              <div className="w-20 text-right"></div>
+              <div className="w-20 text-right">Balance</div>
+              <div className="w-20 text-right">Value</div>
+              <div className="w-20 text-right mr-1">Price</div>
             </div>
             <Separator />
-            {fungibleTokens?.map((token, index) => {
-              const tokenImage = token.content.links.image;
-              const tokenSymbol = token.token_info.symbol || token.content.metadata.symbol || token.id;
-              const tokenBalance = (token.token_info.balance / Math.pow(10, token.token_info.decimals)).toFixed(4);
-              const tokenPrice = token.token_info.price_info?.price_per_token || 0;
-              const tokenValue = token.token_info.price_info?.total_price?.toFixed(2) || 0;
+            {fungibleTokens?.map((fungibleToken, index) => {
+              const tokenImage = fungibleToken.content.links.image || token?.logoURI;
+              const tokenName = fungibleToken.content.metadata.name || token?.name || "Unknown";
+              const tokenSymbol = fungibleToken.token_info.symbol || fungibleToken.content.metadata.symbol || "Unknown";
+              const tokenBalance = (fungibleToken.token_info.balance / Math.pow(10, fungibleToken.token_info.decimals)).toFixed(3);
+              const tokenPrice = fungibleToken.token_info.price_info?.price_per_token || 0;
+              const tokenValue = fungibleToken.token_info.price_info?.total_price?.toFixed(2) || 0;
+              const tokenMint = fungibleToken.id;
 
               return (
                 <div key={index}>
                   <div className="flex items-center justify-between py-4 hover:bg-secondary transition duration-300 ease-in-out">
                     <div className="w-24 flex justify-center">
                       <Avatar className="h-12 w-12">
-                        <AvatarImage src={tokenImage} alt={token.mint_extensions?.metadata.name} />
+                        <AvatarImage src={tokenImage} alt={tokenName} />
                         <AvatarFallback>
                           {tokenSymbol.slice(0, 1)}
                           {tokenSymbol.slice(-1)}
                         </AvatarFallback>
                       </Avatar>
                     </div>
-                    <div className="flex-1 pl-6">
-                      <div className="text-sm font-medium">{token.mint_extensions?.metadata.name || token.mint_extensions?.metadata.mint}</div>
-                      <div className="text-sm">{token.token_info.symbol}</div>
+                    <div className="w-80 flex pl-6 items-center">
+                      <div>
+                        <div className="text-sm font-medium">{tokenName}</div>
+                        <div className="text-sm font-bold">{tokenSymbol}</div>
+                      </div>
                     </div>
-                    <div className="w-52 text-right text-sm">
+                    <div className="flex w-52 items-right">
+                      <a
+                        href={`https://birdeye.so/token/${tokenMint}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-4"
+                      >
+                        <Image src={birdeyeIcon.src} alt="Birdeye" width="18" height="18" className="rounded-md"/>
+                      </a>
+                      <a
+                        href={`https://dexscreener.com/solana/${tokenMint}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-4"
+                      >
+                        <Image src={dexscreenerIcon.src} alt="Dexscreener" width="18" height="18" className="rounded-md"/>
+                      </a>
+                    </div>
+                    <div className="w-80 text-right text-sm font-medium">
                       {tokenBalance.toLocaleString() ?? "N/A"}
                     </div>
-                    <div className="w-52 text-right text-sm">
+                    <div className="w-80 text-right text-sm font-medium">
                       ${tokenValue}
                     </div>
-                    <div className="w-52 text-right text-sm">
-                      ${tokenPrice.toFixed(2) || "N/A"}
+                    <div className="w-80 text-right text-sm mr-1">
+                      ${tokenPrice.toFixed(6) || "N/A"}
                     </div>
                   </div>
                   <Separator />
@@ -118,7 +140,6 @@ export default function AccountTokens({ address }: { address: string }) {
                   onValueChange={(value) => {
                     setLimit(Number(value));
                     setPage(1); // Reset to first page whenever page size changes
-                    refetch();
                   }}
                 >
                   <SelectTrigger className="h-8 w-[70px]">
