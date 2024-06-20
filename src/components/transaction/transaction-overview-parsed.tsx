@@ -23,7 +23,8 @@ export default function TransactionOverviewParsed({
 }) {
   const tokenList = useGetTokenListStrict();
 
-  const { timestamp, type, source, actions, signature, account } = data;
+  const { timestamp, type, source, actions, signature, account, description } =
+    data;
 
   return (
     <Card className="w-full max-w-lg mx-auto p-3">
@@ -48,12 +49,20 @@ export default function TransactionOverviewParsed({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center">
-          <span className="w-1/4 text-muted-foreground">Account</span>
-          <span className="w-3/4 ml-2">
-            <Address pubkey={new PublicKey(account)} />
-          </span>
-        </div>
+        {actions.length === 0 && description ? (
+          <div className="flex items-center">
+            <span className="w-full text-muted-foreground text-sm">
+              {description}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center">
+            <span className="w-1/4 text-muted-foreground">Account</span>
+            <span className="w-3/4 ml-2">
+              <Address pubkey={new PublicKey(account)} />
+            </span>
+          </div>
+        )}
 
         {actions.map((action, index) => (
           <div key={index} className="space-y-4">
