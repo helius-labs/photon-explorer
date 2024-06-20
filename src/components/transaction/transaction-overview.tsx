@@ -4,7 +4,7 @@ import { CircleHelp } from "lucide-react";
 import { ActionTypes, ParserTransactionTypes } from "@/lib/parser";
 import { dateFormat, timeAgoWithFormat } from "@/lib/utils";
 
-import { useGetTokenListStrict } from "@/hooks/tokenList";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";

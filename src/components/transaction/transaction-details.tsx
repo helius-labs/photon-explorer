@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { useGetParsedTransactions } from "@/hooks/parser";
-import { useGetTokenListStrict } from "@/hooks/tokenList";
 import { useGetTransaction } from "@/hooks/web3";
 
 import Loading from "@/components/common/loading";
