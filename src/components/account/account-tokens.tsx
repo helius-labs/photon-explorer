@@ -1,14 +1,17 @@
 "use client";
 
-import React from "react";
+import birdeyeIcon from "@/../public/assets/birdeye.svg";
+import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import Image from "next/image";
-import { useSearchAssets } from "@/hooks/useSearchAssets";
+import React from "react";
+
 import { TokenInfoWithPubkey } from "@/hooks/useGetAccountTokens";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSearchAssets } from "@/hooks/useSearchAssets";
+
 import Loading from "@/components/common/loading";
-import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -16,13 +19,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import birdeyeIcon from "@/../public/assets/birdeye.svg";
-import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
+import { Separator } from "@/components/ui/separator";
 
-export default function AccountTokens({ token, address }: { token: TokenInfoWithPubkey, address: string }) {
+export default function AccountTokens({
+  token,
+  address,
+}: {
+  token: TokenInfoWithPubkey;
+  address: string;
+}) {
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(100);
-  const { data, isLoading, isPending, isError, refetch } = useSearchAssets(address, page, limit);
+  const { data, isLoading, isPending, isError, refetch } = useSearchAssets(
+    address,
+    page,
+    limit,
+  );
 
   if (isError)
     return (
@@ -69,12 +81,23 @@ export default function AccountTokens({ token, address }: { token: TokenInfoWith
             </div>
             <Separator />
             {fungibleTokens?.map((fungibleToken, index) => {
-              const tokenImage = fungibleToken.content.links.image || token?.logoURI;
-              const tokenName = fungibleToken.content.metadata.name || token?.name || "Unknown";
-              const tokenSymbol = fungibleToken.token_info.symbol || fungibleToken.content.metadata.symbol || "Unknown";
-              const tokenBalance = (fungibleToken.token_info.balance / Math.pow(10, fungibleToken.token_info.decimals)).toFixed(3);
-              const tokenPrice = fungibleToken.token_info.price_info?.price_per_token || 0;
-              const tokenValue = fungibleToken.token_info.price_info?.total_price?.toFixed(2) || 0;
+              const tokenImage =
+                fungibleToken.content.links.image || token?.logoURI;
+              const tokenName =
+                fungibleToken.content.metadata.name || token?.name || "Unknown";
+              const tokenSymbol =
+                fungibleToken.token_info.symbol ||
+                fungibleToken.content.metadata.symbol ||
+                "Unknown";
+              const tokenBalance = (
+                fungibleToken.token_info.balance /
+                Math.pow(10, fungibleToken.token_info.decimals)
+              ).toFixed(3);
+              const tokenPrice =
+                fungibleToken.token_info.price_info?.price_per_token || 0;
+              const tokenValue =
+                fungibleToken.token_info.price_info?.total_price?.toFixed(2) ||
+                0;
               const tokenMint = fungibleToken.id;
 
               return (
@@ -102,7 +125,13 @@ export default function AccountTokens({ token, address }: { token: TokenInfoWith
                         rel="noopener noreferrer"
                         className="ml-4"
                       >
-                        <Image src={birdeyeIcon.src} alt="Birdeye" width="18" height="18" className="rounded-md"/>
+                        <Image
+                          src={birdeyeIcon.src}
+                          alt="Birdeye"
+                          width="18"
+                          height="18"
+                          className="rounded-md"
+                        />
                       </a>
                       <a
                         href={`https://dexscreener.com/solana/${tokenMint}`}
@@ -110,7 +139,13 @@ export default function AccountTokens({ token, address }: { token: TokenInfoWith
                         rel="noopener noreferrer"
                         className="ml-4"
                       >
-                        <Image src={dexscreenerIcon.src} alt="Dexscreener" width="18" height="18" className="rounded-md"/>
+                        <Image
+                          src={dexscreenerIcon.src}
+                          alt="Dexscreener"
+                          width="18"
+                          height="18"
+                          className="rounded-md"
+                        />
                       </a>
                     </div>
                     <div className="w-80 text-right text-sm font-medium">
@@ -158,7 +193,10 @@ export default function AccountTokens({ token, address }: { token: TokenInfoWith
                 Page {page} of {data?.totalPages || 1}
               </div>
             </div>
-            <Button onClick={handleNextPage} disabled={page >= (data?.totalPages || 1)}>
+            <Button
+              onClick={handleNextPage}
+              disabled={page >= (data?.totalPages || 1)}
+            >
               Next
             </Button>
           </div>
