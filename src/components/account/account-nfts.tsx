@@ -5,16 +5,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+import { useSearchAssets } from "@/hooks/useSearchAssets";
 
 export default function AccountNFTs({ address }: { address: string }) {
-  const { data: nfts, isLoading, isError } = useGetAssetsByOwner(address);
-  const [showVerified, setShowVerified] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(100);
+  const [showNonVerified, setShowNonVerified] = useState(false); // Default to show verified collections
 
-  const verifiedNfts = nfts?.filter(nft => nft.verifiedCollection) ?? [];
-  const nonVerifiedNfts = nfts?.filter(nft => !nft.verifiedCollection) ?? [];
+  const { data, isLoading, isError } = useSearchAssets(address, page, limit);
 
-  const displayedNfts = showVerified ? verifiedNfts : nonVerifiedNfts;
+  const nonFungibleTokens = data?.nonFungibleTokens || [];
+
+  const verifiedNfts = nonFungibleTokens.filter(nft => {
+    return nft.creators.some(creator => creator.verified);
+  });
+
+  const nonVerifiedNfts = nonFungibleTokens.filter(nft => {
+    return !nft.creators.some(creator => creator.verified);
+  });
+
+  const displayedNfts = showNonVerified ? nonVerifiedNfts : verifiedNfts;
 
   return (
     <Card className="col-span-12 border shadow">
@@ -26,28 +36,30 @@ export default function AccountNFTs({ address }: { address: string }) {
             ))}
           </div>
         ) : isError ? (
-          <div className="text-red-500">{}</div>
+          <div className="text-red-500">Failed to load</div>
         ) : (
           <>
             <div className="flex items-center mb-4 space-x-4">
               <div className="flex items-center">
-                <Label className="mr-2">Show Verified Collections</Label>
+                <Label className="mr-2">Show Non-Verified Collections</Label>
                 <Switch
-                  checked={showVerified}
-                  onCheckedChange={() => setShowVerified((prev) => !prev)}
+                  checked={showNonVerified}
+                  onCheckedChange={() => setShowNonVerified((prev) => !prev)}
                 />
               </div>
             </div>
             {displayedNfts.length > 0 ? (
               <div className="grid grid-cols-3 gap-4 max-h-md overflow-y-auto">
                 {displayedNfts.map((nft) => (
-                  <div key={nft.mint} className="flex flex-col items-center">
+                  <div key={nft.id} className="flex flex-col items-center">
                     <img
-                      src={nft.image}
-                      alt={nft.name}
-                      className="h-40 w-40 object-cover rounded-lg"
+                      src={nft.content.links.image}
+                      alt={nft.content.metadata.name}
+                      width={160}
+                      height={160}
+                      className="object-cover rounded-lg"
                     />
-                    <p className="text-center text-sm mt-2">{nft.name}</p>
+                    <p className="text-center text-sm mt-2">{nft.content.metadata.name}</p>
                   </div>
                 ))}
               </div>
