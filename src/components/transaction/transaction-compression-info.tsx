@@ -15,11 +15,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionCompressionInfo({ tx }: { tx: any }) {
-  const { transactionWithCompressionInfo, isLoading, isError } =
-    useGetTransactionWithCompressionInfo(tx);
+export default function TransactionCompressionInfo({ tx }: { tx: string }) {
+  const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  if (!isError && !isLoading && transactionWithCompressionInfo) {
+  if (!isError && !isLoading && data) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -36,8 +35,8 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactionWithCompressionInfo.compression_info.opened_accounts.map(
-                (item: any, index: number) => (
+              {data.result.compression_info.opened_accounts.map(
+                (item, index) => (
                   <TableRow key={`opened-accounts-${index}`}>
                     <TableCell>Open</TableCell>
                     <TableCell>
@@ -52,8 +51,8 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                   </TableRow>
                 ),
               )}
-              {transactionWithCompressionInfo.compression_info.closed_accounts.map(
-                (item: any, index: number) => (
+              {data.result.compression_info.closed_accounts.map(
+                (item, index) => (
                   <TableRow key={`closed-accounts-${index}`}>
                     <TableCell>Closed</TableCell>
                     <TableCell>

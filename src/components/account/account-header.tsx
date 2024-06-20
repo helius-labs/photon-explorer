@@ -12,6 +12,8 @@ import { MoreVertical, Star } from "lucide-react";
 
 import { lamportsToSolString } from "@/lib/utils";
 
+import { GetCompressedAccount } from "@/schemas/getCompressedAccount";
+
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 
 import Address from "@/components/common/address";
@@ -34,9 +36,9 @@ export function AccountHeader({
     RpcResponseAndContext<AccountInfo<Buffer | ParsedAccountData> | null>,
     Error
   >;
-  compressedAccount: UseQueryResult<any, Error>;
+  compressedAccount: UseQueryResult<GetCompressedAccount, Error>;
 }) {
-  const { compressedBalance } = useGetCompressedBalanceByOwner(
+  const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
   );
 
@@ -56,7 +58,7 @@ export function AccountHeader({
           <Skeleton className="h-7 w-[200px]" />
         ) : (
           <div>
-            {accountInfo.data?.value || compressedAccount.data?.value ? (
+            {accountInfo.data?.value || compressedAccount.data?.result.value ? (
               <>
                 {accountInfo.data?.value &&
                   accountInfo.data?.value.lamports && (
@@ -75,15 +77,14 @@ export function AccountHeader({
                     )} COMPRESSED SOL`}
                   </span>
                 )}
-                {compressedAccount.data?.value &&
-                  compressedAccount.data?.value.lamports && (
-                    <span className="text-lg text-muted-foreground">
-                      {`${lamportsToSolString(
-                        compressedAccount.data?.value.lamports,
-                        2,
-                      )} SOL`}
-                    </span>
-                  )}
+                {compressedAccount.data?.result.value && (
+                  <span className="text-lg text-muted-foreground">
+                    {`${lamportsToSolString(
+                      compressedAccount.data?.result.value.lamports,
+                      2,
+                    )} SOL`}
+                  </span>
+                )}
               </>
             ) : (
               <span className="text-lg text-muted-foreground">

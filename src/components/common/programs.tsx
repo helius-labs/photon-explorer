@@ -53,10 +53,14 @@ export default function Providers({ pubkey }: ProvidersProps) {
           <TooltipContent>Copy address</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <img src={providerImageUri} alt={name} className="h-5 w-5 mr-1 rounded-md" />
+          <img
+            src={providerImageUri}
+            alt={name}
+            className="h-5 w-5 mr-1 rounded-md"
+          />
           <TooltipTrigger asChild>
             <Link href={`/address/${pubkey}`} className="hover:underline">
-              {name}
+              <>{name ?? `${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`}</>
             </Link>
           </TooltipTrigger>
           <TooltipContent>{pubkey}</TooltipContent>

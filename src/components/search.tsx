@@ -53,8 +53,9 @@ export function Search({
         onChange={(e) => setSearch(e.target.value)}
         className="h-12"
         iconClassName="left-4"
-        inputPaddingClassName="pl-12"
-      />
+        inputPaddingClassName="pl-12 pr-4" // Adjusted padding for left space
+        endiconclassname="right-6"
+        />
 
       <Button type="submit" variant="outline" disabled={!search}>
         Search

@@ -1,34 +1,23 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
-import { compressions, statuses } from "@/lib/data";
+import { statuses } from "@/lib/data";
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Item } from "@/schemas/getLatestNonVotingSignatures";
+import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 
-import {
-  useGetLatestCompressionSignatures,
-  useGetLatestNonVotingSignatures,
-} from "@/hooks/compression";
-
-import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function LatestNonVotingSignatures() {
   type Transaction = {
-    slot: number;
     signature: string;
     status: boolean;
     blockTime: number | null;
-    compression: boolean;
   };
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
@@ -81,28 +70,15 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, refetch } = useGetLatestNonVotingSignatures();
-
-  const {
-    data: dataCompressions,
-    isLoading,
-    isPending,
-    isFetching,
-    isError,
-  } = useGetLatestCompressionSignatures(!!data);
+  const { data, isLoading, isPending, isFetching, isError, refetch } =
+    useGetLatestNonVotingSignatures();
 
   // Check if there are any compression signatures
   const signatures: Transaction[] | undefined = data?.result.value.items?.map(
-    (item: Item): Transaction => ({
-      slot: item.slot,
+    (item): Transaction => ({
       signature: item.signature,
       status: true,
       blockTime: item.blockTime,
-      compression: dataCompressions?.result.value.items.some(
-        (compressionItem) => compressionItem.signature === item.signature,
-      )
-        ? true
-        : false,
     }),
   );
 

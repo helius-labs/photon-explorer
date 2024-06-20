@@ -29,12 +29,6 @@ export default function TransactionOverview({
     "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png";
   const token2ImageUri = "https://wormhole.com/token.png";
 
-  const renderProvider = (pubkey: string) => (
-    <div className="flex items-center">
-      <Programs pubkey={pubkey} />
-    </div>
-  );
-
   return (
     <Card className="w-full max-w-lg mx-auto p-3">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -98,12 +92,14 @@ export default function TransactionOverview({
         <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Provider</span>
           <span className="ml-2 text-xs text-muted-foreground">via</span>
-          {data?.transaction.message.accountKeys.length > 0 &&
+          {data?.transaction.message.accountKeys &&
             data?.transaction.message.accountKeys[0].pubkey && (
               <span className="ml-1 text-xs text-muted-foreground">
-                {renderProvider(
-                  data?.transaction.message.accountKeys[0].pubkey.toString(),
-                )}
+                <div className="flex items-center">
+                  <Programs
+                    pubkey={data?.transaction.message.accountKeys[0].pubkey.toString()}
+                  />
+                </div>
               </span>
             )}
         </div>

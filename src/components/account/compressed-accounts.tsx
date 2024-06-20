@@ -1,5 +1,6 @@
 "use client";
 
+import { PublicKey } from "@solana/web3.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
@@ -23,7 +24,9 @@ export default function CompressedAccounts({ address }: { address: string }) {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Hash" />
         ),
-        cell: ({ row }) => <Address pubkey={row.getValue("hash")} />,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.getValue("hash"))} />
+        ),
         enableSorting: true,
       },
       {
@@ -33,7 +36,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
         ),
         cell: ({ row }) => {
           if (row.getValue("address")) {
-            return <Address pubkey={row.getValue("address")} />;
+            return <Address pubkey={new PublicKey(row.getValue("address"))} />;
           } else {
             return <>-</>;
           }
@@ -45,7 +48,9 @@ export default function CompressedAccounts({ address }: { address: string }) {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Owner" />
         ),
-        cell: ({ row }) => <Address pubkey={row.getValue("owner")} />,
+        cell: ({ row }) => (
+          <Address pubkey={new PublicKey(row.getValue("owner"))} />
+        ),
         enableSorting: true,
       },
       {
