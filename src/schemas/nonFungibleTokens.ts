@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { compressionSchema, royaltySchema, ownershipSchema } from "./fungibleTokens";
+
+import {
+  compressionSchema,
+  ownershipSchema,
+  royaltySchema,
+} from "./fungibleTokens";
 
 export const attributeSchema = z.object({
   value: z.string(),
@@ -95,7 +100,9 @@ export const nonFungibleApiResponseSchema = z.object({
   items: z.array(nonFungibleTokenSchema),
 });
 
-export type NonFungibleApiResponse = z.infer<typeof nonFungibleApiResponseSchema>;
+export type NonFungibleApiResponse = z.infer<
+  typeof nonFungibleApiResponseSchema
+>;
 export type NonFungibleToken = z.infer<typeof nonFungibleTokenSchema>;
 export type NonFungibleContent = z.infer<typeof nonFungibleContentSchema>;
 export type Authority = z.infer<typeof authoritySchema>;
