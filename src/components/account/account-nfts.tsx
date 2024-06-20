@@ -1,27 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useSearchAssets } from "@/hooks/useSearchAssets";
+import cloudflareLoader from '../../../imageLoader'; // Ensure correct path
 
 export default function AccountNFTs({ address }: { address: string }) {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(100);
-  const [showNonVerified, setShowNonVerified] = useState(false); // Default to show verified collections
+  const [showNonVerified, setShowNonVerified] = useState(false);
 
-  const { data, isLoading, isError } = useSearchAssets(address, page, limit);
+  const { data, isLoading, isError, refetch } = useSearchAssets(address, page, limit);
 
   const nonFungibleTokens = data?.nonFungibleTokens || [];
 
-  const verifiedNfts = nonFungibleTokens.filter(nft => {
-    return nft.creators.some(creator => creator.verified);
+  const verifiedNfts = nonFungibleTokens.filter((nft) => {
+    return nft.creators.some((creator) => creator.verified);
   });
 
-  const nonVerifiedNfts = nonFungibleTokens.filter(nft => {
-    return !nft.creators.some(creator => creator.verified);
+  const nonVerifiedNfts = nonFungibleTokens.filter((nft) => {
+    return !nft.creators.some((creator) => creator.verified);
   });
 
   const displayedNfts = showNonVerified ? nonVerifiedNfts : verifiedNfts;
@@ -52,11 +54,13 @@ export default function AccountNFTs({ address }: { address: string }) {
               <div className="grid grid-cols-3 gap-4 max-h-md overflow-y-auto">
                 {displayedNfts.map((nft) => (
                   <div key={nft.id} className="flex flex-col items-center">
-                    <img
+                    <Image
+                      loader={cloudflareLoader}
                       src={nft.content.links.image}
                       alt={nft.content.metadata.name}
                       width={160}
                       height={160}
+                      quality={90}
                       className="object-cover rounded-lg"
                     />
                     <p className="text-center text-sm mt-2">{nft.content.metadata.name}</p>
