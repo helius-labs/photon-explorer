@@ -32,7 +32,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactionWithCompressionInfo.compression_info.opened_accounts.map(
+              {transactionWithCompressionInfo.compression_info.openedAccounts.map(
                 (item: any, index: number) => (
                   <TableRow key={`opened-accounts-${index}`}>
                     <TableCell>Open</TableCell>
@@ -53,7 +53,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: any }) {
                   </TableRow>
                 ),
               )}
-              {transactionWithCompressionInfo.compression_info.closed_accounts.map(
+              {transactionWithCompressionInfo.compression_info.closedAccounts.map(
                 (item: any, index: number) => (
                   <TableRow key={`closed-accounts-${index}`}>
                     <TableCell>Closed</TableCell>
