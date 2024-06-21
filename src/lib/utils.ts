@@ -38,16 +38,6 @@ export function lamportsToSol(lamports: number | bigint): number {
   return signMultiplier * parseFloat(solString);
 }
 
-export function normalizeTokenAmount(
-  raw: string | number,
-  decimals: number,
-): number {
-  let rawTokens: number;
-  if (typeof raw === "string") rawTokens = parseInt(raw);
-  else rawTokens = raw;
-  return rawTokens / Math.pow(10, decimals);
-}
-
 export function lamportsToSolString(
   lamports: number | bigint,
   maximumFractionDigits = 9,
@@ -141,20 +131,4 @@ export function timeAgoWithFormat(
   } else {
     return `${timeAgo} (${formattedDate}`;
   }
-}
-
-export function dateFormat(unixTimestamp: number): string {
-  // Convert Unix timestamp from seconds to milliseconds
-  const date = new Date(unixTimestamp * 1000);
-
-  // Format date like "April 15, 2024 17:14:03 UTC"
-  return date.toLocaleString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZoneName: "short",
-    timeZone: "UTC",
-  });
 }
