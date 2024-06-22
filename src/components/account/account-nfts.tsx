@@ -1,32 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useSearchAssets } from "@/hooks/useSearchAssets";
-import cloudflareLoader from '../../../imageLoader'; // Ensure correct path
+import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+import { NonFungibleToken } from "@/types";
+import { DataTable } from "@/components/data-table/data-table";
+import cloudflareLoader from "../../../imageLoader";
+import { ColumnDef } from "@tanstack/react-table";
+
+const placeholderImage = "/assets/noimg.svg"; // Add a placeholder image path
 
 export default function AccountNFTs({ address }: { address: string }) {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(100);
   const [showNonVerified, setShowNonVerified] = useState(false);
 
-  const { data, isLoading, isError, refetch } = useSearchAssets(address, page, limit);
+  const { nonFungibleTokens = [], isLoading, isError } = useGetAssetsByOwner(address);
 
-  const nonFungibleTokens = data?.nonFungibleTokens || [];
-
-  const verifiedNfts = nonFungibleTokens.filter((nft) => {
+  const verifiedNfts = nonFungibleTokens.filter((nft: NonFungibleToken) => {
     return nft.creators.some((creator) => creator.verified);
   });
 
-  const nonVerifiedNfts = nonFungibleTokens.filter((nft) => {
+  const nonVerifiedNfts = nonFungibleTokens.filter((nft: NonFungibleToken) => {
     return !nft.creators.some((creator) => creator.verified);
   });
 
   const displayedNfts = showNonVerified ? nonVerifiedNfts : verifiedNfts;
+
+  const columns: ColumnDef<typeof nonFungibleTokens[0]>[] = [
+    {
+      header: 'Image',
+      accessorKey: 'image',
+      cell: ({ row }) => {
+        const nft = row.original;
+        const tokenImage = nft.content.links.image || placeholderImage;
+        return (
+          <div className="flex justify-center">
+            <Image
+              loader={cloudflareLoader}
+              src={tokenImage}
+              alt={nft.content.metadata.name || "Unknown"}
+              width={100}
+              height={100}
+              quality={90}
+              priority
+              unoptimized 
+              className="image-responsive"
+            />
+          </div>
+        );
+      },
+    },
+    {
+      header: 'Name',
+      accessorKey: 'name',
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.original.content.metadata.name || "Unknown"}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <Card className="col-span-12 border shadow">
@@ -51,22 +87,7 @@ export default function AccountNFTs({ address }: { address: string }) {
               </div>
             </div>
             {displayedNfts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 max-h-md overflow-y-auto">
-                {displayedNfts.map((nft) => (
-                  <div key={nft.id} className="flex flex-col items-center">
-                    <Image
-                      loader={cloudflareLoader}
-                      src={nft.content.links.image}
-                      alt={nft.content.metadata.name}
-                      width={160}
-                      height={160}
-                      quality={90}
-                      className="object-cover rounded-lg"
-                    />
-                    <p className="text-center text-sm mt-2">{nft.content.metadata.name}</p>
-                  </div>
-                ))}
-              </div>
+              <DataTable columns={columns} data={displayedNfts} />
             ) : (
               <p>No NFTs found</p>
             )}

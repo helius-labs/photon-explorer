@@ -2,7 +2,7 @@ import { useCluster } from "@/providers/cluster-provider";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-import { useGetTokenListStrict } from "./tokenList";
+import { useGetTokenListStrict } from "./jupiterTokenList";
 
 export type TokenInfoWithPubkey = {
   info: any;

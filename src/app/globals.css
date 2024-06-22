@@ -59,3 +59,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+.image-responsive {
+  max-width: 100px;
+  max-height: 100px;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.icon-responsive {
+  max-width: 22px;
+  max-height: 22px;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+}

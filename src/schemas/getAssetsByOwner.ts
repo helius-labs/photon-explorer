@@ -92,6 +92,29 @@ const contentSchema = z.object({
   links: contentLinksSchema,
 });
 
+const priceSchema = z
+  .object({
+    currency: z.string(),
+    amount: z.number(),
+  })
+  .optional();
+
+const collectionMetadataSchema = z
+  .object({
+    name: z.string(),
+    symbol: z.string(),
+    description: z.string().optional(),
+  })
+  .optional();
+
+const inscriptionSchema = z
+  .object({
+    id: z.string(),
+    content: z.string(),
+    type: z.string(),
+  })
+  .optional();
+
 const itemSchema = z.object({
   interface: z.string(),
   id: z.string(),
@@ -106,6 +129,12 @@ const itemSchema = z.object({
   mutable: z.boolean(),
   burnt: z.boolean(),
   token_info: tokenInfoSchema,
+  type: z.string(),
+  balance: z.number().optional(),
+  price: priceSchema,
+  collectionMetadata: collectionMetadataSchema,
+  inscription: inscriptionSchema,
+  zeroBalance: z.boolean().optional(),
 });
 
 const resultSchema = z.object({
@@ -113,6 +142,9 @@ const resultSchema = z.object({
   limit: z.number(),
   page: z.number(),
   items: z.array(itemSchema),
+  grandTotal: z.number().optional(),
+  nativeBalance: z.number().optional(),
+  unverifiedCollections: z.array(itemSchema).optional(),
 });
 
 export const getAssetsByOwnerSchema = z.object({

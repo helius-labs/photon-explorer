@@ -9,6 +9,7 @@ import Link from "@/components/ui/link";
 
 import LogoBlack from "/public/assets/logo-text-black.svg";
 import LogoWhite from "/public/assets/logo-text-white.svg";
+import cloudflareLoader from "../../imageLoader";
 
 export function MainNav({
   className,
@@ -24,18 +25,22 @@ export function MainNav({
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
         <Image
-          className="hidden dark:block"
+          loader={cloudflareLoader}
           alt="XRAY logo"
-          height={24}
-          priority
+          width={1000}
+          height={1000}
+          unoptimized
           src={LogoWhite}
+          style={{ width: "auto", height: "auto" }}
         />
         <Image
-          className="block dark:hidden"
+          loader={cloudflareLoader}
           alt="XRAY logo"
-          height={24}
-          priority
+          width={1000}
+          height={1000}
+          unoptimized
           src={LogoBlack}
+          style={{ width: "auto", height: "auto" }}
         />
       </Link>
     </nav>
