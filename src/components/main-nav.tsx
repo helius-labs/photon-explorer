@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import "@/styles/styles.css";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ import Link from "@/components/ui/link";
 
 import LogoBlack from "/public/assets/logo-text-black.svg";
 import LogoWhite from "/public/assets/logo-text-white.svg";
-import cloudflareLoader from "../../imageLoader";
 
 export function MainNav({
   className,
@@ -25,22 +24,22 @@ export function MainNav({
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
         <Image
-          loader={cloudflareLoader}
+          className="hidden dark:block logo-container"
           alt="XRAY logo"
-          width={1000}
-          height={1000}
+          width={100}
+          height={100}
+          priority
           unoptimized
           src={LogoWhite}
-          style={{ width: "auto", height: "auto" }}
         />
         <Image
-          loader={cloudflareLoader}
+          className="block dark:hidden logo-container"
           alt="XRAY logo"
-          width={1000}
-          height={1000}
+          width={100}
+          height={100}
+          priority
           unoptimized
           src={LogoBlack}
-          style={{ width: "auto", height: "auto" }}
         />
       </Link>
     </nav>

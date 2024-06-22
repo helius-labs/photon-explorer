@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import "@/styles/styles.css";
 import { ColumnDef } from "@tanstack/react-table";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
 import Loading from "@/components/common/loading";

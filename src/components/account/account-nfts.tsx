@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import "@/styles/styles.css";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
