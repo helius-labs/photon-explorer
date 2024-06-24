@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import AccountTokens from "@/components/account/account-tokens";
+import { shorten } from "@/lib/utils";
 
 type Props = Readonly<{
   params: {
@@ -11,8 +12,8 @@ type Props = Readonly<{
 // or Dynamic metadata
 export async function generateMetadata({ params }: Props) {
   return {
-    title: `Tokens | ${params.address} | Solana`,
-    description: `All Tokens owned by the address ${params.address} on Solana`,
+    title: `Address ${shorten(params.address)} - Tokens | XRAY`,
+    description: `All Tokens owned by the address ${params.address}`,
   };
 }
 

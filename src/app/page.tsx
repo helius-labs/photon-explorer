@@ -8,9 +8,9 @@ import { Search } from "@/components/search";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Home | XRAY Beta - Solana Explorer",
+  title: "Home | XRAY",
   description:
-    "The simplest, clearest and most readable explorer for everyday people.",
+    "The most readable Solana explorer. Explore the Solana blockchain with ease.",
 };
 
 export default function Home() {

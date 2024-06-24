@@ -1,4 +1,5 @@
 import AcccountNFTs from "@/components/account/account-nfts";
+import { shorten } from "@/lib/utils";
 
 type Props = Readonly<{
   params: {
@@ -9,8 +10,8 @@ type Props = Readonly<{
 // or Dynamic metadata
 export async function generateMetadata({ params }: Props) {
   return {
-    title: `NFTs | ${params.address} | Solana`,
-    description: `All NFTs owned by the address ${params.address} on Solana`,
+    title: `Address ${shorten(params.address)} - NFTs | XRAY`,
+    description: `All NFTs owned by the address ${params.address}`,
   };
 }
 

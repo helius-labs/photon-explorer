@@ -1,4 +1,5 @@
 import CompressedAccounts from "@/components/account/compressed-accounts";
+import { shorten } from "@/lib/utils";
 
 type Props = Readonly<{
   params: {
@@ -9,8 +10,8 @@ type Props = Readonly<{
 // or Dynamic metadata
 export async function generateMetadata({ params }: Props) {
   return {
-    title: `Compressed Accounts | ${params.address} | Solana`,
-    description: `All Compressed Accounts for the address ${params.address} on Solana`,
+    title: `Address ${shorten(params.address)} - History | Compressed Accounts`,
+    description: `All Compressed Accounts for the address ${params.address}`,
   };
 }
 

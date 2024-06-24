@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 
 import TransactionDetails from "@/components/transaction/transaction-details";
+import { shorten } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Transaction Details | XRAY Beta - Solana Explorer",
-  description: "",
-};
+type Props = Readonly<{
+  params: {
+    tx: string;
+  };
+}>;
+
+// or Dynamic metadata
+export async function generateMetadata({ params }: Props) {
+  return {
+    title: `Transaction ${shorten(params.tx)} - XRAY`,
+    description: `Transaction overview and details for transaction ${params.tx}`,
+  };
+}
 
 export default function Page({ params }: { params: { tx: string } }) {
   return (

@@ -1,4 +1,5 @@
 import AcccountHistory from "@/components/account/account-history";
+import { shorten } from "@/lib/utils";
 
 type Props = Readonly<{
   params: {
@@ -9,8 +10,8 @@ type Props = Readonly<{
 // or Dynamic metadata
 export async function generateMetadata({ params }: Props) {
   return {
-    title: `History | ${params.address} | Solana`,
-    description: `All transactions for the address ${params.address} on Solana`,
+    title: `Address ${shorten(params.address)} - History | XRAY`,
+    description: `Transaction History for the address ${params.address}`,
   };
 }
 
