@@ -1,7 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { SearchIcon, XIcon } from "lucide-react";
+import { SearchIcon, XIcon, Circle, CogIcon, CoinsIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -26,7 +26,7 @@ export function Search({
   const router = useRouter();
   const { cluster } = useCluster();
   const [search, setSearch] = React.useState("");
-  const [suggestions, setSuggestions] = React.useState<string[]>([]);
+  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element }[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -36,11 +36,14 @@ export function Search({
       const programSuggestions = Object.values(programAddressLookupTable)
         .filter((name) =>
           name.toLowerCase().includes(value.toLowerCase())
-        );
+        )
+        .map((name) => ({ name, icon: <CogIcon /> }));
+
       const tokenSuggestions = Object.values(tokenAddressLookupTable)
         .filter((name) =>
           name.toLowerCase().includes(value.toLowerCase())
-        );
+        )
+        .map((name) => ({ name, icon: <Circle /> }));
 
       setSuggestions([...programSuggestions, ...tokenSuggestions]);
     } else {
@@ -48,8 +51,8 @@ export function Search({
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearch(suggestion);
+  const handleSuggestionClick = (suggestion: { name: string }) => {
+    setSearch(suggestion.name);
     setSuggestions([]);
   };
 
@@ -61,22 +64,22 @@ export function Search({
     }
 
     // Reverse lookup in program and token address lookup tables
-    const programAddress = Object.keys(programAddressLookupTable).find(
-      (key) =>
-        programAddressLookupTable[key].toLowerCase() === search.toLowerCase()
+    const programEntry = Object.entries(programAddressLookupTable).find(
+      ([, entry]) =>
+        entry.toLowerCase() === search.toLowerCase()
     );
-    const tokenAddress = Object.keys(tokenAddressLookupTable).find(
-      (key) =>
-        tokenAddressLookupTable[key].toLowerCase() === search.toLowerCase()
+    const tokenEntry = Object.entries(tokenAddressLookupTable).find(
+      ([, entry]) =>
+        entry.toLowerCase() === search.toLowerCase()
     );
 
-    if (programAddress) {
-      router.push(`/address/${programAddress}/?cluster=${cluster}`);
+    if (programEntry) {
+      router.push(`/address/${programEntry[0]}/?cluster=${cluster}`);
       return;
     }
 
-    if (tokenAddress) {
-      router.push(`/address/${tokenAddress}/?cluster=${cluster}`);
+    if (tokenEntry) {
+      router.push(`/address/${tokenEntry[0]}/?cluster=${cluster}`);
       return;
     }
 
@@ -118,14 +121,15 @@ export function Search({
             endiconclassname="right-6"
           />
           {suggestions.length > 0 && (
-            <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto mt-1">
+            <ul className="absolute z-10 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto mt-1">
               {suggestions.map((suggestion, index) => (
                 <li
                   key={index}
-                  className="p-2 cursor-pointer hover:bg-gray-100"
+                  className="p-2 cursor-pointer hover:bg-secondary flex items-center gap-2"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
-                  {suggestion}
+                  {suggestion.icon}
+                  {suggestion.name}
                 </li>
               ))}
             </ul>

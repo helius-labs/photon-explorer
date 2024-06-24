@@ -2,18 +2,14 @@
 
 import React, { useState } from "react";
 import "@/styles/styles.css";
-import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
 import { NonFungibleToken } from "@/types";
-import { DataTable } from "@/components/data-table/data-table";
-import cloudflareLoader from "../../../imageLoader";
+import { NFTGridTable } from "@/components/data-table/data-table-grid";
 import { ColumnDef } from "@tanstack/react-table";
-
-const placeholderImage = "/assets/noimg.svg"; // Add a placeholder image path
 
 export default function AccountNFTs({ address }: { address: string }) {
   const [showNonVerified, setShowNonVerified] = useState(false);
@@ -34,34 +30,10 @@ export default function AccountNFTs({ address }: { address: string }) {
     {
       header: 'Image',
       accessorKey: 'image',
-      cell: ({ row }) => {
-        const nft = row.original;
-        const tokenImage = nft.content.links.image || placeholderImage;
-        return (
-          <div className="flex justify-center">
-            <Image
-              loader={cloudflareLoader}
-              src={tokenImage}
-              alt={nft.content.metadata.name || "Unknown"}
-              width={100}
-              height={100}
-              quality={90}
-              priority
-              unoptimized 
-              className="image-responsive"
-            />
-          </div>
-        );
-      },
     },
     {
       header: 'Name',
       accessorKey: 'name',
-      cell: ({ row }) => (
-        <div className="text-center">
-          {row.original.content.metadata.name || "Unknown"}
-        </div>
-      ),
     },
   ];
 
@@ -88,7 +60,7 @@ export default function AccountNFTs({ address }: { address: string }) {
               </div>
             </div>
             {displayedNfts.length > 0 ? (
-              <DataTable columns={columns} data={displayedNfts} />
+              <NFTGridTable columns={columns} data={displayedNfts} />
             ) : (
               <p>No NFTs found</p>
             )}
