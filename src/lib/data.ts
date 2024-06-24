@@ -3,6 +3,8 @@ import {
   CircleAlert,
   CircleCheck,
   CircleDotDashed,
+  CogIcon,
+  CoinsIcon,
 } from "lucide-react";
 
 export const statuses = [
@@ -135,15 +137,20 @@ export const programAddressLookupTable: Record<string, string> = {
   vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn: "Token Vault",
   whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc: "Orca Whirlpools",
   C83cpRN6oaafjNgMQJvaYgAz592EP5wunKvbokeTKPLn: "Address Merkle Tree Program",
-  HNjtNrjt6irUPYEgxhx2Vcs42koK9fxzm3aFLHVaaRWz: "Address Merkle Tree Queue Program", 
-  "3MtrKu5Mjgh3JqeE5PeRzw2Ld28XjFgbbph67E6UERSx": "Governance Authority PDA Program",
+  HNjtNrjt6irUPYEgxhx2Vcs42koK9fxzm3aFLHVaaRWz:
+    "Address Merkle Tree Queue Program",
+  "3MtrKu5Mjgh3JqeE5PeRzw2Ld28XjFgbbph67E6UERSx":
+    "Governance Authority PDA Program",
   Edo2YjXU5eE17CejPBkupPgFLcYuAX47pGZmM7s2hAkj: "Group PDA Program",
   "5bdFnXU47QjzGpzHfXnxcEi5WXyxzEAZzd1vrE39bf1W": "Merkle Tree Pubkey Program",
-  "44J4oDXpjPAbzHCSc24q7NEiPekss4sAbLd8ka4gd9CZ": "Nullifier Queue Pubkey Program",
+  "44J4oDXpjPAbzHCSc24q7NEiPekss4sAbLd8ka4gd9CZ":
+    "Nullifier Queue Pubkey Program",
   ytwwVWhQUMoTKdirKmvEW5xCRVr4B2dJZnToiHtE2L2: "Registered Program PDA Program",
   "5QPEJ5zDsVou9FQS3KCauKswM3VwBEBu4dpL9xTqkWwN": "Account Compression Program",
-  "6UqiSPd2mRCTTwkzhcs1M6DGYsqHWd5jiPueX3LwDMXQ": "Light Compressed PDA Program",
-  "9sixVEthz2kMSKfeApZXHwuboT6DZuT6crAYJTciUCqE": "Light Compressed Token Program",
+  "6UqiSPd2mRCTTwkzhcs1M6DGYsqHWd5jiPueX3LwDMXQ":
+    "Light Compressed PDA Program",
+  "9sixVEthz2kMSKfeApZXHwuboT6DZuT6crAYJTciUCqE":
+    "Light Compressed Token Program",
   noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV: "Noop Program",
 };
 
@@ -180,14 +187,15 @@ export const tokenAddressLookupTable: Record<string, string> = {
   LSTxxxnJzKDFSLr4dUkPcmCf5VyryEqzPLz5j4bpxFp: "Liquid Staking Token",
   AbrMJWfDVRZ2EWCQ1xSCpoVeVgZNpq1U2AoYG98oRXfn: "Cheese",
   he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A: "Helius Staked SOL",
-  "9mV4WUukVsva5wYcYW4veo34CNDiF44sh3Ji65JNdvh5": "Elephant Money Stable (Wormhole)",
+  "9mV4WUukVsva5wYcYW4veo34CNDiF44sh3Ji65JNdvh5":
+    "Elephant Money Stable (Wormhole)",
   "85VBFQZC9TZkfaptBWjvUw7YbZjy52A6mjtPGjstQAmQ": "Wormhole Token",
   HaP8r3ksG76PhQLTqR8FYBeNiQpejcFbQmiHbg787Ut1: "MAGA (Wormhole)",
   "26KMQVgDUoB6rEfnJ51yAABWWJND8uMtpnQgsHQ64Udr": "SAD HAMSTER",
   C3JX9TWLqHKmcoTDTppaJebX2U7DcUQDEHVSmJFz6K6S: "Bazinga",
   jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL: "JITO",
   DriFtupJYLTosbwoN8koMbEYSx54aFAVLddWsbksjwg7: "Drift",
-  "GHvFFSZ9BctWsEc5nujR1MTmmJWY7tgQz2AXE6WVFtGN": "SOLAPE",
+  GHvFFSZ9BctWsEc5nujR1MTmmJWY7tgQz2AXE6WVFtGN: "SOLAPE",
   DcJLACAUR25RujgxBVhZtcWPCTjzSw6YDM8E7oipiT3k: "BlockDrop",
   Eq9xBLGnBc2B6wkdoZW6v1aCC4evtSaNPkSFKaDNQNFr: "AMADEUS",
   CYuXNHURE8cF3rQc1687DZnmsWx9ATNG3mZPFmryu22S: "PEPESOLANA",
@@ -213,9 +221,11 @@ export const tokenAddressLookupTable: Record<string, string> = {
   "9dwPiStDBwJJqC3QzMnjpJP7xohZbMVmHELFx3uy3KRq": "NVIDIA",
   EATGZHJViJsk7nEKkrdJicwNbfpkJfAtmrEmrjXR8NBj: "PopDog",
   tooLsNYLiVqzg8o4m3L2Uetbn62mvMWRqkog6PQeYKL: "Toolkit",
-  "9999j2A8sXUtHtDoQdk528oVzhaKBsXyRGZ67FKGoi7H": "Saber Wrapped Bitcoin (Sollet)",
+  "9999j2A8sXUtHtDoQdk528oVzhaKBsXyRGZ67FKGoi7H":
+    "Saber Wrapped Bitcoin (Sollet)",
   "2VYVwrwSNM8WxbFdPU4KQpZUB9FWCenFFoDqvpHQ7rZE": "Jail Cat",
-  "9w6LpS7RU1DKftiwH3NgShtXbkMM1ke9iNU4g3MBXSUs": "Wrapped DAI (Allbridge from Ethereum)",
+  "9w6LpS7RU1DKftiwH3NgShtXbkMM1ke9iNU4g3MBXSUs":
+    "Wrapped DAI (Allbridge from Ethereum)",
   "4y3oUrsJfSp431R3wJrWiaLxRPsnYtpkVJmoV2bYpBiy": "wifejak",
   FjK6rqU6QzUeNtmK6QQ78cCuS5AHAhcm4HgJkdsvXaep: "YOUR AI (Wormhole)",
   "2TybzwN2X1g7Y6GRbB4cRx4KPK7bqdK9tYCozBXxiTfr": "Procreation AI",
@@ -234,6 +244,5 @@ export const tokenAddressLookupTable: Record<string, string> = {
   HnKkzR1YtFbUUxM6g3iVRS2RY68KHhGV7bNdfF1GCsJB: "Kamala Horris",
   EArkn8uVf8YLfpF2eCdkCvDaPYpQuJzKXxaCnyxXc2P7: "Real Smurf Cat-шайлушай",
   CejQBkdRPN8Jyod2jVUYTfHwU9hPHvM3rD9prvQiffDU: "TAP Coin",
-  BRLsMczKuaR5w9vSubF4j8HwEGGprVAyyVgS4EX7DKEg: "Cykura"
-
+  BRLsMczKuaR5w9vSubF4j8HwEGGprVAyyVgS4EX7DKEg: "Cykura",
 };

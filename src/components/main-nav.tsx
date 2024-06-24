@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import "@/styles/styles.css";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
@@ -24,17 +24,21 @@ export function MainNav({
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
         <Image
-          className="hidden dark:block"
+          className="hidden dark:block logo-container"
           alt="XRAY logo"
-          height={24}
+          width={100}
+          height={100}
           priority
+          unoptimized
           src={LogoWhite}
         />
         <Image
-          className="block dark:hidden"
+          className="block dark:hidden logo-container"
           alt="XRAY logo"
-          height={24}
+          width={100}
+          height={100}
           priority
+          unoptimized
           src={LogoBlack}
         />
       </Link>
