@@ -10,12 +10,11 @@ import {
 import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
 import { MoreVertical } from "lucide-react";
-import { useState } from "react";
 
 import { lamportsToSolString } from "@/lib/utils";
 import { GetCompressedAccount } from "@/schemas/getCompressedAccount";
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
-import { useUserDomains } from "@/lib/name-service"; // Import the hook
+import { useUserDomains } from "@/lib/name-service";
 
 import Address from "@/components/common/address";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge"; // Import the Badge component
+import { Badge } from "@/components/ui/badge";
 
 export function AccountHeader({
   address,
