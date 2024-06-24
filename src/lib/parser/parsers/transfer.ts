@@ -25,8 +25,6 @@ export const parseTransfer = (
     description,
   } = transaction;
 
-  const fee = transaction.fee / LAMPORTS_PER_SOL;
-
   if (tokenTransfers === null || nativeTransfers === null) {
     return {
       signature,
