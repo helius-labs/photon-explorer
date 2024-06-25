@@ -18,7 +18,13 @@ import {
 export default function TransactionCompressionInfo({ tx }: { tx: string }) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  if (!isError && !isLoading && data && (data.compressionInfo.openedAccounts.length > 0 || data.compressionInfo.closedAccounts.length > 0)) {
+  if (
+    !isError &&
+    !isLoading &&
+    data &&
+    (data.compressionInfo.openedAccounts.length > 0 ||
+      data.compressionInfo.closedAccounts.length > 0)
+  ) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -35,38 +41,37 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.compressionInfo.openedAccounts.map(
-                (item, index) => (
-                  <TableRow key={`opened-accounts-${index}`}>
-                    <TableCell>Open</TableCell>
-                    <TableCell>
-                      <Address pubkey={new PublicKey(item.account.hash)} />
-                    </TableCell>
-                    <TableCell>
-                      <Address pubkey={new PublicKey(item.account.owner)} />
-                    </TableCell>
-                    <TableCell>
-                      {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
-                    </TableCell>
-                  </TableRow>
-                ),
-              )}
-              {data.compressionInfo.closedAccounts.map(
-                (item, index) => (
-                  <TableRow key={`closed-accounts-${index}`}>
-                    <TableCell>Closed</TableCell>
-                    <TableCell>
-                      <Address pubkey={new PublicKey(item.account.hash)} />
-                    </TableCell>
-                    <TableCell>
-                      <Address pubkey={new PublicKey(item.account.owner)} />
-                    </TableCell>
-                    <TableCell>
-                      {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
-                    </TableCell>
-                  </TableRow>
-                ),
-              )}
+              {data.compressionInfo.openedAccounts.map((item, index) => (
+                <TableRow key={`opened-accounts-${index}`}>
+                  <TableCell>Opened</TableCell>
+                  <TableCell>
+                    <Address pubkey={new PublicKey(item.account.hash)} />
+                  </TableCell>
+                  <TableCell>
+                    <Address pubkey={new PublicKey(item.account.owner)} />
+                  </TableCell>
+                  <TableCell>
+                    {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {data.compressionInfo.closedAccounts.map((item, index) => (
+                <TableRow key={`closed-accounts-${index}`}>
+                  <TableCell>Closed</TableCell>
+                  <TableCell>
+                    <Address
+                      link={false}
+                      pubkey={new PublicKey(item.account.hash)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Address pubkey={new PublicKey(item.account.owner)} />
+                  </TableCell>
+                  <TableCell>
+                    {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>

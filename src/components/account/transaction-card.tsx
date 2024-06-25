@@ -6,8 +6,6 @@ import { CircleArrowDown } from "lucide-react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { useGetParsedTransactions } from "@/hooks/parser";
-
 import Signature from "@/components/common/signature";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
