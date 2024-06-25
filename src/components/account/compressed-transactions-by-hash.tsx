@@ -7,7 +7,7 @@ import { timeAgoWithFormat } from "@/lib/utils";
 
 import { Item } from "@/schemas/getCompressionSignaturesForAccount";
 
-import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
+import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
 
 import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
@@ -64,7 +64,7 @@ export default function CompressedTransactionsByHash({
   );
 
   const { data, isLoading, isFetching, isError, refetch } =
-    useGetCompressionSignaturesForAccount(hash);
+    useGetSignaturesForCompressedAccount(hash);
 
   // TODO: Refactor jsx
   if (isError)

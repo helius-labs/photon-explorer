@@ -17,6 +17,8 @@ export default function AddressLayout({
   params: { address },
 }: Props) {
   const accountInfo = useGetAccountInfo(address);
+
+  // Address could be compressed account hash or address
   const compressedAccount = useGetCompressedAccount(address);
 
   if (!isAddress(address)) {

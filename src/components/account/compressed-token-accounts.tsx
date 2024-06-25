@@ -7,8 +7,6 @@ import { useMemo } from "react";
 
 import { lamportsToSolString } from "@/lib/utils";
 
-import { Item } from "@/schemas/getCompressedTokenAccountsByOwner";
-
 import { useGetCompressedTokenAccountsByOwner } from "@/hooks/compression";
 
 import Address from "@/components/common/address";

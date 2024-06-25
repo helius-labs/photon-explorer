@@ -18,7 +18,7 @@ import {
 export default function TransactionCompressionInfo({ tx }: { tx: string }) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  if (!isError && !isLoading && data) {
+  if (!isError && !isLoading && data && (data.compressionInfo.openedAccounts.length > 0 || data.compressionInfo.closedAccounts.length > 0)) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -35,7 +35,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.result.compression_info.opened_accounts.map(
+              {data.compressionInfo.openedAccounts.map(
                 (item, index) => (
                   <TableRow key={`opened-accounts-${index}`}>
                     <TableCell>Open</TableCell>
@@ -51,7 +51,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                   </TableRow>
                 ),
               )}
-              {data.result.compression_info.closed_accounts.map(
+              {data.compressionInfo.closedAccounts.map(
                 (item, index) => (
                   <TableRow key={`closed-accounts-${index}`}>
                     <TableCell>Closed</TableCell>

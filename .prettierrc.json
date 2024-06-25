@@ -1,6 +1,7 @@
 {
   "importOrder": [
     "^@/lib/(.*)$",
+    "^@/actions/(.*)$",
     "^@/schemas/(.*)$",
     "^@/hooks/(.*)$",
     "^@/components/(.*)$",

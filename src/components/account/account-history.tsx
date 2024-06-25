@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
+import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 
 import TransactionCard from "@/components/account/transaction-card";
@@ -11,7 +11,7 @@ export default function AccountHistory({ address }: { address: string }) {
   const signatures = useGetSignaturesForAddress(address);
 
   // Load possible compression signatures if this is a compression hash instead of an address
-  const compressionSignatures = useGetCompressionSignaturesForAccount(address);
+  const compressionSignatures = useGetSignaturesForCompressedAccount(address);
 
   // First check for non compression signatures
   if (signatures.isError)
@@ -57,7 +57,7 @@ export default function AccountHistory({ address }: { address: string }) {
     return (
       <Card className="col-span-12">
         <CardContent className="grid pt-6 gap-4">
-          {compressionSignatures.data?.result.value.items.map((transaction) => (
+          {compressionSignatures.data.map((transaction) => (
             <TransactionCard
               key={transaction.signature}
               transaction={transaction}
