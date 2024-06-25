@@ -1,0 +1,18 @@
+  .icon-responsive {
+    max-width: 22px;
+    max-height: 22px;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .logo-container {
+    width: 120px;
+    height: 24px;
+    position: relative;
+  }
+  
+  .logo-container img {
+    width: 100%;
+    height: auto;
+  }

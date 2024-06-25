@@ -1,20 +1,24 @@
 "use client";
 
+import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
 import {
   AccountInfo,
+  Connection,
   ParsedAccountData,
   PublicKey,
   RpcResponseAndContext,
 } from "@solana/web3.js";
 import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
-import { MoreVertical, Star } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 
+import { useUserDomains } from "@/lib/name-service";
 import { lamportsToSolString } from "@/lib/utils";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 
 import Address from "@/components/common/address";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
 
 export function AccountHeader({
   address,
@@ -35,11 +38,17 @@ export function AccountHeader({
     RpcResponseAndContext<AccountInfo<Buffer | ParsedAccountData> | null>,
     Error
   >;
-  compressedAccount: UseQueryResult<CompressedAccountWithMerkleContext | null, Error>;
+  compressedAccount: UseQueryResult<
+    CompressedAccountWithMerkleContext | null,
+    Error
+  >;
 }) {
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
   );
+
+  // Use the custom hook to fetch domain names
+  const [userDomains, loadingDomains] = useUserDomains(address.toBase58());
 
   return (
     <div className="flex items-center gap-4 mb-8">
@@ -53,45 +62,59 @@ export function AccountHeader({
         <div className="text-3xl font-medium leading-none">
           <Address pubkey={address} />
         </div>
-        {accountInfo.isLoading ? (
-          <Skeleton className="h-7 w-[200px]" />
-        ) : (
-          <div>
-            {accountInfo.data?.value || compressedAccount.data ? (
-              <>
-                {accountInfo.data?.value &&
-                  accountInfo.data?.value.lamports && (
+        <div className="flex flex-wrap items-center gap-2">
+          {accountInfo.isLoading ? (
+            <Skeleton className="h-7 w-[300px]" />
+          ) : (
+            <>
+              {accountInfo.data?.value || compressedAccount.data ? (
+                <>
+                  {accountInfo.data?.value &&
+                    accountInfo.data?.value.lamports && (
+                      <span className="text-lg text-muted-foreground">
+                        {`${lamportsToSolString(
+                          accountInfo.data?.value.lamports,
+                          2,
+                        )} SOL`}
+                      </span>
+                    )}
+                  {compressedBalance && compressedBalance.value && (
+                    <span className="text-lg text-muted-foreground">
+                      {` | ${lamportsToSolString(
+                        compressedBalance.value,
+                        2,
+                      )} COMPRESSED SOL`}
+                    </span>
+                  )}
+                  {compressedAccount.data && (
                     <span className="text-lg text-muted-foreground">
                       {`${lamportsToSolString(
-                        accountInfo.data?.value.lamports,
+                        compressedAccount.data.lamports,
                         2,
                       )} SOL`}
                     </span>
                   )}
-                {compressedBalance && compressedBalance.value && (
-                  <span className="text-lg text-muted-foreground">
-                    {` | ${lamportsToSolString(
-                      compressedBalance.value,
-                      2,
-                    )} COMPRESSED SOL`}
-                  </span>
-                )}
-                {compressedAccount.data && (
-                  <span className="text-lg text-muted-foreground">
-                    {`${lamportsToSolString(
-                      compressedAccount.data.lamports,
-                      2,
-                    )} SOL`}
-                  </span>
-                )}
-              </>
-            ) : (
-              <span className="text-lg text-muted-foreground">
-                Account not found
-              </span>
-            )}
-          </div>
-        )}
+                  {!loadingDomains && userDomains && userDomains.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {userDomains.map((domain) => (
+                        <Badge
+                          key={domain.address.toBase58()}
+                          variant="outline"
+                        >
+                          {domain.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <span className="text-lg text-muted-foreground">
+                  Account not found
+                </span>
+              )}
+            </>
+          )}
+        </div>
       </div>
       <div className="ml-auto font-medium self-start">
         <div className="ml-auto flex items-center gap-1">

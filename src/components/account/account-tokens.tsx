@@ -1,40 +1,22 @@
 "use client";
 
-import birdeyeIcon from "@/../public/assets/birdeye.svg";
-import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
-import Image from "next/image";
 import React from "react";
-
-import { TokenInfoWithPubkey } from "@/hooks/useGetAccountTokens";
-import { useSearchAssets } from "@/hooks/useSearchAssets";
-
+import "@/styles/styles.css";
+import { ColumnDef } from "@tanstack/react-table";
+import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
 import Loading from "@/components/common/loading";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { DataTable } from "@/components/data-table/data-table";
+import Image from "next/image";
+import birdeyeIcon from "@/../public/assets/birdeye.svg";
+import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
+import cloudflareLoader from "../../../imageLoader";
+import noImg from "../../../public/assets/noimg.svg";
+import { DAS } from "@/types/helius-sdk/das-types";
 
-export default function AccountTokens({
-  token,
-  address,
-}: {
-  token: TokenInfoWithPubkey;
-  address: string;
-}) {
-  const [page, setPage] = React.useState(1);
-  const [limit, setLimit] = React.useState(100);
-  const { data, isLoading, isPending, isError, refetch } = useSearchAssets(
-    address,
-    page,
-    limit,
-  );
+export default function AccountTokens({ address }: { address: string }) {
+  const { fungibleTokens, grandTotal, isLoading, isError } = useGetAssetsByOwner(address);
 
   if (isError)
     return (
@@ -45,7 +27,7 @@ export default function AccountTokens({
       </Card>
     );
 
-  if (isLoading || isPending)
+  if (isLoading)
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col pt-6 gap-4">
@@ -54,153 +36,100 @@ export default function AccountTokens({
       </Card>
     );
 
-  const fungibleTokens = data?.fungibleTokens;
-
-  const handleNextPage = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (page > 1) {
-      setPage((prevPage) => prevPage - 1);
-    }
-  };
+  const columns: ColumnDef<DAS.GetAssetResponse>[] = [
+    {
+      header: '',
+      accessorKey: 'token',
+      cell: ({ row }) => {
+        const fungibleToken = row.original;
+        const tokenImage = fungibleToken.content?.links?.image || noImg;
+        const tokenName = fungibleToken.content?.metadata?.name || "Unknown";
+        const tokenSymbol = fungibleToken.content?.metadata?.symbol || "Unknown";
+        return (
+          <div className="flex items-center">
+            <Avatar className="h-12 w-12 ml-4">
+              <AvatarImage src={tokenImage} alt={tokenName} />
+              <AvatarFallback>
+                {tokenSymbol.slice(0, 1)}
+                {tokenSymbol.slice(-1)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="ml-4">
+              <div className="text-sm font-medium">{tokenName}</div>
+              <div className="text-sm font-bold">{tokenSymbol}</div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      header: 'Balance',
+      accessorKey: 'token_info.balance',
+      cell: ({ row }) => {
+        const balance = row.original.token_info?.balance || 0;
+        const decimals = row.original.token_info?.decimals || 0;
+        return (balance / Math.pow(10, decimals)).toFixed(3);
+      },
+    },
+    {
+      header: 'Value',
+      accessorKey: 'token_info.price_info.total_price',
+      cell: ({ row }) => `$${parseFloat(row.original.token_info?.price_info?.total_price?.toString() || "0").toFixed(2)}`,
+    },
+    {
+      header: 'Price',
+      accessorKey: 'token_info.price_info.price_per_token',
+      cell: ({ row }) => `$${parseFloat(row.original.token_info?.price_info?.price_per_token?.toString() || "0").toFixed(2)}`,
+    },
+    {
+      header: 'Actions',
+      accessorKey: 'actions',
+      cell: ({ row }) => {
+        const fungibleToken = row.original;
+        const tokenMint = fungibleToken.id;
+        return (
+          <div className="flex space-x-2">
+            <a href={`https://birdeye.so/token/${tokenMint}`} target="_blank" rel="noopener noreferrer">
+              <Image
+                loader={cloudflareLoader}
+                src={birdeyeIcon.src || noImg}
+                alt="Birdeye"
+                width={100}
+                height={100}
+                unoptimized
+                style={{ width: 'auto', height: 'auto' }}
+                className="rounded-full icon-responsive"
+              />
+            </a>
+            <a href={`https://dexscreener.com/solana/${tokenMint}`} target="_blank" rel="noopener noreferrer">
+              <Image
+                loader={cloudflareLoader}
+                src={dexscreenerIcon.src || noImg}
+                alt="Dexscreener"
+                width={100}
+                height={100}
+                unoptimized
+                priority
+                style={{ width: 'auto', height: 'auto' }}
+                className="rounded-full icon-responsive"
+              />
+            </a>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
-    <Card className="col-span-12">
+    <Card className="col-span-12 shadow">
       <CardContent className="flex flex-col pt-6 gap-4">
-        {fungibleTokens?.length === 0 && <p>No tokens found</p>}
-        <div className="overflow-x-auto">
-          <div className="flex flex-col space-y-4">
-            <div className="flex items-center justify-between text-sm font-semibold py-2">
-              <div className="w-40"></div>
-              <div className="w-20 text-right"></div>
-              <div className="w-20 text-right">Balance</div>
-              <div className="w-20 text-right">Value</div>
-              <div className="w-20 text-right mr-1">Price</div>
-            </div>
-            <Separator />
-            {fungibleTokens?.map((fungibleToken, index) => {
-              const tokenImage =
-                fungibleToken.content.links.image || token?.logoURI;
-              const tokenName =
-                fungibleToken.content.metadata.name || token?.name || "Unknown";
-              const tokenSymbol =
-                fungibleToken.token_info.symbol ||
-                fungibleToken.content.metadata.symbol ||
-                "Unknown";
-              const tokenBalance = (
-                fungibleToken.token_info.balance /
-                Math.pow(10, fungibleToken.token_info.decimals)
-              ).toFixed(3);
-              const tokenPrice =
-                fungibleToken.token_info.price_info?.price_per_token || 0;
-              const tokenValue =
-                fungibleToken.token_info.price_info?.total_price?.toFixed(2) ||
-                0;
-              const tokenMint = fungibleToken.id;
-
-              return (
-                <div key={index}>
-                  <div className="flex items-center justify-between py-4 hover:bg-secondary transition duration-300 ease-in-out">
-                    <div className="w-24 flex justify-center">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={tokenImage} alt={tokenName} />
-                        <AvatarFallback>
-                          {tokenSymbol.slice(0, 1)}
-                          {tokenSymbol.slice(-1)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                    <div className="w-80 flex pl-6 items-center">
-                      <div>
-                        <div className="text-sm font-medium">{tokenName}</div>
-                        <div className="text-sm font-bold">{tokenSymbol}</div>
-                      </div>
-                    </div>
-                    <div className="flex w-52 items-right">
-                      <a
-                        href={`https://birdeye.so/token/${tokenMint}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-4"
-                      >
-                        <Image
-                          src={birdeyeIcon.src}
-                          alt="Birdeye"
-                          width="18"
-                          height="18"
-                          className="rounded-md"
-                        />
-                      </a>
-                      <a
-                        href={`https://dexscreener.com/solana/${tokenMint}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-4"
-                      >
-                        <Image
-                          src={dexscreenerIcon.src}
-                          alt="Dexscreener"
-                          width="18"
-                          height="18"
-                          className="rounded-md"
-                        />
-                      </a>
-                    </div>
-                    <div className="w-80 text-right text-sm font-medium">
-                      {tokenBalance.toLocaleString() ?? "N/A"}
-                    </div>
-                    <div className="w-80 text-right text-sm font-medium">
-                      ${tokenValue}
-                    </div>
-                    <div className="w-80 text-right text-sm mr-1">
-                      ${tokenPrice.toFixed(6) || "N/A"}
-                    </div>
-                  </div>
-                  <Separator />
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-between mt-4">
-            <Button disabled={page === 1} onClick={handlePreviousPage}>
-              Previous
-            </Button>
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <p className="text-sm font-medium">Rows per page</p>
-                <Select
-                  value={`${limit}`}
-                  onValueChange={(value) => {
-                    setLimit(Number(value));
-                    setPage(1); // Reset to first page whenever page size changes
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[70px]">
-                    <SelectValue placeholder={limit} />
-                  </SelectTrigger>
-                  <SelectContent side="top">
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                      <SelectItem key={pageSize} value={`${pageSize}`}>
-                        {pageSize}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                Page {page} of {data?.totalPages || 1}
-              </div>
-            </div>
-            <Button
-              onClick={handleNextPage}
-              disabled={page >= (data?.totalPages || 1)}
-            >
-              Next
-            </Button>
+        <div className="flex justify-start font-medium text-sm">
+          Account Balance: ${grandTotal.toFixed(2)}
+          <div className="ml-4">
+          Total Tokens: {fungibleTokens.length}
           </div>
         </div>
+        <DataTable columns={columns} data={fungibleTokens} />
       </CardContent>
     </Card>
   );

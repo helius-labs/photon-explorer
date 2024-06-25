@@ -1,20 +1,25 @@
 /** @type {import('next').NextConfig} */
 const config = {
     async redirects() {
-        return [
-            {
-                source: '/account/:address',
-                destination: '/address/:address',
-                permanent: true,
-            },
-        ];
+      return [
+        {
+          source: '/account/:address',
+          destination: '/address/:address',
+          permanent: true,
+        },
+      ];
     },
     typescript: {
-        ignoreBuildErrors: true,
+      ignoreBuildErrors: true,
     },
     eslint: {
-        ignoreDuringBuilds: true,
+      ignoreDuringBuilds: true,
     },
-};
-
-export default config;
+    images: {
+      loader: 'custom',
+      loaderFile: './imageLoader.ts',
+    },
+  };
+  
+  export default config;
+  

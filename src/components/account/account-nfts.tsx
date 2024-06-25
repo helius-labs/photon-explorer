@@ -1,47 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import "@/styles/styles.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useSearchAssets } from "@/hooks/useSearchAssets";
+import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+import { NFTGridTable } from "@/components/data-table/data-table-grid";
+import { ColumnDef } from "@tanstack/react-table";
 
 export default function AccountNFTs({ address }: { address: string }) {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(100);
-  const [showNonVerified, setShowNonVerified] = useState(false); // Default to show verified collections
+  const [showNonVerified, setShowNonVerified] = useState(false);
 
-  const { data, isLoading, isError } = useSearchAssets(address, page, limit);
+  const {
+    nonFungibleTokens,
+    isLoading,
+    isError,
+  } = useGetAssetsByOwner(address);
 
-  const nonFungibleTokens = data?.nonFungibleTokens || [];
-
-  const verifiedNfts = nonFungibleTokens.filter(nft => {
-    return nft.creators.some(creator => creator.verified);
+  const verifiedNfts = nonFungibleTokens.filter((nft) => {
+    return nft.creators?.some((creator) => creator.verified);
   });
 
-  const nonVerifiedNfts = nonFungibleTokens.filter(nft => {
-    return !nft.creators.some(creator => creator.verified);
+  const nonVerifiedNfts = nonFungibleTokens.filter((nft) => {
+    return !nft.creators?.some((creator) => creator.verified);
   });
 
   const displayedNfts = showNonVerified ? nonVerifiedNfts : verifiedNfts;
 
+  const totalVerifiedValue = verifiedNfts.reduce((acc, nft) => {
+    if (nft.content?.metadata?.attributes) {
+      const valueAttribute = nft.content.metadata.attributes.find(attr => attr.trait_type.toLowerCase() === "floor price");
+      const value = valueAttribute ? parseFloat(valueAttribute.value) : 0;
+      return acc + value;
+    }
+    return acc;
+  }, 0);
+
+  const columns: ColumnDef<typeof nonFungibleTokens[0]>[] = [
+    {
+      header: 'Image',
+      accessorKey: 'content.links.image',
+    },
+    {
+      header: 'Name',
+      accessorKey: 'content.metadata.name',
+    },
+  ];
+
   return (
-    <Card className="col-span-12 border shadow">
+    <Card className="col-span-12 shadow">
       <CardContent className="flex flex-col pt-6 pb-4 gap-4">
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-4">
-            {[...Array(12)].map((_, index) => (
-              <Skeleton key={index} className="h-40 w-full rounded-md" />
+          <div className="grid grid-cols-4 gap-4">
+            {[...Array(20)].map((_, index) => (
+              <Skeleton key={index} className="mt-14 h-40 w-full rounded-md" />
             ))}
           </div>
         ) : isError ? (
           <div className="text-red-500">Failed to load</div>
         ) : (
           <>
-            <div className="flex items-center mb-4 space-x-4">
-              <div className="flex items-center">
-                <Label className="mr-2">Show Non-Verified Collections</Label>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex space-x-4 text-sm font-medium">
+                <span>Total NFTs: {nonFungibleTokens.length}</span>
+                <span>Total Value: {totalVerifiedValue.toFixed(2)} SOL</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Label>Show Non-Verified Collections</Label>
                 <Switch
                   checked={showNonVerified}
                   onCheckedChange={() => setShowNonVerified((prev) => !prev)}
@@ -49,20 +76,7 @@ export default function AccountNFTs({ address }: { address: string }) {
               </div>
             </div>
             {displayedNfts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 max-h-md overflow-y-auto">
-                {displayedNfts.map((nft) => (
-                  <div key={nft.id} className="flex flex-col items-center">
-                    <img
-                      src={nft.content.links.image}
-                      alt={nft.content.metadata.name}
-                      width={160}
-                      height={160}
-                      className="object-cover rounded-lg"
-                    />
-                    <p className="text-center text-sm mt-2">{nft.content.metadata.name}</p>
-                  </div>
-                ))}
-              </div>
+              <NFTGridTable columns={columns} data={displayedNfts} />
             ) : (
               <p>No NFTs found</p>
             )}
