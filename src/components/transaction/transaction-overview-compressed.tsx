@@ -26,7 +26,7 @@ export default function TransactionCompressed({
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-3">
           <Package className="h-6 w-6" />
-          <CardTitle className="text-2xl font-bold">Compressed</CardTitle>
+          <CardTitle className="text-2xl font-bold">Compression</CardTitle>
           <Badge
             className="text-xs py-1 px-2"
             variant={transaction.meta?.err === null ? "success" : "destructive"}
@@ -50,7 +50,7 @@ export default function TransactionCompressed({
               className="flex items-center gap-2"
             >
               Opened account
-              <Address pubkey={new PublicKey(item.account.owner)} />
+              <Address pubkey={new PublicKey(item.account.hash)} />
               {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
             </div>
           ))}
@@ -62,7 +62,7 @@ export default function TransactionCompressed({
               className="flex items-center gap-2"
             >
               Closed account
-              <Address pubkey={new PublicKey(item.account.owner)} />
+              <Address pubkey={new PublicKey(item.account.hash)} />
               {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
             </div>
           ))}
