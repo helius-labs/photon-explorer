@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
-import { DAS } from "@/types/helius-sdk/das-types";
 import { NFTGridTable } from "@/components/data-table/data-table-grid";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -51,12 +50,12 @@ export default function AccountNFTs({ address }: { address: string }) {
   ];
 
   return (
-    <Card className="col-span-12 border shadow">
+    <Card className="col-span-12 shadow">
       <CardContent className="flex flex-col pt-6 pb-4 gap-4">
         {isLoading ? (
           <div className="grid grid-cols-4 gap-4">
             {[...Array(20)].map((_, index) => (
-              <Skeleton key={index} className="h-40 w-full rounded-md" />
+              <Skeleton key={index} className="mt-14 h-40 w-full rounded-md" />
             ))}
           </div>
         ) : isError ? (

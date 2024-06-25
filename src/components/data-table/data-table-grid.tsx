@@ -17,7 +17,7 @@ import {
 import * as React from "react";
 
 import { NFTGridItem } from "../common/nfts";
-import { NonFungibleToken } from "@/types";
+import { NonFungibleToken } from "@/types/helius-sdk";
 import { NFTGridPagination } from "./data-table-grid-pagination";
 
 interface DataTableProps<TData, TValue> {

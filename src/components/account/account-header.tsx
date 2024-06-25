@@ -60,7 +60,7 @@ export function AccountHeader({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {accountInfo.isLoading ? (
-            <Skeleton className="h-7 w-[200px]" />
+            <Skeleton className="h-7 w-[300px]" />
           ) : (
             <>
               {accountInfo.data?.value || compressedAccount.data?.result.value ? (
