@@ -13,6 +13,7 @@ import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import cloudflareLoader from "../../../imageLoader";
 import noImg from "../../../public/assets/noimg.svg";
+import { DAS } from "@/types/helius-sdk/das-types";
 
 export default function AccountTokens({ address }: { address: string }) {
   const { fungibleTokens, grandTotal, isLoading, isError } = useGetAssetsByOwner(address);
@@ -35,15 +36,15 @@ export default function AccountTokens({ address }: { address: string }) {
       </Card>
     );
 
-  const columns: ColumnDef<typeof fungibleTokens[0]>[] = [
+  const columns: ColumnDef<DAS.GetAssetResponse>[] = [
     {
       header: '',
       accessorKey: 'token',
       cell: ({ row }) => {
         const fungibleToken = row.original;
-        const tokenImage = fungibleToken.content.links.image;
-        const tokenName = fungibleToken.content.metadata.name || "Unknown";
-        const tokenSymbol = fungibleToken.content.metadata.symbol || "Unknown";
+        const tokenImage = fungibleToken.content?.links?.image || noImg;
+        const tokenName = fungibleToken.content?.metadata?.name || "Unknown";
+        const tokenSymbol = fungibleToken.content?.metadata?.symbol || "Unknown";
         return (
           <div className="flex items-center">
             <Avatar className="h-12 w-12 ml-4">
@@ -63,20 +64,22 @@ export default function AccountTokens({ address }: { address: string }) {
     },
     {
       header: 'Balance',
-      accessorKey: 'balance',
-      cell: ({ row }) => (
-        parseFloat((row.original.token_info.balance / Math.pow(10, row.original.token_info.decimals)).toFixed(3)).toLocaleString() ?? "N/A"
-      ),
+      accessorKey: 'token_info.balance',
+      cell: ({ row }) => {
+        const balance = row.original.token_info?.balance || 0;
+        const decimals = row.original.token_info?.decimals || 0;
+        return (balance / Math.pow(10, decimals)).toFixed(3);
+      },
     },
     {
       header: 'Value',
-      accessorKey: 'value',
-      cell: ({ row }) => `$${row.original.token_info.price_info?.total_price?.toFixed(2) || 0}`,
+      accessorKey: 'token_info.price_info.total_price',
+      cell: ({ row }) => `$${parseFloat(row.original.token_info?.price_info?.total_price?.toString() || "0").toFixed(2)}`,
     },
     {
       header: 'Price',
-      accessorKey: 'price',
-      cell: ({ row }) => `$${row.original.token_info.price_info?.price_per_token || "N/A"}`,
+      accessorKey: 'token_info.price_info.price_per_token',
+      cell: ({ row }) => `$${parseFloat(row.original.token_info?.price_info?.price_per_token?.toString() || "0").toFixed(2)}`,
     },
     {
       header: 'Actions',
@@ -118,10 +121,13 @@ export default function AccountTokens({ address }: { address: string }) {
   ];
 
   return (
-    <Card className="col-span-12">
+    <Card className="col-span-12 shadow">
       <CardContent className="flex flex-col pt-6 gap-4">
-        <div className="flex justify-start mt-4 text-lg font-bold">
-          Total Balance: ${grandTotal.toFixed(2)}
+        <div className="flex justify-start font-medium text-sm">
+          Account Balance: ${grandTotal.toFixed(2)}
+          <div className="ml-4">
+          Total Tokens: {fungibleTokens.length}
+          </div>
         </div>
         <DataTable columns={columns} data={fungibleTokens} />
       </CardContent>
