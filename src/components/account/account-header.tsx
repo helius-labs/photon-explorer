@@ -73,16 +73,7 @@ export function AccountHeader({
                           2,
                         )} SOL`}
                       </span>
-                    )}
-                  {!loadingDomains && userDomains && userDomains.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {userDomains.map(domain => (
-                        <Badge key={domain.address.toBase58()} variant="outline">
-                          {domain.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}                    
+                    )}                  
                   {compressedBalance && compressedBalance.value && (
                     <span className="text-lg text-muted-foreground">
                       {` | ${lamportsToSolString(
@@ -99,6 +90,15 @@ export function AccountHeader({
                       )} SOL`}
                     </span>
                   )}
+                  {!loadingDomains && userDomains && userDomains.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {userDomains.map(domain => (
+                        <Badge key={domain.address.toBase58()} variant="outline">
+                          {domain.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}  
                 </>
               ) : (
                 <span className="text-lg text-muted-foreground">

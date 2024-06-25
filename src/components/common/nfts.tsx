@@ -4,33 +4,28 @@ import React from "react";
 import Image from "next/image";
 import cloudflareLoader from "../../../imageLoader";
 import noImg from "../../../public/assets/noimg.svg";
-import { NonFungibleToken } from "@/types";
+import { DAS } from "@/types/helius-sdk/das-types";
 
 interface NFTGridItemProps {
-  nft: NonFungibleToken;
+  nft: DAS.GetAssetResponse;
 }
-
-const NFTGridItem: React.FC<NFTGridItemProps> = ({ nft }) => {
-  const tokenImage = nft.content.links.image || noImg;
+export function NFTGridItem({ nft }: NFTGridItemProps) {
+  const tokenImage = nft.content?.links?.image || noImg;
 
   return (
-    <div className="border rounded-md p-4 shadow-sm flex flex-col items-center">
-      <div className="mb-2">
-        <Image
-          loader={cloudflareLoader}
-          src={tokenImage}
-          alt={nft.content.metadata.name || "Unknown"}
-          width={150}
-          height={150}
-          className="rounded-md"
-          unoptimized
-        />
-      </div>
-      <div className="text-center">
-        {nft.content.metadata.name || "Unknown"}
+    <div className="border-none shadow-sm flex flex-col items-center">
+      <Image
+        loader={cloudflareLoader}
+        src={tokenImage}
+        alt={nft.content?.metadata.name || "Unknown"}
+        width={300}
+        height={300}
+        className="rounded-md w-full"
+        unoptimized
+      />
+      <div className="mt-4 text-center">
+        <p className="text-lg font-semibold">{nft.content?.metadata.name || "Unknown"}</p>
       </div>
     </div>
   );
-};
-
-export default NFTGridItem;
+}

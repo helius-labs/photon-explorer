@@ -16,17 +16,7 @@ import {
 } from "@tanstack/react-table";
 import * as React from "react";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import { DataTableToolbar } from "./data-table-toolbar";
-import NFTGridItem from "../common/nfts";
+import { NFTGridItem } from "../common/nfts";
 import { NonFungibleToken } from "@/types";
 import { NFTGridPagination } from "./data-table-grid-pagination";
 
@@ -67,6 +57,11 @@ export function NFTGridTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
 
   return (
