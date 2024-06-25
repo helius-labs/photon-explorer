@@ -63,7 +63,7 @@ export default function AccountNFTs({ address }: { address: string }) {
         ) : (
           <>
             <div className="flex items-center justify-between mb-4">
-              <div className="flex space-x-4 text-lg font-medium">
+              <div className="flex space-x-4 text-sm font-medium">
                 <span>Total NFTs: {nonFungibleTokens.length}</span>
                 <span>Total Value: {totalVerifiedValue.toFixed(2)} SOL</span>
               </div>

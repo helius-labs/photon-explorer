@@ -123,10 +123,10 @@ export default function AccountTokens({ address }: { address: string }) {
   return (
     <Card className="col-span-12 shadow">
       <CardContent className="flex flex-col pt-6 gap-4">
-        <div className="flex justify-start text-secondary text-sm">
+        <div className="flex justify-start font-medium text-sm">
           Account Balance: ${grandTotal.toFixed(2)}
           <div className="ml-4">
-          # of Tokens: {fungibleTokens.length}
+          Total Tokens: {fungibleTokens.length}
           </div>
         </div>
         <DataTable columns={columns} data={fungibleTokens} />
