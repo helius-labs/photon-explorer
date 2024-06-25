@@ -49,7 +49,7 @@ export default function TransactionCompressed({
               key={`opened-accounts-${index}`}
               className="flex items-center gap-2"
             >
-              Opened
+              Opened account
               <Address pubkey={new PublicKey(item.account.owner)} />
               {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
             </div>
@@ -61,7 +61,7 @@ export default function TransactionCompressed({
               key={`closed-accounts-${index}`}
               className="flex items-center gap-2"
             >
-              Closed
+              Closed account
               <Address pubkey={new PublicKey(item.account.owner)} />
               {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
             </div>
