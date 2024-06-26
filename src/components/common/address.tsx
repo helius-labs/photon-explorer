@@ -18,9 +18,14 @@ import {
 interface AddressProps {
   pubkey: PublicKey;
   short?: boolean;
+  link?: boolean;
 }
 
-export default function Address({ pubkey, short = true }: AddressProps) {
+export default function Address({
+  pubkey,
+  short = true,
+  link = true,
+}: AddressProps) {
   const address = pubkey.toBase58();
 
   const [hasCopied, setHasCopied] = React.useState(false);
@@ -55,13 +60,23 @@ export default function Address({ pubkey, short = true }: AddressProps) {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link href={`/address/${address}`} className="hover:underline">
-              {short && !name ? (
-                <>{`${address.slice(0, 4)}...${address.slice(-4)}`}</>
-              ) : (
-                <>{name ?? address}</>
-              )}
-            </Link>
+            {link ? (
+              <Link href={`/address/${address}`} className="hover:underline">
+                {short && !name ? (
+                  <>{`${address.slice(0, 4)}...${address.slice(-4)}`}</>
+                ) : (
+                  <>{name ?? address}</>
+                )}
+              </Link>
+            ) : (
+              <>
+                {short && !name ? (
+                  <>{`${address.slice(0, 4)}...${address.slice(-4)}`}</>
+                ) : (
+                  <>{name ?? address}</>
+                )}
+              </>
+            )}
           </TooltipTrigger>
           <TooltipContent>{address}</TooltipContent>
         </Tooltip>

@@ -1,15 +1,11 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
+import { createBN254, createRpc } from "@lightprotocol/stateless.js";
+import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-import { getCompressedAccountSchema } from "@/schemas/getCompressedAccount";
-import { getCompressedAccountsByOwnerSchema } from "@/schemas/getCompressedAccountsByOwner";
-import { getCompressedTokenAccountsByOwnerSchema } from "@/schemas/getCompressedTokenAccountsByOwner";
-import { getCompressionSignaturesForAccountSchema } from "@/schemas/getCompressionSignaturesForAccount";
-import { getCompressionSignaturesForTokenOwnerSchema } from "@/schemas/getCompressionSignaturesForTokenOwner";
 import { getLatestNonVotingSignaturesSchema } from "@/schemas/getLatestNonVotingSignatures";
-import { getTransactionWithCompressionInfoSchema } from "@/schemas/getTransactionWithCompressionInfo";
 
 export function useGetLatestNonVotingSignatures(enabled: boolean = true) {
   const { compressionEndpoint } = useCluster();
@@ -40,7 +36,7 @@ export function useGetCompressionSignaturesForOwner(
   address: string,
   enabled: boolean = true,
 ) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [
@@ -49,52 +45,34 @@ export function useGetCompressionSignaturesForOwner(
       address,
     ],
     queryFn: async () => {
-      const response = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getCompressionSignaturesForOwner",
-          params: {
-            owner: address,
-          },
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getCompressionSignaturesForTokenOwnerSchema.parse(response);
+      return await connection.getCompressionSignaturesForOwner(
+        new PublicKey(address),
+      );
     },
     enabled,
   });
 }
 
-export function useGetCompressionSignaturesForAccount(
+export function useGetSignaturesForCompressedAccount(
   hash: string,
   enabled: boolean = true,
 ) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
-    queryKey: [compressionEndpoint, "getCompressionSignaturesForAccount", hash],
+    queryKey: [compressionEndpoint, "getSignaturesForCompressedAccount", hash],
     queryFn: async () => {
-      const response = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getCompressionSignaturesForAccount",
-          params: {
-            hash: hash,
-          },
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getCompressionSignaturesForAccountSchema.parse(response);
+      return await connection.getSignaturesForCompressedAccount(
+        createBN254(hash, "base58"),
+      );
     },
     enabled,
   });
@@ -104,27 +82,18 @@ export function useGetCompressedBalanceByOwner(
   address: string,
   enabled: boolean = true,
 ) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [compressionEndpoint, "getCompressedBalanceByOwner", address],
     queryFn: async () => {
-      return fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getCompressedBalanceByOwner",
-          params: {
-            owner: address,
-          },
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
+
+      return await connection.getCompressedBalanceByOwner(
+        new PublicKey(address),
+      );
     },
     enabled,
   });
@@ -134,27 +103,18 @@ export function useGetCompressedAccountsByOwner(
   address: string,
   enabled: boolean = true,
 ) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [compressionEndpoint, "getCompressedAccountsByOwner", address],
     queryFn: async () => {
-      const results = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getCompressedAccountsByOwner",
-          params: {
-            owner: address,
-          },
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getCompressedAccountsByOwnerSchema.parse(results);
+      return await connection.getCompressedAccountsByOwner(
+        new PublicKey(address),
+      );
     },
     enabled,
   });
@@ -164,7 +124,7 @@ export function useGetCompressedTokenAccountsByOwner(
   address: string,
   enabled: boolean = true,
 ) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [
@@ -173,49 +133,33 @@ export function useGetCompressedTokenAccountsByOwner(
       address,
     ],
     queryFn: async () => {
-      const results = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getCompressedTokenAccountsByOwner",
-          params: {
-            owner: address,
-          },
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getCompressedTokenAccountsByOwnerSchema.parse(results);
+      // TODO - remove mint option when the endpoint is fixed
+      return await connection.getCompressedTokenAccountsByOwner(
+        new PublicKey(address),
+        {
+          mint: new PublicKey(""),
+        },
+      );
     },
     enabled,
   });
 }
 
 export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [compressionEndpoint, "getCompressedAccount", hash],
     queryFn: async () => {
-      const results = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getCompressedAccount",
-          params: {
-            hash: hash,
-          },
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getCompressedAccountSchema.parse(results);
+      return await connection.getCompressedAccount(createBN254(hash, "base58"));
     },
     enabled,
   });
@@ -225,7 +169,7 @@ export function useGetTransactionWithCompressionInfo(
   signature: string,
   enabled: boolean = true,
 ) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [
@@ -234,22 +178,11 @@ export function useGetTransactionWithCompressionInfo(
       signature,
     ],
     queryFn: async () => {
-      const results = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getTransactionWithCompressionInfo",
-          params: {
-            signature: signature,
-          },
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getTransactionWithCompressionInfoSchema.parse(results);
+      return await connection.getTransactionWithCompressionInfo(signature);
     },
     enabled,
   });

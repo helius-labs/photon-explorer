@@ -1,11 +1,10 @@
 "use client";
 
+import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { CircleArrowDown } from "lucide-react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
-
-import { useGetParsedTransactions } from "@/hooks/parser";
 
 import Signature from "@/components/common/signature";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,13 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function TransactionCard({
   transaction,
 }: {
-  transaction:
-    | ConfirmedSignatureInfo
-    | {
-        slot: number;
-        blockTime: number;
-        signature: string;
-      };
+  transaction: ConfirmedSignatureInfo | SignatureWithMetadata;
 }) {
   return (
     <div className="grid grid-flow-col grid-cols-3 items-center gap-8 border-b pb-3">

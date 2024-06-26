@@ -2,20 +2,21 @@
 
 import { useState } from "react";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetTransaction } from "@/hooks/web3";
 
-import Loading from "@/components/common/loading";
 import TransactionAccountKeys from "@/components/transaction/transaction-account-keys";
 import TransactionCompressionInfo from "@/components/transaction/transaction-compression-info";
 import TransactionInstructionLogs from "@/components/transaction/transaction-instruction-logs";
 import TransactionInstructions from "@/components/transaction/transaction-instructions";
 import TransactionOverview from "@/components/transaction/transaction-overview";
+import TransactionOverviewCompressed from "@/components/transaction/transaction-overview-compressed";
 import TransactionOverviewParsed from "@/components/transaction/transaction-overview-parsed";
 import TransactionTokenBalances from "@/components/transaction/transaction-token-balances";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
@@ -24,11 +25,14 @@ export default function TransactionDetails({ tx }: { tx: string }) {
   // Only for mainnet-beta and devnet
   const parsed = useGetParsedTransactions([tx]);
 
+  // Compressed transactions
+  const compressed = useGetTransactionWithCompressionInfo(tx);
+
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleDetails = () => setShowDetails((prev) => !prev);
 
-  if (parsed.isError || transaction.isError)
+  if (parsed.isError || transaction.isError || compressed.isError)
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
@@ -36,28 +40,45 @@ export default function TransactionDetails({ tx }: { tx: string }) {
         </CardContent>
       </Card>
     );
-  if (parsed.isLoading || transaction.isLoading)
+  if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="pt-6">
-          <Loading />
+          <div className="flex items-center space-x-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-[250px]" />
+              <Skeleton className="h-4 w-[200px]" />
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
 
+  let transactionOverview = (
+    <Card className="w-full max-w-md mx-auto">
+      <CardContent className="pt-6">
+        <div>Transaction not found</div>
+      </CardContent>
+    </Card>
+  );
+
+  if (parsed.data && parsed.data.length > 0) {
+    transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
+  } else if (
+    compressed.data &&
+    (compressed.data.compressionInfo.openedAccounts.length > 0 ||
+      compressed.data.compressionInfo.closedAccounts.length > 0)
+  ) {
+    transactionOverview = (
+      <TransactionOverviewCompressed data={compressed.data} />
+    );
+  } else if (transaction.data) {
+    transactionOverview = <TransactionOverview data={transaction.data} />;
+  }
+
   return (
     <>
-      {parsed.data && parsed.data.length > 0 ? (
-        <TransactionOverviewParsed data={parsed.data[0]} />
-      ) : transaction.data ? (
-        <TransactionOverview data={transaction.data} />
-      ) : (
-        <Card className="w-full max-w-md mx-auto">
-          <CardContent className="pt-6">
-            <div>Transaction not found</div>
-          </CardContent>
-        </Card>
-      )}
+      {transactionOverview}
       {transaction.data && (
         <div className="flex w-full max-w-md mx-auto mt-4 mb-6">
           <Badge className="mr-2" variant="outline">

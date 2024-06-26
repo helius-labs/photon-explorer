@@ -1,12 +1,11 @@
 "use client";
 
+import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
 import { lamportsToSolString } from "@/lib/utils";
-
-import { Item } from "@/schemas/getCompressedAccountsByOwner";
 
 import { useGetCompressedAccountsByOwner } from "@/hooks/compression";
 
@@ -17,7 +16,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function CompressedAccounts({ address }: { address: string }) {
-  const columns = useMemo<ColumnDef<Item>[]>(
+  const columns = useMemo<ColumnDef<CompressedAccountWithMerkleContext>[]>(
     () => [
       {
         accessorKey: "hash",
@@ -87,5 +86,5 @@ export default function CompressedAccounts({ address }: { address: string }) {
       </Card>
     );
 
-  return <DataTable data={data?.result.value.items!} columns={columns} />;
+  return <DataTable data={data!} columns={columns} />;
 }

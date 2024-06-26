@@ -1,5 +1,6 @@
-'use client';
+"use client";
 
+import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
 import {
   AccountInfo,
   Connection,
@@ -11,12 +12,13 @@ import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
 import { MoreVertical } from "lucide-react";
 
-import { lamportsToSolString } from "@/lib/utils";
-import { GetCompressedAccount } from "@/schemas/getCompressedAccount";
-import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useUserDomains } from "@/lib/name-service";
+import { lamportsToSolString } from "@/lib/utils";
+
+import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 
 import Address from "@/components/common/address";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 
 export function AccountHeader({
   address,
@@ -37,7 +38,10 @@ export function AccountHeader({
     RpcResponseAndContext<AccountInfo<Buffer | ParsedAccountData> | null>,
     Error
   >;
-  compressedAccount: UseQueryResult<GetCompressedAccount, Error>;
+  compressedAccount: UseQueryResult<
+    CompressedAccountWithMerkleContext | null,
+    Error
+  >;
 }) {
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
@@ -63,7 +67,7 @@ export function AccountHeader({
             <Skeleton className="h-7 w-[300px]" />
           ) : (
             <>
-              {accountInfo.data?.value || compressedAccount.data?.result.value ? (
+              {accountInfo.data?.value || compressedAccount.data ? (
                 <>
                   {accountInfo.data?.value &&
                     accountInfo.data?.value.lamports && (
@@ -73,7 +77,7 @@ export function AccountHeader({
                           2,
                         )} SOL`}
                       </span>
-                    )}                  
+                    )}
                   {compressedBalance && compressedBalance.value && (
                     <span className="text-lg text-muted-foreground">
                       {` | ${lamportsToSolString(
@@ -82,23 +86,26 @@ export function AccountHeader({
                       )} COMPRESSED SOL`}
                     </span>
                   )}
-                  {compressedAccount.data?.result.value && (
+                  {compressedAccount.data && (
                     <span className="text-lg text-muted-foreground">
                       {`${lamportsToSolString(
-                        compressedAccount.data?.result.value.lamports,
+                        compressedAccount.data.lamports,
                         2,
                       )} SOL`}
                     </span>
                   )}
                   {!loadingDomains && userDomains && userDomains.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {userDomains.map(domain => (
-                        <Badge key={domain.address.toBase58()} variant="outline">
+                      {userDomains.map((domain) => (
+                        <Badge
+                          key={domain.address.toBase58()}
+                          variant="outline"
+                        >
                           {domain.name}
                         </Badge>
                       ))}
                     </div>
-                  )}  
+                  )}
                 </>
               ) : (
                 <span className="text-lg text-muted-foreground">

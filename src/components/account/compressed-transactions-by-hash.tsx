@@ -1,13 +1,12 @@
 "use client";
 
+import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/lib/utils";
 
-import { Item } from "@/schemas/getCompressionSignaturesForAccount";
-
-import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
+import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
 
 import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
@@ -21,7 +20,7 @@ export default function CompressedTransactionsByHash({
 }: {
   hash: string;
 }) {
-  const columns = useMemo<ColumnDef<Item>[]>(
+  const columns = useMemo<ColumnDef<SignatureWithMetadata>[]>(
     () => [
       {
         accessorKey: "slot",
@@ -64,7 +63,7 @@ export default function CompressedTransactionsByHash({
   );
 
   const { data, isLoading, isFetching, isError, refetch } =
-    useGetCompressionSignaturesForAccount(hash);
+    useGetSignaturesForCompressedAccount(hash);
 
   // TODO: Refactor jsx
   if (isError)
@@ -84,5 +83,5 @@ export default function CompressedTransactionsByHash({
       </Card>
     );
 
-  return <DataTable data={data?.result.value.items!} columns={columns} />;
+  return <DataTable data={data!} columns={columns} />;
 }
