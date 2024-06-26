@@ -44,10 +44,7 @@ export default function TransactionOverview({
         <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Signer</span>
           <div className="w-3/4 flex items-center space-x-2">
-            <Address
-              link={false}
-              pubkey={transaction.message.accountKeys[0].pubkey}
-            />
+            <Address pubkey={transaction.message.accountKeys[0].pubkey} />
           </div>
         </div>
 
@@ -56,7 +53,7 @@ export default function TransactionOverview({
         <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Signature</span>
           <div className="w-3/4 flex items-center space-x-2">
-            <Signature link={false}>{transaction.signatures[0]}</Signature>
+            <Signature link={false} signature={transaction.signatures[0]} />
           </div>
         </div>
       </CardContent>

@@ -71,7 +71,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       compressed.data.compressionInfo.closedAccounts.length > 0)
   ) {
     transactionOverview = (
-      <TransactionOverviewCompressed data={compressed.data} />
+      <TransactionOverviewCompressed signature={tx} data={compressed.data} />
     );
   } else if (transaction.data) {
     transactionOverview = <TransactionOverview data={transaction.data} />;

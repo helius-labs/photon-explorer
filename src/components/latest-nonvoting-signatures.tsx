@@ -27,7 +27,7 @@ export default function LatestNonVotingSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => <Signature>{row.getValue("signature")}</Signature>,
+        cell: ({ row }) => <Signature signature={row.getValue("signature")} />,
         enableSorting: true,
       },
       {

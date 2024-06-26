@@ -43,7 +43,7 @@ export default function TransactionCard({
       <div className="grid gap-1">
         <div className="text-sm text-muted-foreground">From</div>
         <div className="text-sm font-base leading-none">
-          <Signature copy={false}>{transaction.signature}</Signature>
+          <Signature copy={false} signature={transaction.signature} />
         </div>
       </div>
     </div>

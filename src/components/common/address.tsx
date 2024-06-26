@@ -1,9 +1,10 @@
 "use client";
 
-import { tokenAddressLookupTable } from "@/utils/data";
 import { PublicKey } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
+
+import { tokenAddressLookupTable } from "@/utils/data";
 
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
@@ -39,7 +40,7 @@ export default function Address({
 
   return (
     <TooltipProvider>
-      <div className="flex items-center align-middle">
+      <div className="inline-flex items-baseline align-baseline">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

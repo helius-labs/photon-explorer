@@ -14,9 +14,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export default function TransactionCompressed({
+export default function TransactionOverviewCompressed({
+  signature,
   data,
 }: {
+  signature: string;
   data: CompressedTransaction;
 }) {
   const { compressionInfo, transaction } = data;
@@ -42,41 +44,29 @@ export default function TransactionCompressed({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {compressionInfo.openedAccounts
-          .filter((item) => item.account.lamports > 0)
-          .map((item, index) => (
-            <div
-              key={`opened-accounts-${index}`}
-              className="flex items-center gap-2"
-            >
-              Opened account
-              <Address pubkey={new PublicKey(item.account.hash)} />
-              {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
-            </div>
-          ))}
-        {compressionInfo.closedAccounts
-          .filter((item) => item.account.lamports > 0)
-          .map((item, index) => (
-            <div
-              key={`closed-accounts-${index}`}
-              className="flex items-center gap-2"
-            >
-              Closed account
-              <Address pubkey={new PublicKey(item.account.hash)} />
-              {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
-            </div>
-          ))}
+        {compressionInfo.openedAccounts.map((item, index) => (
+          <div key={`opened-accounts-${index}`}>
+            Opened account
+            <Address pubkey={new PublicKey(item.account.hash)} />
+            {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
+          </div>
+        ))}
+        {compressionInfo.closedAccounts.map((item, index) => (
+          <div key={`closed-accounts-${index}`}>
+            Closed account
+            <Address pubkey={new PublicKey(item.account.hash)} />
+            {` with ${lamportsToSolString(item.account.lamports, 7)} SOL`}
+          </div>
+        ))}
 
         <Separator />
 
-        {/* <div className="flex items-center">
+        <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Signature</span>
           <div className="w-3/4 flex items-center space-x-2">
-            <Signature link={false}>
-              {transaction}
-            </Signature>
+            <Signature link={false} signature={signature} />
           </div>
-        </div> */}
+        </div>
       </CardContent>
     </Card>
   );
