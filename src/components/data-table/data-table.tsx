@@ -68,8 +68,9 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
-      <div className="overflow-x-auto">
+    <div className="flex flex-col h-full">
+      {/* <DataTableToolbar table={table} /> */}
+      <div className="flex-1 overflow-auto">
         <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -119,7 +120,12 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <div className="absolute bottom-0 bg-popover mt-4 w-full md:static">
+        <div className="block md:hidden h-4"></div> {/* Adds space above the pagination for mobile view */}
+        <div className="z-10">
+          <DataTablePagination table={table} />
+        </div>
+      </div>
     </div>
   );
 }

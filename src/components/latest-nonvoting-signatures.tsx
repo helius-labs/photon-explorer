@@ -14,6 +14,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Card, CardContent } from "@/components/ui/card";
 import Loading from "@/components/common/loading";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function LatestNonVotingSignatures() {
   type Transaction = {
@@ -92,7 +93,7 @@ export default function LatestNonVotingSignatures() {
   if (isLoading) {
     return (
       <Card className="mx-4 md:mx-0 mb-16 md:mb-0">
-        <CardContent className="flex justify-center items-center min-h-[200px]">
+        <CardContent className="flex justify-center items-center min-h-[200px] md:min-h-[200px]">
           <Loading />
         </CardContent>
       </Card>
@@ -109,8 +110,13 @@ export default function LatestNonVotingSignatures() {
         <div className="flex justify-center text-sm text-secondary mb-4">
           Recent transactions
         </div>
-        <div className={`min-h-[200px] transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
-          <div className="overflow-x-auto">
+        <div className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
+          <div className="md:hidden h-96">
+            <ScrollArea className="h-full">
+              <DataTable data={signatures!} columns={columns} />
+            </ScrollArea>
+          </div>
+          <div className="hidden md:block overflow-x-auto">
             <DataTable data={signatures!} columns={columns} />
           </div>
         </div>
