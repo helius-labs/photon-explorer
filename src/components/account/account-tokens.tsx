@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import "@/styles/styles.css";
 import { ColumnDef } from "@tanstack/react-table";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
 import Loading from "@/components/common/loading";
@@ -125,9 +124,6 @@ export default function AccountTokens({ address }: { address: string }) {
       <CardContent className="flex flex-col pt-6 gap-4">
         <div className="flex justify-start font-medium text-sm">
           Account Balance: ${grandTotal.toFixed(2)}
-          <div className="ml-4">
-          Total Tokens: {fungibleTokens.length}
-          </div>
         </div>
         <DataTable columns={columns} data={fungibleTokens} />
       </CardContent>

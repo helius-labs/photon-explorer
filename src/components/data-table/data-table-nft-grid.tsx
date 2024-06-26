@@ -16,9 +16,9 @@ import {
 } from "@tanstack/react-table";
 import * as React from "react";
 
-import { NFTGridItem } from "../common/nfts";
-import { NonFungibleToken } from "@/types/helius-sdk";
-import { NFTGridPagination } from "./data-table-grid-pagination";
+import { NFTGridItem } from "../common/nft-items";
+import { NFTGridPagination } from "./data-table-nft-grid-pagination";
+import { DAS } from "@/types/helius-sdk";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -69,7 +69,7 @@ export function NFTGridTable<TData, TValue>({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
-            <NFTGridItem key={row.id} nft={row.original as NonFungibleToken} />
+            <NFTGridItem key={row.id} nft={row.original as DAS.GetAssetResponse} />
           ))
         ) : (
           <div className="text-center col-span-full">No results.</div>

@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
-import { NFTGridTable } from "@/components/data-table/data-table-grid";
+import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default function AccountNFTs({ address }: { address: string }) {
@@ -65,7 +65,7 @@ export default function AccountNFTs({ address }: { address: string }) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex space-x-4 text-sm font-medium">
                 <span>Total NFTs: {nonFungibleTokens.length}</span>
-                <span>Total Value: {totalVerifiedValue.toFixed(2)} SOL</span>
+                <span>Floor Value: {totalVerifiedValue.toFixed(2)} SOL</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Label>Show Non-Verified Collections</Label>
