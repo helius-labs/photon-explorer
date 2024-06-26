@@ -1,7 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { SearchIcon, XIcon, Circle, CogIcon, CoinsIcon } from "lucide-react";
+import { SearchIcon, XIcon, Circle, CogIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -106,7 +106,7 @@ export function Search({
   };
 
   return (
-    <div className="relative w-full max-w-lg mx-auto">
+    <div className="relative w-full max-w-lg mx-auto px-4 md:px-0">
       <form onSubmit={onFormSubmit} className="flex flex-col items-center space-y-4">
         <div className="relative w-full">
           <Input

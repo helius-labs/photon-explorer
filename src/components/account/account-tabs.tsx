@@ -1,11 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-
 import { cn } from "@/lib/utils";
-
 import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useCluster } from "@/providers/cluster-provider";
 
 interface AccountTabsProps extends React.HTMLAttributes<HTMLDivElement> {
   address: string;
@@ -17,15 +16,12 @@ export function AccountTabs({
   ...props
 }: AccountTabsProps) {
   const pathname = usePathname();
+  const { cluster } = useCluster();
 
   const tabs = [
     {
       name: "Tokens",
       href: `/address/${address}`,
-    },
-    {
-      name: "NFTs",
-      href: `/address/${address}/nfts`,
     },
     {
       name: "History",
@@ -37,11 +33,19 @@ export function AccountTabs({
     },
   ];
 
+  // Only include the NFTs tab if the cluster is not localnet or testnet
+  if (cluster !== "localnet" && cluster !== "testnet") {
+    tabs.splice(1, 0, {
+      name: "NFTs",
+      href: `/address/${address}/nfts`,
+    });
+  }
+
   return (
     <div className="relative">
       <ScrollArea className="max-w-[600px] lg:max-w-none">
         <div className={cn("mb-4 flex items-center", className)} {...props}>
-          {tabs.map((tab, index) => (
+          {tabs.map((tab) => (
             <Link
               href={tab.href}
               key={tab.href}

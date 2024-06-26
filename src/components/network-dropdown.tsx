@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCluster } from '@/providers/cluster-provider';
 import { useGetRecentPerformanceSamples } from '@/hooks/web3';
 import { useGetPriorityFeeEstimate } from '@/hooks/useGetPriorityFeeEstimate';
-import { useCluster } from '@/providers/cluster-provider';
 import {
   HoverCard,
   HoverCardContent,
@@ -20,24 +19,43 @@ const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
 
 export function NetworkStatusDropdown() {
   const { clusters, cluster, setCluster, customEndpoint, setCustomEndpoint, customCompressionEndpoint, setCustomCompressionEndpoint } = useCluster();
-  const [isHovered, setIsHovered] = useState(false);
 
-  const { data: networkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples(isHovered);
-  const { data: priorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys, isHovered);
+  const { data: networkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples(cluster !== 'localnet');
+
+  const { data: priorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys, cluster === 'mainnet-beta');
 
   const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
   const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
   const priorityFeeInSol = priorityFeeLevels?.medium !== undefined ? lamportsToSolString(priorityFeeLevels.medium * 100, 5) : 'N/A';
 
-  let networkConditionColor = 'bg-white';
+  let tpsColor = 'bg-white';
+  let pingColor = 'bg-white';
 
   if (networkStatus?.avgTps !== undefined) {
-    if (networkStatus.avgTps > 800) {
-      networkConditionColor = 'bg-green-500';
-    } else if (networkStatus.avgTps < 5) {
-      networkConditionColor = 'bg-red-500';
-    } else if (networkStatus.avgTps <= 800) {
-      networkConditionColor = 'bg-yellow-500';
+    if (cluster === 'mainnet-beta') {
+      if (networkStatus.avgTps >= 1000) {
+        tpsColor = 'bg-green-500';
+      } else if (networkStatus.avgTps >= 100 && networkStatus.avgTps < 1000) {
+        tpsColor = 'bg-yellow-500';
+      } else if (networkStatus.avgTps < 100) {
+        tpsColor = 'bg-red-500';
+      }
+    } else {
+      if (networkStatus.avgTps === 0) {
+        tpsColor = 'bg-yellow-500';
+      } else if (networkStatus.avgTps > 0) {
+        tpsColor = 'bg-green-500';
+      }
+    }
+  }
+
+  if (latency !== 'N/A') {
+    if (latency < 500) {
+      pingColor = 'bg-green-500';
+    } else if (latency >= 500 && latency <= 1000) {
+      pingColor = 'bg-yellow-500';
+    } else if (latency > 1000) {
+      pingColor = 'bg-red-500';
     }
   }
 
@@ -47,20 +65,16 @@ export function NetworkStatusDropdown() {
         <Button
           variant="outline"
           className="flex rounded-md items-center space-x-2"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
         >
           <div className="min-w-24 px-1 flex items-center justify-between">
             {clusters.find(({ value }) => value === cluster)?.label}
-            <div className={`w-2 h-2 mr-2 rounded-full ${networkConditionColor} animate-pulse`}></div>
+            <div className={`w-2 h-2 mr-2 rounded-full ${tpsColor} animate-pulse`}></div>
           </div>
         </Button>
       </HoverCardTrigger>
       <HoverCardContent
         align="end"
         className="w-96 bg-background text-foreground rounded-lg shadow-lg mt-2 cursor-default"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
@@ -73,7 +87,7 @@ export function NetworkStatusDropdown() {
           </div>
           <Separator />
           {isNetworkLoading && cluster !== 'localnet' ? (
-            <div className="mt-2"><Loading /></div>
+            <div className="mt-4"><Loading /></div>
           ) : (
             <div className="flex flex-col mb-4 mt-4">
               {cluster !== 'localnet' && (
@@ -81,14 +95,14 @@ export function NetworkStatusDropdown() {
                   <div className="flex-1 flex flex-col">
                     <div className="text-xs font-medium">TPS</div>
                     <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
-                      <div className={`w-3 h-3 rounded-full ${networkConditionColor}`}></div>
+                      <div className={`w-3 h-3 rounded-full ${tpsColor}`}></div>
                       <div className="text-lg font-semibold">{averageTps}</div>
                     </div>
                   </div>
                   <div className="flex-1 flex flex-col">
                     <div className="text-xs font-medium">Ping</div>
                     <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
-                      <div className={`w-3 h-3 rounded-full ${networkConditionColor}`}></div>
+                      <div className={`w-3 h-3 rounded-full ${pingColor}`}></div>
                       <div className="text-lg font-semibold">
                         {latency} <span className="text-xs">ms</span>
                       </div>
@@ -150,6 +164,7 @@ export function NetworkStatusDropdown() {
                     <Label htmlFor="customEndpoint">Custom RPC URL</Label>
                     <Input
                       id="customEndpoint"
+                      className="pl-2"
                       type="url"
                       value={customEndpoint}
                       onChange={(e) => setCustomEndpoint(e.target.value)}
@@ -161,6 +176,7 @@ export function NetworkStatusDropdown() {
                     </Label>
                     <Input
                       id="customCompressionEndpoint"
+                      className="pl-2"
                       type="url"
                       value={customCompressionEndpoint}
                       onChange={(e) => setCustomCompressionEndpoint(e.target.value)}

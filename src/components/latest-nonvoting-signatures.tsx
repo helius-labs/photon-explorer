@@ -7,11 +7,13 @@ import { statuses } from "@/lib/data";
 import { timeAgoWithFormat } from "@/lib/utils";
 
 import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
+import { useCluster } from "@/providers/cluster-provider";
 
 import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Card, CardContent } from "@/components/ui/card";
+import Loading from "@/components/common/loading";
 
 export default function LatestNonVotingSignatures() {
   type Transaction = {
@@ -19,6 +21,8 @@ export default function LatestNonVotingSignatures() {
     status: boolean;
     blockTime: number | null;
   };
+
+  const { cluster } = useCluster();
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
@@ -70,8 +74,7 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, isLoading, isPending, isFetching, isError, refetch } =
-    useGetLatestNonVotingSignatures();
+  const { data, isLoading, isError } = useGetLatestNonVotingSignatures(cluster === "testnet");
 
   // Check if there are any compression signatures
   const signatures: Transaction[] | undefined = data?.result.value.items?.map(
@@ -82,21 +85,34 @@ export default function LatestNonVotingSignatures() {
     }),
   );
 
-  // TODO: Refactor jsx
-  if (isError)
+  if (cluster !== "testnet") {
+    return null;
+  }
+
+  if (isLoading) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div>Failed to load</div>
+      <Card className="mx-4 md:mx-0 mb-16 md:mb-0">
+        <CardContent className="flex justify-center items-center min-h-[200px]">
+          <Loading />
         </CardContent>
       </Card>
     );
+  }
+
+  if (isError || !signatures || signatures.length === 0) {
+    return null; // Do not render anything if there's an error or no data
+  }
 
   return (
-    <div
-      className={`min-h-[400px] transition-opacity border rounded-md p-2 duration-700 ease-in-out ${isPending ? "opacity-0" : "opacity-100"}`}
-    >
-      {signatures && <DataTable data={signatures!} columns={columns} />}
-    </div>
+    <Card className="mx-4 md:mx-0 mb-16 md:mb-0 border">
+      <CardContent className="pt-6">
+        <div className="flex justify-center text-sm text-secondary mb-4">
+          Recent transactions
+        </div>
+        <div className={`min-h-[400px] transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
+          <DataTable data={signatures!} columns={columns} />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
