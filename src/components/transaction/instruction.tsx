@@ -7,7 +7,7 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
-import { lamportsToSolString } from "@/lib/utils";
+import { lamportsToSolString } from "@/utils/common";
 
 import Address from "@/components/common/address";
 import Data from "@/components/common/data";

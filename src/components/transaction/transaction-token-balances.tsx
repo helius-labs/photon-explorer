@@ -4,7 +4,7 @@ import {
   TokenBalance as TokenBalanceType,
 } from "@solana/web3.js";
 
-import { lamportsToSolString } from "@/lib/utils";
+import { lamportsToSolString } from "@/utils/common";
 
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";

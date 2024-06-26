@@ -1,5 +1,6 @@
+import { shorten } from "@/utils/common";
+
 import CompressedAccounts from "@/components/account/compressed-accounts";
-import { shorten } from "@/lib/utils";
 
 type Props = Readonly<{
   params: {

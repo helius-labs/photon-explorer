@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/common";
 
 import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";

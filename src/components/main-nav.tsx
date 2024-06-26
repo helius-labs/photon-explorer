@@ -3,7 +3,7 @@
 import "@/styles/styles.css";
 import Image from "next/image";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/common";
 
 import Link from "@/components/ui/link";
 

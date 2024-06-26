@@ -1,7 +1,6 @@
+import { getDomainInfo } from "@/utils/domain-info";
 import { Connection } from "@solana/web3.js";
 import { NextResponse } from "next/server";
-
-import { getDomainInfo } from "@/lib/domain-info";
 
 type Params = {
   params: {

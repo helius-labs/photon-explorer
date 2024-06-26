@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Inter as Fontface } from "next/font/google";
 import { Suspense } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/common";
 
 import "./globals.css";
 

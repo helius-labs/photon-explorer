@@ -2,11 +2,12 @@
 
 import { EnrichedTransaction } from "@/types/helius-sdk";
 
-import { parseTransaction } from "@/lib/parser";
+import { Cluster } from "@/utils/cluster";
+import { parseTransaction } from "@/utils/parser";
 
 export async function getParsedTransactions(
   transactions: string[],
-  cluster: string,
+  cluster: Cluster,
 ) {
   if (!process.env.HELIUS_API_KEY) {
     throw new Error("HELIUS_API_KEY is not set");
@@ -14,9 +15,9 @@ export async function getParsedTransactions(
 
   let url;
 
-  if (cluster === "mainnet-beta") {
+  if (cluster === Cluster.MainnetBeta) {
     url = `https://api.helius.xyz/v0/transactions/?api-key=${process.env.HELIUS_API_KEY}`;
-  } else if (cluster === "devnet") {
+  } else if (cluster === Cluster.Devnet) {
     url = `https://api-devnet.helius.xyz/v0/transactions/?api-key=${process.env.HELIUS_API_KEY}`;
   } else {
     return null;

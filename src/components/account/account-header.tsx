@@ -12,8 +12,8 @@ import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
 import { MoreVertical } from "lucide-react";
 
-import { useUserDomains } from "@/lib/name-service";
-import { lamportsToSolString } from "@/lib/utils";
+import { lamportsToSolString } from "@/utils/common";
+import { useUserDomains } from "@/utils/name-service";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 

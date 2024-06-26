@@ -1,8 +1,11 @@
 "use client";
 
-import { getParsedTransactions } from "@/actions/getParsedTransactions";
 import { useCluster } from "@/providers/cluster-provider";
 import { useQuery } from "@tanstack/react-query";
+
+import { Cluster } from "@/utils/cluster";
+
+import { getParsedTransactions } from "@/actions/getParsedTransactions";
 
 export function useGetParsedTransactions(
   transactions: string[],
@@ -13,7 +16,10 @@ export function useGetParsedTransactions(
   return useQuery({
     queryKey: ["parser", transactions],
     queryFn: async () => {
-      return await getParsedTransactions(transactions, cluster);
+      if (cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet) {
+        return getParsedTransactions(transactions, cluster);
+      }
+      return null;
     },
     enabled,
     staleTime: 1000 * 60 * 60, // 1 hour

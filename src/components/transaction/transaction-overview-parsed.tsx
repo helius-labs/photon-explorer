@@ -1,12 +1,12 @@
 import { PublicKey } from "@solana/web3.js";
 import { ArrowRight, ArrowRightLeftIcon, CircleHelp } from "lucide-react";
 
+import { dateFormat, timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
   ParserTransactionTypes,
   XrayTransaction,
-} from "@/lib/parser";
-import { dateFormat, timeAgoWithFormat } from "@/lib/utils";
+} from "@/utils/parser";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 

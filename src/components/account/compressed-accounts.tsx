@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { lamportsToSolString } from "@/lib/utils";
+import { lamportsToSolString } from "@/utils/common";
 
 import { useGetCompressedAccountsByOwner } from "@/hooks/compression";
 

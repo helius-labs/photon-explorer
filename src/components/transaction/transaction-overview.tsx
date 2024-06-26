@@ -1,8 +1,8 @@
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import { CircleHelp, Tag } from "lucide-react";
 
-import { ActionTypes, ParserTransactionTypes } from "@/lib/parser";
-import { dateFormat, timeAgoWithFormat } from "@/lib/utils";
+import { dateFormat, timeAgoWithFormat } from "@/utils/common";
+import { ActionTypes, ParserTransactionTypes } from "@/utils/parser";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 

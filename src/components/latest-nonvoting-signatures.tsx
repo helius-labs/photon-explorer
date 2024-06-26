@@ -3,8 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { statuses } from "@/lib/data";
-import { timeAgoWithFormat } from "@/lib/utils";
+import { timeAgoWithFormat } from "@/utils/common";
+import { statuses } from "@/utils/data";
 
 import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 
