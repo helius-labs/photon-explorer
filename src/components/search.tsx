@@ -106,7 +106,7 @@ export function Search({
   };
 
   return (
-    <div className="relative w-full max-w-lg mx-auto px-4 md:px-0 overflow-hidden">
+    <div className="relative w-full max-w-lg mx-auto px-4 md:px-0">
       <form onSubmit={onFormSubmit} className="flex flex-col items-center space-y-4">
         <div className="relative w-full">
           <Input
@@ -115,7 +115,7 @@ export function Search({
             placeholder="Search for accounts, transactions, programs, or tokens..."
             value={search}
             onChange={handleInputChange}
-            className="h-12 w-full"
+            className="h-12 w-full overflow-hidden"
             iconClassName="left-4"
             inputPaddingClassName="pl-12 pr-4"
             endiconclassname="right-6"
