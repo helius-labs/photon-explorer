@@ -120,8 +120,8 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="absolute bottom-0 bg-popover mt-4 w-full md:static">
-        <div className="block md:hidden h-4"></div> {/* Adds space above the pagination for mobile view */}
+      <div className="absolute bottom-0 bg-popover mt-4 w-full md:static z-10">
+        <div className="block md:hidden h-4"></div>
         <div className="z-10">
           <DataTablePagination table={table} />
         </div>

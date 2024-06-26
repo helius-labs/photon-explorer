@@ -1,61 +1,78 @@
 "use client";
 
-import { useCluster } from '@/providers/cluster-provider';
-import { useGetRecentPerformanceSamples } from '@/hooks/web3';
-import { useGetPriorityFeeEstimate } from '@/hooks/useGetPriorityFeeEstimate';
+import { useCluster } from "@/providers/cluster-provider";
+import { useGetRecentPerformanceSamples } from "@/hooks/web3";
+import { useGetPriorityFeeEstimate } from "@/hooks/useGetPriorityFeeEstimate";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import Loading from '@/components/common/loading';
-import { lamportsToSolString } from '@/lib/utils';
+} from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Loading from "@/components/common/loading";
+import { lamportsToSolString } from "@/lib/utils";
 
 const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
 
 export function NetworkStatusDropdown() {
-  const { clusters, cluster, setCluster, customEndpoint, setCustomEndpoint, customCompressionEndpoint, setCustomCompressionEndpoint } = useCluster();
+  const {
+    clusters,
+    cluster,
+    setCluster,
+    customEndpoint,
+    setCustomEndpoint,
+    customCompressionEndpoint,
+    setCustomCompressionEndpoint,
+  } = useCluster();
 
-  const { data: networkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples(cluster !== 'localnet');
+  const { data: networkStatus, isLoading: isNetworkLoading } =
+    useGetRecentPerformanceSamples(cluster !== "localnet");
 
-  const { data: priorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys, cluster === 'mainnet-beta');
+  const { data: priorityFeeLevels, isLoading: isFeeLoading } =
+    useGetPriorityFeeEstimate(accountKeys, cluster === "mainnet-beta");
 
-  const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
-  const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
-  const priorityFeeInSol = priorityFeeLevels?.medium !== undefined ? lamportsToSolString(priorityFeeLevels.medium * 100, 5) : 'N/A';
+  const averageTps =
+    networkStatus?.avgTps !== undefined
+      ? Math.round(networkStatus.avgTps).toLocaleString("en-US")
+      : "N/A";
+  const latency =
+    networkStatus?.latency !== undefined ? networkStatus.latency : "N/A";
+  const priorityFeeInSol =
+    priorityFeeLevels?.medium !== undefined
+      ? lamportsToSolString(priorityFeeLevels.medium * 100, 5)
+      : "N/A";
 
-  let tpsColor = 'bg-white';
-  let pingColor = 'bg-white';
+  let tpsColor = "bg-white";
+  let pingColor = "bg-white";
 
   if (networkStatus?.avgTps !== undefined) {
-    if (cluster === 'mainnet-beta') {
+    if (cluster === "mainnet-beta") {
       if (networkStatus.avgTps >= 1000) {
-        tpsColor = 'bg-green-500';
+        tpsColor = "bg-green-500";
       } else if (networkStatus.avgTps >= 100 && networkStatus.avgTps < 1000) {
-        tpsColor = 'bg-yellow-500';
+        tpsColor = "bg-yellow-500";
       } else if (networkStatus.avgTps < 100) {
-        tpsColor = 'bg-red-500';
+        tpsColor = "bg-red-500";
       }
     } else {
       if (networkStatus.avgTps === 0) {
-        tpsColor = 'bg-yellow-500';
+        tpsColor = "bg-yellow-500";
       } else if (networkStatus.avgTps > 0) {
-        tpsColor = 'bg-green-500';
+        tpsColor = "bg-green-500";
       }
     }
   }
 
-  if (latency !== 'N/A') {
+  if (latency !== "N/A") {
     if (latency < 500) {
-      pingColor = 'bg-green-500';
+      pingColor = "bg-green-500";
     } else if (latency >= 500 && latency <= 1000) {
-      pingColor = 'bg-yellow-500';
+      pingColor = "bg-yellow-500";
     } else if (latency > 1000) {
-      pingColor = 'bg-red-500';
+      pingColor = "bg-red-500";
     }
   }
 
@@ -74,7 +91,7 @@ export function NetworkStatusDropdown() {
       </HoverCardTrigger>
       <HoverCardContent
         align="end"
-        className="w-96 bg-background text-foreground rounded-lg shadow-lg mt-2 cursor-default"
+        className="w-full max-w-xs md:max-w-md bg-background text-foreground rounded-lg shadow-lg mt-2 cursor-default"
       >
         <div className="p-4">
           <div className="flex justify-between items-center mb-2">
@@ -86,20 +103,22 @@ export function NetworkStatusDropdown() {
             </div>
           </div>
           <Separator />
-          {isNetworkLoading && cluster !== 'localnet' ? (
-            <div className="mt-4"><Loading /></div>
+          {isNetworkLoading && cluster !== "localnet" ? (
+            <div className="mt-4">
+              <Loading />
+            </div>
           ) : (
             <div className="flex flex-col mb-4 mt-4">
-              {cluster !== 'localnet' && (
-                <div className="flex items-center space-x-4">
-                  <div className="flex-1 flex flex-col">
+              {cluster !== "localnet" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col items-start">
                     <div className="text-xs font-medium">TPS</div>
                     <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
                       <div className={`w-3 h-3 rounded-full ${tpsColor}`}></div>
                       <div className="text-lg font-semibold">{averageTps}</div>
                     </div>
                   </div>
-                  <div className="flex-1 flex flex-col">
+                  <div className="flex flex-col items-start">
                     <div className="text-xs font-medium">Ping</div>
                     <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
                       <div className={`w-3 h-3 rounded-full ${pingColor}`}></div>
@@ -110,13 +129,19 @@ export function NetworkStatusDropdown() {
                   </div>
                 </div>
               )}
-              {cluster === 'mainnet-beta' && (
+              {cluster === "mainnet-beta" && (
                 <div className="flex items-center space-x-4 mt-4">
                   <div className="flex flex-col">
                     <div className="text-xs font-medium">Median Fee</div>
                     <div className="flex items-center space-x-2 transition duration-300 ease-in-out transform-gpu hover:scale-105">
                       <div className="text-lg font-semibold">
-                        {isFeeLoading ? <div className="mt-2"><Loading /></div> : `${priorityFeeInSol} SOL`}
+                        {isFeeLoading ? (
+                          <div className="mt-2">
+                            <Loading />
+                          </div>
+                        ) : (
+                          `${priorityFeeInSol} SOL`
+                        )}
                       </div>
                     </div>
                   </div>
@@ -127,34 +152,45 @@ export function NetworkStatusDropdown() {
           <div className="text-xs mb-4"></div>
           <div>
             <h2 className="text-md font-semibold mb-2">Choose a Network</h2>
-            <div className="grid gap-4">
+            <div className="grid gap-2">
               {clusters
-                .filter(({ value }) => value === 'mainnet-beta')
+                .filter(({ value }) => value === "mainnet-beta")
                 .map(({ value, label, disabled }) => (
                   <div
                     key={value}
                     onClick={() => setCluster(value)}
-                    className={`cursor-pointer rounded-md px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+                    className={`cursor-pointer rounded-md px-4 py-2 border text-center ${
+                      cluster === value ? "ring-1" : ""
+                    } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                   >
                     {label}
                   </div>
                 ))}
-              <div className="flex space-x-2">
+              <div className="grid grid-cols-3 gap-2">
                 {clusters
-                  .filter(({ value }) => value === 'testnet' || value === 'devnet' || value === 'localnet')
+                  .filter(
+                    ({ value }) =>
+                      value === "testnet" ||
+                      value === "devnet" ||
+                      value === "localnet"
+                  )
                   .map(({ value, label, disabled }) => (
                     <div
                       key={value}
                       onClick={() => setCluster(value)}
-                      className={`flex-1 cursor-pointer rounded-md px-4 py-2 border rounded text-center ${cluster === value ? "ring-1" : ""} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+                      className={`cursor-pointer rounded-md px-4 py-2 border text-center overflow-hidden ${
+                        cluster === value ? "ring-1" : ""
+                      } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                     >
                       {label}
                     </div>
                   ))}
               </div>
               <div
-                onClick={() => setCluster('custom')}
-                className={`cursor-pointer rounded-md px-4 py-2 border rounded text-center ${cluster === 'custom' ? "ring-1" : ""}`}
+                onClick={() => setCluster("custom")}
+                className={`cursor-pointer rounded-md px-4 py-2 border text-center ${
+                  cluster === "custom" ? "ring-1" : ""
+                }`}
               >
                 Custom
               </div>

@@ -50,11 +50,11 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex w-[80px] md:w-[100px] items-center">
+            <div className="flex items-center justify-center">
               {status.icon && (
                 <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               )}
-              <span>{status.label}</span>
+              <span className="hidden md:inline">{status.label}</span>
             </div>
           );
         },
@@ -92,7 +92,7 @@ export default function LatestNonVotingSignatures() {
 
   if (isLoading) {
     return (
-      <Card className="mx-4 md:mx-0 mb-16 md:mb-0">
+      <Card className="mx-2 md:mx-0 mb-16 md:mb-0">
         <CardContent className="flex justify-center items-center min-h-[200px] md:min-h-[200px]">
           <Loading />
         </CardContent>
@@ -106,12 +106,12 @@ export default function LatestNonVotingSignatures() {
 
   return (
     <Card className="mx-2 md:mx-0 mb-16 md:mb-0 border">
-      <CardContent className="pt-6">
+      <CardContent className="pt-6 px-2"> 
         <div className="flex justify-center text-sm text-secondary mb-4">
           Recent transactions
         </div>
         <div className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
-          <div className="md:hidden h-96">
+          <div className="md:hidden h-72">
             <ScrollArea className="h-full">
               <DataTable data={signatures!} columns={columns} />
             </ScrollArea>
