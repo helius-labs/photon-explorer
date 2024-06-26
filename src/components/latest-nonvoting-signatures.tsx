@@ -49,7 +49,7 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex w-[100px] items-center">
+            <div className="flex w-[80px] md:w-[100px] items-center">
               {status.icon && (
                 <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               )}
@@ -100,17 +100,19 @@ export default function LatestNonVotingSignatures() {
   }
 
   if (isError || !signatures || signatures.length === 0) {
-    return null; // Do not render anything if there's an error or no data
+    return null;
   }
 
   return (
-    <Card className="mx-4 md:mx-0 mb-16 md:mb-0 border">
+    <Card className="mx-2 md:mx-0 mb-16 md:mb-0 border">
       <CardContent className="pt-6">
         <div className="flex justify-center text-sm text-secondary mb-4">
           Recent transactions
         </div>
-        <div className={`min-h-[400px] transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
-          <DataTable data={signatures!} columns={columns} />
+        <div className={`min-h-[200px] transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
+          <div className="overflow-x-auto">
+            <DataTable data={signatures!} columns={columns} />
+          </div>
         </div>
       </CardContent>
     </Card>

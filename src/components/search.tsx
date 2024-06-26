@@ -106,7 +106,7 @@ export function Search({
   };
 
   return (
-    <div className="relative w-full max-w-lg mx-auto px-4 md:px-0">
+    <div className="relative w-full max-w-lg mx-auto px-4 md:px-0 overflow-hidden">
       <form onSubmit={onFormSubmit} className="flex flex-col items-center space-y-4">
         <div className="relative w-full">
           <Input
