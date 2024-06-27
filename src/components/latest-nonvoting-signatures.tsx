@@ -74,7 +74,7 @@ export default function LatestNonVotingSignatures() {
     useGetLatestNonVotingSignatures();
 
   // Check if there are any compression signatures
-  const signatures: Transaction[] | undefined = data?.result.value.items?.map(
+  const signatures: Transaction[] | undefined = data?.value.items?.map(
     (item): Transaction => ({
       signature: item.signature,
       status: true,

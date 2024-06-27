@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/utils/common";
 
-import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
+import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 
 import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
@@ -63,7 +63,7 @@ export default function CompressedTransactionsByHash({
   );
 
   const { data, isLoading, isFetching, isError, refetch } =
-    useGetSignaturesForCompressedAccount(hash);
+    useGetCompressionSignaturesForAccount(hash);
 
   // TODO: Refactor jsx
   if (isError)
