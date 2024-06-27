@@ -235,11 +235,13 @@ export function NetworkStatusDropdown() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="flex rounded-md items-center space-x-2"
+          className="flex items-center justify-center rounded-full h-10 w-10 md:rounded-md md:h-auto md:w-auto"
         >
-          <div className="min-w-24 px-1 flex items-center justify-between">
-            {clusters.find(({ value }) => value === cluster)?.label}
-            <div className={`w-2 h-2 mr-2 rounded-full ${tpsColor} animate-pulse`}></div>
+          <div className="flex items-center justify-center">
+            <div className="hidden md:block">
+              {clusters.find(({ value }) => value === cluster)?.label}
+            </div>
+            <div className={`w-2 h-2 md:ml-2 rounded-full ${tpsColor} animate-pulse`}></div>
           </div>
         </Button>
       </PopoverTrigger>
@@ -252,7 +254,7 @@ export function NetworkStatusDropdown() {
       <HoverCardTrigger asChild>
         <Button
           variant="outline"
-          className="flex rounded-md items-center space-x-2"
+          className="flex items-center justify-between rounded-md"
         >
           <div className="min-w-24 px-1 flex items-center justify-between">
             {clusters.find(({ value }) => value === cluster)?.label}

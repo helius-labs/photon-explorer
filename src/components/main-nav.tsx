@@ -9,6 +9,8 @@ import Link from "@/components/ui/link";
 
 import LogoBlack from "/public/assets/logo-text-black.svg";
 import LogoWhite from "/public/assets/logo-text-white.svg";
+import LogoIconBlack from "/public/assets/LogoBlack.svg"; // Mobile logo for light mode
+import LogoIconWhite from "/public/assets/LogoWhite.svg"; // Mobile logo for dark mode
 
 export function MainNav({
   className,
@@ -23,8 +25,18 @@ export function MainNav({
         href="/"
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
+        {/* Desktop logos */}
         <Image
-          className="hidden dark:block logo-container"
+          className="hidden md:block dark:hidden logo-container"
+          alt="XRAY logo"
+          width={100}
+          height={100}
+          priority
+          unoptimized
+          src={LogoBlack}
+        />
+        <Image
+          className="hidden md:dark:block logo-container"
           alt="XRAY logo"
           width={100}
           height={100}
@@ -32,14 +44,24 @@ export function MainNav({
           unoptimized
           src={LogoWhite}
         />
+        {/* Mobile logos */}
         <Image
-          className="block dark:hidden logo-container"
+          className="block md:hidden dark:hidden"
           alt="XRAY logo"
-          width={100}
-          height={100}
+          width={40}
+          height={40}
           priority
           unoptimized
-          src={LogoBlack}
+          src={LogoIconWhite}
+        />
+        <Image
+          className="hidden dark:block md:hidden md:dark:hidden"
+          alt="XRAY logo"
+          width={40}
+          height={40}
+          priority
+          unoptimized
+          src={LogoIconBlack}
         />
       </Link>
     </nav>
