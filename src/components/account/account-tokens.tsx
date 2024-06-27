@@ -3,7 +3,6 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
-import Loading from "@/components/common/loading";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table/data-table";
@@ -13,26 +12,75 @@ import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import cloudflareLoader from "../../../imageLoader";
 import noImg from "../../../public/assets/noimg.svg";
 import { DAS } from "@/types/helius-sdk/das-types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AccountTokens({ address }: { address: string }) {
   const { fungibleTokens, grandTotal, isLoading, isError } = useGetAssetsByOwner(address);
 
   if (isError)
     return (
-      <Card className="col-span-12">
-        <CardContent className="pt-6">
-          <div>Failed to load</div>
+      <Card className="col-span-12 shadow mb-10">
+        <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
+          <div className="text-secondary font-semibold">Unable to fetch account balances</div>
+          <div className="text-gray-500">
+          <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> the page or navigate <a href="/" className="text-blue-500 underline">home</a>.
+          </div>
         </CardContent>
       </Card>
     );
 
   if (isLoading)
     return (
-      <Card className="col-span-12">
-        <CardContent className="flex flex-col pt-6 gap-4">
-          <Loading />
-        </CardContent>
-      </Card>
+      <Card className="col-span-12 shadow mb-10">
+      <CardContent className="flex flex-col pt-6 gap-4 pb-6">
+        <div className="flex justify-start font-medium text-sm">
+          <Skeleton className="h-4 w-[200px] ml-2" />
+        </div>
+        <div className="grid grid-cols-5 gap-4 pb-8">
+          <div className="flex items-center col-span-1 space-x-4">
+            <Skeleton className="h-4 w-[150px] ml-4" />
+          </div>
+          <div className="col-span-1 space-y-2">
+            <Skeleton className="h-4 w-[50px] ml-20" />
+          </div>
+          <div className="col-span-1 space-y-2">
+            <Skeleton className="h-4 w-[50px] ml-20" />
+          </div>
+          <div className="col-span-1 space-y-2">
+            <Skeleton className="h-4 w-[50px] ml-20" />
+          </div>
+          <div className="flex col-span-1 space-x-2">
+            <Skeleton className="hidden md:flex h-4 w-[50px] ml-10" />
+          </div>
+        </div>
+        {[...Array(5)].map((_, index) => (
+          <div key={index} className="grid grid-cols-5 gap-4 items-center">
+            <div className="flex items-center col-span-1 space-x-4">
+              <Avatar className="h-12 w-12 ml-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+              </Avatar>
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-[100px]" />
+                <Skeleton className="h-4 w-[50px]" />
+              </div>
+            </div>
+            <div className="hidden md:block col-span-1 space-y-2">
+              <Skeleton className="h-4 w-[50px] ml-auto" />
+            </div>
+            <div className="hidden md:block col-span-1 space-y-2">
+              <Skeleton className="h-4 w-[50px] ml-auto" />
+            </div>
+            <div className="hidden md:block col-span-1 space-y-2">
+              <Skeleton className="h-4 w-[50px] ml-auto" />
+            </div>
+            <div className="hidden md:flex col-span-1 space-x-2 justify-center">
+              <Skeleton className="h-6 w-6 rounded-full" />
+              <Skeleton className="h-6 w-6 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
     );
 
   const columns: ColumnDef<DAS.GetAssetResponse>[] = [
@@ -120,8 +168,8 @@ export default function AccountTokens({ address }: { address: string }) {
   ];
 
   return (
-    <Card className="col-span-12 shadow">
-      <CardContent className="flex flex-col pt-6 gap-4">
+    <Card className="col-span-12 shadow mb-10">
+      <CardContent className="flex flex-col pt-6 gap-4 pb-6">
         <div className="flex justify-start font-medium text-sm">
           Account Balance: ${grandTotal.toFixed(2)}
         </div>

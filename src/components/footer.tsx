@@ -33,7 +33,7 @@ const footerLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-background shadow fixed bottom-0 w-full p-2 flex items-center justify-between">
+    <footer className="bg-background shadow fixed bottom-0 w-full p-2 flex items-center justify-between z-20">
       <div className="flex items-center">
         <p className="text-sm leading-loose text-muted-foreground">
           Powered by{" "}

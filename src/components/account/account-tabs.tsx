@@ -44,13 +44,13 @@ export function AccountTabs({
   return (
     <div className="relative">
       <ScrollArea className="max-w-[600px] lg:max-w-none">
-        <div className={cn("mb-4 flex items-center", className)} {...props}>
+        <div className={cn("mb-4 flex items-center space-x-2 md:space-x-4 overflow-x-auto", className)} {...props}>
           {tabs.map((tab) => (
             <Link
               href={tab.href}
               key={tab.href}
               className={cn(
-                "flex h-7 items-center justify-center rounded-full px-4 text-center text-sm transition-colors hover:text-primary",
+                "flex h-7 items-center justify-center rounded-full px-4 text-center text-sm transition-colors hover:text-primary whitespace-nowrap",
                 pathname === tab.href
                   ? "bg-muted font-medium text-primary"
                   : "text-muted-foreground",

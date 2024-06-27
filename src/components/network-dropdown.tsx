@@ -183,7 +183,7 @@ export function NetworkStatusDropdown() {
                 <div
                   key={value}
                   onClick={() => setCluster(value)}
-                  className={`cursor-pointer rounded-md px-4 py-2 border text-center overflow-hidden ${
+                  className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${
                     cluster === value ? "ring-1" : ""
                   } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
                 >
@@ -193,7 +193,7 @@ export function NetworkStatusDropdown() {
           </div>
           <div
             onClick={() => setCluster("custom")}
-            className={`cursor-pointer rounded-md px-4 py-2 border text-center ${
+            className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${
               cluster === "custom" ? "ring-1" : ""
             }`}
           >
