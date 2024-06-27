@@ -60,24 +60,10 @@ export function useGetAssetsByOwner(address: string, enabled: boolean = true) {
     return data.result;
   };
 
-  const saveToLocalStorage = (key: string, value: any) => {
-    localStorage.setItem(key, JSON.stringify(value));
-  };
-
-  const loadFromLocalStorage = (key: string) => {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
-  };
-
   const queryOptions: UseQueryOptions<AssetResponse["result"]> = {
     queryKey: ["getAssetsByOwner", address, page],
     queryFn: async () => {
-      const cachedData = loadFromLocalStorage(`assets-${address}-${page}`);
-      if (cachedData) {
-        return cachedData;
-      }
       const result = await fetchAssets(page);
-      saveToLocalStorage(`assets-${address}-${page}`, result);
       return result;
     },
     enabled,
