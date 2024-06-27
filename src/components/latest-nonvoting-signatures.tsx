@@ -50,9 +50,9 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex items-center justify-center">
+            <div className="flex justify-center md:justify-start">
               {status.icon && (
-                <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <status.icon className="mr-2 h-6 w-6 text-muted-foreground" />
               )}
               <span className="hidden md:inline">{status.label}</span>
             </div>
