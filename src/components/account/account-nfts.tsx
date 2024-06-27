@@ -7,17 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
-import { NFTGridTable } from "@/components/data-table/data-table-grid";
+import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import { ColumnDef } from "@tanstack/react-table";
 
 export default function AccountNFTs({ address }: { address: string }) {
   const [showNonVerified, setShowNonVerified] = useState(false);
 
-  const {
-    nonFungibleTokens,
-    isLoading,
-    isError,
-  } = useGetAssetsByOwner(address);
+  const { nonFungibleTokens, isLoading, isError } = useGetAssetsByOwner(address);
 
   const verifiedNfts = nonFungibleTokens.filter((nft) => {
     return nft.creators?.some((creator) => creator.verified);
@@ -49,26 +45,36 @@ export default function AccountNFTs({ address }: { address: string }) {
     },
   ];
 
+  if (isError)
+    return (
+      <Card className="col-span-12 shadow mb-10">
+        <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
+          <div className="text-secondary font-semibold">Unable to fetch NFTs</div>
+          <div className="text-gray-500">
+            <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> the page or navigate <a href="/" className="text-blue-500 underline">home</a>.
+          </div>
+        </CardContent>
+      </Card>
+    );
+
   return (
     <Card className="col-span-12 shadow">
       <CardContent className="flex flex-col pt-6 pb-4 gap-4">
         {isLoading ? (
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             {[...Array(20)].map((_, index) => (
-              <Skeleton key={index} className="mt-14 h-40 w-full rounded-md" />
+              <Skeleton key={index} className="mt-14 h-60 md:h-40 w-full rounded-md" />
             ))}
           </div>
-        ) : isError ? (
-          <div className="text-red-500">Failed to load</div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex space-x-4 text-sm font-medium">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 text-xs sm:text-sm">
+              <div className="flex flex-col sm:flex-row sm:space-x-4 font-medium">
                 <span>Total NFTs: {nonFungibleTokens.length}</span>
-                <span>Total Value: {totalVerifiedValue.toFixed(2)} SOL</span>
+                <span>Floor Value: {totalVerifiedValue.toFixed(2)} SOL</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Label>Show Non-Verified Collections</Label>
+              <div className="flex items-center space-x-2 mt-2 sm:mt-0">
+                <Label className="text-xs sm:text-sm">Show Non-Verified Collections</Label>
                 <Switch
                   checked={showNonVerified}
                   onCheckedChange={() => setShowNonVerified((prev) => !prev)}

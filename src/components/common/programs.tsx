@@ -1,8 +1,9 @@
 "use client";
 
-import { programAddressLookupTable } from "@/utils/data";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
+
+import { programAddressLookupTable } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";

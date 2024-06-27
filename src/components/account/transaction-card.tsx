@@ -4,7 +4,7 @@ import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { CircleArrowDown } from "lucide-react";
 
-import { timeAgoWithFormat } from "@/utils/common";
+import { timeAgoWithFormat } from "@/lib/utils";
 
 import Signature from "@/components/common/signature";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,7 +43,7 @@ export default function TransactionCard({
       <div className="grid gap-1">
         <div className="text-sm text-muted-foreground">From</div>
         <div className="text-sm font-base leading-none">
-          <Signature copy={false} signature={transaction.signature} />
+          <Signature copy={false}>{transaction.signature}</Signature>
         </div>
       </div>
     </div>

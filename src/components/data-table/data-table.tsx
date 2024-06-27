@@ -68,10 +68,10 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full relative">
       {/* <DataTableToolbar table={table} /> */}
-      <div className="rounded-md">
-        <Table>
+      <div className="flex-1 overflow-auto pb-2 md:pb-0">
+        <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -120,7 +120,12 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <div className="sticky bottom-0 bg-popover w-full z-10 md:relative md:p-0">
+        <div className="block md:hidden h-4"></div>
+        <div className="flex justify-center">
+          <DataTablePagination table={table} />
+        </div>
+      </div>
     </div>
   );
 }

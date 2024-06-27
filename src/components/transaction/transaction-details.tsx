@@ -20,10 +20,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
-  // Default RPC transaction data
   const transaction = useGetTransaction(tx);
 
-  // Get parsed transaction data (only for mainnet-beta and devnet)
+  // Only for mainnet-beta and devnet
   const parsed = useGetParsedTransactions([tx]);
 
   // Compressed transactions
@@ -71,7 +70,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       compressed.data.compressionInfo.closedAccounts.length > 0)
   ) {
     transactionOverview = (
-      <TransactionOverviewCompressed signature={tx} data={compressed.data} />
+      <TransactionOverviewCompressed data={compressed.data} />
     );
   } else if (transaction.data) {
     transactionOverview = <TransactionOverview data={transaction.data} />;

@@ -1,8 +1,9 @@
 "use client";
 
-import { compressions, statuses } from "@/utils/data";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
+
+import { compressions, statuses } from "@/lib/data";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

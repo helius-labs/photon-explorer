@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Inter as Fontface } from "next/font/google";
 import { Suspense } from "react";
 
-import { cn } from "@/utils/common";
+import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
@@ -43,7 +43,10 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        </head>
       <body
         className={cn(
           "min-h-screen bg-background antialiased",

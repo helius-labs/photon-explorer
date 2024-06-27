@@ -1,14 +1,12 @@
 import {
-  ParsedMessageAccount,
   ParsedTransactionWithMeta,
   PublicKey,
-  TokenAmount,
-  TokenBalance,
+  TokenBalance as TokenBalanceType,
 } from "@solana/web3.js";
-import BigNumber from "bignumber.js";
+
+import { lamportsToSolString } from "@/lib/utils";
 
 import Address from "@/components/common/address";
-import { BalanceDelta } from "@/components/common/balance-delta";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,36 +18,43 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type TokenBalanceRow = {
-  account: PublicKey;
-  mint: string;
-  balance: TokenAmount;
-  delta: BigNumber;
-  accountIndex: number;
-};
-
 export default function TransactionTokenBalances({
   data,
 }: {
   data: ParsedTransactionWithMeta;
 }) {
-  const preTokenBalances = data.meta?.preTokenBalances;
-  const postTokenBalances = data.meta?.postTokenBalances;
-  const accountKeys = data.transaction.message.accountKeys;
+  type TokenBalance = {
+    address: PublicKey;
+    mint: PublicKey;
+    change: number;
+    postBalance: string;
+  };
 
-  if (!preTokenBalances || !postTokenBalances || !accountKeys) {
+  if (
+    data.meta &&
+    data.meta?.preTokenBalances &&
+    data.meta?.preTokenBalances.length === 0
+  )
     return null;
-  }
 
-  const rows = generateTokenBalanceRows(
-    preTokenBalances,
-    postTokenBalances,
-    accountKeys,
-  );
-
-  if (rows.length < 1) {
-    return null;
-  }
+  // Calculate token balances
+  const tokenBalances: TokenBalance[] | undefined =
+    data.meta?.preTokenBalances?.map(
+      (item: TokenBalanceType): TokenBalance => ({
+        address: data.transaction.message.accountKeys[item.accountIndex].pubkey,
+        mint: new PublicKey(item.mint),
+        change:
+          item.uiTokenAmount.uiAmount ||
+          0 -
+            (data.meta?.postTokenBalances?.find(
+              (postBalance) => postBalance.accountIndex === item.accountIndex,
+            )?.uiTokenAmount.uiAmount || 0),
+        postBalance:
+          data.meta?.postTokenBalances?.find(
+            (postBalance) => postBalance.accountIndex === item.accountIndex,
+          )?.uiTokenAmount.uiAmountString || "0",
+      }),
+    );
 
   return (
     <Card className="w-full">
@@ -67,20 +72,23 @@ export default function TransactionTokenBalances({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map(({ account, delta, balance, mint }, index) => (
+            {tokenBalances?.map((item: TokenBalance, index) => (
               <TableRow key={`token-balance-${index}`}>
                 <TableCell>
-                  <Address pubkey={account} short={true} />
+                  <Address pubkey={item.address} short={true} />
                 </TableCell>
                 <TableCell>
-                  <Address pubkey={new PublicKey(mint)} short={true} />
+                  <Address pubkey={item.mint} short={true} />
                 </TableCell>
                 <TableCell>
-                  <Badge variant="success">
-                    <BalanceDelta delta={delta} />
+                  <Badge variant="outline">
+                    {item.change > 0 ? "+" : ""}
+                    {item.change !== 0
+                      ? lamportsToSolString(item.change, 9)
+                      : item.change}
                   </Badge>
                 </TableCell>
-                <TableCell>{balance.uiAmountString}</TableCell>
+                <TableCell>{item.postBalance}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -88,106 +96,4 @@ export default function TransactionTokenBalances({
       </CardContent>
     </Card>
   );
-}
-
-export function generateTokenBalanceRows(
-  preTokenBalances: TokenBalance[],
-  postTokenBalances: TokenBalance[],
-  accounts: ParsedMessageAccount[],
-): TokenBalanceRow[] {
-  const preBalanceMap: { [index: number]: TokenBalance } = {};
-  const postBalanceMap: { [index: number]: TokenBalance } = {};
-
-  preTokenBalances.forEach(
-    (balance) => (preBalanceMap[balance.accountIndex] = balance),
-  );
-  postTokenBalances.forEach(
-    (balance) => (postBalanceMap[balance.accountIndex] = balance),
-  );
-
-  // Check if any pre token balances do not have corresponding
-  // post token balances. If not, insert a post balance of zero
-  // so that the delta is displayed properly
-  for (const index in preBalanceMap) {
-    const preBalance = preBalanceMap[index];
-    if (!postBalanceMap[index]) {
-      postBalanceMap[index] = {
-        accountIndex: Number(index),
-        mint: preBalance.mint,
-        uiTokenAmount: {
-          amount: "0",
-          decimals: preBalance.uiTokenAmount.decimals,
-          uiAmount: null,
-          uiAmountString: "0",
-        },
-      };
-    }
-  }
-
-  const rows: TokenBalanceRow[] = [];
-
-  for (const index in postBalanceMap) {
-    const { uiTokenAmount, accountIndex, mint } = postBalanceMap[index];
-    const preBalance = preBalanceMap[accountIndex];
-    const account = accounts[accountIndex].pubkey;
-
-    if (!uiTokenAmount.uiAmountString) {
-      // uiAmount deprecation
-      continue;
-    }
-
-    // case where mint changes
-    if (preBalance && preBalance.mint !== mint) {
-      if (!preBalance.uiTokenAmount.uiAmountString) {
-        // uiAmount deprecation
-        continue;
-      }
-
-      rows.push({
-        account: accounts[accountIndex].pubkey,
-        accountIndex,
-        balance: {
-          amount: "0",
-          decimals: preBalance.uiTokenAmount.decimals,
-          uiAmount: 0,
-        },
-        delta: new BigNumber(-preBalance.uiTokenAmount.uiAmountString),
-        mint: preBalance.mint,
-      });
-
-      rows.push({
-        account: accounts[accountIndex].pubkey,
-        accountIndex,
-        balance: uiTokenAmount,
-        delta: new BigNumber(uiTokenAmount.uiAmountString),
-        mint: mint,
-      });
-      continue;
-    }
-
-    let delta;
-
-    if (preBalance) {
-      if (!preBalance.uiTokenAmount.uiAmountString) {
-        // uiAmount deprecation
-        continue;
-      }
-
-      delta = new BigNumber(uiTokenAmount.uiAmountString).minus(
-        preBalance.uiTokenAmount.uiAmountString,
-      );
-    } else {
-      delta = new BigNumber(uiTokenAmount.uiAmountString);
-    }
-
-    rows.push({
-      account,
-      accountIndex,
-      balance: uiTokenAmount,
-      delta,
-      mint,
-    });
-  }
-
-  return rows.sort((a, b) => a.accountIndex - b.accountIndex);
 }

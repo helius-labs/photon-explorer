@@ -11,7 +11,7 @@ import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
-} from "@/utils/common";
+} from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {

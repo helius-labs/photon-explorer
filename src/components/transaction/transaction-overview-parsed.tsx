@@ -1,12 +1,12 @@
 import { PublicKey } from "@solana/web3.js";
 import { ArrowRight, ArrowRightLeftIcon, CircleHelp } from "lucide-react";
 
-import { dateFormat, timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
   ParserTransactionTypes,
   XrayTransaction,
-} from "@/utils/parser";
+} from "@/lib/parser";
+import { dateFormat, timeAgoWithFormat } from "@/lib/utils";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
@@ -124,7 +124,7 @@ export default function TransactionOverviewParsed({
         <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Signature</span>
           <div className="w-3/4 flex items-center space-x-2">
-            <Signature link={false} signature={signature} />
+            <Signature link={false}>{signature}</Signature>
           </div>
         </div>
       </CardContent>

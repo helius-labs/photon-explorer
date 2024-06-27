@@ -2,8 +2,6 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 
-import { CLUSTERS, Cluster, clusterName, clusterSlug } from "@/utils/cluster";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +16,7 @@ import {
 
 export default function ClusterSwitcher() {
   const {
+    clusters,
     cluster,
     setCluster,
     customEndpoint,
@@ -30,7 +29,7 @@ export default function ClusterSwitcher() {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" className="min-w-32">
-          {clusterName(cluster)}
+          {clusters.find(({ value }) => value === cluster)?.label}
         </Button>
       </SheetTrigger>
       <SheetContent className="w-[400px] sm:w-[540px]">
@@ -38,19 +37,24 @@ export default function ClusterSwitcher() {
           <SheetTitle>Choose a Cluster</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 py-4">
-          {CLUSTERS.map((clusterItem, index) => (
-            <Button
-              variant="outline"
-              key={clusterSlug(clusterItem)}
-              onClick={() => setCluster(clusterItem)}
-              className={cluster === clusterItem ? "ring-1" : ""}
-            >
-              {clusterName(clusterItem)}
-            </Button>
-          ))}
+          {clusters
+            .filter(({ disabled }) => {
+              return !disabled;
+            })
+            .map(({ value, label, disabled }) => (
+              <Button
+                variant="outline"
+                key={value}
+                onClick={() => setCluster(value)}
+                className={cluster === value ? "ring-1" : ""}
+                disabled={disabled}
+              >
+                {label}
+              </Button>
+            ))}
           <div
             className={
-              cluster !== Cluster.Custom
+              cluster !== "custom"
                 ? "hidden"
                 : "grid w-full max-w-sm items-center gap-2"
             }
@@ -65,7 +69,7 @@ export default function ClusterSwitcher() {
           </div>
           <div
             className={
-              cluster !== Cluster.Custom
+              cluster !== "custom"
                 ? "hidden"
                 : "grid w-full max-w-sm items-center gap-2"
             }
@@ -83,9 +87,7 @@ export default function ClusterSwitcher() {
         </div>
         <div
           className={
-            cluster !== Cluster.Localnet && cluster !== "custom"
-              ? "hidden"
-              : "mt-8"
+            cluster !== "localnet" && cluster !== "custom" ? "hidden" : "mt-8"
           }
         >
           <div className="mb-[32px] flex flex-col p-0">

@@ -4,7 +4,7 @@ import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { timeAgoWithFormat } from "@/utils/common";
+import { timeAgoWithFormat } from "@/lib/utils";
 
 import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
 
@@ -35,7 +35,7 @@ export default function CompressedTransactionsByHash({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => <Signature signature={row.getValue("signature")} />,
+        cell: ({ row }) => <Signature>{row.getValue("signature")}</Signature>,
         enableSorting: true,
       },
       {

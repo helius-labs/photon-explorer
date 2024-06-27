@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
-import { lamportsToSolString } from "@/utils/common";
+import { lamportsToSolString } from "@/lib/utils";
 
 import { useGetCompressedTokenAccountsByOwner } from "@/hooks/compression";
 
