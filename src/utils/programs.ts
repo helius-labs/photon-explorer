@@ -467,6 +467,9 @@ export const ZK_COMPRESSION_IDS: { [key: string]: string } = {
   "9sixVEthz2kMSKfeApZXHwuboT6DZuT6crAYJTciUCqE":
     "Light Compressed Token Program",
   noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV: "Noop Program",
+  H5sFv8VwWmjxHYS2GB4fTDsK7uTtnRT4WiixtHrET3bN: "Light Program",
+  CbjvJc1SNx1aav8tU49dJGHu8EUdzQJSMtkjDmV8miqK: "Account Compression Program",
+  "6ggPeeNVyMaQTzVLxaEBVY74C3GCExbB1F9331EreoGJ": "Compressed SOL Pool",
 } as const;
 
 export type TokenProgram = "spl-token" | "spl-token-2022";

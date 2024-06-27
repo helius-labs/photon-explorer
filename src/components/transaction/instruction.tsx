@@ -29,18 +29,13 @@ export default function Instruction({
       <Card key={`instruction-${index}`} className="mb-6 w-full">
         <CardHeader>
           <CardTitle>
-            <Badge className="mr-2">#{index}</Badge>
+            <Badge className="mr-2">#{index}</Badge>{" "}
+            <Address pubkey={instruction.programId} />
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableBody>
-              <TableRow key={`program-${index}`}>
-                <TableCell className="w-1/6">Program</TableCell>
-                <TableCell className="w-5/6">
-                  <Address pubkey={instruction.programId} />
-                </TableCell>
-              </TableRow>
               {"parsed" in instruction && (
                 <>
                   {instruction.parsed.type === "transfer" ? (
@@ -101,9 +96,12 @@ export default function Instruction({
                 ))}
               {"data" in instruction && (
                 <TableRow key={`data-${index}`}>
-                  <TableCell className="align-top">Data (base-58)</TableCell>
+                  <TableCell className="align-top">Data</TableCell>
                   <TableCell>
-                    <Data>{instruction.data}</Data>
+                    <Data
+                      programId={instruction.programId}
+                      data={instruction.data}
+                    />
                   </TableCell>
                 </TableRow>
               )}

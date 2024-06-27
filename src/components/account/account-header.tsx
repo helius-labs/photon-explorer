@@ -109,7 +109,7 @@ export function AccountHeader({
                 </>
               ) : (
                 <span className="text-lg text-muted-foreground">
-                  Account not found
+                  Account does not exist
                 </span>
               )}
             </>

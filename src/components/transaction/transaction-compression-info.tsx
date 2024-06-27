@@ -56,7 +56,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
                   </TableCell>
                   <TableCell>
-                    <Data>{JSON.stringify(item.maybeTokenData)}</Data>
+                    {JSON.stringify(item.maybeTokenData, null, 4)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -76,7 +76,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
                   </TableCell>
                   <TableCell>
-                    <Data>{JSON.stringify(item.maybeTokenData)}</Data>
+                    {JSON.stringify(item.maybeTokenData, null, 4)}
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,7 +1,11 @@
 "use client";
 
-import * as React from "react";
+import { PublicKey } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
+import * as React from "react";
+
+import { useParseInstructions } from "@/hooks/useParseInstructions";
+
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -11,17 +15,21 @@ import {
 } from "@/components/ui/tooltip";
 
 interface DataProps {
-  children: string;
+  programId: PublicKey;
+  data: string;
 }
 
-export default function Data({ children }: DataProps) {
+export default function Data({ programId, data }: DataProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
+  const parsed = useParseInstructions(programId, data);
 
   React.useEffect(() => {
     setTimeout(() => {
       setHasCopied(false);
     }, 2000);
   }, [hasCopied]);
+
+  if (parsed.isLoading) return <div>Parsing...</div>;
 
   return (
     <TooltipProvider>
@@ -33,7 +41,7 @@ export default function Data({ children }: DataProps) {
               variant="outline"
               className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
               onClick={() => {
-                navigator.clipboard.writeText(children);
+                navigator.clipboard.writeText(data);
                 setHasCopied(true);
               }}
             >
@@ -43,7 +51,9 @@ export default function Data({ children }: DataProps) {
           </TooltipTrigger>
           <TooltipContent>Copy data</TooltipContent>
         </Tooltip>
-        <div className="w-[400px] break-all">{children}</div>
+        <div className="w-[400px] break-all whitespace-pre-wrap">
+          {parsed.data}
+        </div>
       </div>
     </TooltipProvider>
   );

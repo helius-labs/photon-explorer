@@ -1,5 +1,9 @@
 import { CompressedTransaction } from "@lightprotocol/stateless.js";
-import { PublicKey } from "@solana/web3.js";
+import {
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import { Package } from "lucide-react";
 
 import {
@@ -22,6 +26,14 @@ export default function TransactionOverviewCompressed({
   data: CompressedTransaction;
 }) {
   const { compressionInfo, transaction } = data;
+
+  const versionedTransaction = VersionedTransaction.deserialize(
+    Buffer.from(transaction.transaction[0], "base64"),
+  );
+
+  const transactionMessage = TransactionMessage.decompile(
+    versionedTransaction.message,
+  );
 
   return (
     <Card className="w-full max-w-lg mx-auto p-3">
