@@ -9,7 +9,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import Image from "next/image";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
-import cloudflareLoader from "../../../imageLoader";
+import cloudflareLoader from "../../utils/imageLoader";
 import noImg from "../../../public/assets/noimg.svg";
 import { DAS } from "@/types/helius-sdk/das-types";
 import { Skeleton } from "@/components/ui/skeleton";
