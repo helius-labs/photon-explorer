@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionAccountKeys({
+export default function TransactionAccountBalances({
   data,
 }: {
   data: ParsedTransactionWithMeta;
@@ -64,7 +64,7 @@ export default function TransactionAccountKeys({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Account Keys</CardTitle>
+        <CardTitle>Account Balances</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>

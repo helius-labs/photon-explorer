@@ -6,7 +6,7 @@ import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetTransaction } from "@/hooks/web3";
 
-import TransactionAccountKeys from "@/components/transaction/transaction-account-keys";
+import TransactionAccountBalances from "@/components/transaction/transaction-account-balances";
 import TransactionCompressionInfo from "@/components/transaction/transaction-compression-info";
 import TransactionInstructionLogs from "@/components/transaction/transaction-instruction-logs";
 import TransactionInstructions from "@/components/transaction/transaction-instructions";
@@ -67,11 +67,16 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
   } else if (
     compressed.data &&
+    transaction.data &&
     (compressed.data.compressionInfo.openedAccounts.length > 0 ||
       compressed.data.compressionInfo.closedAccounts.length > 0)
   ) {
     transactionOverview = (
-      <TransactionOverviewCompressed signature={tx} data={compressed.data} />
+      <TransactionOverviewCompressed
+        signature={tx}
+        data={transaction.data}
+        compressed={compressed.data}
+      />
     );
   } else if (transaction.data) {
     transactionOverview = <TransactionOverview data={transaction.data} />;
@@ -81,7 +86,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     <>
       {transactionOverview}
       {transaction.data && (
-        <div className="flex w-full max-w-md mx-auto mt-4 mb-6">
+        <div className="flex w-full mx-auto mt-4 mb-6">
           <Badge className="mr-2" variant="outline">
             Advanced Details
           </Badge>
@@ -91,7 +96,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       {showDetails && transaction.data && (
         <>
           <TransactionCompressionInfo tx={tx} />
-          <TransactionAccountKeys data={transaction.data} />
+          <TransactionAccountBalances data={transaction.data} />
           <TransactionTokenBalances data={transaction.data} />
           <TransactionInstructions data={transaction.data} />
           <TransactionInstructionLogs data={transaction.data} />

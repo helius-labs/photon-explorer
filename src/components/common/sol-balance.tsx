@@ -12,7 +12,7 @@ export function SolBalance({
   return (
     <span>
       <span className="font-mono">
-        {lamportsToSolString(lamports, maximumFractionDigits)}
+        {lamportsToSolString(lamports, maximumFractionDigits)} SOL
       </span>
     </span>
   );

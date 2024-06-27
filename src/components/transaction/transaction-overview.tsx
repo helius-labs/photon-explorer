@@ -1,14 +1,10 @@
-import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
-import { CircleHelp, Tag } from "lucide-react";
+import { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Tag } from "lucide-react";
 
 import { dateFormat, timeAgoWithFormat } from "@/utils/common";
-import { ActionTypes, ParserTransactionTypes } from "@/utils/parser";
-
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
-import { TokenBalance } from "@/components/common/token-balance";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";

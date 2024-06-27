@@ -28,5 +28,5 @@ export function BalanceDelta({
     );
   }
 
-  return <span className="font-mono">0</span>;
+  return <span className="font-mono">0 SOL</span>;
 }
