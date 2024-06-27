@@ -9,8 +9,8 @@ import Link from "@/components/ui/link";
 
 import LogoBlack from "/public/assets/logo-text-black.svg";
 import LogoWhite from "/public/assets/logo-text-white.svg";
-import LogoIconBlack from "/public/assets/LogoBlack.svg"; // Mobile logo for light mode
-import LogoIconWhite from "/public/assets/LogoWhite.svg"; // Mobile logo for dark mode
+import LogoIconBlack from "/public/assets/logoWhite.svg";
+import LogoIconWhite from "/public/assets/logoBlack.svg";
 
 export function MainNav({
   className,
