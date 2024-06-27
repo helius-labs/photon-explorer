@@ -38,7 +38,7 @@ export default function LatestNonVotingSignatures() {
       {
         accessorKey: "status",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
+          <DataTableColumnHeader column={column} title="Status" className="hidden md:table-cell" />
         ),
         cell: ({ row }) => {
           const status = statuses.find(
@@ -50,7 +50,7 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex justify-center md:justify-start">
+            <div className="flex justify-center md:justify-start hidden md:flex">
               {status.icon && (
                 <status.icon className="mr-2 h-6 w-6 text-muted-foreground" />
               )}
@@ -92,7 +92,7 @@ export default function LatestNonVotingSignatures() {
 
   if (isLoading) {
     return (
-      <Card className="mx-2 md:mx-0 mb-16 md:mb-0">
+      <Card className="mx-5 md:mx-0 mb-16 md:mb-0">
         <CardContent className="flex justify-center items-center min-h-[200px] md:min-h-[200px]">
           <Loading />
         </CardContent>
@@ -105,19 +105,23 @@ export default function LatestNonVotingSignatures() {
   }
 
   return (
-    <Card className="mx-2 md:mx-0 mb-16 md:mb-0 border">
-      <CardContent className="pt-6 px-2"> 
-        <div className="flex justify-center text-sm text-secondary mb-4">
+    <Card className="mx-auto mb-16 md:mb-0 border" style={{ maxWidth: '90vw' }}>
+      <CardContent className="pt-4">
+        <div className="flex justify-center text-sm text-secondary mb-2">
           Recent transactions
         </div>
         <div className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
           <div className="md:hidden h-72">
             <ScrollArea className="h-full">
-              <DataTable data={signatures!} columns={columns} />
+              <div className="flex justify-center">
+                <DataTable data={signatures!} columns={columns} />
+              </div>
             </ScrollArea>
           </div>
-          <div className="hidden md:block overflow-x-auto">
-            <DataTable data={signatures!} columns={columns} />
+          <div className="hidden md:block">
+            <div className="flex justify-center overflow-x-auto">
+              <DataTable data={signatures!} columns={columns} />
+            </div>
           </div>
         </div>
       </CardContent>
