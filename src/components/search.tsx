@@ -10,10 +10,8 @@ import {
   isSolanaProgramAddress,
   isSolanaSignature,
 } from "@/utils/common";
-import {
-  programAddressLookupTable,
-  tokenAddressLookupTable,
-} from "@/utils/data";
+import { tokenAddressLookupTable } from "@/utils/data";
+import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,9 +32,15 @@ export function Search({
     setSearch(value);
 
     if (value) {
-      const programSuggestions = Object.values(programAddressLookupTable)
-        .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
-        .map((name) => ({ name, icon: <CogIcon /> }));
+      const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
+        .filter(([address, { name, deployments }]) => {
+          if (!deployments.includes(cluster)) return false;
+          return (
+            name.toLowerCase().includes(search.toLowerCase()) ||
+            address.includes(search)
+          );
+        })
+        .map(([address, { name }]) => ({ name, icon: <CogIcon /> }));
 
       const tokenSuggestions = Object.values(tokenAddressLookupTable)
         .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
@@ -61,9 +65,10 @@ export function Search({
     }
 
     // Reverse lookup in program and token address lookup tables
-    const programEntry = Object.entries(programAddressLookupTable).find(
-      ([, entry]) => entry.toLowerCase() === search.toLowerCase(),
+    const programEntry = Object.entries(PROGRAM_INFO_BY_ID).find(
+      ([address, { name }]) => name.toLowerCase() === search.toLowerCase(),
     );
+
     const tokenEntry = Object.entries(tokenAddressLookupTable).find(
       ([, entry]) => entry.toLowerCase() === search.toLowerCase(),
     );

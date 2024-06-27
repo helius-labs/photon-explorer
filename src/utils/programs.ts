@@ -450,6 +450,25 @@ export const TOKEN_IDS: { [key: string]: string } = {
   TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb: "Token-2022 Program",
 } as const;
 
+export const ZK_COMPRESSION_IDS: { [key: string]: string } = {
+  C83cpRN6oaafjNgMQJvaYgAz592EP5wunKvbokeTKPLn: "Address Merkle Tree Program",
+  HNjtNrjt6irUPYEgxhx2Vcs42koK9fxzm3aFLHVaaRWz:
+    "Address Merkle Tree Queue Program",
+  "3MtrKu5Mjgh3JqeE5PeRzw2Ld28XjFgbbph67E6UERSx":
+    "Governance Authority PDA Program",
+  Edo2YjXU5eE17CejPBkupPgFLcYuAX47pGZmM7s2hAkj: "Group PDA Program",
+  "5bdFnXU47QjzGpzHfXnxcEi5WXyxzEAZzd1vrE39bf1W": "Merkle Tree Pubkey Program",
+  "44J4oDXpjPAbzHCSc24q7NEiPekss4sAbLd8ka4gd9CZ":
+    "Nullifier Queue Pubkey Program",
+  ytwwVWhQUMoTKdirKmvEW5xCRVr4B2dJZnToiHtE2L2: "Registered Program PDA Program",
+  "5QPEJ5zDsVou9FQS3KCauKswM3VwBEBu4dpL9xTqkWwN": "Account Compression Program",
+  "6UqiSPd2mRCTTwkzhcs1M6DGYsqHWd5jiPueX3LwDMXQ":
+    "Light Compressed PDA Program",
+  "9sixVEthz2kMSKfeApZXHwuboT6DZuT6crAYJTciUCqE":
+    "Light Compressed Token Program",
+  noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV: "Noop Program",
+} as const;
+
 export type TokenProgram = "spl-token" | "spl-token-2022";
 export function assertIsTokenProgram(
   program: string,
