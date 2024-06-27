@@ -40,7 +40,7 @@ export function lamportsToSol(lamports: number | bigint): number {
 
 export function shorten(string: string, chars = 4): string {
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
-} 
+}
 
 export function normalizeTokenAmount(
   raw: string | number,
