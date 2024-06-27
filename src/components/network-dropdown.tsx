@@ -19,7 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Loading from "@/components/common/loading";
-import { lamportsToSolString } from "@/lib/utils";
+import { lamportsToSolString } from "@/utils/common";
 
 const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
 

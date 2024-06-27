@@ -9,7 +9,7 @@ import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
-} from "@/lib/utils";
+} from "@/utils/common";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import {
   programAddressLookupTable,
   tokenAddressLookupTable,
-} from "@/lib/data";
+} from "@/utils/data";
 
 export function Search({
   className,

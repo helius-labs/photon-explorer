@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { shorten } from "@/lib/utils";
+import { shorten } from "@/utils/common";
 
 import TransactionDetails from "@/components/transaction/transaction-details";
 

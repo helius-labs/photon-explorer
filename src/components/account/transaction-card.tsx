@@ -4,7 +4,7 @@ import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ConfirmedSignatureInfo } from "@solana/web3.js";
 import { CircleArrowDown } from "lucide-react";
 
-import { timeAgoWithFormat } from "@/lib/utils";
+import { timeAgoWithFormat } from "@/utils/common";
 
 import Signature from "@/components/common/signature";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -1,7 +1,7 @@
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import { CircleHelp, Tag } from "lucide-react";
 
-import { dateFormat, timeAgoWithFormat } from "@/lib/utils";
+import { dateFormat, timeAgoWithFormat } from "@/utils/common";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";

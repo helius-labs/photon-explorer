@@ -1,8 +1,7 @@
 "use server";
 
 import { EnrichedTransaction } from "@/types/helius-sdk";
-
-import { parseTransaction } from "@/lib/parser";
+import { parseTransaction } from "@/utils/parser";
 
 export async function getParsedTransactions(
   transactions: string[],

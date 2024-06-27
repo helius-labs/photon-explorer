@@ -4,7 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
 
-import { tokenAddressLookupTable } from "@/lib/data";
+import { tokenAddressLookupTable } from "@/utils/data";
 
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
