@@ -5,8 +5,8 @@ import {
   ActionTypes,
   ParserTransactionTypes,
   XrayTransaction,
-} from "@/lib/parser";
-import { dateFormat, timeAgoWithFormat } from "@/lib/utils";
+} from "@/utils/parser";
+import { dateFormat, timeAgoWithFormat } from "@/utils/common";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 

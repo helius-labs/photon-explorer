@@ -4,7 +4,7 @@ import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { timeAgoWithFormat } from "@/lib/utils";
+import { timeAgoWithFormat } from "@/utils/common";
 
 import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
 

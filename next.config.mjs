@@ -17,7 +17,7 @@ const config = {
     },
     images: {
       loader: 'custom',
-      loaderFile: './imageLoader.ts',
+      loaderFile: './src/utils/imageLoader.ts',
     },
   };
   

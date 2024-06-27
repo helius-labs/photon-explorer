@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 
-import { lamportsToSolString } from "@/lib/utils";
+import { lamportsToSolString } from "@/utils/common";
 
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 

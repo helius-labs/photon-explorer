@@ -1,5 +1,5 @@
 import AcccountHistory from "@/components/account/account-history";
-import { shorten } from "@/lib/utils";
+import { shorten } from "@/utils/common";
 
 type Props = Readonly<{
   params: {

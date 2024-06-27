@@ -6,7 +6,7 @@ import {
   dateFormat,
   lamportsToSolString,
   timeAgoWithFormat,
-} from "@/lib/utils";
+} from "@/utils/common";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
