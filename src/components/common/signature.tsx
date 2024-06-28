@@ -1,10 +1,9 @@
 "use client";
 
+import { shorten } from "@/utils/common";
 import { TransactionSignature } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
-
-import { shorten } from "@/utils/common";
 
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
@@ -51,7 +50,7 @@ export default function Signature({
               <Button
                 size="icon"
                 variant={null}
-                className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
+                className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
                 onClick={() => {
                   navigator.clipboard.writeText(signature);
                   setHasCopied(true);

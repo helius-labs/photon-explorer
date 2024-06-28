@@ -9,6 +9,7 @@ import { useGetTransaction } from "@/hooks/web3";
 import TransactionAccountBalances from "@/components/transaction/transaction-account-balances";
 import TransactionCompressionAccountBalances from "@/components/transaction/transaction-compression-account-balances";
 import TransactionCompressionTokenBalances from "@/components/transaction/transaction-compression-token-balances";
+import TransactionInfo from "@/components/transaction/transaction-info";
 import TransactionInstructionLogs from "@/components/transaction/transaction-instruction-logs";
 import TransactionInstructions from "@/components/transaction/transaction-instructions";
 import TransactionOverview from "@/components/transaction/transaction-overview";
@@ -88,6 +89,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       )}
       {showDetails && transaction.data && (
         <>
+          <TransactionInfo data={transaction.data} />
           <TransactionAccountBalances data={transaction.data} />
           <TransactionCompressionAccountBalances tx={tx} />
           <TransactionTokenBalances data={transaction.data} />

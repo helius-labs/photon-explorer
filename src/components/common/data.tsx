@@ -38,8 +38,8 @@ export default function Data({ programId, data }: DataProps) {
           <TooltipTrigger asChild>
             <Button
               size="icon"
-              variant="outline"
-              className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
+              variant="ghost"
+              className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
               onClick={() => {
                 navigator.clipboard.writeText(data);
                 setHasCopied(true);

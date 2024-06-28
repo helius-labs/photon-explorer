@@ -102,7 +102,7 @@ export default function TransactionCompressionTokenBalances({
                 <TableHead>Change</TableHead>
               </TableRow>
             </TableHeader>
-            {rows}
+            <TableBody>{rows}</TableBody>
           </Table>
         </CardContent>
       </Card>

@@ -1,13 +1,12 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { PublicKey } from "@solana/web3.js";
-import { CheckIcon, Copy } from "lucide-react";
-import * as React from "react";
-
 import { shorten } from "@/utils/common";
 import { tokenAddressLookupTable } from "@/utils/data";
 import { displayAddress } from "@/utils/tx";
+import { PublicKey } from "@solana/web3.js";
+import { CheckIcon, Copy } from "lucide-react";
+import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import Link from "@/components/ui/link";
@@ -55,7 +54,7 @@ export default function Address({
             <Button
               size="icon"
               variant="ghost"
-              className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
+              className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
               onClick={() => {
                 navigator.clipboard.writeText(address);
                 setHasCopied(true);
