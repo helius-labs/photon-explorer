@@ -1,12 +1,11 @@
-import { CompressedTransaction } from "@lightprotocol/stateless.js";
-import { PublicKey } from "@solana/web3.js";
-import { Package } from "lucide-react";
-
 import {
   dateFormat,
   lamportsToSolString,
   timeAgoWithFormat,
 } from "@/utils/common";
+import { CompressedTransaction } from "@lightprotocol/stateless.js";
+import { PublicKey } from "@solana/web3.js";
+import { Package } from "lucide-react";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
@@ -72,9 +71,7 @@ export default function TransactionCompressed({
         {/* <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Signature</span>
           <div className="w-3/4 flex items-center space-x-2">
-            <Signature link={false}>
-              {transaction}
-            </Signature>
+            <Signature link={false} signature={transaction} />
           </div>
         </div> */}
       </CardContent>

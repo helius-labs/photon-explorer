@@ -1,19 +1,18 @@
 "use client";
 
+import { useCluster } from "@/providers/cluster-provider";
+import { timeAgoWithFormat } from "@/utils/common";
+import { statuses } from "@/utils/data";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { statuses } from "@/utils/data";
-import { timeAgoWithFormat } from "@/utils/common";
-
 import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
-import { useCluster } from "@/providers/cluster-provider";
 
+import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Card, CardContent } from "@/components/ui/card";
-import Loading from "@/components/common/loading";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function LatestNonVotingSignatures() {
@@ -32,13 +31,17 @@ export default function LatestNonVotingSignatures() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => <Signature>{row.getValue("signature")}</Signature>,
+        cell: ({ row }) => <Signature signature={row.getValue("signature")} />,
         enableSorting: true,
       },
       {
         accessorKey: "status",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" className="hidden md:table-cell" />
+          <DataTableColumnHeader
+            column={column}
+            title="Status"
+            className="hidden md:table-cell"
+          />
         ),
         cell: ({ row }) => {
           const status = statuses.find(
@@ -50,7 +53,7 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex justify-center md:justify-start hidden md:flex">
+            <div className="justify-center md:justify-start hidden md:flex">
               {status.icon && (
                 <status.icon className="mr-2 h-6 w-6 text-muted-foreground" />
               )}
@@ -75,10 +78,12 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, isLoading, isError } = useGetLatestNonVotingSignatures(cluster === "testnet");
+  const { data, isLoading, isError } = useGetLatestNonVotingSignatures(
+    cluster === "testnet",
+  );
 
   // Check if there are any compression signatures
-  const signatures: Transaction[] | undefined = data?.result.value.items?.map(
+  const signatures: Transaction[] | undefined = data?.value.items?.map(
     (item): Transaction => ({
       signature: item.signature,
       status: true,
@@ -105,12 +110,14 @@ export default function LatestNonVotingSignatures() {
   }
 
   return (
-    <Card className="mx-auto mb-16 md:mb-0 border" style={{ maxWidth: '90vw' }}>
+    <Card className="mx-auto mb-16 md:mb-0 border" style={{ maxWidth: "90vw" }}>
       <CardContent className="pt-4">
         <div className="flex justify-center text-sm text-secondary mb-2">
           Recent transactions
         </div>
-        <div className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}>
+        <div
+          className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
+        >
           <div className="md:hidden h-72">
             <ScrollArea className="h-full">
               <div className="flex justify-center">

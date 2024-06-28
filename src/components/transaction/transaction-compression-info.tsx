@@ -5,6 +5,7 @@ import { lamportsToSolString } from "@/utils/common";
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 
 import Address from "@/components/common/address";
+import Data from "@/components/common/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -38,6 +39,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                 <TableHead>Hash</TableHead>
                 <TableHead>Owner</TableHead>
                 <TableHead>Amount</TableHead>
+                <TableHead>Token Data</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -52,6 +54,9 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                   </TableCell>
                   <TableCell>
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
+                  </TableCell>
+                  <TableCell>
+                    {JSON.stringify(item.maybeTokenData, null, 4)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -69,6 +74,9 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                   </TableCell>
                   <TableCell>
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
+                  </TableCell>
+                  <TableCell>
+                    {JSON.stringify(item.maybeTokenData, null, 4)}
                   </TableCell>
                 </TableRow>
               ))}

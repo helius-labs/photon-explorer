@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 import { timeAgoWithFormat } from "@/utils/common";
 
-import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
+import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 
 import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
@@ -35,7 +35,7 @@ export default function CompressedTransactionsByHash({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => <Signature>{row.getValue("signature")}</Signature>,
+        cell: ({ row }) => <Signature signature={row.getValue("signature")} />,
         enableSorting: true,
       },
       {
@@ -63,7 +63,7 @@ export default function CompressedTransactionsByHash({
   );
 
   const { data, isLoading, isFetching, isError, refetch } =
-    useGetSignaturesForCompressedAccount(hash);
+    useGetCompressionSignaturesForAccount(hash);
 
   // TODO: Refactor jsx
   if (isError)

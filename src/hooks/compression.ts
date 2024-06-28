@@ -5,28 +5,17 @@ import { createBN254, createRpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-import { getLatestNonVotingSignaturesSchema } from "@/schemas/getLatestNonVotingSignatures";
-
 export function useGetLatestNonVotingSignatures(enabled: boolean = true) {
-  const { compressionEndpoint } = useCluster();
+  const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [compressionEndpoint, "getLatestNonVotingSignatures"],
     queryFn: async () => {
-      const response = await fetch(compressionEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getLatestNonVotingSignatures",
-          params: {},
-        }),
-      }).then((res) => res.json());
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-      return getLatestNonVotingSignaturesSchema.parse(response);
+      return await connection.getLatestNonVotingSignatures();
     },
     enabled,
   });
@@ -57,20 +46,20 @@ export function useGetCompressionSignaturesForOwner(
   });
 }
 
-export function useGetSignaturesForCompressedAccount(
+export function useGetCompressionSignaturesForAccount(
   hash: string,
   enabled: boolean = true,
 ) {
   const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
-    queryKey: [compressionEndpoint, "getSignaturesForCompressedAccount", hash],
+    queryKey: [compressionEndpoint, "getCompressionSignaturesForAccount", hash],
     queryFn: async () => {
       const connection = createRpc(endpoint, compressionEndpoint, undefined, {
         commitment: "processed",
       });
 
-      return await connection.getSignaturesForCompressedAccount(
+      return await connection.getCompressionSignaturesForAccount(
         createBN254(hash, "base58"),
       );
     },
@@ -137,12 +126,8 @@ export function useGetCompressedTokenAccountsByOwner(
         commitment: "processed",
       });
 
-      // TODO - remove mint option when the endpoint is fixed
       return await connection.getCompressedTokenAccountsByOwner(
         new PublicKey(address),
-        {
-          mint: new PublicKey(""),
-        },
       );
     },
     enabled,
