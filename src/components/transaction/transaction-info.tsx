@@ -13,7 +13,7 @@ export default function TransactionInfo({
   data: ParsedTransactionWithMeta;
 }) {
   return (
-    <Card className="mb-6 w-full">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Statistics for Nerds 🤓</CardTitle>
       </CardHeader>

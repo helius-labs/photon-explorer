@@ -169,7 +169,9 @@ export default function TransactionOverviewCompressed({
             <TableCell>
               <Address pubkey={item.pubkey} />
             </TableCell>
-            <TableCell>
+            <TableCell
+              className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
+            >
               {item.delta.gt(0) && `+`}
               <TokenBalance
                 mint={item.mint}
@@ -186,7 +188,9 @@ export default function TransactionOverviewCompressed({
           <TableCell>
             <Address pubkey={item.pubkey} />
           </TableCell>
-          <TableCell>
+          <TableCell
+            className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
+          >
             <BalanceDelta delta={item.delta} isSol />
           </TableCell>
         </TableRow>
