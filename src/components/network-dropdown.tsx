@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCluster } from "@/providers/cluster-provider";
+import { CLUSTERS, Cluster, clusterName, clusterSlug } from "@/utils/cluster";
 import { useGetRecentPerformanceSamples } from "@/hooks/web3";
 import { useGetPriorityFeeEstimate } from "@/hooks/useGetPriorityFeeEstimate";
 import {
@@ -25,7 +26,6 @@ const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
 
 export function NetworkStatusDropdown() {
   const {
-    clusters,
     cluster,
     setCluster,
     customEndpoint,
@@ -35,10 +35,10 @@ export function NetworkStatusDropdown() {
   } = useCluster();
 
   const { data: networkStatus, isLoading: isNetworkLoading } =
-    useGetRecentPerformanceSamples(cluster !== "localnet");
+    useGetRecentPerformanceSamples(cluster !== Cluster.Localnet);
 
   const { data: priorityFeeLevels, isLoading: isFeeLoading } =
-    useGetPriorityFeeEstimate(accountKeys, cluster === "mainnet-beta");
+    useGetPriorityFeeEstimate(accountKeys, cluster === Cluster.MainnetBeta);
 
   const averageTps =
     networkStatus?.avgTps !== undefined
@@ -55,7 +55,7 @@ export function NetworkStatusDropdown() {
   let pingColor = "bg-white";
 
   if (networkStatus?.avgTps !== undefined) {
-    if (cluster === "mainnet-beta") {
+    if (cluster === Cluster.MainnetBeta) {
       if (networkStatus.avgTps >= 1000) {
         tpsColor = "bg-green-500";
       } else if (networkStatus.avgTps >= 100 && networkStatus.avgTps < 1000) {
@@ -103,18 +103,18 @@ export function NetworkStatusDropdown() {
         <h2 className="text-lg font-semibold">Network Status</h2>
         <div className="flex items-center">
           <div className="text-sm mr-2">
-            {clusters.find(({ value }) => value === cluster)?.label}
+            {clusterName(cluster)}
           </div>
         </div>
       </div>
       <Separator />
-      {isNetworkLoading && cluster !== "localnet" ? (
+      {isNetworkLoading && cluster !== Cluster.Localnet ? (
         <div className="mt-4">
           <Loading />
         </div>
       ) : (
         <div className="flex flex-col mb-4 mt-4">
-          {cluster !== "localnet" && (
+          {cluster !== Cluster.Localnet && (
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col items-start">
                 <div className="text-xs font-medium">TPS</div>
@@ -134,7 +134,7 @@ export function NetworkStatusDropdown() {
               </div>
             </div>
           )}
-          {cluster === "mainnet-beta" && (
+          {cluster === Cluster.MainnetBeta && (
             <div className="flex items-center space-x-4 mt-4">
               <div className="flex flex-col">
                 <div className="text-xs font-medium">Median Fee</div>
@@ -158,48 +158,40 @@ export function NetworkStatusDropdown() {
       <div>
         <h2 className="text-md font-semibold mb-2">Choose a Network</h2>
         <div className="grid gap-2">
-          {clusters
-            .filter(({ value }) => value === "mainnet-beta")
-            .map(({ value, label, disabled }) => (
+          {CLUSTERS.filter(
+            (clusterItem) => clusterItem === Cluster.MainnetBeta,
+          ).map((clusterItem) => (
+            <div
+              key={clusterSlug(clusterItem)}
+              onClick={() => setCluster(clusterItem)}
+              className={`cursor-pointer rounded-md px-4 py-2 border text-center ${cluster === clusterItem ? "ring-1" : ""}`}
+            >
+              {clusterName(clusterItem)}
+            </div>
+          ))}
+          <div className="grid grid-cols-3 gap-2">
+            {CLUSTERS.filter(
+              (clusterItem) =>
+                clusterItem === Cluster.Testnet ||
+                clusterItem === Cluster.Devnet ||
+                clusterItem === Cluster.Localnet,
+            ).map((clusterItem) => (
               <div
-                key={value}
-                onClick={() => setCluster(value)}
-                className={`cursor-pointer rounded-md px-4 py-2 border text-center ${
-                  cluster === value ? "ring-1" : ""
-                } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+                key={clusterSlug(clusterItem)}
+                onClick={() => setCluster(clusterItem)}
+                className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${cluster === clusterItem ? "ring-1" : ""}`}
               >
-                {label}
+                {clusterName(clusterItem)}
               </div>
             ))}
-          <div className="grid grid-cols-3 gap-2">
-            {clusters
-              .filter(
-                ({ value }) =>
-                  value === "testnet" ||
-                  value === "devnet" ||
-                  value === "localnet"
-              )
-              .map(({ value, label, disabled }) => (
-                <div
-                  key={value}
-                  onClick={() => setCluster(value)}
-                  className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${
-                    cluster === value ? "ring-1" : ""
-                  } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
-                >
-                  {label}
-                </div>
-              ))}
           </div>
           <div
-            onClick={() => setCluster("custom")}
-            className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${
-              cluster === "custom" ? "ring-1" : ""
-            }`}
+            onClick={() => setCluster(Cluster.Custom)}
+            className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${cluster === Cluster.Custom ? "ring-1" : ""}`}
           >
             Custom
           </div>
-          {cluster === "custom" && (
+          {cluster === Cluster.Custom && (
             <>
               <div className="grid w-full max-w-sm items-center gap-2">
                 <Label htmlFor="customEndpoint">Custom RPC URL</Label>
@@ -239,7 +231,7 @@ export function NetworkStatusDropdown() {
         >
           <div className="flex items-center justify-center">
             <div className="hidden md:block">
-              {clusters.find(({ value }) => value === cluster)?.label}
+              {clusterName(cluster)}
             </div>
             <div className={`w-2 h-2 md:ml-2 rounded-full ${tpsColor} animate-pulse`}></div>
           </div>
@@ -257,7 +249,7 @@ export function NetworkStatusDropdown() {
           className="flex items-center justify-between rounded-md"
         >
           <div className="min-w-24 px-1 flex items-center justify-between">
-            {clusters.find(({ value }) => value === cluster)?.label}
+            {clusterName(cluster)}
             <div className={`w-2 h-2 mr-2 rounded-full ${tpsColor} animate-pulse`}></div>
           </div>
         </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryState } from "nuqs";
+import { parseAsStringEnum, useQueryState } from "nuqs";
 import {
   createContext,
   useCallback,
@@ -10,16 +10,16 @@ import {
   useState,
 } from "react";
 
-export interface Cluster {
-  value: string;
-  label: string;
-  disabled: boolean;
-}
+import {
+  Cluster,
+  DEFAULT_CLUSTER,
+  clusterCompressionUrl,
+  clusterUrl,
+} from "@/utils/cluster";
 
 export interface UseClusterProps {
-  clusters: Cluster[];
-  cluster: string;
-  setCluster: React.Dispatch<React.SetStateAction<string>>;
+  cluster: Cluster;
+  setCluster: React.Dispatch<React.SetStateAction<Cluster>>;
   customEndpoint: string;
   setCustomEndpoint: React.Dispatch<React.SetStateAction<string>>;
   customCompressionEndpoint: string;
@@ -31,8 +31,7 @@ export interface UseClusterProps {
 const ClusterContext = createContext<UseClusterProps | undefined>(undefined);
 
 const defaultContext: UseClusterProps = {
-  clusters: [],
-  cluster: "",
+  cluster: DEFAULT_CLUSTER,
   setCluster: (_) => {},
   customEndpoint: "",
   setCustomEndpoint: (_) => {},
@@ -42,33 +41,8 @@ const defaultContext: UseClusterProps = {
   compressionEndpoint: "",
 };
 
-const endpointMap = {
-  custom: process.env.NEXT_PUBLIC_LOCALNET!,
-  localnet: process.env.NEXT_PUBLIC_LOCALNET!,
-  testnet: process.env.NEXT_PUBLIC_TESTNET!,
-  devnet: process.env.NEXT_PUBLIC_DEVNET!,
-  "mainnet-beta": process.env.NEXT_PUBLIC_MAINNET!,
-};
-
-const compressionEndpointMap = {
-  custom: process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
-  localnet: process.env.NEXT_PUBLIC_COMPRESSION_LOCALNET!,
-  testnet: process.env.NEXT_PUBLIC_COMPRESSION_TESTNET!,
-  devnet: process.env.NEXT_PUBLIC_COMPRESSION_DEVNET!,
-  "mainnet-beta": process.env.NEXT_PUBLIC_COMPRESSION_MAINNET!,
-};
-
 export const useCluster = () => useContext(ClusterContext) ?? defaultContext;
 
-const clusters: Cluster[] = [
-  { value: "mainnet-beta", label: "Mainnet", disabled: false },
-  { value: "testnet", label: "Testnet", disabled: false },
-  { value: "devnet", label: "Devnet", disabled: false },
-  { value: "localnet", label: "Localnet", disabled: false },
-  { value: "custom", label: "Custom", disabled: false },
-];
-
-const defaultCluster = "mainnet-beta";
 const storageKeyCustomEndPoint = "CustomEndPoint";
 const storageKeyCustomCompressionEndPoint = "CustomCompressionEndPoint";
 
@@ -88,16 +62,19 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
       ),
     );
 
-  const [cluster, setCluster] = useQueryState("cluster", {
-    defaultValue: defaultCluster,
-  });
+    const [cluster, setCluster] = useQueryState(
+      "cluster",
+      parseAsStringEnum<Cluster>(Object.values(Cluster)) // pass a list of allowed values
+        .withDefault(DEFAULT_CLUSTER), // default value
+    );
 
-  // Set default endpoint to testnet
-  const [endpoint, setEndpoint] = useState(() => getEndpoint(cluster));
+    const [endpoint, setEndpoint] = useState(() =>
+      clusterUrl(cluster, customEndpoint),
+    );
 
   // Set compression endpoint to testnet
   const [compressionEndpoint, setCompressionEndpoint] = useState(() =>
-    getCompressionEndpoint(cluster),
+    clusterCompressionUrl(cluster, customCompressionEndpoint),
   );
 
   const setCustomEndpoint = useCallback((value: any) => {
@@ -124,24 +101,14 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
 
   // Set endpoint based on cluster
   useEffect(() => {
-    if (cluster === "custom") {
-      setEndpoint(customEndpoint);
-      setCompressionEndpoint(customCompressionEndpoint);
-    } else {
-      const newEndpoint = getEndpoint(cluster);
-      if (newEndpoint) {
-        setEndpoint(newEndpoint);
-      }
-      const newCompressionEndpoint = getCompressionEndpoint(cluster);
-      if (newCompressionEndpoint) {
-        setCompressionEndpoint(newCompressionEndpoint);
-      }
-    }
+    setEndpoint(clusterUrl(cluster, customEndpoint));
+    setCompressionEndpoint(
+      clusterCompressionUrl(cluster, customCompressionEndpoint),
+    );
   }, [cluster, customCompressionEndpoint, customEndpoint]);
 
   const providerValue = useMemo(
     () => ({
-      clusters,
       cluster,
       setCluster,
       customEndpoint,
@@ -169,15 +136,6 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     </ClusterContext.Provider>
   );
 }
-
-// Helpers
-const getEndpoint = (cluster: string) => {
-  return endpointMap[cluster as keyof typeof endpointMap];
-};
-
-const getCompressionEndpoint = (cluster: string) => {
-  return compressionEndpointMap[cluster as keyof typeof compressionEndpointMap];
-};
 
 const getCustomEndpoint = (key: string, fallback: string) => {
   let customEndpoint;

@@ -20,9 +20,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
+  // Default RPC transaction data
   const transaction = useGetTransaction(tx);
 
-  // Only for mainnet-beta and devnet
+  // Get parsed transaction data (only for mainnet-beta and devnet)
   const parsed = useGetParsedTransactions([tx]);
 
   // Compressed transactions
