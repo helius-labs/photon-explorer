@@ -1,7 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { SearchIcon, XIcon, Circle, CogIcon } from "lucide-react";
+import { Circle, CogIcon, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 

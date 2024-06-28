@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import "@/styles/styles.css";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
@@ -9,32 +9,35 @@ import { Label } from "@/components/ui/label";
 import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import { ColumnDef } from "@tanstack/react-table";
+import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
 
 export default function AccountNFTs({ address }: { address: string }) {
   const [showNonVerified, setShowNonVerified] = useState(false);
+  const { cluster } = useCluster();
+  const router = useRouter();
 
-  const { nonFungibleTokens, isLoading, isError } = useGetAssetsByOwner(address);
+  const {
+    verifiedNfts,
+    nonVerifiedNfts,
+    totalNftValue,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetAssetsByOwner(address, 1, cluster !== Cluster.Localnet && cluster !== Cluster.Testnet);
 
-  const verifiedNfts = nonFungibleTokens.filter((nft) => {
-    return nft.creators?.some((creator) => creator.verified);
-  });
-
-  const nonVerifiedNfts = nonFungibleTokens.filter((nft) => {
-    return !nft.creators?.some((creator) => creator.verified);
-  });
+  // Redirect to tokens page if on localnet or testnet
+  useEffect(() => {
+    if (cluster === Cluster.Localnet || cluster === Cluster.Testnet) {
+      router.push(`/account/${address}`);
+    } else {
+      refetch();
+    }
+  }, [cluster, address, router, refetch]);
 
   const displayedNfts = showNonVerified ? nonVerifiedNfts : verifiedNfts;
 
-  const totalVerifiedValue = verifiedNfts.reduce((acc, nft) => {
-    if (nft.content?.metadata?.attributes) {
-      const valueAttribute = nft.content.metadata.attributes.find(attr => attr.trait_type.toLowerCase() === "floor price");
-      const value = valueAttribute ? parseFloat(valueAttribute.value) : 0;
-      return acc + value;
-    }
-    return acc;
-  }, 0);
-
-  const columns: ColumnDef<typeof nonFungibleTokens[0]>[] = [
+  const columns: ColumnDef<typeof displayedNfts[0]>[] = [
     {
       header: 'Image',
       accessorKey: 'content.links.image',
@@ -43,9 +46,17 @@ export default function AccountNFTs({ address }: { address: string }) {
       header: 'Name',
       accessorKey: 'content.metadata.name',
     },
+    {
+      header: 'Price (SOL)',
+      accessorKey: 'token_info.price_info.price_per_token',
+      cell: ({ getValue }) => {
+        const price = getValue<number>();
+        return price ? price.toFixed(2) : 'N/A';
+      },
+    },
   ];
 
-  if (isError)
+  if (isError || displayedNfts.length === 0)
     return (
       <Card className="col-span-12 shadow mb-10">
         <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
@@ -58,7 +69,7 @@ export default function AccountNFTs({ address }: { address: string }) {
     );
 
   return (
-    <Card className="col-span-12 shadow">
+    <Card className="col-span-12 shadow mb-10">
       <CardContent className="flex flex-col pt-6 pb-4 gap-4">
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -70,8 +81,8 @@ export default function AccountNFTs({ address }: { address: string }) {
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 text-xs sm:text-sm">
               <div className="flex flex-col sm:flex-row sm:space-x-4 font-medium">
-                <span>Total NFTs: {nonFungibleTokens.length}</span>
-                <span>Floor Value: {totalVerifiedValue.toFixed(2)} SOL</span>
+                <span>Total NFTs: {displayedNfts.length}</span>
+                <span>Total Floor Value: {totalNftValue.toFixed(2)} SOL</span>
               </div>
               <div className="flex items-center space-x-2 mt-2 sm:mt-0">
                 <Label className="text-xs sm:text-sm">Show Non-Verified Collections</Label>
