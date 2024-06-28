@@ -1,21 +1,19 @@
 import { CommandMenu } from "@/components/command-menu";
 import { MainNav } from "@/components/main-nav";
-import { SecondaryNav } from "@/components/secondary-nav";
 import { ThemeToggle } from "./theme-toggle";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
 
 export function Header() {
   return (
     <div className="border-b">
-      <div className="flex h-16 items-center px-8">
-        <MainNav className="mr-6" />
-        <div className="ml-auto flex items-center space-x-4">
+      <div className="flex h-16 items-center px-4 md:px-8">
+        <MainNav className="mr-auto" />
+        <div className="flex items-center w-2/4 justify-center md:w-auto md:justify-start">
           <CommandMenu />
         </div>
-        <div className="ml-auto flex items-center space-x-4">
+        <div className="ml-auto flex items-center space-x-2 md:space-x-4">
           <ThemeToggle />
           <NetworkStatusDropdown />
-          <SecondaryNav className="mx-6" />
         </div>
       </div>
     </div>

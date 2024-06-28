@@ -1,7 +1,6 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-
 import { CLUSTERS, Cluster, clusterName, clusterSlug } from "@/utils/cluster";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ export default function ClusterSwitcher() {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" className="min-w-32">
-          {clusterName(cluster)}
+        {clusterName(cluster)}
         </Button>
       </SheetTrigger>
       <SheetContent className="w-[400px] sm:w-[540px]">
@@ -38,7 +37,7 @@ export default function ClusterSwitcher() {
           <SheetTitle>Choose a Cluster</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 py-4">
-          {CLUSTERS.map((clusterItem, index) => (
+        {CLUSTERS.map((clusterItem, index) => (
             <Button
               variant="outline"
               key={clusterSlug(clusterItem)}
@@ -84,8 +83,7 @@ export default function ClusterSwitcher() {
         <div
           className={
             cluster !== Cluster.Localnet && cluster !== "custom"
-              ? "hidden"
-              : "mt-8"
+            ? "hidden" : "mt-8"
           }
         >
           <div className="mb-[32px] flex flex-col p-0">

@@ -68,7 +68,6 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
       .withDefault(DEFAULT_CLUSTER), // default value
   );
 
-  // Set default endpoint to testnet
   const [endpoint, setEndpoint] = useState(() =>
     clusterUrl(cluster, customEndpoint),
   );

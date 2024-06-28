@@ -1,92 +1,207 @@
-"use client";
+'use client';
 
 import React from "react";
-import "@/styles/styles.css";
-import { ColumnDef } from "@tanstack/react-table";
-import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
-import Loading from "@/components/common/loading";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/data-table/data-table";
 import Image from "next/image";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
-import cloudflareLoader from "../../../imageLoader";
+import cloudflareLoader from "../../utils/imageLoader";
 import noImg from "../../../public/assets/noimg.svg";
+import { ColumnDef } from "@tanstack/react-table";
+import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+import { useGetAccountTokens, TokenInfoWithPubkey } from "@/hooks/useGetAccountTokens";
+import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { DataTable } from "@/components/data-table/data-table";
 import { DAS } from "@/types/helius-sdk/das-types";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function isGetAssetResponse(asset: any): asset is DAS.GetAssetResponse {
+  return (asset as DAS.GetAssetResponse).content !== undefined;
+}
 
 export default function AccountTokens({ address }: { address: string }) {
-  const { fungibleTokens, grandTotal, isLoading, isError } = useGetAssetsByOwner(address);
+  const { cluster } = useCluster();
+  const isMainNetOrDevNet = cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet;
+
+  const {
+    fungibleTokens: apiFungibleTokens,
+    totalFungibleValue: apiTotalFungibleValue,
+    isLoading: apiIsLoading,
+    isError: apiIsError,
+  } = useGetAssetsByOwner(address, 1, isMainNetOrDevNet);
+
+  const {
+    data: rpcFungibleTokens = [],
+    isLoading: rpcIsLoading,
+    isError: rpcIsError,
+  } = useGetAccountTokens(address, !isMainNetOrDevNet);
+
+  const fungibleTokens = isMainNetOrDevNet ? apiFungibleTokens : rpcFungibleTokens;
+  const totalFungibleValue = isMainNetOrDevNet ? apiTotalFungibleValue : 0;
+  const isLoading = isMainNetOrDevNet ? apiIsLoading : rpcIsLoading;
+  const isError = isMainNetOrDevNet ? apiIsError : rpcIsError;
 
   if (isError)
     return (
-      <Card className="col-span-12">
-        <CardContent className="pt-6">
-          <div>Failed to load</div>
+      <Card className="col-span-12 shadow mb-10">
+        <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
+          <div className="text-secondary font-semibold">Unable to fetch account balances</div>
+          <div className="text-gray-500">
+            <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> the page or navigate <a href="/" className="text-blue-500 underline">home</a>.
+          </div>
         </CardContent>
       </Card>
     );
 
   if (isLoading)
     return (
-      <Card className="col-span-12">
-        <CardContent className="flex flex-col pt-6 gap-4">
-          <Loading />
+      <Card className="col-span-12 shadow mb-10">
+        <CardContent className="flex flex-col pt-6 gap-4 pb-6">
+          <div className="flex justify-start font-medium text-sm">
+            <Skeleton className="h-4 w-[200px] ml-2" />
+          </div>
+          <div className="grid grid-cols-5 gap-4 pb-8">
+            <div className="flex items-center col-span-1 space-x-4">
+              <Skeleton className="h-4 w-[150px] ml-4" />
+            </div>
+            <div className="col-span-1 space-y-2">
+              <Skeleton className="h-4 w-[50px] ml-20" />
+            </div>
+            <div className="col-span-1 space-y-2">
+              <Skeleton className="h-4 w-[50px] ml-20" />
+            </div>
+            <div className="col-span-1 space-y-2">
+              <Skeleton className="h-4 w-[50px] ml-20" />
+            </div>
+            <div className="flex col-span-1 space-x-2">
+              <Skeleton className="hidden md:flex h-4 w-[50px] ml-10" />
+            </div>
+          </div>
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="grid grid-cols-5 gap-4 items-center">
+              <div className="flex items-center col-span-1 space-x-4">
+                <Avatar className="h-12 w-12 ml-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                </Avatar>
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-[100px]" />
+                  <Skeleton className="h-4 w-[50px]" />
+                </div>
+              </div>
+              <div className="hidden md:block col-span-1 space-y-2">
+                <Skeleton className="h-4 w-[50px] ml-auto" />
+              </div>
+              <div className="hidden md:block col-span-1 space-y-2">
+                <Skeleton className="h-4 w-[50px] ml-auto" />
+              </div>
+              <div className="hidden md:block col-span-1 space-y-2">
+                <Skeleton className="h-4 w-[50px] ml-auto" />
+              </div>
+              <div className="hidden md:flex col-span-1 space-x-2 justify-center">
+                <Skeleton className="h-6 w-6 rounded-full" />
+                <Skeleton className="h-6 w-6 rounded-full" />
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
     );
 
-  const columns: ColumnDef<DAS.GetAssetResponse>[] = [
+  const columns: ColumnDef<DAS.GetAssetResponse | TokenInfoWithPubkey>[] = [
     {
       header: '',
       accessorKey: 'token',
       cell: ({ row }) => {
-        const fungibleToken = row.original;
-        const tokenImage = fungibleToken.content?.links?.image || noImg;
-        const tokenName = fungibleToken.content?.metadata?.name || "Unknown";
-        const tokenSymbol = fungibleToken.content?.metadata?.symbol || "Unknown";
-        return (
-          <div className="flex items-center">
-            <Avatar className="h-12 w-12 ml-4">
-              <AvatarImage src={tokenImage} alt={tokenName} />
-              <AvatarFallback>
-                {tokenSymbol.slice(0, 1)}
-                {tokenSymbol.slice(-1)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="ml-4">
-              <div className="text-sm font-medium">{tokenName}</div>
-              <div className="text-sm font-bold">{tokenSymbol}</div>
+        const token = row.original;
+        if (isGetAssetResponse(token)) {
+          const tokenImage = token.content?.links?.image || noImg;
+          const tokenName = token.content?.metadata?.name || "Unknown";
+          const tokenSymbol = token.content?.metadata?.symbol || "Unknown";
+          return (
+            <div className="flex items-center">
+              <Avatar className="h-12 w-12 ml-4">
+                <AvatarImage src={tokenImage} alt={tokenName} />
+                <AvatarFallback>
+                  {tokenSymbol.slice(0, 1)}
+                  {tokenSymbol.slice(-1)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="ml-4">
+                <div className="text-sm font-medium">{tokenName}</div>
+                <div className="text-sm font-bold">{tokenSymbol}</div>
+              </div>
             </div>
-          </div>
-        );
+          );
+        } else {
+          const tokenImage = token.logoURI || noImg;
+          const tokenName = token.name || "Unknown";
+          const tokenSymbol = token.symbol || "Unknown";
+          return (
+            <div className="flex items-center">
+              <Avatar className="h-12 w-12 ml-4">
+                <AvatarImage src={tokenImage} alt={tokenName} />
+                <AvatarFallback>
+                  {tokenSymbol.slice(0, 1)}
+                  {tokenSymbol.slice(-1)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="ml-4">
+                <div className="text-sm font-medium">{tokenName}</div>
+                <div className="text-sm font-bold">{tokenSymbol}</div>
+              </div>
+            </div>
+          );
+        }
       },
     },
     {
       header: 'Balance',
-      accessorKey: 'token_info.balance',
+      accessorKey: 'balance',
       cell: ({ row }) => {
-        const balance = row.original.token_info?.balance || 0;
-        const decimals = row.original.token_info?.decimals || 0;
-        return (balance / Math.pow(10, decimals)).toFixed(3);
+        const token = row.original;
+        if (isGetAssetResponse(token)) {
+          const balance = token.token_info?.balance || 0;
+          const decimals = token.token_info?.decimals || 0;
+          return (balance / Math.pow(10, decimals)).toFixed(3);
+        } else {
+          const balance = token.info.tokenAmount.amount;
+          const decimals = token.info.tokenAmount.decimals;
+          return (balance / Math.pow(10, decimals)).toFixed(3);
+        }
       },
     },
     {
       header: 'Value',
-      accessorKey: 'token_info.price_info.total_price',
-      cell: ({ row }) => `$${parseFloat(row.original.token_info?.price_info?.total_price?.toString() || "0").toFixed(2)}`,
+      accessorKey: 'value',
+      cell: ({ row }) => {
+        const token = row.original;
+        if (isGetAssetResponse(token)) {
+          return `$${parseFloat(token.token_info?.price_info?.total_price?.toString() || "0").toFixed(2)}`;
+        } else {
+          return 'N/A';
+        }
+      },
     },
     {
       header: 'Price',
-      accessorKey: 'token_info.price_info.price_per_token',
-      cell: ({ row }) => `$${parseFloat(row.original.token_info?.price_info?.price_per_token?.toString() || "0").toFixed(2)}`,
+      accessorKey: 'price',
+      cell: ({ row }) => {
+        const token = row.original;
+        if (isGetAssetResponse(token)) {
+          return `$${parseFloat(token.token_info?.price_info?.price_per_token?.toString() || "0").toFixed(2)}`;
+        } else {
+          return 'N/A';
+        }
+      },
     },
     {
       header: 'Actions',
       accessorKey: 'actions',
       cell: ({ row }) => {
-        const fungibleToken = row.original;
-        const tokenMint = fungibleToken.id;
+        const token = row.original;
+        const tokenMint = isGetAssetResponse(token) ? token.id : token.info.mint.toString();
         return (
           <div className="flex space-x-2">
             <a href={`https://birdeye.so/token/${tokenMint}`} target="_blank" rel="noopener noreferrer">
@@ -121,13 +236,10 @@ export default function AccountTokens({ address }: { address: string }) {
   ];
 
   return (
-    <Card className="col-span-12 shadow">
-      <CardContent className="flex flex-col pt-6 gap-4">
+    <Card className="col-span-12 shadow mb-10">
+      <CardContent className="flex flex-col pt-6 gap-4 pb-6">
         <div className="flex justify-start font-medium text-sm">
-          Account Balance: ${grandTotal.toFixed(2)}
-          <div className="ml-4">
-          Total Tokens: {fungibleTokens.length}
-          </div>
+          Account Balance: ${totalFungibleValue.toFixed(2)}
         </div>
         <DataTable columns={columns} data={fungibleTokens} />
       </CardContent>

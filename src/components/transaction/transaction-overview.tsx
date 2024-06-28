@@ -1,9 +1,8 @@
+import { dateFormat, timeAgoWithFormat } from "@/utils/common";
 import { CompressedTransaction } from "@lightprotocol/stateless.js";
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { ArrowRightLeft } from "lucide-react";
-
-import { dateFormat, timeAgoWithFormat } from "@/utils/common";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
@@ -196,10 +195,12 @@ export default function TransactionOverviewCompressed({
 
   return (
     <Card className="w-full max-w-lg mx-auto p-3">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-3 md:space-y-0">
         <div className="flex items-center space-x-3">
           <ArrowRightLeft className="h-6 w-6" />
-          <CardTitle className="text-2xl font-bold">Transaction</CardTitle>
+          <CardTitle className="text-xl md:text-2xl font-bold">
+            Transaction
+          </CardTitle>
           <Badge
             className="text-xs py-1 px-2"
             variant={data.meta?.err === null ? "success" : "destructive"}
@@ -207,7 +208,7 @@ export default function TransactionOverviewCompressed({
             {data.meta?.err === null ? "Success" : "Failed"}
           </Badge>
         </div>
-        <div className="flex flex-col text-right">
+        <div className="flex flex-col items-start md:items-end text-left md:text-right">
           <span>{timeAgoWithFormat(data.blockTime!, true)}</span>
           <span className="text-xs text-muted-foreground">
             {dateFormat(data.blockTime!)}
@@ -227,8 +228,8 @@ export default function TransactionOverviewCompressed({
 
         <Separator />
 
-        <div className="flex align-center">
-          <span className="text-muted-foreground mr-4">Signature</span>
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+          <span className="font-medium">Signature</span>
           <div className="flex items-center space-x-2">
             <Signature link={false} signature={signature} />
           </div>

@@ -33,9 +33,9 @@ const footerLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-background shadow fixed bottom-0 w-full p-1 flex items-center">
-      <div className="flex items-center w-1/3">
-        <p className="text-sm leading-loose text-muted-foreground ml-2">
+    <footer className="bg-background shadow fixed bottom-0 w-full p-2 flex items-center justify-between z-20">
+      <div className="flex items-center">
+        <p className="text-sm leading-loose text-muted-foreground">
           Powered by{" "}
           <a
             href="https://www.helius.dev/"
@@ -48,25 +48,22 @@ export const Footer = () => {
           .
         </p>
       </div>
-      <div className="flex justify-center w-1/3">
-        <nav>
-          <ul className="flex gap-4 list-none p-0 m-0">
-            {footerLinks.map((link, index) => (
-              <li key={index}>
-                <Link
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-colors duration-200 hover:text-gray-400"
-                >
-                  {React.cloneElement(link.icon, { className: "w-5 h-5" })}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-      <div className="w-1/3"></div>
+      <nav className="flex justify-end">
+        <ul className="flex gap-4 list-none p-0 m-0">
+          {footerLinks.map((link, index) => (
+            <li key={index}>
+              <Link
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors duration-200 hover:text-gray-400"
+              >
+                {React.cloneElement(link.icon, { className: "w-5 h-5" })}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </footer>
   );
 };

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import cloudflareLoader from "../../../imageLoader";
+import cloudflareLoader from "../../utils/imageLoader";
 import noImg from "../../../public/assets/noimg.svg";
 import { DAS } from "@/types/helius-sdk/das-types";
 import { Skeleton } from "@/components/ui/skeleton";

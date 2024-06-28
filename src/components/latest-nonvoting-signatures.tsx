@@ -1,17 +1,19 @@
 "use client";
 
+import { useCluster } from "@/providers/cluster-provider";
+import { timeAgoWithFormat } from "@/utils/common";
+import { statuses } from "@/utils/data";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 
-import { timeAgoWithFormat } from "@/utils/common";
-import { statuses } from "@/utils/data";
-
 import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 
+import Loading from "@/components/common/loading";
 import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function LatestNonVotingSignatures() {
   type Transaction = {
@@ -19,6 +21,8 @@ export default function LatestNonVotingSignatures() {
     status: boolean;
     blockTime: number | null;
   };
+
+  const { cluster } = useCluster();
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
@@ -33,7 +37,11 @@ export default function LatestNonVotingSignatures() {
       {
         accessorKey: "status",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
+          <DataTableColumnHeader
+            column={column}
+            title="Status"
+            className="hidden md:table-cell"
+          />
         ),
         cell: ({ row }) => {
           const status = statuses.find(
@@ -45,11 +53,11 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex w-[100px] items-center">
+            <div className="justify-center md:justify-start hidden md:flex">
               {status.icon && (
-                <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <status.icon className="mr-2 h-6 w-6 text-muted-foreground" />
               )}
-              <span>{status.label}</span>
+              <span className="hidden md:inline">{status.label}</span>
             </div>
           );
         },
@@ -70,8 +78,9 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, isLoading, isPending, isFetching, isError, refetch } =
-    useGetLatestNonVotingSignatures();
+  const { data, isLoading, isError } = useGetLatestNonVotingSignatures(
+    cluster === "testnet",
+  );
 
   // Check if there are any compression signatures
   const signatures: Transaction[] | undefined = data?.value.items?.map(
@@ -82,21 +91,47 @@ export default function LatestNonVotingSignatures() {
     }),
   );
 
-  // TODO: Refactor jsx
-  if (isError)
+  if (cluster !== "testnet") {
+    return null;
+  }
+
+  if (isLoading) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <div>Failed to load</div>
+      <Card className="mx-5 md:mx-0 mb-16 md:mb-0">
+        <CardContent className="flex justify-center items-center min-h-[200px] md:min-h-[200px]">
+          <Loading />
         </CardContent>
       </Card>
     );
+  }
+
+  if (isError || !signatures || signatures.length === 0) {
+    return null;
+  }
 
   return (
-    <div
-      className={`min-h-[400px] transition-opacity border rounded-md p-2 duration-700 ease-in-out ${isPending ? "opacity-0" : "opacity-100"}`}
-    >
-      {signatures && <DataTable data={signatures!} columns={columns} />}
-    </div>
+    <Card className="mx-auto mb-16 md:mb-0 border" style={{ maxWidth: "90vw" }}>
+      <CardContent className="pt-4">
+        <div className="flex justify-center text-sm text-secondary mb-2">
+          Recent transactions
+        </div>
+        <div
+          className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
+        >
+          <div className="md:hidden h-72">
+            <ScrollArea className="h-full">
+              <div className="flex justify-center">
+                <DataTable data={signatures!} columns={columns} />
+              </div>
+            </ScrollArea>
+          </div>
+          <div className="hidden md:block">
+            <div className="flex justify-center overflow-x-auto">
+              <DataTable data={signatures!} columns={columns} />
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

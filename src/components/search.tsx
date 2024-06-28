@@ -1,10 +1,6 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { Circle, CogIcon, CoinsIcon, SearchIcon, XIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-
 import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
@@ -12,6 +8,9 @@ import {
 } from "@/utils/common";
 import { tokenAddressLookupTable } from "@/utils/data";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
+import { Circle, CogIcon, SearchIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +105,7 @@ export function Search({
   };
 
   return (
-    <div className="relative w-full max-w-lg mx-auto">
+    <div className="relative w-full max-w-lg mx-auto px-4 md:px-0">
       <form
         onSubmit={onFormSubmit}
         className="flex flex-col items-center space-y-4"
@@ -118,7 +117,7 @@ export function Search({
             placeholder="Search for accounts, transactions, programs, or tokens..."
             value={search}
             onChange={handleInputChange}
-            className="h-12 w-full"
+            className="h-12 w-full overflow-hidden"
             iconClassName="left-4"
             inputPaddingClassName="pl-12 pr-4"
             endiconclassname="right-6"
