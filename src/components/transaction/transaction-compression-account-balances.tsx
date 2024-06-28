@@ -31,7 +31,7 @@ export default function TransactionCompressionAccountBalances({
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Compression Account Blances</CardTitle>
+          <CardTitle>Compression Account Balances</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
