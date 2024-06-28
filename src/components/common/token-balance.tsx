@@ -40,7 +40,7 @@ export function TokenBalance({
     (token) => token.address === mint.toString(),
   );
 
-  let avatar = <CircleHelp className="h-6 w-6" />;
+  let avatar = <></>;
   if (token) {
     avatar = (
       <Avatar className="h-6 w-6">
@@ -54,7 +54,7 @@ export function TokenBalance({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="inline-flex items-center gap-2">
       {avatar}
       <span>
         {normalizeTokenAmount(amount, decimals)}{" "}

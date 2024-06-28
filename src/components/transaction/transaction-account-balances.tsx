@@ -81,7 +81,7 @@ export default function TransactionAccountBalances({
               <TableHead>Details</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>{accountRows}</TableBody>
+          <TableBody className="font-mono">{accountRows}</TableBody>
         </Table>
       </CardContent>
     </Card>

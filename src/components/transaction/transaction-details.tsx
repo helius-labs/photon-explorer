@@ -11,7 +11,6 @@ import TransactionCompressionInfo from "@/components/transaction/transaction-com
 import TransactionInstructionLogs from "@/components/transaction/transaction-instruction-logs";
 import TransactionInstructions from "@/components/transaction/transaction-instructions";
 import TransactionOverview from "@/components/transaction/transaction-overview";
-import TransactionOverviewCompressed from "@/components/transaction/transaction-overview-compressed";
 import TransactionOverviewParsed from "@/components/transaction/transaction-overview-parsed";
 import TransactionTokenBalances from "@/components/transaction/transaction-token-balances";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +34,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   if (parsed.isError || transaction.isError || compressed.isError)
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
           <div>Failed to load</div>
         </CardContent>
@@ -43,7 +42,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     );
   if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
           <div className="flex items-center space-x-4">
             <div className="space-y-2">
@@ -56,7 +55,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     );
 
   let transactionOverview = (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-lg mx-auto">
       <CardContent className="pt-6">
         <div>Transaction not found</div>
       </CardContent>
@@ -65,28 +64,21 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   if (parsed.data && parsed.data.length > 0) {
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
-  } else if (
-    compressed.data &&
-    transaction.data &&
-    (compressed.data.compressionInfo.openedAccounts.length > 0 ||
-      compressed.data.compressionInfo.closedAccounts.length > 0)
-  ) {
+  } else if (transaction.data && compressed.data) {
     transactionOverview = (
-      <TransactionOverviewCompressed
+      <TransactionOverview
         signature={tx}
         data={transaction.data}
         compressed={compressed.data}
       />
     );
-  } else if (transaction.data) {
-    transactionOverview = <TransactionOverview data={transaction.data} />;
   }
 
   return (
     <>
       {transactionOverview}
       {transaction.data && (
-        <div className="flex w-full mx-auto mt-4 mb-6">
+        <div className="flex w-full max-w-lg mx-auto mt-4 mb-6">
           <Badge className="mr-2" variant="outline">
             Advanced Details
           </Badge>
