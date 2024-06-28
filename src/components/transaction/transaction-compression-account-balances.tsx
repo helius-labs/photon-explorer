@@ -1,11 +1,9 @@
-import { PublicKey } from "@solana/web3.js";
-
 import { lamportsToSolString } from "@/utils/common";
+import { PublicKey } from "@solana/web3.js";
 
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 
 import Address from "@/components/common/address";
-import Data from "@/components/common/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -16,7 +14,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default function TransactionCompressionInfo({ tx }: { tx: string }) {
+export default function TransactionCompressionAccountBalances({
+  tx,
+}: {
+  tx: string;
+}) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
   if (
@@ -29,7 +31,7 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Compression Accounts</CardTitle>
+          <CardTitle>Compression Account Blances</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -38,11 +40,10 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                 <TableHead>Status</TableHead>
                 <TableHead>Hash</TableHead>
                 <TableHead>Owner</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Token Data</TableHead>
+                <TableHead>Change</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="font-mono">
               {data.compressionInfo.openedAccounts.map((item, index) => (
                 <TableRow key={`opened-accounts-${index}`}>
                   <TableCell>Opened</TableCell>
@@ -53,10 +54,8 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                     <Address pubkey={new PublicKey(item.account.owner)} />
                   </TableCell>
                   <TableCell>
+                    {item.account.lamports > 0 && `+`}
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
-                  </TableCell>
-                  <TableCell>
-                    {JSON.stringify(item.maybeTokenData, null, 4)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -73,10 +72,8 @@ export default function TransactionCompressionInfo({ tx }: { tx: string }) {
                     <Address pubkey={new PublicKey(item.account.owner)} />
                   </TableCell>
                   <TableCell>
+                    {item.account.lamports > 0 && `+`}
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
-                  </TableCell>
-                  <TableCell>
-                    {JSON.stringify(item.maybeTokenData, null, 4)}
                   </TableCell>
                 </TableRow>
               ))}
