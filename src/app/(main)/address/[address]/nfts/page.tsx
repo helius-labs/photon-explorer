@@ -1,5 +1,6 @@
-import AcccountNFTs from "@/components/account/account-nfts";
 import { shorten } from "@/utils/common";
+
+import AcccountNFTs from "@/components/account/account-nfts";
 
 type Props = Readonly<{
   params: {

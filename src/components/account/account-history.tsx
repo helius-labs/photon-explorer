@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetSignaturesForCompressedAccount } from "@/hooks/compression";
+import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 
 import TransactionCard from "@/components/account/transaction-card";
@@ -11,7 +11,7 @@ export default function AccountHistory({ address }: { address: string }) {
   const signatures = useGetSignaturesForAddress(address);
 
   // Load possible compression signatures if this is a compression hash instead of an address
-  const compressionSignatures = useGetSignaturesForCompressedAccount(address);
+  const compressionSignatures = useGetCompressionSignaturesForAccount(address);
 
   // First check for non compression signatures
   if (signatures.isError)

@@ -1,5 +1,7 @@
 "use client";
 
+import { shorten } from "@/utils/common";
+import { TransactionSignature } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
 
@@ -13,14 +15,14 @@ import {
 } from "@/components/ui/tooltip";
 
 interface SignatureProps {
-  children: string;
+  signature: TransactionSignature;
   short?: boolean;
   copy?: boolean;
   link?: boolean;
 }
 
 export default function Signature({
-  children,
+  signature,
   short = true,
   copy = true,
   link = true,
@@ -33,6 +35,12 @@ export default function Signature({
     }, 2000);
   }, [hasCopied]);
 
+  let signatureLabel = signature;
+
+  if (short) {
+    signatureLabel = shorten(signature, 4);
+  }
+
   return (
     <TooltipProvider>
       <div className="flex items-center align-middle">
@@ -42,9 +50,9 @@ export default function Signature({
               <Button
                 size="icon"
                 variant={null}
-                className="mr-2 h-7 w-7 rounded-[6px] [&_svg]:size-3.5"
+                className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
                 onClick={() => {
-                  navigator.clipboard.writeText(children);
+                  navigator.clipboard.writeText(signature);
                   setHasCopied(true);
                 }}
               >
@@ -52,30 +60,20 @@ export default function Signature({
                 {hasCopied ? <CheckIcon /> : <Copy />}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Copy transaction id</TooltipContent>
+            <TooltipContent>Copy signature</TooltipContent>
           </Tooltip>
         )}
         <Tooltip>
           <TooltipTrigger asChild>
             {link ? (
-              <Link href={`/tx/${children}`} className="hover:underline">
-                {short ? (
-                  <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
-                ) : (
-                  <>{children}</>
-                )}
+              <Link href={`/tx/${signature}`} className="hover:underline">
+                {signatureLabel}
               </Link>
             ) : (
-              <>
-                {short ? (
-                  <>{`${children.slice(0, 4)}...${children.slice(-4)}`}</>
-                ) : (
-                  <>{children}</>
-                )}
-              </>
+              <>{signatureLabel}</>
             )}
           </TooltipTrigger>
-          <TooltipContent>{children}</TooltipContent>
+          <TooltipContent>{signature}</TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>

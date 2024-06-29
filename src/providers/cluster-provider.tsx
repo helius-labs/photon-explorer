@@ -62,15 +62,15 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
       ),
     );
 
-    const [cluster, setCluster] = useQueryState(
-      "cluster",
-      parseAsStringEnum<Cluster>(Object.values(Cluster)) // pass a list of allowed values
-        .withDefault(DEFAULT_CLUSTER), // default value
-    );
+  const [cluster, setCluster] = useQueryState(
+    "cluster",
+    parseAsStringEnum<Cluster>(Object.values(Cluster)) // pass a list of allowed values
+      .withDefault(DEFAULT_CLUSTER), // default value
+  );
 
-    const [endpoint, setEndpoint] = useState(() =>
-      clusterUrl(cluster, customEndpoint),
-    );
+  const [endpoint, setEndpoint] = useState(() =>
+    clusterUrl(cluster, customEndpoint),
+  );
 
   // Set compression endpoint to testnet
   const [compressionEndpoint, setCompressionEndpoint] = useState(() =>
