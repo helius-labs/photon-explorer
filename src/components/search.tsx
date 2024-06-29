@@ -5,6 +5,7 @@ import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
+  shortenLong
 } from "@/utils/common";
 import { tokenAddressLookupTable } from "@/utils/data";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
@@ -22,13 +23,13 @@ export function Search({
   const router = useRouter();
   const { cluster } = useCluster();
   const [search, setSearch] = React.useState("");
-  const [suggestions, setSuggestions] = React.useState<
-    { name: string; icon: JSX.Element }[]
-  >([]);
+  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string }[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
+
+    const newSuggestions = [];
 
     if (value) {
       const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
@@ -39,16 +40,21 @@ export function Search({
             address.includes(search)
           );
         })
-        .map(([address, { name }]) => ({ name, icon: <CogIcon /> }));
+        .map(([address, { name }]) => ({ name, icon: <CogIcon />, type: 'Program' }));
 
       const tokenSuggestions = Object.values(tokenAddressLookupTable)
         .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
-        .map((name) => ({ name, icon: <Circle /> }));
+        .map((name) => ({ name, icon: <Circle />, type: 'Token' }));
 
-      setSuggestions([...programSuggestions, ...tokenSuggestions]);
-    } else {
-      setSuggestions([]);
+      newSuggestions.push(...programSuggestions, ...tokenSuggestions);
+
+      if (isSolanaProgramAddress(value) || isSolanaAccountAddress(value) || isSolanaSignature(value)) {
+        newSuggestions.push({ name: value, icon: <SearchIcon />, type: 'Input' });
+      }
     }
+
+    setSuggestions(newSuggestions);
+    console.log("Suggestions: ", newSuggestions); // Debugging line
   };
 
   const handleSuggestionClick = (suggestion: { name: string }) => {
@@ -131,7 +137,7 @@ export function Search({
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion.icon}
-                  {suggestion.name}
+                  {suggestion.type === 'Input' ? `Search for "${shortenLong(suggestion.name)}"` : (suggestion.name)}
                 </li>
               ))}
             </ul>
