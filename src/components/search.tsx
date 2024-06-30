@@ -32,24 +32,28 @@ export function Search({
     const newSuggestions = [];
 
     if (value) {
-      const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
-        .filter(([address, { name, deployments }]) => {
-          if (!deployments.includes(cluster)) return false;
-          return (
-            name.toLowerCase().includes(search.toLowerCase()) ||
-            address.includes(search)
-          );
-        })
-        .map(([address, { name }]) => ({ name, icon: <CogIcon />, type: 'Program' }));
+      // Check if the input is a Solana address or signature
+      const isProgramAddress = isSolanaProgramAddress(value);
+      const isAccountAddress = isSolanaAccountAddress(value);
+      const isSignature = isSolanaSignature(value);
 
-      const tokenSuggestions = Object.values(tokenAddressLookupTable)
-        .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
-        .map((name) => ({ name, icon: <Circle />, type: 'Token' }));
-
-      newSuggestions.push(...programSuggestions, ...tokenSuggestions);
-
-      if (isSolanaProgramAddress(value) || isSolanaAccountAddress(value) || isSolanaSignature(value)) {
+      if (isProgramAddress || isAccountAddress || isSignature) {
         newSuggestions.push({ name: value, icon: <SearchIcon />, type: 'Input' });
+      } else {
+        const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
+          .filter(([, { name, deployments }]) => {
+            if (!deployments.includes(cluster)) return false;
+            return (
+              name.toLowerCase().includes(value.toLowerCase())
+            );
+          })
+          .map(([, { name }]) => ({ name, icon: <CogIcon />, type: 'Program' }));
+
+        const tokenSuggestions = Object.values(tokenAddressLookupTable)
+          .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
+          .map((name) => ({ name, icon: <Circle />, type: 'Token' }));
+
+        newSuggestions.push(...programSuggestions, ...tokenSuggestions);
       }
     }
 
@@ -71,7 +75,7 @@ export function Search({
 
     // Reverse lookup in program and token address lookup tables
     const programEntry = Object.entries(PROGRAM_INFO_BY_ID).find(
-      ([address, { name }]) => name.toLowerCase() === search.toLowerCase(),
+      ([, { name }]) => name.toLowerCase() === search.toLowerCase(),
     );
 
     const tokenEntry = Object.entries(tokenAddressLookupTable).find(

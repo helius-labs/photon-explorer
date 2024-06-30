@@ -27,10 +27,6 @@ export function AccountTabs({
       name: "History",
       href: `/address/${address}/history`,
     },
-    {
-      name: "Compressed Accounts",
-      href: `/address/${address}/compressed-accounts`,
-    },
   ];
 
   // Only include the NFTs tab if the cluster is not localnet or testnet

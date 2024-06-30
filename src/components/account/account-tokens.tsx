@@ -49,7 +49,7 @@ export default function AccountTokens({ address }: { address: string }) {
         <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
           <div className="text-secondary font-semibold">Unable to fetch account balances</div>
           <div className="text-gray-500">
-            <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> the page or navigate <a href="/" className="text-blue-500 underline">home</a>.
+          <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> or change networks.
           </div>
         </CardContent>
       </Card>

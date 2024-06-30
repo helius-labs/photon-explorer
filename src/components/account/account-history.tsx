@@ -18,7 +18,9 @@ export default function AccountHistory({ address }: { address: string }) {
     return (
       <Card className="col-span-12">
         <CardContent className="pt-6">
-          <div>Failed to load</div>
+          <div className="flex items-center justify-center p-6">
+            <div className="text-muted-foreground text-lg">Failed to load transaction history.</div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -57,7 +59,7 @@ export default function AccountHistory({ address }: { address: string }) {
     return (
       <Card className="col-span-12">
         <CardContent className="grid pt-6 gap-4">
-          {compressionSignatures.data.map((transaction) => (
+          {compressionSignatures.data.map((transaction: any) => (
             <TransactionCard
               key={transaction.signature}
               transaction={transaction}
