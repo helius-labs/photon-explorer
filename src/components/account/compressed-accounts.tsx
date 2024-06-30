@@ -14,6 +14,7 @@ import Loading from "@/components/common/loading";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function CompressedAccounts({ address }: { address: string }) {
   const columns = useMemo<ColumnDef<CompressedAccountWithMerkleContext>[]>(
@@ -68,15 +69,23 @@ export default function CompressedAccounts({ address }: { address: string }) {
   const { data, isLoading, isFetching, isError, refetch } =
     useGetCompressedAccountsByOwner(address);
 
-  // TODO: Refactor jsx
   if (isError)
     return (
       <Card className="col-span-12">
-        <CardContent className="pt-6">
-          <div>Failed to load</div>
+        <CardContent className="pt-6 text-center">
+          <div className="text-lg font-medium text-red-500">
+            Failed to load Compressed Accounts
+          </div>
+          <div className="text-sm text-muted-foreground mb-4">
+            Try refreshing the page or changing networks.
+          </div>
+          <Button onClick={() => refetch()} className="mr-2">
+            Refresh
+          </Button>
         </CardContent>
       </Card>
     );
+
   if (isLoading)
     return (
       <Card className="col-span-12">

@@ -22,11 +22,15 @@ export default function AddressLayout({
   const compressedAccount = useGetCompressedAccount(address);
 
   if (!isAddress(address)) {
-    return <div>Invalid address</div>;
+    return <div className="flex items-center justify-center p-6 text-muted-foreground text-lg">
+      Invalid address
+      </div>;
   }
 
   if (accountInfo.isError) {
-    return <div>Error...</div>;
+    return <div className="flex items-center justify-center p-6 text-muted-foreground text-lg">
+      Invalid connection, check your config and try again.
+      </div>;
   }
 
   return (
