@@ -2,18 +2,20 @@
 
 import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
-
-import TransactionCard from "@/components/account/transaction-card";
+import { DataTable } from "@/components/data-table/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { columns } from "@/components/account/transaction-card";
+import { ConfirmedSignatureInfo } from "@solana/web3.js";
+import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
+import { timeAgoWithFormat } from "@/utils/common";
+import { CircleArrowDown, CircleCheck } from "lucide-react";
+import Signature from "../common/signature";
 
 export default function AccountHistory({ address }: { address: string }) {
   const signatures = useGetSignaturesForAddress(address);
-
-  // Load possible compression signatures if this is a compression hash instead of an address
   const compressionSignatures = useGetCompressionSignaturesForAccount(address);
 
-  // First check for non compression signatures
   if (signatures.isError)
     return (
       <Card className="col-span-12">
@@ -24,6 +26,7 @@ export default function AccountHistory({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
+  
   if (signatures.isLoading || signatures.isPending)
     return (
       <Card className="col-span-12">
@@ -41,32 +44,48 @@ export default function AccountHistory({ address }: { address: string }) {
       </Card>
     );
 
-  if (signatures.data.length > 0) {
-    return (
-      <Card className="col-span-12">
-        <CardContent className="grid pt-6 gap-4">
-          {signatures.data?.map((transaction) => (
-            <TransactionCard
-              key={transaction.signature}
-              transaction={transaction}
-            />
+  const data: (ConfirmedSignatureInfo | SignatureWithMetadata)[] = 
+    signatures.data.length > 0 ? signatures.data : compressionSignatures.data || [];
+
+  return (
+    <Card className="col-span-12">
+      <CardContent className="pt-6">
+        <div className="hidden md:block">
+          <DataTable columns={columns} data={data} />
+        </div>
+        <div className="block md:hidden">
+          {data.map((transaction, index) => (
+            <div key={index} className="border-b pb-3 mb-3">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <CircleArrowDown strokeWidth={1} className="h-8 w-8" />
+                  <div>
+                    <div className="text-sm font-base leading-none">Received</div>
+                    <div className="text-sm text-muted-foreground">
+                      {transaction.blockTime ? timeAgoWithFormat(Number(transaction.blockTime), true) : ""}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-sm text-muted-foreground">From</div>
+                  <div className="text-sm font-base leading-none">
+                    <Signature copy={false} signature={transaction.signature} />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 justify-start">
+                <div className="h-8 w-8 flex items-center justify-center">
+                  <CircleCheck strokeWidth={1} className="h-full w-full" />
+                </div>
+                <div className="grid gap-1 text-center">
+                  <div className="text-sm font-medium leading-none">+10 hSOL</div>
+                  <div className="text-sm text-muted-foreground">$1500.00</div>
+                </div>
+              </div>
+            </div>
           ))}
-        </CardContent>
-      </Card>
-    );
-  } else if (compressionSignatures.data) {
-    // If no signatures found, show compression signatures based on the hash (address)
-    return (
-      <Card className="col-span-12">
-        <CardContent className="grid pt-6 gap-4">
-          {compressionSignatures.data.map((transaction: any) => (
-            <TransactionCard
-              key={transaction.signature}
-              transaction={transaction}
-            />
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
