@@ -88,12 +88,18 @@ export default function CompressedAccounts({ address }: { address: string }) {
 
   if (isLoading)
     return (
-      <Card className="col-span-12">
-        <CardContent className="pt-6">
+      <Card className="col-span-12 shadow mb-10">
+        <CardContent className="flex flex-col pt-6 gap-4 pb-6">
           <Loading />
         </CardContent>
       </Card>
     );
 
-  return <DataTable data={data!} columns={columns} />;
+  return (
+  <Card className="col-span-12 shadow mb-10">
+    <CardContent className="flex flex-col pt-6 gap-4 pb-6">
+      <DataTable data={data!} columns={columns} />
+    </CardContent>
+  </Card>
+  )
 }
