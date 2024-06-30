@@ -7,14 +7,15 @@ import {
   isSolanaSignature,
   shortenLong
 } from "@/utils/common";
-import { tokenAddressLookupTable } from "@/utils/data";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { Circle, CogIcon, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 export function Search({
   className,
@@ -23,7 +24,9 @@ export function Search({
   const router = useRouter();
   const { cluster } = useCluster();
   const [search, setSearch] = React.useState("");
-  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string }[]>([]);
+  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string; logoURI?: string }[]>([]);
+
+  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -49,9 +52,20 @@ export function Search({
           })
           .map(([, { name }]) => ({ name, icon: <CogIcon />, type: 'Program' }));
 
-        const tokenSuggestions = Object.values(tokenAddressLookupTable)
-          .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
-          .map((name) => ({ name, icon: <Circle />, type: 'Token' }));
+        const tokenSuggestions = tokenList
+          ? tokenList
+              .filter(token => token.name.toLowerCase().includes(value.toLowerCase()))
+              .map(token => ({ name: token.name, icon: token.logoURI ? 
+              <Image 
+              src={token.logoURI} 
+              alt={token.name} 
+              width={20} 
+              height={20} 
+              className="rounded-md"
+              /> : <Circle />, 
+              type: 'Token', 
+              logoURI: token.logoURI }))
+          : [];
 
         newSuggestions.push(...programSuggestions, ...tokenSuggestions);
       }
@@ -78,9 +92,9 @@ export function Search({
       ([, { name }]) => name.toLowerCase() === search.toLowerCase(),
     );
 
-    const tokenEntry = Object.entries(tokenAddressLookupTable).find(
-      ([, entry]) => entry.toLowerCase() === search.toLowerCase(),
-    );
+    const tokenEntry = tokenList
+      ? tokenList.find(token => token.name.toLowerCase() === search.toLowerCase())
+      : null;
 
     if (programEntry) {
       router.push(`/address/${programEntry[0]}/?cluster=${cluster}`);
@@ -88,7 +102,7 @@ export function Search({
     }
 
     if (tokenEntry) {
-      router.push(`/address/${tokenEntry[0]}/?cluster=${cluster}`);
+      router.push(`/address/${tokenEntry.address}/?cluster=${cluster}`);
       return;
     }
 
