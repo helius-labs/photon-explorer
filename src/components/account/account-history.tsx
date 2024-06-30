@@ -64,7 +64,7 @@ export default function AccountHistory({ address }: { address: string }) {
     signatures.data.length > 0 ? signatures.data : compressionSignatures.data || [];
 
   return (
-    <Card className="col-span-12">
+    <Card className="col-span-12 mb-10">
       <CardContent className="pt-6">
         <div className="hidden md:block">
           <DataTable columns={columns} data={data} />
