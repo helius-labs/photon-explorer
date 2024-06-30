@@ -62,7 +62,7 @@ export default function AccountNFTs({ address }: { address: string }) {
         <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
           <div className="text-secondary font-semibold">Unable to fetch NFTs</div>
           <div className="text-gray-500">
-            <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> the page or navigate <a href="/" className="text-blue-500 underline">home</a>.
+            <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> or change networks.
           </div>
         </CardContent>
       </Card>
@@ -73,7 +73,7 @@ export default function AccountNFTs({ address }: { address: string }) {
       <CardContent className="flex flex-col pt-6 pb-4 gap-4">
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            {[...Array(20)].map((_, index) => (
+            {[...Array(12)].map((_, index) => (
               <Skeleton key={index} className="mt-14 h-60 md:h-40 w-full rounded-md" />
             ))}
           </div>
@@ -95,7 +95,7 @@ export default function AccountNFTs({ address }: { address: string }) {
             {displayedNfts.length > 0 ? (
               <NFTGridTable columns={columns} data={displayedNfts} />
             ) : (
-              <p>No NFTs found</p>
+              <p className="flex items-center justify-center p-6 text-muted-foreground text-lg">No NFTs found</p>
             )}
           </>
         )}

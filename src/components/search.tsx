@@ -5,15 +5,17 @@ import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
+  shortenLong
 } from "@/utils/common";
-import { tokenAddressLookupTable } from "@/utils/data";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { Circle, CogIcon, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 export function Search({
   className,
@@ -22,33 +24,55 @@ export function Search({
   const router = useRouter();
   const { cluster } = useCluster();
   const [search, setSearch] = React.useState("");
-  const [suggestions, setSuggestions] = React.useState<
-    { name: string; icon: JSX.Element }[]
-  >([]);
+  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string; logoURI?: string }[]>([]);
+
+  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
 
+    const newSuggestions = [];
+
     if (value) {
-      const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
-        .filter(([address, { name, deployments }]) => {
-          if (!deployments.includes(cluster)) return false;
-          return (
-            name.toLowerCase().includes(search.toLowerCase()) ||
-            address.includes(search)
-          );
-        })
-        .map(([address, { name }]) => ({ name, icon: <CogIcon /> }));
+      // Check if the input is a Solana address or signature
+      const isProgramAddress = isSolanaProgramAddress(value);
+      const isAccountAddress = isSolanaAccountAddress(value);
+      const isSignature = isSolanaSignature(value);
 
-      const tokenSuggestions = Object.values(tokenAddressLookupTable)
-        .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
-        .map((name) => ({ name, icon: <Circle /> }));
+      if (isProgramAddress || isAccountAddress || isSignature) {
+        newSuggestions.push({ name: value, icon: <SearchIcon />, type: 'Input' });
+      } else {
+        const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
+          .filter(([, { name, deployments }]) => {
+            if (!deployments.includes(cluster)) return false;
+            return (
+              name.toLowerCase().includes(value.toLowerCase())
+            );
+          })
+          .map(([, { name }]) => ({ name, icon: <CogIcon />, type: 'Program' }));
 
-      setSuggestions([...programSuggestions, ...tokenSuggestions]);
-    } else {
-      setSuggestions([]);
+        const tokenSuggestions = tokenList
+          ? tokenList
+              .filter(token => token.name.toLowerCase().includes(value.toLowerCase()))
+              .map(token => ({ name: token.name, icon: token.logoURI ? 
+              <Image 
+              src={token.logoURI} 
+              alt={token.name} 
+              width={20} 
+              height={20} 
+              className="rounded-md"
+              /> : <Circle />, 
+              type: 'Token', 
+              logoURI: token.logoURI }))
+          : [];
+
+        newSuggestions.push(...programSuggestions, ...tokenSuggestions);
+      }
     }
+
+    setSuggestions(newSuggestions);
+    console.log("Suggestions: ", newSuggestions); // Debugging line
   };
 
   const handleSuggestionClick = (suggestion: { name: string }) => {
@@ -65,12 +89,12 @@ export function Search({
 
     // Reverse lookup in program and token address lookup tables
     const programEntry = Object.entries(PROGRAM_INFO_BY_ID).find(
-      ([address, { name }]) => name.toLowerCase() === search.toLowerCase(),
+      ([, { name }]) => name.toLowerCase() === search.toLowerCase(),
     );
 
-    const tokenEntry = Object.entries(tokenAddressLookupTable).find(
-      ([, entry]) => entry.toLowerCase() === search.toLowerCase(),
-    );
+    const tokenEntry = tokenList
+      ? tokenList.find(token => token.name.toLowerCase() === search.toLowerCase())
+      : null;
 
     if (programEntry) {
       router.push(`/address/${programEntry[0]}/?cluster=${cluster}`);
@@ -78,7 +102,7 @@ export function Search({
     }
 
     if (tokenEntry) {
-      router.push(`/address/${tokenEntry[0]}/?cluster=${cluster}`);
+      router.push(`/address/${tokenEntry.address}/?cluster=${cluster}`);
       return;
     }
 
@@ -131,7 +155,7 @@ export function Search({
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion.icon}
-                  {suggestion.name}
+                  {suggestion.type === 'Input' ? `Search for "${shortenLong(suggestion.name)}"` : (suggestion.name)}
                 </li>
               ))}
             </ul>

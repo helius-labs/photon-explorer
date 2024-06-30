@@ -1,13 +1,14 @@
 "use client";
 
+import React from "react";
 import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
 import {
   AccountInfo,
-  Connection,
   ParsedAccountData,
   PublicKey,
   RpcResponseAndContext,
 } from "@solana/web3.js";
+import Image from "next/image";
 import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
 import { MoreVertical } from "lucide-react";
@@ -16,6 +17,7 @@ import { lamportsToSolString } from "@/utils/common";
 import { useUserDomains } from "@/utils/name-service";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
+import { useCluster } from "@/providers/cluster-provider";
 
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +29,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
+
+import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
+import { SerumMarketRegistry } from "@/utils/serumMarketRegistry";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+
+const solLogoUrl = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png";
 
 export function AccountHeader({
   address,
@@ -49,29 +58,73 @@ export function AccountHeader({
 
   // Use the custom hook to fetch domain names
   const [userDomains, loadingDomains] = useUserDomains(address.toBase58());
+  const router = useRouter();
+  const { cluster } = useCluster();
+
+  // Fetch the token list
+  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
+
+  // Determine the type of account and token name if applicable
+  const { accountType, tokenName, tokenImageURI } = React.useMemo(() => {
+    const addressStr = address.toBase58();
+    let type = null;
+    let name = null;
+    let imageURI = null;
+
+    if (tokenList) {
+      const token = tokenList.find(token => token.address === addressStr);
+      if (token) {
+        type = "Token";
+        name = token.name;
+        imageURI = token.logoURI;
+      }
+    }
+
+    if (!type && PROGRAM_INFO_BY_ID[addressStr]) type = "Program";
+    if (!type && SerumMarketRegistry.get(addressStr, cluster)) type = "Market";
+
+    return { accountType: type, tokenName: name, tokenImageURI: imageURI };
+  }, [address, cluster, tokenList]);
 
   return (
     <div className="flex items-center gap-4 mb-8">
-      <Avatar
-        size={80}
-        name={address.toBase58()}
-        variant="marble"
-        colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
-      />
+      {tokenImageURI ? (
+        <Image
+          src={tokenImageURI}
+          alt={tokenName || "Token"}
+          width={80}
+          height={80}
+          className="rounded-full"
+        />
+      ) : (
+        <Avatar
+          size={80}
+          name={address.toBase58()}
+          variant="marble"
+          colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
+        />
+      )}
       <div className="grid gap-2">
         <div className="text-3xl font-medium leading-none">
-          <Address pubkey={address} />
+          {tokenName || <Address pubkey={address} />}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {accountInfo.isLoading ? (
-            <Skeleton className="h-7 w-[300px]" />
+          {accountInfo.isLoading || tokenListLoading ? (
+            <Skeleton className="h-7 w-[250px]" />
           ) : (
             <>
               {accountInfo.data?.value || compressedAccount.data ? (
                 <>
                   {accountInfo.data?.value &&
                     accountInfo.data?.value.lamports && (
-                      <span className="text-lg text-muted-foreground">
+                      <span className="text-lg text-muted-foreground flex items-center">
+                        <Image
+                          src={solLogoUrl}
+                          alt="SOL logo"
+                          className="w-6 h-6 mr-2 rounded-md"
+                          width={16}
+                          height={16}
+                        />
                         {`${lamportsToSolString(
                           accountInfo.data?.value.lamports,
                           2,
@@ -79,7 +132,14 @@ export function AccountHeader({
                       </span>
                     )}
                   {compressedBalance && compressedBalance.value && (
-                    <span className="text-lg text-muted-foreground">
+                    <span className="text-lg text-muted-foreground flex items-center">
+                      <Image
+                        src={solLogoUrl}
+                        alt="SOL logo"
+                        className="w-5 h-5 rounded-md mr-1"
+                        width={16}
+                        height={16}
+                      />
                       {` | ${lamportsToSolString(
                         compressedBalance.value,
                         2,
@@ -87,12 +147,24 @@ export function AccountHeader({
                     </span>
                   )}
                   {compressedAccount.data && (
-                    <span className="text-lg text-muted-foreground">
+                    <span className="text-lg text-muted-foreground flex items-center">
+                      <Image
+                        src={solLogoUrl}
+                        alt="SOL logo"
+                        className="w-5 h-5 rounded-md mr-1"
+                        width={16}
+                        height={16}
+                      />
                       {`${lamportsToSolString(
                         compressedAccount.data.lamports,
                         2,
                       )} SOL`}
                     </span>
+                  )}
+                  {accountType && (
+                    <Badge variant="success">
+                      {accountType}
+                    </Badge>
                   )}
                   {!loadingDomains && userDomains && userDomains.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -132,6 +204,13 @@ export function AccountHeader({
                 }}
               >
                 Refresh
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${cluster}`);
+                }}
+              >
+                Compressed Accounts
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
