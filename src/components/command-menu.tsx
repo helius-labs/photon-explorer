@@ -22,6 +22,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+import Image from "next/image";
+import { Circle, CogIcon, SearchIcon } from "lucide-react";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
@@ -30,7 +36,10 @@ export function CommandMenu({ ...props }: DialogProps) {
   const [program, setProgram] = React.useState<string | null>(null);
   const [transaction, setTransaction] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
+  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string; address?: string }[]>([]);
   const { cluster } = useCluster();
+
+  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -59,6 +68,11 @@ export function CommandMenu({ ...props }: DialogProps) {
   }, []);
 
   const handleOnValueChange = (search: string) => {
+    if (search === "") {
+      setSuggestions([]);
+      return;
+    }
+
     async function check() {
       setLoading(true);
 
@@ -66,26 +80,64 @@ export function CommandMenu({ ...props }: DialogProps) {
       setAddress(null);
       setTransaction(null);
 
+      const newSuggestions = [];
+
       // Check if is program address
       if (isSolanaProgramAddress(search)) {
         setProgram(search);
+        newSuggestions.push({ name: search, icon: <SearchIcon />, type: 'Program', address: search });
       }
 
       // Check if address and not program address
       if (isSolanaAccountAddress(search) && !isSolanaProgramAddress(search)) {
         setAddress(search);
+        newSuggestions.push({ name: search, icon: <SearchIcon />, type: 'Account', address: search });
       }
 
       // Check if is transaction id
       if (isSolanaSignature(search)) {
         setTransaction(search);
+        newSuggestions.push({ name: search, icon: <SearchIcon />, type: 'Transaction', address: search });
       }
 
+      // Add program suggestions
+      const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
+        .filter(([, { name, deployments }]) => {
+          if (!deployments.includes(cluster)) return false;
+          return (
+            name.toLowerCase().includes(search.toLowerCase())
+          );
+        })
+        .map(([address, { name }]) => ({ name, icon: <CogIcon />, type: 'Program', address }));
+
+      // Add token suggestions
+      const tokenSuggestions = tokenList
+        ? tokenList
+            .filter(token => token.name.toLowerCase().includes(search.toLowerCase()))
+            .map(token => ({ name: token.name, icon: token.logoURI ? 
+            <Image 
+            src={token.logoURI} 
+            alt={token.name} 
+            width={20} 
+            height={20} 
+            className="rounded-md"
+            /> : <Circle />, type: 'Token', address: token.address }))
+        : [];
+
+      newSuggestions.push(...programSuggestions, ...tokenSuggestions);
+
+      setSuggestions(newSuggestions);
       setLoading(false);
     }
 
     check();
   };
+
+  // Group suggestions by type
+  const programSuggestions = suggestions.filter(suggestion => suggestion.type === 'Program');
+  const accountSuggestions = suggestions.filter(suggestion => suggestion.type === 'Account');
+  const transactionSuggestions = suggestions.filter(suggestion => suggestion.type === 'Transaction');
+  const tokenSuggestions = suggestions.filter(suggestion => suggestion.type === 'Token');
 
   return (
     <>
@@ -110,56 +162,93 @@ export function CommandMenu({ ...props }: DialogProps) {
           placeholder="Search for accounts and transactions..."
           onValueChange={handleOnValueChange}
         />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          {loading && <CommandLoading>Fetching..</CommandLoading>}
-          {program && (
-            <CommandGroup heading="Program">
-              <CommandItem
-                key={`account-${program}`}
-                value={program}
-                onSelect={() => {
-                  runCommand(() =>
-                    router.push(`/address/${program}/?cluster=${cluster}`),
-                  );
-                }}
-              >
-                <span className="truncate">{program}</span>
-              </CommandItem>
-            </CommandGroup>
-          )}
-          {address && (
-            <CommandGroup heading="Account">
-              <CommandItem
-                key={`account-${address}`}
-                value={address}
-                onSelect={() => {
-                  runCommand(() =>
-                    router.push(`/address/${address}/?cluster=${cluster}`),
-                  );
-                }}
-              >
-                <span className="truncate">{address}</span>
-              </CommandItem>
-            </CommandGroup>
-          )}
-          {transaction && (
-            <CommandGroup heading="Transaction">
-              <CommandItem
-                key={`transaction-${transaction}`}
-                value={transaction}
-                onSelect={() => {
-                  runCommand(() =>
-                    router.push(`/tx/${transaction}/?cluster=${cluster}`),
-                  );
-                }}
-                className="truncate"
-              >
-                <span className="truncate">{transaction}</span>
-              </CommandItem>
-            </CommandGroup>
-          )}
-        </CommandList>
+        <ScrollArea className="max-h-[300px]">
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            {loading && <CommandLoading>Fetching..</CommandLoading>}
+            {programSuggestions.length > 0 && (
+              <CommandGroup heading="Program">
+                {programSuggestions.map((suggestion, index) => (
+                  <CommandItem
+                    key={`program-${index}`}
+                    value={suggestion.name}
+                    onSelect={() => {
+                      runCommand(() =>
+                        router.push(`/address/${suggestion.address}/?cluster=${cluster}`),
+                      );
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      {suggestion.icon}
+                      <span className="truncate">{suggestion.name}</span>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {accountSuggestions.length > 0 && (
+              <CommandGroup heading="Account">
+                {accountSuggestions.map((suggestion, index) => (
+                  <CommandItem
+                    key={`account-${index}`}
+                    value={suggestion.name}
+                    onSelect={() => {
+                      runCommand(() =>
+                        router.push(`/address/${suggestion.address}/?cluster=${cluster}`),
+                      );
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      {suggestion.icon}
+                      <span className="truncate">{suggestion.name}</span>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {transactionSuggestions.length > 0 && (
+              <CommandGroup heading="Transaction">
+                {transactionSuggestions.map((suggestion, index) => (
+                  <CommandItem
+                    key={`transaction-${index}`}
+                    value={suggestion.name}
+                    onSelect={() => {
+                      runCommand(() =>
+                        router.push(`/tx/${suggestion.address}/?cluster=${cluster}`),
+                      );
+                    }}
+                    className="truncate"
+                  >
+                    <span className="flex items-center gap-2">
+                      {suggestion.icon}
+                      <span className="truncate">{suggestion.name}</span>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {tokenSuggestions.length > 0 && (
+              <CommandGroup heading="Token">
+                {tokenSuggestions.map((suggestion, index) => (
+                  <CommandItem
+                    key={`token-${index}`}
+                    value={suggestion.name}
+                    onSelect={() => {
+                      runCommand(() =>
+                        router.push(`/address/${suggestion.address}/?cluster=${cluster}`),
+                      );
+                    }}
+                  >
+                    <span className="flex items-center gap-2">
+                      {suggestion.icon}
+                      <span className="truncate">{suggestion.name}</span>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </ScrollArea>
       </CommandDialog>
     </>
   );
