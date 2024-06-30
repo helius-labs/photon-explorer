@@ -3,7 +3,7 @@
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
-
+import { useRouter } from "next/navigation";
 import { timeAgoWithFormat } from "@/utils/common";
 
 import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
@@ -14,6 +14,8 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "../ui/button";
+import { useCluster } from "@/providers/cluster-provider";
 
 export default function CompressedTransactionsByHash({
   hash,
@@ -61,7 +63,11 @@ export default function CompressedTransactionsByHash({
     ],
     [],
   );
-
+  const router = useRouter();
+  const { cluster } = useCluster();
+  const handleReturn = () => {
+    router.push(`/?cluster=${cluster}`);
+  };
   const { data, isLoading, isFetching, isError, refetch } =
     useGetCompressionSignaturesForAccount(hash);
 
@@ -70,7 +76,16 @@ export default function CompressedTransactionsByHash({
     return (
       <Card className="col-span-12">
         <CardContent className="pt-6">
-          <div>Failed to load</div>
+        <div className="flex flex-col items-center justify-center p-6">
+            <div className="text-muted-foreground text-lg">Failed to load transaction.</div>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={handleReturn}
+            >
+              Return
+            </Button>          
+          </div>
         </CardContent>
       </Card>
     );
