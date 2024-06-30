@@ -1,6 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
 import { timeAgoWithFormat } from "@/utils/common";
 import { statuses } from "@/utils/data";
 import { ColumnDef } from "@tanstack/react-table";
@@ -78,11 +79,15 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, isLoading, isError } = useGetLatestNonVotingSignatures(
-    cluster === "testnet",
-  );
+  const { data, isLoading, isError, isPending } =
+    useGetLatestNonVotingSignatures(
+      [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster),
+    );
 
-  // Check if there are any compression signatures
+  if (![Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster)) {
+    return null;
+  }
+
   const signatures: Transaction[] | undefined = data?.value.items?.map(
     (item): Transaction => ({
       signature: item.signature,
@@ -90,10 +95,6 @@ export default function LatestNonVotingSignatures() {
       blockTime: item.blockTime,
     }),
   );
-
-  if (cluster !== "testnet") {
-    return null;
-  }
 
   if (isLoading) {
     return (

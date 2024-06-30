@@ -155,6 +155,7 @@ export function useGetTransactionWithCompressionInfo(
   enabled: boolean = true,
 ) {
   const { endpoint, compressionEndpoint } = useCluster();
+  
 
   return useQuery({
     queryKey: [

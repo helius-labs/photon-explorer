@@ -4,7 +4,6 @@ import {
 } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import {
-  ParserOutput,
   ParserType,
   SolanaFMParser,
   checkIfInstructionParser,

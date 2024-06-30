@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { useParseInstructions } from "@/hooks/useParseInstructions";
 
+import { ScrollArea } from "@/components/ui//scroll-area";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -15,21 +16,17 @@ import {
 } from "@/components/ui/tooltip";
 
 interface DataProps {
-  programId: PublicKey;
   data: string;
 }
 
-export default function Data({ programId, data }: DataProps) {
+export default function Data({ data }: DataProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
-  const parsed = useParseInstructions(programId, data);
 
   React.useEffect(() => {
     setTimeout(() => {
       setHasCopied(false);
     }, 2000);
   }, [hasCopied]);
-
-  if (parsed.isLoading) return <div>Parsing...</div>;
 
   return (
     <TooltipProvider>
@@ -51,9 +48,9 @@ export default function Data({ programId, data }: DataProps) {
           </TooltipTrigger>
           <TooltipContent>Copy data</TooltipContent>
         </Tooltip>
-        <div className="w-[400px] break-all whitespace-pre-wrap">
-          {parsed.data}
-        </div>
+        <ScrollArea className="h-52 w-[300px] md:w-[400px] lg:w-[600px] bg-neutral-900 rounded-lg">
+          <div className="p-4 break-all whitespace-pre-wrap">{data}</div>
+        </ScrollArea>
       </div>
     </TooltipProvider>
   );
