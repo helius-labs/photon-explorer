@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetTransaction } from "@/hooks/web3";
@@ -15,30 +15,48 @@ import TransactionInstructions from "@/components/transaction/transaction-instru
 import TransactionOverview from "@/components/transaction/transaction-overview";
 import TransactionOverviewParsed from "@/components/transaction/transaction-overview-parsed";
 import TransactionTokenBalances from "@/components/transaction/transaction-token-balances";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "../ui/button";
+import { useCluster } from "@/providers/cluster-provider";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   // Default RPC transaction data
   const transaction = useGetTransaction(tx);
-
+  
   // Get parsed transaction data (only for mainnet-beta and devnet)
   const parsed = useGetParsedTransactions([tx]);
 
   // Compressed transactions
   const compressed = useGetTransactionWithCompressionInfo(tx);
 
+  const { cluster } = useCluster();
   const [showDetails, setShowDetails] = useState(false);
+  const router = useRouter();
 
   const toggleDetails = () => setShowDetails((prev) => !prev);
+
+  const handleReturn = () => {
+    router.push(`/?cluster=${cluster}`);
+  };
 
   if (parsed.isError || transaction.isError || compressed.isError)
     return (
       <Card className="w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
-          <div>Failed to load</div>
+          <div className="flex flex-col items-center justify-center p-6">
+            <div className="text-muted-foreground text-lg">Failed to load transaction.</div>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={handleReturn}
+            >
+              Return
+            </Button>          
+          </div>
         </CardContent>
       </Card>
     );
