@@ -53,7 +53,11 @@ export default function TransactionCompressionAccountBalances({
                   <TableCell>
                     <Address pubkey={new PublicKey(item.account.owner)} />
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className={
+                      item.account.lamports > 0 ? "text-green-400" : ""
+                    }
+                  >
                     {item.account.lamports > 0 && `+`}
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
                   </TableCell>
@@ -71,8 +75,10 @@ export default function TransactionCompressionAccountBalances({
                   <TableCell>
                     <Address pubkey={new PublicKey(item.account.owner)} />
                   </TableCell>
-                  <TableCell>
-                    {item.account.lamports > 0 && `+`}
+                  <TableCell
+                    className={item.account.lamports > 0 ? "text-red-400" : ""}
+                  >
+                    {item.account.lamports > 0 && `-`}
                     {`${lamportsToSolString(item.account.lamports, 7)} SOL`}
                   </TableCell>
                 </TableRow>

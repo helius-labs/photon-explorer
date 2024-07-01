@@ -74,7 +74,9 @@ export default function TransactionCompressionTokenBalances({
           <TableCell>
             <Address pubkey={item.mint} />
           </TableCell>
-          <TableCell>
+          <TableCell
+            className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
+          >
             {item.delta.gt(0) && `+`}
             <TokenBalance
               mint={item.mint}
