@@ -1,3 +1,5 @@
+"use server";
+
 import { EnrichedTransaction } from "@/types/helius-sdk";
 import { Cluster } from "@/utils/cluster";
 import { parseTransaction } from "@/utils/parser";

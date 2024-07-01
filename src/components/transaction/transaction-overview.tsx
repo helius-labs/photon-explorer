@@ -9,7 +9,6 @@ import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
 import Signature from "@/components/common/signature";
-import { SolBalance } from "@/components/common/sol-balance";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -34,7 +33,6 @@ export default function TransactionOverviewCompressed({
   data: ParsedTransactionWithMeta;
   compressed?: CompressedTransaction;
 }) {
-  // TODO: Add zustand store for token list
   const tokenList = useGetTokenListStrict();
 
   const signer = data.transaction.message.accountKeys.find(

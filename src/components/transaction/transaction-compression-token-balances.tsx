@@ -24,7 +24,6 @@ export default function TransactionCompressionTokenBalances({
 }) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  // TODO: Add zustand store for token list
   const tokenList = useGetTokenListStrict();
 
   interface Row {
