@@ -2,7 +2,6 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 import { shorten } from "@/utils/common";
-import { tokenAddressLookupTable } from "@/utils/data";
 import { displayAddress } from "@/utils/tx";
 import { PublicKey } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";

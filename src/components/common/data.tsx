@@ -1,10 +1,7 @@
 "use client";
 
-import { PublicKey } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
-
-import { useParseInstructions } from "@/hooks/useParseInstructions";
 
 import { ScrollArea } from "@/components/ui//scroll-area";
 import { Button } from "@/components/ui/button";
@@ -48,7 +45,7 @@ export default function Data({ data }: DataProps) {
           </TooltipTrigger>
           <TooltipContent>Copy data</TooltipContent>
         </Tooltip>
-        <ScrollArea className="h-52 w-[300px] md:w-[400px] lg:w-[600px] bg-neutral-900 rounded-lg">
+        <ScrollArea className="h-52 w-[300px] md:w-[400px] lg:w-[600px] bg-neutral-100 dark:bg-neutral-900 rounded-lg">
           <div className="p-4 break-all whitespace-pre-wrap">{data}</div>
         </ScrollArea>
       </div>
