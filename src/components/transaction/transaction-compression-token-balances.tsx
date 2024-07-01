@@ -97,8 +97,8 @@ export default function TransactionCompressionTokenBalances({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Owner</TableHead>
-                <TableHead>Mint</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Token</TableHead>
                 <TableHead>Change</TableHead>
               </TableRow>
             </TableHeader>

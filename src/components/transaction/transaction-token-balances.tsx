@@ -3,13 +3,14 @@ import {
   ParsedTransactionWithMeta,
   PublicKey,
   TokenAmount,
-  TokenBalance,
+  TokenBalance as TokenBalanceType,
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+
 import Address from "@/components/common/address";
-import { BalanceDelta } from "@/components/common/balance-delta";
-import { Badge } from "@/components/ui/badge";
+import { TokenBalance } from "@/components/common/token-balance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -33,6 +34,8 @@ export default function TransactionTokenBalances({
 }: {
   data: ParsedTransactionWithMeta;
 }) {
+  const tokenList = useGetTokenListStrict();
+
   const preTokenBalances = data.meta?.preTokenBalances;
   const postTokenBalances = data.meta?.postTokenBalances;
   const accountKeys = data.transaction.message.accountKeys;
@@ -63,22 +66,28 @@ export default function TransactionTokenBalances({
               <TableHead>Address</TableHead>
               <TableHead>Token</TableHead>
               <TableHead>Change</TableHead>
-              <TableHead>Post Balance</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map(({ account, delta, balance, mint }, index) => (
-              <TableRow key={`token-balance-${index}`}>
+              <TableRow key={`token-balance-${index}`} className="font-mono">
                 <TableCell>
                   <Address pubkey={account} short={true} />
                 </TableCell>
                 <TableCell>
                   <Address pubkey={new PublicKey(mint)} short={true} />
                 </TableCell>
-                <TableCell>
-                  <BalanceDelta delta={delta} />
+                <TableCell
+                  className={delta.gt(0) ? "text-green-400" : "text-red-400"}
+                >
+                  {delta.gt(0) && `+`}
+                  <TokenBalance
+                    mint={new PublicKey(mint)}
+                    amount={Number(balance.amount)}
+                    decimals={balance.decimals}
+                    tokenList={tokenList}
+                  />
                 </TableCell>
-                <TableCell>{balance.uiAmountString}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -89,12 +98,12 @@ export default function TransactionTokenBalances({
 }
 
 export function generateTokenBalanceRows(
-  preTokenBalances: TokenBalance[],
-  postTokenBalances: TokenBalance[],
+  preTokenBalances: TokenBalanceType[],
+  postTokenBalances: TokenBalanceType[],
   accounts: ParsedMessageAccount[],
 ): TokenBalanceRow[] {
-  const preBalanceMap: { [index: number]: TokenBalance } = {};
-  const postBalanceMap: { [index: number]: TokenBalance } = {};
+  const preBalanceMap: { [index: number]: TokenBalanceType } = {};
+  const postBalanceMap: { [index: number]: TokenBalanceType } = {};
 
   preTokenBalances.forEach(
     (balance) => (preBalanceMap[balance.accountIndex] = balance),
