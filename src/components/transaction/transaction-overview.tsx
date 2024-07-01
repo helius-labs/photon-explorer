@@ -43,6 +43,7 @@ export default function TransactionOverviewCompressed({
     pubkey: PublicKey;
     delta: BigNumber;
     mint?: PublicKey;
+    decimals?: number;
   }
 
   // Native balance changes
@@ -91,8 +92,9 @@ export default function TransactionOverviewCompressed({
 
       return {
         pubkey: row.account,
-        delta: row.delta,
+        delta: new BigNumber(row.balance.amount),
         mint: new PublicKey(row.mint),
+        decimals: row.balance.decimals,
       };
     });
   }
@@ -182,6 +184,7 @@ export default function TransactionOverviewCompressed({
               <TokenBalance
                 mint={item.mint}
                 amount={item.delta.toNumber()}
+                decimals={item.decimals}
                 tokenList={tokenList}
               />
             </TableCell>

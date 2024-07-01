@@ -76,9 +76,7 @@ export default function TransactionTokenBalances({
                   <Address pubkey={new PublicKey(mint)} short={true} />
                 </TableCell>
                 <TableCell>
-                  <Badge variant="success">
-                    <BalanceDelta delta={delta} />
-                  </Badge>
+                  <BalanceDelta delta={delta} />
                 </TableCell>
                 <TableCell>{balance.uiAmountString}</TableCell>
               </TableRow>
