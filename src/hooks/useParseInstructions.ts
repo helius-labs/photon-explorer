@@ -1,10 +1,8 @@
 "use client";
 
-import { useCluster } from "@/providers/cluster-provider";
+import { parseInstructions } from "@/server/parseInstructions";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
-
-import { parseInstructions } from "@/actions/parseInstructions";
 
 export function useParseInstructions(
   programId: PublicKey,
@@ -14,7 +12,7 @@ export function useParseInstructions(
   return useQuery({
     queryKey: ["parseInstructions", programId, ixData],
     queryFn: async () => {
-      return parseInstructions(programId, ixData);
+      return parseInstructions(programId.toBase58(), ixData);
     },
     enabled,
     staleTime: 1000 * 60 * 60, // 1 hour

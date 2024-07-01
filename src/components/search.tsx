@@ -5,17 +5,18 @@ import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
-  shortenLong
+  shortenLong,
 } from "@/utils/common";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { Circle, CogIcon, SearchIcon } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
+
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 
 export function Search({
   className,
@@ -24,9 +25,12 @@ export function Search({
   const router = useRouter();
   const { cluster } = useCluster();
   const [search, setSearch] = React.useState("");
-  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string; logoURI?: string }[]>([]);
+  const [suggestions, setSuggestions] = React.useState<
+    { name: string; icon: JSX.Element; type?: string; logoURI?: string }[]
+  >([]);
 
-  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
+  const { data: tokenList, isLoading: tokenListLoading } =
+    useGetTokenListStrict();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -41,30 +45,44 @@ export function Search({
       const isSignature = isSolanaSignature(value);
 
       if (isProgramAddress || isAccountAddress || isSignature) {
-        newSuggestions.push({ name: value, icon: <SearchIcon />, type: 'Input' });
+        newSuggestions.push({
+          name: value,
+          icon: <SearchIcon />,
+          type: "Input",
+        });
       } else {
         const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
           .filter(([, { name, deployments }]) => {
             if (!deployments.includes(cluster)) return false;
-            return (
-              name.toLowerCase().includes(value.toLowerCase())
-            );
+            return name.toLowerCase().includes(value.toLowerCase());
           })
-          .map(([, { name }]) => ({ name, icon: <CogIcon />, type: 'Program' }));
+          .map(([, { name }]) => ({
+            name,
+            icon: <CogIcon />,
+            type: "Program",
+          }));
 
         const tokenSuggestions = tokenList
           ? tokenList
-              .filter(token => token.name.toLowerCase().includes(value.toLowerCase()))
-              .map(token => ({ name: token.name, icon: token.logoURI ? 
-              <Image 
-              src={token.logoURI} 
-              alt={token.name} 
-              width={20} 
-              height={20} 
-              className="rounded-md"
-              /> : <Circle />, 
-              type: 'Token', 
-              logoURI: token.logoURI }))
+              .filter((token) =>
+                token.name.toLowerCase().includes(value.toLowerCase()),
+              )
+              .map((token) => ({
+                name: token.name,
+                icon: token.logoURI ? (
+                  <Image
+                    src={token.logoURI}
+                    alt={token.name}
+                    width={20}
+                    height={20}
+                    className="rounded-md"
+                  />
+                ) : (
+                  <Circle />
+                ),
+                type: "Token",
+                logoURI: token.logoURI,
+              }))
           : [];
 
         newSuggestions.push(...programSuggestions, ...tokenSuggestions);
@@ -72,7 +90,6 @@ export function Search({
     }
 
     setSuggestions(newSuggestions);
-    console.log("Suggestions: ", newSuggestions); // Debugging line
   };
 
   const handleSuggestionClick = (suggestion: { name: string }) => {
@@ -93,7 +110,9 @@ export function Search({
     );
 
     const tokenEntry = tokenList
-      ? tokenList.find(token => token.name.toLowerCase() === search.toLowerCase())
+      ? tokenList.find(
+          (token) => token.name.toLowerCase() === search.toLowerCase(),
+        )
       : null;
 
     if (programEntry) {
@@ -155,7 +174,9 @@ export function Search({
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion.icon}
-                  {suggestion.type === 'Input' ? `Search for "${shortenLong(suggestion.name)}"` : (suggestion.name)}
+                  {suggestion.type === "Input"
+                    ? `Search for "${shortenLong(suggestion.name)}"`
+                    : suggestion.name}
                 </li>
               ))}
             </ul>

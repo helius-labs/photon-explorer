@@ -1,5 +1,6 @@
 "use client";
 
+import { lamportsToSolString } from "@/utils/common";
 import {
   ParsedInnerInstruction,
   ParsedInstruction,
@@ -7,10 +8,9 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
-import { lamportsToSolString } from "@/utils/common";
-
 import Address from "@/components/common/address";
 import Data from "@/components/common/data";
+import ParseInstruction from "@/components/common/parse-instruction";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -76,9 +76,9 @@ export default function Instruction({
                           Instruction Data (JSON)
                         </TableCell>
                         <TableCell>
-                          <pre>
-                            {JSON.stringify(instruction.parsed, null, 2)}
-                          </pre>
+                          <Data
+                            data={JSON.stringify(instruction.parsed, null, 2)}
+                          ></Data>
                         </TableCell>
                       </TableRow>
                     </>
@@ -98,7 +98,7 @@ export default function Instruction({
                 <TableRow key={`data-${index}`}>
                   <TableCell className="align-top">Data</TableCell>
                   <TableCell>
-                    <Data
+                    <ParseInstruction
                       programId={instruction.programId}
                       data={instruction.data}
                     />

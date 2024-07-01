@@ -24,9 +24,15 @@ export function BalanceDelta({
   }
 
   if (delta.gt(0)) {
-    return <span>+{isSol ? sols : delta.toString()}</span>;
+    return (
+      <span className="text-green-400">+{isSol ? sols : delta.toString()}</span>
+    );
   } else if (delta.lt(0)) {
-    return <span>{isSol ? <>-{sols}</> : delta.toString()}</span>;
+    return (
+      <span className="text-red-400">
+        {isSol ? <>-{sols}</> : delta.toString()}
+      </span>
+    );
   }
 
   return <span>0 SOL</span>;

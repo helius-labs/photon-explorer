@@ -1,11 +1,9 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { useQuery } from "@tanstack/react-query";
-
+import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
-
-import { getParsedTransactions } from "@/actions/getParsedTransactions";
+import { useQuery } from "@tanstack/react-query";
 
 export function useGetParsedTransactions(
   transactions: string[],

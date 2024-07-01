@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-
 import { shorten } from "@/utils/common";
 
 import TransactionDetails from "@/components/transaction/transaction-details";
@@ -20,10 +18,8 @@ export async function generateMetadata({ params }: Props) {
 
 export default function Page({ params }: { params: { tx: string } }) {
   return (
-    <>
-      <div className="grid gap-3">
-        <TransactionDetails tx={params.tx} />
-      </div>
-    </>
+    <div className="grid gap-3">
+      <TransactionDetails tx={params.tx} />
+    </div>
   );
 }

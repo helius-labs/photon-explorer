@@ -1,4 +1,3 @@
-import { lamportsToSolString } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 
@@ -24,7 +23,6 @@ export default function TransactionCompressionTokenBalances({
 }) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  // TODO: Add zustand store for token list
   const tokenList = useGetTokenListStrict();
 
   interface Row {
@@ -75,7 +73,9 @@ export default function TransactionCompressionTokenBalances({
           <TableCell>
             <Address pubkey={item.mint} />
           </TableCell>
-          <TableCell>
+          <TableCell
+            className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
+          >
             {item.delta.gt(0) && `+`}
             <TokenBalance
               mint={item.mint}

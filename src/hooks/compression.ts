@@ -1,6 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
 import { createBN254, createRpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
@@ -154,7 +155,7 @@ export function useGetTransactionWithCompressionInfo(
   signature: string,
   enabled: boolean = true,
 ) {
-  const { endpoint, compressionEndpoint } = useCluster();
+  const { cluster, endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
     queryKey: [
@@ -163,11 +164,14 @@ export function useGetTransactionWithCompressionInfo(
       signature,
     ],
     queryFn: async () => {
-      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
-        commitment: "processed",
-      });
+      if (cluster === Cluster.Localnet || cluster === Cluster.Testnet) {
+        const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+          commitment: "processed",
+        });
 
-      return await connection.getTransactionWithCompressionInfo(signature);
+        return await connection.getTransactionWithCompressionInfo(signature);
+      }
+      return null;
     },
     enabled,
   });

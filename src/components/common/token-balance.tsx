@@ -1,9 +1,8 @@
+import { normalizeTokenAmount } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import { UseQueryResult } from "@tanstack/react-query";
 import { CircleHelp } from "lucide-react";
 import React from "react";
-
-import { normalizeTokenAmount } from "@/utils/common";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 

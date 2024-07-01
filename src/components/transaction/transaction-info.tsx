@@ -15,7 +15,7 @@ export default function TransactionInfo({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Statistics for Nerds 🤓</CardTitle>
+        <CardTitle>Transaction Metadata</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>

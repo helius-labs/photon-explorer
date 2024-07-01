@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCluster } from "@/providers/cluster-provider";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetTransaction } from "@/hooks/web3";
@@ -15,22 +17,21 @@ import TransactionInstructions from "@/components/transaction/transaction-instru
 import TransactionOverview from "@/components/transaction/transaction-overview";
 import TransactionOverviewParsed from "@/components/transaction/transaction-overview-parsed";
 import TransactionTokenBalances from "@/components/transaction/transaction-token-balances";
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+
 import { Button } from "../ui/button";
-import { useCluster } from "@/providers/cluster-provider";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   // Default RPC transaction data
   const transaction = useGetTransaction(tx);
-  
+
   // Get parsed transaction data (only for mainnet-beta and devnet)
   const parsed = useGetParsedTransactions([tx]);
 
-  // Compressed transactions
+  // Compressed transactions (currently only for testnet and localnet)
   const compressed = useGetTransactionWithCompressionInfo(tx);
 
   const { cluster } = useCluster();
@@ -48,14 +49,12 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       <Card className="w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center p-6">
-            <div className="text-muted-foreground text-lg">Failed to load transaction.</div>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={handleReturn}
-            >
+            <div className="text-muted-foreground text-lg">
+              Failed to load transaction.
+            </div>
+            <Button variant="outline" className="mt-4" onClick={handleReturn}>
               Return
-            </Button>          
+            </Button>
           </div>
         </CardContent>
       </Card>
