@@ -70,7 +70,7 @@ export default function Signature({
                 {signatureLabel}
               </Link>
             ) : (
-              <>{signatureLabel}</>
+              <span>{signatureLabel}</span>
             )}
           </TooltipTrigger>
           <TooltipContent>{signature}</TooltipContent>

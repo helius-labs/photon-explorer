@@ -48,19 +48,27 @@ export default function TransactionOverviewCompressed({
   // Native balance changes
   let accountRows: Row[] = [];
 
-  accountRows = data.transaction.message.accountKeys
-    .filter((account) => account.signer)
-    .map((account, index) => {
+  accountRows = data.transaction.message.accountKeys.flatMap(
+    (account, index) => {
       const pre = data.meta!.preBalances[index];
       const post = data.meta!.postBalances[index];
       const pubkey = account.pubkey;
-      const delta = new BigNumber(post).minus(new BigNumber(pre));
+      let delta = new BigNumber(post).minus(new BigNumber(pre));
+
+      if (index === 0) {
+        delta = delta.plus(data.meta!.fee);
+      }
+
+      if (delta.isZero()) {
+        return [];
+      }
 
       return {
         pubkey,
         delta,
       };
-    });
+    },
+  );
 
   // Token balance changes
   let tokenRows: Row[] = [];
