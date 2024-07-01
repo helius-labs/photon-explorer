@@ -7,8 +7,6 @@ import {
 } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-
 import Address from "@/components/common/address";
 import { TokenBalance } from "@/components/common/token-balance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,8 +32,6 @@ export default function TransactionTokenBalances({
 }: {
   data: ParsedTransactionWithMeta;
 }) {
-  const tokenList = useGetTokenListStrict();
-
   const preTokenBalances = data.meta?.preTokenBalances;
   const postTokenBalances = data.meta?.postTokenBalances;
   const accountKeys = data.transaction.message.accountKeys;
@@ -85,7 +81,6 @@ export default function TransactionTokenBalances({
                     mint={new PublicKey(mint)}
                     amount={Number(balance.amount)}
                     decimals={balance.decimals}
-                    tokenList={tokenList}
                   />
                 </TableCell>
               </TableRow>

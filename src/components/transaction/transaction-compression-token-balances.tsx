@@ -23,8 +23,6 @@ export default function TransactionCompressionTokenBalances({
 }) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  const tokenList = useGetTokenListStrict();
-
   interface Row {
     owner: PublicKey;
     delta: BigNumber;
@@ -77,11 +75,7 @@ export default function TransactionCompressionTokenBalances({
             className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
           >
             {item.delta.gt(0) && `+`}
-            <TokenBalance
-              mint={item.mint}
-              amount={item.delta.toNumber()}
-              tokenList={tokenList}
-            />
+            <TokenBalance mint={item.mint} amount={item.delta.toNumber()} />
           </TableCell>
         </TableRow>
       );

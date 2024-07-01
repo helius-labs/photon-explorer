@@ -1,43 +1,51 @@
 import { normalizeTokenAmount } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
-import { UseQueryResult } from "@tanstack/react-query";
-import { CircleHelp } from "lucide-react";
-import React from "react";
+
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+import { useGetAccountInfo } from "@/hooks/web3";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface TokenInfo {
+  name: string;
+  symbol: string;
+  logoURI?: string;
+}
 
 export function TokenBalance({
   amount,
   mint,
   decimals = 9,
   maximumFractionDigits = 9,
-  tokenList,
 }: {
   amount: number;
   mint: PublicKey;
   decimals?: number;
   maximumFractionDigits?: number;
-  tokenList: UseQueryResult<
-    {
-      symbol: string;
-      address: string;
-      chainId: number;
-      decimals: number;
-      name: string;
-      tags: string[];
-      logoURI?: string | undefined;
-      extensions?:
-        | {
-            coingeckoId?: string | undefined;
-          }
-        | undefined;
-    }[],
-    Error
-  >;
 }) {
-  const token = tokenList.data?.find(
+  const tokenList = useGetTokenListStrict();
+  const { data: accountInfo } = useGetAccountInfo(mint.toBase58());
+
+  // First check if the token is in the jupiter token strict list
+  let token: TokenInfo | undefined = tokenList.data?.find(
     (token) => token.address === mint.toString(),
   );
+
+  // If the token is not in the jupiter token strict list, get the token
+  // info from the account info
+  if (
+    tokenList.data &&
+    !token &&
+    accountInfo &&
+    accountInfo.value &&
+    "parsed" in accountInfo.value?.data
+  ) {
+    token = {
+      name: accountInfo.value?.data.parsed.name,
+      symbol: accountInfo.value?.data.parsed.symbol,
+      logoURI: accountInfo.value?.data.parsed.info.logoURI,
+    };
+  }
 
   let avatar = <></>;
   if (token) {

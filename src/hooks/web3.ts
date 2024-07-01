@@ -102,6 +102,23 @@ export function useGetSignaturesForAddress(
   });
 }
 
+export function useGetParsedAccountInfo(
+  publicKey: PublicKey,
+  enabled: boolean = true,
+) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getParsedAccountInfo", publicKey.toBase58()],
+    queryFn: async () => {
+      const connection = new Connection(endpoint, "confirmed");
+
+      return await connection.getParsedAccountInfo(publicKey);
+    },
+    enabled,
+  });
+}
+
 export function useGetRecentPerformanceSamples(enabled: boolean = true) {
   const { endpoint } = useCluster();
 

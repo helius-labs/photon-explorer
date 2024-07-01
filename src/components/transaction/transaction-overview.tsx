@@ -4,8 +4,6 @@ import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { ArrowRightLeft } from "lucide-react";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-
 import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
 import Signature from "@/components/common/signature";
@@ -33,8 +31,6 @@ export default function TransactionOverviewCompressed({
   data: ParsedTransactionWithMeta;
   compressed?: CompressedTransaction;
 }) {
-  const tokenList = useGetTokenListStrict();
-
   const signer = data.transaction.message.accountKeys.find(
     (account) => account.signer,
   );
@@ -185,7 +181,6 @@ export default function TransactionOverviewCompressed({
                 mint={item.mint}
                 amount={item.delta.toNumber()}
                 decimals={item.decimals}
-                tokenList={tokenList}
               />
             </TableCell>
           </TableRow>
