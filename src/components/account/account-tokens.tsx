@@ -1,21 +1,27 @@
-'use client';
+"use client";
 
-import React from "react";
-import Image from "next/image";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
-import cloudflareLoader from "../../utils/imageLoader";
-import noImg from "../../../public/assets/noimg.svg";
-import { ColumnDef } from "@tanstack/react-table";
-import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
-import { useGetAccountTokens, TokenInfoWithPubkey } from "@/hooks/useGetAccountTokens";
 import { useCluster } from "@/providers/cluster-provider";
+import { DAS } from "@/types/helius-sdk/das-types";
 import { Cluster } from "@/utils/cluster";
+import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
+import React from "react";
+
+import {
+  TokenInfoWithPubkey,
+  useGetAccountTokens,
+} from "@/hooks/useGetAccountTokens";
+import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+
+import { DataTable } from "@/components/data-table/data-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { DataTable } from "@/components/data-table/data-table";
-import { DAS } from "@/types/helius-sdk/das-types";
 import { Skeleton } from "@/components/ui/skeleton";
+
+import noImg from "../../../public/assets/noimg.svg";
+import cloudflareLoader from "../../utils/imageLoader";
 
 function isGetAssetResponse(asset: any): asset is DAS.GetAssetResponse {
   return (asset as DAS.GetAssetResponse).content !== undefined;
@@ -23,7 +29,8 @@ function isGetAssetResponse(asset: any): asset is DAS.GetAssetResponse {
 
 export default function AccountTokens({ address }: { address: string }) {
   const { cluster } = useCluster();
-  const isMainNetOrDevNet = cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet;
+  const isMainNetOrDevNet =
+    cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet;
 
   const {
     fungibleTokens: apiFungibleTokens,
@@ -38,7 +45,9 @@ export default function AccountTokens({ address }: { address: string }) {
     isError: rpcIsError,
   } = useGetAccountTokens(address, !isMainNetOrDevNet);
 
-  const fungibleTokens = isMainNetOrDevNet ? apiFungibleTokens : rpcFungibleTokens;
+  const fungibleTokens = isMainNetOrDevNet
+    ? apiFungibleTokens
+    : rpcFungibleTokens;
   const totalFungibleValue = isMainNetOrDevNet ? apiTotalFungibleValue : 0;
   const isLoading = isMainNetOrDevNet ? apiIsLoading : rpcIsLoading;
   const isError = isMainNetOrDevNet ? apiIsError : rpcIsError;
@@ -47,9 +56,17 @@ export default function AccountTokens({ address }: { address: string }) {
     return (
       <Card className="col-span-12 shadow mb-10">
         <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
-          <div className="text-secondary font-semibold">Unable to fetch account balances</div>
+          <div className="text-secondary font-semibold">
+            Unable to fetch account balances
+          </div>
           <div className="text-gray-500">
-          <button onClick={() => window.location.reload()} className="text-blue-500 underline">Refresh</button> or change networks.
+            <button
+              onClick={() => window.location.reload()}
+              className="text-blue-500 underline"
+            >
+              Refresh
+            </button>{" "}
+            or change networks.
           </div>
         </CardContent>
       </Card>
@@ -111,8 +128,8 @@ export default function AccountTokens({ address }: { address: string }) {
 
   const columns: ColumnDef<DAS.GetAssetResponse | TokenInfoWithPubkey>[] = [
     {
-      header: '',
-      accessorKey: 'token',
+      header: "",
+      accessorKey: "token",
       cell: ({ row }) => {
         const token = row.original;
         if (isGetAssetResponse(token)) {
@@ -157,8 +174,8 @@ export default function AccountTokens({ address }: { address: string }) {
       },
     },
     {
-      header: 'Balance',
-      accessorKey: 'balance',
+      header: "Balance",
+      accessorKey: "balance",
       cell: ({ row }) => {
         const token = row.original;
         if (isGetAssetResponse(token)) {
@@ -173,38 +190,44 @@ export default function AccountTokens({ address }: { address: string }) {
       },
     },
     {
-      header: 'Value',
-      accessorKey: 'value',
+      header: "Value",
+      accessorKey: "value",
       cell: ({ row }) => {
         const token = row.original;
         if (isGetAssetResponse(token)) {
           return `$${parseFloat(token.token_info?.price_info?.total_price?.toString() || "0").toFixed(2)}`;
         } else {
-          return 'N/A';
+          return "N/A";
         }
       },
     },
     {
-      header: 'Price',
-      accessorKey: 'price',
+      header: "Price",
+      accessorKey: "price",
       cell: ({ row }) => {
         const token = row.original;
         if (isGetAssetResponse(token)) {
           return `$${parseFloat(token.token_info?.price_info?.price_per_token?.toString() || "0").toFixed(2)}`;
         } else {
-          return 'N/A';
+          return "N/A";
         }
       },
     },
     {
-      header: 'Actions',
-      accessorKey: 'actions',
+      header: "Actions",
+      accessorKey: "actions",
       cell: ({ row }) => {
         const token = row.original;
-        const tokenMint = isGetAssetResponse(token) ? token.id : token.info.mint.toString();
+        const tokenMint = isGetAssetResponse(token)
+          ? token.id
+          : token.info.mint.toString();
         return (
           <div className="flex space-x-2">
-            <a href={`https://birdeye.so/token/${tokenMint}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://birdeye.so/token/${tokenMint}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Image
                 loader={cloudflareLoader}
                 src={birdeyeIcon.src || noImg}
@@ -212,11 +235,15 @@ export default function AccountTokens({ address }: { address: string }) {
                 width={100}
                 height={100}
                 unoptimized
-                style={{ width: 'auto', height: 'auto' }}
+                style={{ width: "auto", height: "auto" }}
                 className="rounded-full icon-responsive"
               />
             </a>
-            <a href={`https://dexscreener.com/solana/${tokenMint}`} target="_blank" rel="noopener noreferrer">
+            <a
+              href={`https://dexscreener.com/solana/${tokenMint}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Image
                 loader={cloudflareLoader}
                 src={dexscreenerIcon.src || noImg}
@@ -225,7 +252,7 @@ export default function AccountTokens({ address }: { address: string }) {
                 height={100}
                 unoptimized
                 priority
-                style={{ width: 'auto', height: 'auto' }}
+                style={{ width: "auto", height: "auto" }}
                 className="rounded-full icon-responsive"
               />
             </a>
