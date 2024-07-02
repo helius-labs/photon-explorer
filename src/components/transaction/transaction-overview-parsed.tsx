@@ -5,6 +5,7 @@ import {
   XrayTransaction,
 } from "@/utils/parser";
 import { PublicKey } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import { ArrowRight, ArrowRightLeftIcon, CircleHelp } from "lucide-react";
 
 import Address from "@/components/common/address";
@@ -67,7 +68,7 @@ export default function TransactionOverviewParsed({
                   <span className="w-1/4 text-muted-foreground">Sent</span>
                   <span className="w-3/4 ml-2">
                     <TokenBalance
-                      amount={action.amount}
+                      amount={BigNumber(action.amount)}
                       mint={new PublicKey(action.mint!)}
                     />
                   </span>
@@ -85,7 +86,7 @@ export default function TransactionOverviewParsed({
                 <span className="w-1/4 text-muted-foreground">Sent</span>
                 <span className="w-3/4 ml-2">
                   <TokenBalance
-                    amount={action.amount}
+                    amount={BigNumber(action.amount)}
                     mint={new PublicKey(action.mint!)}
                     decimals={action.decimals}
                   />
@@ -97,7 +98,7 @@ export default function TransactionOverviewParsed({
                 <span className="w-1/4 text-muted-foreground">Received</span>
                 <span className="w-3/4 ml-2">
                   <TokenBalance
-                    amount={action.amount}
+                    amount={BigNumber(action.amount)}
                     mint={new PublicKey(action.mint!)}
                     decimals={action.decimals}
                   />

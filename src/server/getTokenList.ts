@@ -1,5 +1,3 @@
-"use server";
-
 import { tokenListSchema } from "@/schemas/tokenList";
 
 export async function getTokenListAll() {

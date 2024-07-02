@@ -74,8 +74,7 @@ export default function TransactionCompressionTokenBalances({
           <TableCell
             className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
           >
-            {item.delta.gt(0) && `+`}
-            <TokenBalance mint={item.mint} amount={item.delta.toNumber()} />
+            <TokenBalance mint={item.mint} amount={item.delta} />
           </TableCell>
         </TableRow>
       );

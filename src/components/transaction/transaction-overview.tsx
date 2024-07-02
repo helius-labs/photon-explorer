@@ -176,10 +176,9 @@ export default function TransactionOverviewCompressed({
             <TableCell
               className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
             >
-              {item.delta.gt(0) && `+`}
               <TokenBalance
                 mint={item.mint}
-                amount={item.delta.toNumber()}
+                amount={item.delta}
                 decimals={item.decimals}
               />
             </TableCell>

@@ -76,10 +76,9 @@ export default function TransactionTokenBalances({
                 <TableCell
                   className={delta.gt(0) ? "text-green-400" : "text-red-400"}
                 >
-                  {delta.gt(0) && `+`}
                   <TokenBalance
                     mint={new PublicKey(mint)}
-                    amount={Number(balance.amount)}
+                    amount={BigNumber(balance.amount)}
                     decimals={balance.decimals}
                   />
                 </TableCell>
