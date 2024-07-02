@@ -4,7 +4,6 @@ import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures"
 import { MainNav } from "@/components/main-nav";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { CommandMenu } from "@/components/command-menu";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { getTokenListStrict } from "@/server/getTokenList";
 import { Search } from "@/components/search";

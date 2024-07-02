@@ -5,6 +5,7 @@ import { cn } from "@/utils/common";
 import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useCluster } from "@/providers/cluster-provider";
+import React from "react";
 
 interface AccountTabsProps extends React.HTMLAttributes<HTMLDivElement> {
   address: string;
@@ -34,6 +35,14 @@ export function AccountTabs({
     tabs.splice(1, 0, {
       name: "NFTs",
       href: `/address/${address}/nfts`,
+    });
+  }
+
+  // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"
+  if (pathname.includes("compressed-accounts")) {
+    tabs.push({
+      name: "Compressed Accounts",
+      href: `/address/${address}/compressed-accounts`,
     });
   }
 
