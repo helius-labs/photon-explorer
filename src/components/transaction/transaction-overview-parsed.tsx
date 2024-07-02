@@ -68,7 +68,8 @@ export default function TransactionOverviewParsed({
                   <span className="w-1/4 text-muted-foreground">Sent</span>
                   <span className="w-3/4 ml-2">
                     <TokenBalance
-                      amount={BigNumber(action.amount)}
+                      amount={action.amount}
+                      decimals={action.decimals}
                       mint={new PublicKey(action.mint!)}
                     />
                   </span>
@@ -86,9 +87,9 @@ export default function TransactionOverviewParsed({
                 <span className="w-1/4 text-muted-foreground">Sent</span>
                 <span className="w-3/4 ml-2">
                   <TokenBalance
-                    amount={BigNumber(action.amount)}
-                    mint={new PublicKey(action.mint!)}
+                    amount={action.amount}
                     decimals={action.decimals}
+                    mint={new PublicKey(action.mint!)}
                   />
                 </span>
               </div>
@@ -98,9 +99,9 @@ export default function TransactionOverviewParsed({
                 <span className="w-1/4 text-muted-foreground">Received</span>
                 <span className="w-3/4 ml-2">
                   <TokenBalance
-                    amount={BigNumber(action.amount)}
-                    mint={new PublicKey(action.mint!)}
+                    amount={action.amount}
                     decimals={action.decimals}
+                    mint={new PublicKey(action.mint!)}
                   />
                 </span>
               </div>

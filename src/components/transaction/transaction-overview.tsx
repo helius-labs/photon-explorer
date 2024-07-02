@@ -1,4 +1,8 @@
-import { dateFormat, timeAgoWithFormat } from "@/utils/common";
+import {
+  dateFormat,
+  normalizeTokenAmount,
+  timeAgoWithFormat,
+} from "@/utils/common";
 import { CompressedTransaction } from "@lightprotocol/stateless.js";
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
@@ -7,8 +11,10 @@ import { ArrowRightLeft } from "lucide-react";
 import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
 import Signature from "@/components/common/signature";
+import { TokenBalanceDelta } from "@/components/common/token-balance-delta";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -18,8 +24,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { TokenBalance } from "../common/token-balance";
-import { Separator } from "../ui/separator";
 import { generateTokenBalanceRows } from "./transaction-token-balances";
 
 export default function TransactionOverviewCompressed({
@@ -39,7 +43,6 @@ export default function TransactionOverviewCompressed({
     pubkey: PublicKey;
     delta: BigNumber;
     mint?: PublicKey;
-    decimals?: number;
   }
 
   // Native balance changes
@@ -88,9 +91,10 @@ export default function TransactionOverviewCompressed({
 
       return {
         pubkey: row.account,
-        delta: new BigNumber(row.balance.amount),
+        delta: new BigNumber(
+          normalizeTokenAmount(row.balance.amount, row.balance.decimals),
+        ),
         mint: new PublicKey(row.mint),
-        decimals: row.balance.decimals,
       };
     });
   }
@@ -134,7 +138,9 @@ export default function TransactionOverviewCompressed({
         if (item.maybeTokenData) {
           return {
             pubkey: item.maybeTokenData.owner,
-            delta: item.maybeTokenData.amount,
+            delta: new BigNumber(
+              normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9),
+            ),
             mint: item.maybeTokenData.mint,
           };
         }
@@ -149,7 +155,10 @@ export default function TransactionOverviewCompressed({
         if (item.maybeTokenData) {
           return {
             pubkey: item.maybeTokenData.owner,
-            delta: new BigNumber(item.maybeTokenData.amount.toNumber() * -1),
+            delta: new BigNumber(
+              normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9) *
+                -1,
+            ),
             mint: item.maybeTokenData.mint,
           };
         }
@@ -173,14 +182,8 @@ export default function TransactionOverviewCompressed({
             <TableCell>
               <Address pubkey={item.pubkey} />
             </TableCell>
-            <TableCell
-              className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
-            >
-              <TokenBalance
-                mint={item.mint}
-                amount={item.delta}
-                decimals={item.decimals}
-              />
+            <TableCell>
+              <TokenBalanceDelta mint={item.mint} delta={item.delta} />
             </TableCell>
           </TableRow>
         );
@@ -191,9 +194,7 @@ export default function TransactionOverviewCompressed({
           <TableCell>
             <Address pubkey={item.pubkey} />
           </TableCell>
-          <TableCell
-            className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
-          >
+          <TableCell>
             <BalanceDelta delta={item.delta} isSol />
           </TableCell>
         </TableRow>

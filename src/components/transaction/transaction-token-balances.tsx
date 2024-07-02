@@ -8,7 +8,7 @@ import {
 import BigNumber from "bignumber.js";
 
 import Address from "@/components/common/address";
-import { TokenBalance } from "@/components/common/token-balance";
+import { TokenBalanceDelta } from "@/components/common/token-balance-delta";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -65,7 +65,7 @@ export default function TransactionTokenBalances({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map(({ account, delta, balance, mint }, index) => (
+            {rows.map(({ account, delta, mint }, index) => (
               <TableRow key={`token-balance-${index}`} className="font-mono">
                 <TableCell>
                   <Address pubkey={account} short={true} />
@@ -73,14 +73,8 @@ export default function TransactionTokenBalances({
                 <TableCell>
                   <Address pubkey={new PublicKey(mint)} short={true} />
                 </TableCell>
-                <TableCell
-                  className={delta.gt(0) ? "text-green-400" : "text-red-400"}
-                >
-                  <TokenBalance
-                    mint={new PublicKey(mint)}
-                    amount={BigNumber(balance.amount)}
-                    decimals={balance.decimals}
-                  />
+                <TableCell>
+                  <TokenBalanceDelta mint={new PublicKey(mint)} delta={delta} />
                 </TableCell>
               </TableRow>
             ))}
