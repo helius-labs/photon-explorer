@@ -3,8 +3,11 @@ import { Footer } from "@/components/footer";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
 import { MainNav } from "@/components/main-nav";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
-import { Search } from "@/components/search";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CommandMenu } from "@/components/command-menu";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
+import { getTokenListStrict } from "@/server/getTokenList";
+import { Search } from "@/components/search";
 
 export const metadata: Metadata = {
   title: "Home | XRAY",
@@ -12,7 +15,15 @@ export const metadata: Metadata = {
     "The most readable Solana explorer. Explore the Solana blockchain with ease.",
 };
 
-export default function Home() {
+export default async function Home() {
+    // Prefetch the token list and hydrate the query client
+    const queryClient = new QueryClient();
+
+    await queryClient.prefetchQuery({
+      queryKey: ["getTokenListStrict"],
+      queryFn: getTokenListStrict,
+    });
+
   return (
     <>
       <div>
@@ -29,7 +40,9 @@ export default function Home() {
           <h1 className="text-5xl md:text-9xl font-bold">XRAY</h1>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
-            <Search />
+            <HydrationBoundary state={dehydrate(queryClient)}>
+              <Search />
+            </HydrationBoundary>          
           </div>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl pb-8 md:pb-16">
