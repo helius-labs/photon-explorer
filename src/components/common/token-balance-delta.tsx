@@ -49,5 +49,12 @@ export function TokenBalanceDelta({
     );
   }
 
-  return <span>0 {token && token.symbol ? token.symbol : "token(s)"}</span>;
+  return (
+    <div className="inline-flex items-center gap-2">
+      {avatar}
+      <span>
+        {0} {token && token.symbol ? token.symbol : "token(s)"}
+      </span>
+    </div>
+  );
 }
