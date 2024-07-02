@@ -1,11 +1,11 @@
 "use client";
 
+import React from "react";
+import Link from "@/components/ui/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/utils/common";
-import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useCluster } from "@/providers/cluster-provider";
-import React from "react";
 
 interface AccountTabsProps extends React.HTMLAttributes<HTMLDivElement> {
   address: string;
