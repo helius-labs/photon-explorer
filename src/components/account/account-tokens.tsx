@@ -133,7 +133,7 @@ export default function AccountTokens({ address }: { address: string }) {
       cell: ({ row }) => {
         const token = row.original;
         if (isGetAssetResponse(token)) {
-          const tokenImage = token.content?.links?.image || noImg;
+          const tokenImage = token.content?.links?.image || noImg.src;
           const tokenName = token.content?.metadata?.name || "Unknown";
           const tokenSymbol = token.content?.metadata?.symbol || "Unknown";
           return (
@@ -141,8 +141,7 @@ export default function AccountTokens({ address }: { address: string }) {
               <Avatar className="h-12 w-12 ml-4">
                 <AvatarImage src={tokenImage} alt={tokenName} />
                 <AvatarFallback>
-                  {tokenSymbol.slice(0, 1)}
-                  {tokenSymbol.slice(-1)}
+                  <Image src={noImg.src} alt="No Image" fill />
                 </AvatarFallback>
               </Avatar>
               <div className="ml-4">
@@ -152,7 +151,7 @@ export default function AccountTokens({ address }: { address: string }) {
             </div>
           );
         } else {
-          const tokenImage = token.logoURI || noImg;
+          const tokenImage = token.logoURI || noImg.src;
           const tokenName = token.name || "Unknown";
           const tokenSymbol = token.symbol || "Unknown";
           return (
@@ -160,8 +159,7 @@ export default function AccountTokens({ address }: { address: string }) {
               <Avatar className="h-12 w-12 ml-4">
                 <AvatarImage src={tokenImage} alt={tokenName} />
                 <AvatarFallback>
-                  {tokenSymbol.slice(0, 1)}
-                  {tokenSymbol.slice(-1)}
+                  <Image src={noImg.src} alt="No Image" fill />
                 </AvatarFallback>
               </Avatar>
               <div className="ml-4">
@@ -230,7 +228,7 @@ export default function AccountTokens({ address }: { address: string }) {
             >
               <Image
                 loader={cloudflareLoader}
-                src={birdeyeIcon.src || noImg}
+                src={birdeyeIcon.src || noImg.src}
                 alt="Birdeye"
                 width={100}
                 height={100}
@@ -246,7 +244,7 @@ export default function AccountTokens({ address }: { address: string }) {
             >
               <Image
                 loader={cloudflareLoader}
-                src={dexscreenerIcon.src || noImg}
+                src={dexscreenerIcon.src || noImg.src}
                 alt="Dexscreener"
                 width={100}
                 height={100}
