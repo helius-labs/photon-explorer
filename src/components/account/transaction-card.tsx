@@ -151,13 +151,13 @@ export const columns: ColumnDef<TransactionData>[] = [
   {
     header: () => (
       <div className="flex items-center justify-end gap-2">
-        <span className="text-sm font-base leading-none">From</span>
+        <span className="text-sm font-base leading-none">Signature</span>
       </div>
     ),
     accessorKey: "signature",
     cell: ({ getValue }) => (
       <div className="flex flex-col items-end gap-1">
-        <div className="text-sm text-muted-foreground">From</div>
+        <div className="text-sm text-muted-foreground">Details</div>
         <div className="text-sm font-base leading-none">
           <Signature copy={false} signature={getValue() as string} />
         </div>
