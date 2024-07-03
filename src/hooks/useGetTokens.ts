@@ -1,5 +1,6 @@
 import { useCluster } from "@/providers/cluster-provider";
 import { DAS } from "@/types/helius-sdk/das-types";
+import { Interface } from "@/types/helius-sdk/enums";
 import { Token } from "@/types/token";
 import { Cluster } from "@/utils/cluster";
 import { PublicKey } from "@solana/web3.js";
@@ -71,7 +72,10 @@ async function getTokensByOwner(
   const data: AssetResponse = await response.json();
 
   const tokens: Token[] = data.result.items.flatMap((item) => {
-    if (item.token_info?.associated_token_address) {
+    if (
+      item.interface === Interface.FUNGIBLE_TOKEN &&
+      item.token_info?.associated_token_address
+    ) {
       return {
         raw: item,
         pubkey: new PublicKey(item.token_info?.associated_token_address),
@@ -88,7 +92,7 @@ async function getTokensByOwner(
     return [];
   });
 
-  tokens.sort((a, b) => b.value! - a.value!);
+  tokens.sort((a, b) => (b.value || 0) - (a.value || 0));
 
   return tokens;
 }

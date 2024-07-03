@@ -1,9 +1,3 @@
-import { getTokenListStrict } from "@/server/getTokenList";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import type { Metadata } from "next";
 
 import { Footer } from "@/components/footer";
@@ -20,14 +14,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  // Prefetch the token list and hydrate the query client
-  const queryClient = new QueryClient();
-
-  await queryClient.prefetchQuery({
-    queryKey: ["getTokenListStrict"],
-    queryFn: getTokenListStrict,
-  });
-
   return (
     <>
       <div>
@@ -44,9 +30,7 @@ export default async function Home() {
           <h1 className="text-5xl md:text-9xl font-bold">XRAY</h1>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
-            <HydrationBoundary state={dehydrate(queryClient)}>
-              <Search />
-            </HydrationBoundary>
+            <Search />
           </div>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl pb-8 md:pb-16">
