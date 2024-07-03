@@ -32,7 +32,11 @@ export function NFTGridItem({ nft }: NFTGridItemProps) {
           loading="eager"
           className="max-h-48 min-h-48 w-full rounded-lg"
           onLoad={() => setIsLoading(false)}
-          onError={() => setIsLoading(false)}
+          onError={(event: any) => {
+            event.target.id = "noimg";
+            event.target.srcset = noImg.src;
+            setIsLoading(false);
+          }}
         />
       </div>
       <div className="mt-4 text-center">
