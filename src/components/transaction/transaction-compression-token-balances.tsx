@@ -1,3 +1,4 @@
+import { normalizeTokenAmount } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 
@@ -6,6 +7,7 @@ import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import Address from "@/components/common/address";
 import { TokenBalance } from "@/components/common/token-balance";
+import { TokenBalanceDelta } from "@/components/common/token-balance-delta";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -23,8 +25,6 @@ export default function TransactionCompressionTokenBalances({
 }) {
   const { data, isLoading, isError } = useGetTransactionWithCompressionInfo(tx);
 
-  const tokenList = useGetTokenListStrict();
-
   interface Row {
     owner: PublicKey;
     delta: BigNumber;
@@ -40,7 +40,9 @@ export default function TransactionCompressionTokenBalances({
         if (item.maybeTokenData) {
           return {
             owner: item.maybeTokenData.owner,
-            delta: item.maybeTokenData.amount,
+            delta: new BigNumber(
+              normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9),
+            ),
             mint: item.maybeTokenData.mint,
           };
         }
@@ -53,7 +55,10 @@ export default function TransactionCompressionTokenBalances({
         if (item.maybeTokenData) {
           return {
             owner: item.maybeTokenData.owner,
-            delta: new BigNumber(item.maybeTokenData.amount.toNumber() * -1),
+            delta: new BigNumber(
+              normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9) *
+                -1,
+            ),
             mint: item.maybeTokenData.mint,
           };
         }
@@ -73,15 +78,8 @@ export default function TransactionCompressionTokenBalances({
           <TableCell>
             <Address pubkey={item.mint} />
           </TableCell>
-          <TableCell
-            className={item.delta.gt(0) ? "text-green-400" : "text-red-400"}
-          >
-            {item.delta.gt(0) && `+`}
-            <TokenBalance
-              mint={item.mint}
-              amount={item.delta.toNumber()}
-              tokenList={tokenList}
-            />
+          <TableCell>
+            <TokenBalanceDelta mint={item.mint} delta={item.delta} />
           </TableCell>
         </TableRow>
       );
@@ -97,8 +95,8 @@ export default function TransactionCompressionTokenBalances({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Owner</TableHead>
-                <TableHead>Mint</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Token</TableHead>
                 <TableHead>Change</TableHead>
               </TableRow>
             </TableHeader>

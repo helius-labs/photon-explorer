@@ -5,9 +5,8 @@ import {
   XrayTransaction,
 } from "@/utils/parser";
 import { PublicKey } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
 import { ArrowRight, ArrowRightLeftIcon, CircleHelp } from "lucide-react";
-
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
@@ -20,8 +19,6 @@ export default function TransactionOverviewParsed({
 }: {
   data: XrayTransaction;
 }) {
-  const tokenList = useGetTokenListStrict();
-
   const { timestamp, type, source, actions, signature, account, description } =
     data;
 
@@ -72,8 +69,8 @@ export default function TransactionOverviewParsed({
                   <span className="w-3/4 ml-2">
                     <TokenBalance
                       amount={action.amount}
+                      decimals={action.decimals}
                       mint={new PublicKey(action.mint!)}
-                      tokenList={tokenList}
                     />
                   </span>
                 </div>
@@ -91,9 +88,8 @@ export default function TransactionOverviewParsed({
                 <span className="w-3/4 ml-2">
                   <TokenBalance
                     amount={action.amount}
-                    mint={new PublicKey(action.mint!)}
                     decimals={action.decimals}
-                    tokenList={tokenList}
+                    mint={new PublicKey(action.mint!)}
                   />
                 </span>
               </div>
@@ -104,9 +100,8 @@ export default function TransactionOverviewParsed({
                 <span className="w-3/4 ml-2">
                   <TokenBalance
                     amount={action.amount}
-                    mint={new PublicKey(action.mint!)}
                     decimals={action.decimals}
-                    tokenList={tokenList}
+                    mint={new PublicKey(action.mint!)}
                   />
                 </span>
               </div>
