@@ -11,13 +11,10 @@ export default function cloudflareLoader({
   width: number;
   quality?: number;
 }): string {
-  const fileExtension = src.split(".").pop()?.toLowerCase();
-  const shouldBypassLoader = ["png", "svg"].includes(fileExtension || "");
-
-  if (shouldBypassLoader) {
-    return src;
+  const params = [`width=${width}`];
+  if (quality) {
+    params.push(`quality=${quality}`);
   }
 
-  const params = [`width=${width}`, `quality=${quality || 75}`, "format=auto"];
   return `https://cdn.helius-rpc.com/cdn-cgi/image/${params.join(",")}/${normalizeSrc(src)}`;
 }

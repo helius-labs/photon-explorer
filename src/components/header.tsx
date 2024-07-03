@@ -1,7 +1,8 @@
 import { CommandMenu } from "@/components/command-menu";
 import { MainNav } from "@/components/main-nav";
-import { ThemeToggle } from "./theme-toggle";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
+
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   return (

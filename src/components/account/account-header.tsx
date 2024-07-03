@@ -1,5 +1,6 @@
 "use client";
 
+import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
 import { lamportsToSolString } from "@/utils/common";
 import { useUserDomains } from "@/utils/name-service";
@@ -32,9 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const solLogoUrl =
-  "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png";
 
 export function AccountHeader({
   address,
@@ -89,7 +87,7 @@ export function AccountHeader({
   }, [address, cluster, tokenList, compressedBalance]);
 
   return (
-    <div className="flex items-center gap-4 mb-8">
+    <div className="mb-8 flex items-center gap-4">
       {tokenImageURI ? (
         <Image
           src={tokenImageURI}
@@ -119,14 +117,17 @@ export function AccountHeader({
                 <>
                   {accountInfo.data?.value &&
                     accountInfo.data?.value.lamports && (
-                      <span className="text-lg text-muted-foreground flex items-center">
-                        <Image
-                          src={solLogoUrl}
-                          alt="SOL logo"
-                          className="w-6 h-6 mr-2 rounded-md"
-                          width={16}
-                          height={16}
-                        />
+                      <span className="flex items-center text-lg text-muted-foreground">
+                        <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                          <Image
+                            src={solLogo}
+                            alt="SOL logo"
+                            className=""
+                            loading="eager"
+                            width={24}
+                            height={24}
+                          />
+                        </div>
                         {`${lamportsToSolString(
                           accountInfo.data?.value.lamports,
                           2,
@@ -134,14 +135,17 @@ export function AccountHeader({
                       </span>
                     )}
                   {compressedBalance && compressedBalance.value && (
-                    <span className="text-lg text-muted-foreground flex items-center">
-                      <Image
-                        src={solLogoUrl}
-                        alt="SOL logo"
-                        className="w-5 h-5 rounded-md mr-1"
-                        width={16}
-                        height={16}
-                      />
+                    <span className="flex items-center text-lg text-muted-foreground">
+                      <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                        <Image
+                          src={solLogo}
+                          alt="SOL logo"
+                          className=""
+                          loading="eager"
+                          width={24}
+                          height={24}
+                        />
+                      </div>
                       {` | ${lamportsToSolString(
                         compressedBalance.value,
                         2,
@@ -149,14 +153,17 @@ export function AccountHeader({
                     </span>
                   )}
                   {compressedAccount.data && (
-                    <span className="text-lg text-muted-foreground flex items-center">
-                      <Image
-                        src={solLogoUrl}
-                        alt="SOL logo"
-                        className="w-5 h-5 rounded-md mr-1"
-                        width={16}
-                        height={16}
-                      />
+                    <span className="flex items-center text-lg text-muted-foreground">
+                      <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                        <Image
+                          src={solLogo}
+                          alt="SOL logo"
+                          className=""
+                          loading="eager"
+                          width={24}
+                          height={24}
+                        />
+                      </div>
                       {`${lamportsToSolString(
                         compressedAccount.data.lamports,
                         2,
@@ -188,7 +195,7 @@ export function AccountHeader({
           )}
         </div>
       </div>
-      <div className="ml-auto font-medium self-start">
+      <div className="ml-auto self-start font-medium">
         <div className="ml-auto flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
