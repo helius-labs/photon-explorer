@@ -4,16 +4,12 @@ import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import { useCluster } from "@/providers/cluster-provider";
 import { DAS } from "@/types/helius-sdk/das-types";
-import { Cluster } from "@/utils/cluster";
+import { Token } from "@/types/token";
+import { normalizeTokenAmount } from "@/utils/common";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-import React from "react";
 
-import {
-  TokenInfoWithPubkey,
-  useGetAccountTokens,
-} from "@/hooks/useGetAccountTokens";
-import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+import { useGetTokens } from "@/hooks/useGetTokens";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,34 +19,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import noImg from "../../../public/assets/noimg.svg";
 import cloudflareLoader from "../../utils/imageLoader";
 
-function isGetAssetResponse(asset: any): asset is DAS.GetAssetResponse {
-  return (asset as DAS.GetAssetResponse).content !== undefined;
-}
-
 export default function AccountTokens({ address }: { address: string }) {
-  const { cluster } = useCluster();
-  const isMainNetOrDevNet =
-    cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet;
-
-  const {
-    fungibleTokens: apiFungibleTokens,
-    totalFungibleValue: apiTotalFungibleValue,
-    isLoading: apiIsLoading,
-    isError: apiIsError,
-  } = useGetAssetsByOwner(address, 1, isMainNetOrDevNet);
-
-  const {
-    data: rpcFungibleTokens = [],
-    isLoading: rpcIsLoading,
-    isError: rpcIsError,
-  } = useGetAccountTokens(address, !isMainNetOrDevNet);
-
-  const fungibleTokens = isMainNetOrDevNet
-    ? apiFungibleTokens
-    : rpcFungibleTokens;
-  const totalFungibleValue = isMainNetOrDevNet ? apiTotalFungibleValue : 0;
-  const isLoading = isMainNetOrDevNet ? apiIsLoading : rpcIsLoading;
-  const isError = isMainNetOrDevNet ? apiIsError : rpcIsError;
+  const { data, isLoading, isError } = useGetTokens(address);
 
   if (isError)
     return (
@@ -126,99 +96,61 @@ export default function AccountTokens({ address }: { address: string }) {
       </Card>
     );
 
-  const columns: ColumnDef<DAS.GetAssetResponse | TokenInfoWithPubkey>[] = [
+  const columns: ColumnDef<Token>[] = [
     {
       header: "",
       accessorKey: "token",
       cell: ({ row }) => {
         const token = row.original;
-        if (isGetAssetResponse(token)) {
-          const tokenImage = token.content?.links?.image || noImg.src;
-          const tokenName = token.content?.metadata?.name || "Unknown";
-          const tokenSymbol = token.content?.metadata?.symbol || "Unknown";
-          return (
-            <div className="flex items-center">
-              <Avatar className="h-12 w-12 ml-4">
-                <AvatarImage src={tokenImage} alt={tokenName} />
-                <AvatarFallback>
-                  <Image src={noImg.src} alt="No Image" fill />
-                </AvatarFallback>
-              </Avatar>
-              <div className="ml-4">
-                <div className="text-sm font-medium">{tokenName}</div>
-                <div className="text-sm font-bold">{tokenSymbol}</div>
-              </div>
+
+        const tokenImage = token.logoURI || noImg.src;
+        const tokenName = token.name || "Unknown";
+        const tokenSymbol = token.symbol || "Unknown";
+        return (
+          <div className="flex items-center">
+            <Avatar className="h-12 w-12 ml-4">
+              <AvatarImage src={tokenImage} alt={tokenName} />
+              <AvatarFallback>
+                <Image src={noImg.src} alt="No Image" fill />
+              </AvatarFallback>
+            </Avatar>
+            <div className="ml-4">
+              <div className="text-sm font-medium">{tokenName}</div>
+              <div className="text-sm font-bold">{tokenSymbol}</div>
             </div>
-          );
-        } else {
-          const tokenImage = token.logoURI || noImg.src;
-          const tokenName = token.name || "Unknown";
-          const tokenSymbol = token.symbol || "Unknown";
-          return (
-            <div className="flex items-center">
-              <Avatar className="h-12 w-12 ml-4">
-                <AvatarImage src={tokenImage} alt={tokenName} />
-                <AvatarFallback>
-                  <Image src={noImg.src} alt="No Image" fill />
-                </AvatarFallback>
-              </Avatar>
-              <div className="ml-4">
-                <div className="text-sm font-medium">{tokenName}</div>
-                <div className="text-sm font-bold">{tokenSymbol}</div>
-              </div>
-            </div>
-          );
-        }
+          </div>
+        );
       },
     },
     {
       header: "Balance",
       accessorKey: "balance",
       cell: ({ row }) => {
-        const token = row.original;
-        if (isGetAssetResponse(token)) {
-          const balance = token.token_info?.balance || 0;
-          const decimals = token.token_info?.decimals || 0;
-          return (balance / Math.pow(10, decimals)).toFixed(3);
-        } else {
-          const balance = token.info.tokenAmount.amount;
-          const decimals = token.info.tokenAmount.decimals;
-          return (balance / Math.pow(10, decimals)).toFixed(3);
-        }
+        return normalizeTokenAmount(
+          row.original.amount,
+          row.original.decimals,
+        ).toFixed(3);
       },
     },
     {
       header: "Value",
       accessorKey: "value",
       cell: ({ row }) => {
-        const token = row.original;
-        if (isGetAssetResponse(token)) {
-          return `$${parseFloat(token.token_info?.price_info?.total_price?.toString() || "0").toFixed(2)}`;
-        } else {
-          return "N/A";
-        }
+        return row.original.value ? `$${row.original.value.toFixed(2)}` : "N/A";
       },
     },
     {
       header: "Price",
       accessorKey: "price",
       cell: ({ row }) => {
-        const token = row.original;
-        if (isGetAssetResponse(token)) {
-          return `$${parseFloat(token.token_info?.price_info?.price_per_token?.toString() || "0").toFixed(2)}`;
-        } else {
-          return "N/A";
-        }
+        return row.original.price ? `$${row.original.price.toFixed(2)}` : "N/A";
       },
     },
     {
       header: "Actions",
       accessorKey: "actions",
       cell: ({ row }) => {
-        const token = row.original;
-        const tokenMint = isGetAssetResponse(token)
-          ? token.id
-          : token.info.mint.toString();
+        const tokenMint = row.original.mint.toBase58();
         return (
           <div className="flex space-x-2">
             <a
@@ -260,13 +192,18 @@ export default function AccountTokens({ address }: { address: string }) {
     },
   ];
 
+  const totalFungibleValue =
+    data?.reduce((accumulator, token) => {
+      return accumulator + (token.value || 0);
+    }, 0) || 0;
+
   return (
     <Card className="col-span-12 shadow mb-10">
       <CardContent className="flex flex-col pt-6 gap-4 pb-6">
         <div className="flex justify-start font-medium text-sm">
           Account Balance: ${totalFungibleValue.toFixed(2)}
         </div>
-        <DataTable columns={columns} data={fungibleTokens} />
+        <DataTable columns={columns} data={data!} />
       </CardContent>
     </Card>
   );
