@@ -15,7 +15,7 @@ export function useGetTokensByOwner(address: string, enabled: boolean = true) {
     queryFn: async () => {
       let tokens: Token[] = [];
 
-      if ([Cluster.Devnet].includes(cluster)) {
+      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(cluster)) {
         // Use Helius DAS API for Mainnet and Devnet
         tokens = await getTokensByOwnerDAS(address, 1, endpoint);
       } else {
