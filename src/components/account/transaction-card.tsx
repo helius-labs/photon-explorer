@@ -4,12 +4,12 @@ import { ConfirmedSignatureInfo, ParsedTransactionWithMeta, PublicKey } from "@s
 import { CircleArrowDown, CircleCheck } from "lucide-react";
 import Signature from "@/components/common/signature";
 import { ColumnDef } from "@tanstack/react-table";
-import { XrayTransaction, ActionTypes } from "@/utils/parser";
+import { XrayTransaction, ActionTypes, ParserTransactionTypes } from "@/utils/parser";
 import { TokenBalance } from "@/components/common/token-balance";
 import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
-import { extractKeyPoints } from "@/utils/descriptionParser";
 import BigNumber from "bignumber.js";
+import { descriptionParser } from "@/utils/parser/parsers/description";
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
@@ -74,15 +74,19 @@ export const columns: ColumnDef<TransactionData>[] = [
       let description = "";
       let actions: any[] = [];
       let rootAccountDelta: BigNumber | null = null;
+      let type = ParserTransactionTypes.UNKNOWN;
 
       if (isParsedTransactionWithMeta(transaction)) {
-        description = transaction.meta?.logMessages?.join(' ') || "";
-        rootAccountDelta = transaction.meta?.postBalances?.[0] !== undefined && transaction.meta?.preBalances?.[0] !== undefined
-          ? new BigNumber(transaction.meta.postBalances[0]).minus(new BigNumber(transaction.meta.preBalances[0]))
-          : null;
+        description = transaction.meta?.logMessages?.join(" ") || "";
+        rootAccountDelta =
+          transaction.meta?.postBalances?.[0] !== undefined &&
+          transaction.meta?.preBalances?.[0] !== undefined
+            ? new BigNumber(transaction.meta.postBalances[0]).minus(new BigNumber(transaction.meta.preBalances[0]))
+            : null;
       } else if (isXrayTransaction(transaction)) {
-        description = transaction.description || "";
+        description = descriptionParser(transaction.description || ""); // Use descriptionParser
         actions = transaction.actions;
+        type = transaction.type;
       }
 
       return (
@@ -91,57 +95,45 @@ export const columns: ColumnDef<TransactionData>[] = [
             <CircleCheck strokeWidth={1} className="h-full w-full" />
           </div>
           <div className="grid gap-1 text-center">
-            {actions.length === 0 && description ? (
-              <div className="text-sm text-muted-foreground">
-                {extractKeyPoints(description)}
-              </div>
+            {description && actions.length === 0 ? (
+              <div className="text-sm text-muted-foreground">{description}</div>
             ) : (
-              actions.map((action, index) => (
-                <div key={index}>
-                  {action.actionType === ActionTypes.TRANSFER && (
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium leading-none">Transfer</span>
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={action.decimals}
-                        mint={new PublicKey(action.mint!)}
-                      />
-                      <Address pubkey={new PublicKey(action.to!)} />
-                    </div>
-                  )}
-                  {action.actionType === ActionTypes.SENT && (
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium leading-none">Sent</span>
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={action.decimals}
-                        mint={new PublicKey(action.mint!)}
-                      />
-                      <Address pubkey={new PublicKey(action.to!)} />
-                    </div>
-                  )}
-                  {action.actionType === ActionTypes.RECEIVED && (
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium leading-none">Received</span>
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={action.decimals}
-                        mint={new PublicKey(action.mint!)}
-                      />
-                      <Address pubkey={new PublicKey(action.from!)} />
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-            {rootAccountDelta && (
-              <div className="flex items-center">
-                <span className="text-sm font-medium leading-none">Balance Change</span>
-                <BalanceDelta delta={rootAccountDelta} isSol />
-              </div>
-            )}
-            {!description && actions.length === 0 && (
-              <div className="text-sm text-muted-foreground">APP INTERACTION</div>
+              <>
+                {actions.map((action, index) => (
+                  <div key={index}>
+                    {action.actionType === ActionTypes.TRANSFER && (
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium leading-none">Transfer</span>
+                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint!)} />
+                        <Address pubkey={new PublicKey(action.to!)} />
+                      </div>
+                    )}
+                    {action.actionType === ActionTypes.SENT && (
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium leading-none">Sent</span>
+                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint!)} />
+                        <Address pubkey={new PublicKey(action.to!)} />
+                      </div>
+                    )}
+                    {action.actionType === ActionTypes.RECEIVED && (
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium leading-none">Received</span>
+                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint!)} />
+                        <Address pubkey={new PublicKey(action.from!)} />
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {rootAccountDelta && (
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium leading-none">Balance Change</span>
+                    <BalanceDelta delta={rootAccountDelta} isSol />
+                  </div>
+                )}
+                {type === ParserTransactionTypes.UNKNOWN && !description && actions.length === 0 && (
+                  <div className="text-sm text-muted-foreground">UNKNOWN</div>
+                )}
+              </>
             )}
           </div>
         </div>
