@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
-import cloudflareLoader from "../../utils/imageLoader";
-import noImg from "../../../public/assets/noimg.svg";
 import { DAS } from "@/types/helius-sdk/das-types";
+import Image from "next/image";
+import React, { useState } from "react";
+
 import { Skeleton } from "@/components/ui/skeleton";
+
+import noImg from "../../../public/assets/noimg.svg";
+import cloudflareLoader from "../../utils/imageLoader";
 
 interface NFTGridItemProps {
   nft: DAS.GetAssetResponse;
@@ -16,10 +18,10 @@ export function NFTGridItem({ nft }: NFTGridItemProps) {
   const tokenImage = nft.content?.links?.image || noImg;
 
   return (
-    <div className="border shadow-lg rounded-lg flex flex-col items-center">
-      <div className="relative w-full h-50">
+    <div className="flex flex-col items-center rounded-lg border shadow-lg">
+      <div className="h-50 relative w-full">
         {isLoading && (
-          <Skeleton className="w-full h-full rounded-md absolute" />
+          <Skeleton className="absolute h-full w-full rounded-md" />
         )}
         <Image
           loader={cloudflareLoader}
@@ -27,14 +29,20 @@ export function NFTGridItem({ nft }: NFTGridItemProps) {
           alt={nft.content?.metadata.name || "Unknown"}
           width={300}
           height={300}
-          className="rounded-lg min-h-48 max-h-48 w-full"
-          unoptimized
+          loading="eager"
+          className="max-h-48 min-h-48 w-full rounded-lg"
           onLoad={() => setIsLoading(false)}
-          onError={() => setIsLoading(false)}
+          onError={(event: any) => {
+            event.target.id = "noimg";
+            event.target.srcset = noImg.src;
+            setIsLoading(false);
+          }}
         />
       </div>
       <div className="mt-4 text-center">
-        <p className="text-lg font-semibold">{nft.content?.metadata.name || "Unknown"}</p>
+        <p className="text-lg font-semibold">
+          {nft.content?.metadata.name || "Unknown"}
+        </p>
       </div>
     </div>
   );

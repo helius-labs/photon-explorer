@@ -91,9 +91,7 @@ export default function TransactionOverviewCompressed({
 
       return {
         pubkey: row.account,
-        delta: new BigNumber(
-          normalizeTokenAmount(row.balance.amount, row.balance.decimals),
-        ),
+        delta: row.delta,
         mint: new PublicKey(row.mint),
       };
     });

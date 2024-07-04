@@ -1,6 +1,11 @@
 "use client";
 
-import React from "react";
+import solLogo from "@/../public/assets/solanaLogoMark.svg";
+import { useCluster } from "@/providers/cluster-provider";
+import { lamportsToSolString } from "@/utils/common";
+import { useUserDomains } from "@/utils/name-service";
+import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
+import { SerumMarketRegistry } from "@/utils/serumMarketRegistry";
 import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
 import {
   AccountInfo,
@@ -8,16 +13,15 @@ import {
   PublicKey,
   RpcResponseAndContext,
 } from "@solana/web3.js";
-import Image from "next/image";
 import { UseQueryResult } from "@tanstack/react-query";
 import Avatar from "boring-avatars";
 import { MoreVertical } from "lucide-react";
-
-import { lamportsToSolString } from "@/utils/common";
-import { useUserDomains } from "@/utils/name-service";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React from "react";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
-import { useCluster } from "@/providers/cluster-provider";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
@@ -29,13 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from "next/navigation";
-
-import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
-import { SerumMarketRegistry } from "@/utils/serumMarketRegistry";
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-
-const solLogoUrl = "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png";
 
 export function AccountHeader({
   address,
@@ -62,7 +59,8 @@ export function AccountHeader({
   const { cluster } = useCluster();
 
   // Fetch the token list
-  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
+  const { data: tokenList, isLoading: tokenListLoading } =
+    useGetTokenListStrict();
 
   // Determine the type of account and token name if applicable
   const { accountType, tokenName, tokenImageURI } = React.useMemo(() => {
@@ -72,7 +70,7 @@ export function AccountHeader({
     let imageURI = null;
 
     if (tokenList) {
-      const token = tokenList.find(token => token.address === addressStr);
+      const token = tokenList.find((token) => token.address === addressStr);
       if (token) {
         type = "Token";
         name = token.name;
@@ -82,12 +80,14 @@ export function AccountHeader({
 
     if (!type && PROGRAM_INFO_BY_ID[addressStr]) type = "Program";
     if (!type && SerumMarketRegistry.get(addressStr, cluster)) type = "Market";
+    if (!type && compressedBalance && compressedBalance.value)
+      type = "Compressed";
 
     return { accountType: type, tokenName: name, tokenImageURI: imageURI };
-  }, [address, cluster, tokenList]);
+  }, [address, cluster, tokenList, compressedBalance]);
 
   return (
-    <div className="flex items-center gap-4 mb-8">
+    <div className="mb-8 flex items-center gap-4">
       {tokenImageURI ? (
         <Image
           src={tokenImageURI}
@@ -117,14 +117,17 @@ export function AccountHeader({
                 <>
                   {accountInfo.data?.value &&
                     accountInfo.data?.value.lamports && (
-                      <span className="text-lg text-muted-foreground flex items-center">
-                        <Image
-                          src={solLogoUrl}
-                          alt="SOL logo"
-                          className="w-6 h-6 mr-2 rounded-md"
-                          width={16}
-                          height={16}
-                        />
+                      <span className="flex items-center text-lg text-muted-foreground">
+                        <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                          <Image
+                            src={solLogo}
+                            alt="SOL logo"
+                            className=""
+                            loading="eager"
+                            width={24}
+                            height={24}
+                          />
+                        </div>
                         {`${lamportsToSolString(
                           accountInfo.data?.value.lamports,
                           2,
@@ -132,14 +135,17 @@ export function AccountHeader({
                       </span>
                     )}
                   {compressedBalance && compressedBalance.value && (
-                    <span className="text-lg text-muted-foreground flex items-center">
-                      <Image
-                        src={solLogoUrl}
-                        alt="SOL logo"
-                        className="w-5 h-5 rounded-md mr-1"
-                        width={16}
-                        height={16}
-                      />
+                    <span className="flex items-center text-lg text-muted-foreground">
+                      <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                        <Image
+                          src={solLogo}
+                          alt="SOL logo"
+                          className=""
+                          loading="eager"
+                          width={24}
+                          height={24}
+                        />
+                      </div>
                       {` | ${lamportsToSolString(
                         compressedBalance.value,
                         2,
@@ -147,14 +153,17 @@ export function AccountHeader({
                     </span>
                   )}
                   {compressedAccount.data && (
-                    <span className="text-lg text-muted-foreground flex items-center">
-                      <Image
-                        src={solLogoUrl}
-                        alt="SOL logo"
-                        className="w-5 h-5 rounded-md mr-1"
-                        width={16}
-                        height={16}
-                      />
+                    <span className="flex items-center text-lg text-muted-foreground">
+                      <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                        <Image
+                          src={solLogo}
+                          alt="SOL logo"
+                          className=""
+                          loading="eager"
+                          width={24}
+                          height={24}
+                        />
+                      </div>
                       {`${lamportsToSolString(
                         compressedAccount.data.lamports,
                         2,
@@ -162,9 +171,7 @@ export function AccountHeader({
                     </span>
                   )}
                   {accountType && (
-                    <Badge variant="success">
-                      {accountType}
-                    </Badge>
+                    <Badge variant="success">{accountType}</Badge>
                   )}
                   {!loadingDomains && userDomains && userDomains.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -188,7 +195,7 @@ export function AccountHeader({
           )}
         </div>
       </div>
-      <div className="ml-auto font-medium self-start">
+      <div className="ml-auto self-start font-medium">
         <div className="ml-auto flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -207,7 +214,9 @@ export function AccountHeader({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${cluster}`);
+                  router.push(
+                    `/address/${address.toBase58()}/compressed-accounts?cluster=${cluster}`,
+                  );
                 }}
               >
                 Compressed Accounts

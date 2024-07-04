@@ -155,7 +155,11 @@ export function Search({
   const navigateToSuggestion = (suggestion: Suggestion) => {
     setSuggestions([]);
 
-    if (suggestion.type === "Program" || suggestion.type === "Token" || suggestion.type === "Account") {
+    if (
+      suggestion.type === "Program" ||
+      suggestion.type === "Token" ||
+      suggestion.type === "Account"
+    ) {
       router.push(`/address/${suggestion.address}/?cluster=${cluster}`);
     } else if (suggestion.type === "Input") {
       if (isSolanaProgramAddress(suggestion.name)) {
@@ -190,7 +194,9 @@ export function Search({
     }
 
     if (suggestionsRef.current) {
-      const currentItem = suggestionsRef.current.children[selectedIndex] as HTMLLIElement;
+      const currentItem = suggestionsRef.current.children[
+        selectedIndex
+      ] as HTMLLIElement;
       if (currentItem) {
         const container = suggestionsRef.current;
         const containerHeight = container.clientHeight;
@@ -215,8 +221,7 @@ export function Search({
     }
 
     const selectedSuggestion = suggestions.find(
-      (suggestion) =>
-        suggestion.name.toLowerCase() === search.toLowerCase()
+      (suggestion) => suggestion.name.toLowerCase() === search.toLowerCase(),
     );
 
     if (selectedSuggestion) {
@@ -290,7 +295,10 @@ export function Search({
             autoComplete="off"
           />
           {suggestions.length > 0 && (
-            <ul ref={suggestionsRef} className="absolute z-10 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto mt-1">
+            <ul
+              ref={suggestionsRef}
+              className="absolute z-10 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto mt-1"
+            >
               {suggestions.map((suggestion, index) => (
                 <li
                   key={index}
