@@ -54,9 +54,9 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="justify-center md:justify-start hidden md:flex">
+            <div className="hidden items-center justify-center md:flex md:justify-start">
               {status.icon && (
-                <status.icon className="mr-2 h-6 w-6 text-muted-foreground" />
+                <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               )}
               <span className="hidden md:inline">{status.label}</span>
             </div>
@@ -98,8 +98,8 @@ export default function LatestNonVotingSignatures() {
 
   if (isLoading) {
     return (
-      <Card className="mx-5 md:mx-0 mb-16 md:mb-0">
-        <CardContent className="flex justify-center items-center min-h-[200px] md:min-h-[200px]">
+      <Card className="mx-5 mb-16 md:mx-0 md:mb-0">
+        <CardContent className="flex min-h-[200px] items-center justify-center md:min-h-[200px]">
           <Loading />
         </CardContent>
       </Card>
@@ -111,15 +111,15 @@ export default function LatestNonVotingSignatures() {
   }
 
   return (
-    <Card className="mx-auto mb-16 md:mb-0 border" style={{ maxWidth: "90vw" }}>
+    <Card className="mx-auto mb-16 border md:mb-0" style={{ maxWidth: "90vw" }}>
       <CardContent className="pt-4">
-        <div className="flex justify-center text-sm text-secondary mb-2">
+        <div className="mb-2 flex justify-center text-sm text-secondary">
           Recent transactions
         </div>
         <div
           className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
         >
-          <div className="md:hidden h-72">
+          <div className="h-72 md:hidden">
             <ScrollArea className="h-full">
               <div className="flex justify-center">
                 <DataTable data={signatures!} columns={columns} />

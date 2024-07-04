@@ -1,17 +1,23 @@
 "use client";
 
+import noImg from "@/../public/assets/noimg.svg";
 import { useCluster } from "@/providers/cluster-provider";
-import { DialogProps } from "@radix-ui/react-dialog";
-import { CommandLoading } from "cmdk";
-import { useRouter } from "next/navigation";
-import * as React from "react";
-
 import {
   cn,
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
 } from "@/utils/common";
+import cloudflareLoader from "@/utils/imageLoader";
+import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
+import { DialogProps } from "@radix-ui/react-dialog";
+import { CommandLoading } from "cmdk";
+import { Circle, CogIcon, SearchIcon } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,11 +30,6 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-import Image from "next/image";
-import { Circle, CogIcon, SearchIcon } from "lucide-react";
-
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
@@ -36,10 +37,13 @@ export function CommandMenu({ ...props }: DialogProps) {
   const [program, setProgram] = React.useState<string | null>(null);
   const [transaction, setTransaction] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
-  const [suggestions, setSuggestions] = React.useState<{ name: string; icon: JSX.Element; type?: string; address?: string }[]>([]);
+  const [suggestions, setSuggestions] = React.useState<
+    { name: string; icon: JSX.Element; type?: string; address?: string }[]
+  >([]);
   const { cluster } = useCluster();
 
-  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListStrict();
+  const { data: tokenList, isLoading: tokenListLoading } =
+    useGetTokenListStrict();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -85,43 +89,77 @@ export function CommandMenu({ ...props }: DialogProps) {
       // Check if is program address
       if (isSolanaProgramAddress(search)) {
         setProgram(search);
-        newSuggestions.push({ name: search, icon: <SearchIcon />, type: 'Program', address: search });
+        newSuggestions.push({
+          name: search,
+          icon: <SearchIcon />,
+          type: "Program",
+          address: search,
+        });
       }
 
       // Check if address and not program address
       if (isSolanaAccountAddress(search) && !isSolanaProgramAddress(search)) {
         setAddress(search);
-        newSuggestions.push({ name: search, icon: <SearchIcon />, type: 'Account', address: search });
+        newSuggestions.push({
+          name: search,
+          icon: <SearchIcon />,
+          type: "Account",
+          address: search,
+        });
       }
 
       // Check if is transaction id
       if (isSolanaSignature(search)) {
         setTransaction(search);
-        newSuggestions.push({ name: search, icon: <SearchIcon />, type: 'Transaction', address: search });
+        newSuggestions.push({
+          name: search,
+          icon: <SearchIcon />,
+          type: "Transaction",
+          address: search,
+        });
       }
 
       // Add program suggestions
       const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
         .filter(([, { name, deployments }]) => {
           if (!deployments.includes(cluster)) return false;
-          return (
-            name.toLowerCase().includes(search.toLowerCase())
-          );
+          return name.toLowerCase().includes(search.toLowerCase());
         })
-        .map(([address, { name }]) => ({ name, icon: <CogIcon />, type: 'Program', address }));
+        .map(([address, { name }]) => ({
+          name,
+          icon: <CogIcon />,
+          type: "Program",
+          address,
+        }));
 
       // Add token suggestions
       const tokenSuggestions = tokenList
         ? tokenList
-            .filter(token => token.name.toLowerCase().includes(search.toLowerCase()))
-            .map(token => ({ name: token.name, icon: token.logoURI ? 
-            <Image 
-            src={token.logoURI} 
-            alt={token.name} 
-            width={20} 
-            height={20} 
-            className="rounded-md"
-            /> : <Circle />, type: 'Token', address: token.address }))
+            .filter((token) =>
+              token.name.toLowerCase().includes(search.toLowerCase()),
+            )
+            .map((token) => ({
+              name: token.name,
+              icon: token.logoURI ? (
+                <Image
+                  loader={cloudflareLoader}
+                  src={token.logoURI}
+                  alt={token.name}
+                  width={20}
+                  height={20}
+                  className="rounded-md"
+                  loading="eager"
+                  onError={(event: any) => {
+                    event.target.id = "noimg";
+                    event.target.srcset = noImg.src;
+                  }}
+                />
+              ) : (
+                <Circle />
+              ),
+              type: "Token",
+              address: token.address,
+            }))
         : [];
 
       newSuggestions.push(...programSuggestions, ...tokenSuggestions);
@@ -134,10 +172,18 @@ export function CommandMenu({ ...props }: DialogProps) {
   };
 
   // Group suggestions by type
-  const programSuggestions = suggestions.filter(suggestion => suggestion.type === 'Program');
-  const accountSuggestions = suggestions.filter(suggestion => suggestion.type === 'Account');
-  const transactionSuggestions = suggestions.filter(suggestion => suggestion.type === 'Transaction');
-  const tokenSuggestions = suggestions.filter(suggestion => suggestion.type === 'Token');
+  const programSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Program",
+  );
+  const accountSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Account",
+  );
+  const transactionSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Transaction",
+  );
+  const tokenSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Token",
+  );
 
   return (
     <>
@@ -174,7 +220,9 @@ export function CommandMenu({ ...props }: DialogProps) {
                     value={suggestion.name}
                     onSelect={() => {
                       runCommand(() =>
-                        router.push(`/address/${suggestion.address}/?cluster=${cluster}`),
+                        router.push(
+                          `/address/${suggestion.address}/?cluster=${cluster}`,
+                        ),
                       );
                     }}
                   >
@@ -194,7 +242,9 @@ export function CommandMenu({ ...props }: DialogProps) {
                     value={suggestion.name}
                     onSelect={() => {
                       runCommand(() =>
-                        router.push(`/address/${suggestion.address}/?cluster=${cluster}`),
+                        router.push(
+                          `/address/${suggestion.address}/?cluster=${cluster}`,
+                        ),
                       );
                     }}
                   >
@@ -214,7 +264,9 @@ export function CommandMenu({ ...props }: DialogProps) {
                     value={suggestion.name}
                     onSelect={() => {
                       runCommand(() =>
-                        router.push(`/tx/${suggestion.address}/?cluster=${cluster}`),
+                        router.push(
+                          `/tx/${suggestion.address}/?cluster=${cluster}`,
+                        ),
                       );
                     }}
                     className="truncate"
@@ -235,7 +287,9 @@ export function CommandMenu({ ...props }: DialogProps) {
                     value={suggestion.name}
                     onSelect={() => {
                       runCommand(() =>
-                        router.push(`/address/${suggestion.address}/?cluster=${cluster}`),
+                        router.push(
+                          `/address/${suggestion.address}/?cluster=${cluster}`,
+                        ),
                       );
                     }}
                   >

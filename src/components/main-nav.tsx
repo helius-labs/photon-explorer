@@ -1,9 +1,8 @@
 "use client";
 
 import "@/styles/styles.css";
-import Image from "next/image";
-
 import { cn } from "@/utils/common";
+import Image from "next/image";
 
 import Link from "@/components/ui/link";
 
@@ -27,31 +26,28 @@ export function MainNav({
       >
         {/* Desktop logos */}
         <Image
-          className="hidden md:block dark:hidden logo-container"
+          className="logo-container hidden dark:hidden md:block"
           alt="XRAY logo"
           width={100}
           height={100}
           priority
-          unoptimized
           src={LogoBlack}
         />
         <Image
-          className="hidden md:dark:block logo-container"
+          className="logo-container hidden md:dark:block"
           alt="XRAY logo"
           width={100}
           height={100}
           priority
-          unoptimized
           src={LogoWhite}
         />
         {/* Mobile logos */}
         <Image
-          className="block md:hidden dark:hidden"
+          className="block dark:hidden md:hidden"
           alt="XRAY logo"
           width={40}
           height={40}
           priority
-          unoptimized
           src={LogoIconWhite}
         />
         <Image
@@ -60,7 +56,6 @@ export function MainNav({
           width={40}
           height={40}
           priority
-          unoptimized
           src={LogoIconBlack}
         />
       </Link>

@@ -1,8 +1,10 @@
 "use client";
 
+import noImg from "@/../public/assets/noimg.svg";
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
 import { lamportsToSolString } from "@/utils/common";
+import cloudflareLoader from "@/utils/imageLoader";
 import { useUserDomains } from "@/utils/name-service";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { SerumMarketRegistry } from "@/utils/serumMarketRegistry";
@@ -90,11 +92,17 @@ export function AccountHeader({
     <div className="mb-8 flex items-center gap-4">
       {tokenImageURI ? (
         <Image
+          loader={cloudflareLoader}
           src={tokenImageURI}
           alt={tokenName || "Token"}
-          width={80}
-          height={80}
-          className="rounded-full"
+          width={128}
+          height={128}
+          loading="eager"
+          className="h-16 w-16 rounded-full"
+          onError={(event: any) => {
+            event.target.id = "noimg";
+            event.target.srcset = noImg.src;
+          }}
         />
       ) : (
         <Avatar
@@ -122,7 +130,6 @@ export function AccountHeader({
                           <Image
                             src={solLogo}
                             alt="SOL logo"
-                            className=""
                             loading="eager"
                             width={24}
                             height={24}
@@ -140,7 +147,6 @@ export function AccountHeader({
                         <Image
                           src={solLogo}
                           alt="SOL logo"
-                          className=""
                           loading="eager"
                           width={24}
                           height={24}
@@ -158,7 +164,6 @@ export function AccountHeader({
                         <Image
                           src={solLogo}
                           alt="SOL logo"
-                          className=""
                           loading="eager"
                           width={24}
                           height={24}

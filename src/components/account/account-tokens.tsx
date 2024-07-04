@@ -28,14 +28,14 @@ const columns: ColumnDef<Token>[] = [
             loader={cloudflareLoader}
             src={row.original.logoURI || noImg.src}
             alt={tokenName}
-            width={48}
-            height={48}
+            width={96}
+            height={96}
             loading="eager"
             onError={(event: any) => {
               event.target.id = "noimg";
               event.target.srcset = noImg.src;
             }}
-            className="h-12 w-12 ml-4 rounded-full"
+            className="ml-4 h-12 w-12 rounded-full"
           />
           <div className="ml-4">
             <div className="text-sm font-medium">{tokenName}</div>
@@ -82,7 +82,7 @@ const columns: ColumnDef<Token>[] = [
             rel="noopener noreferrer"
           >
             <Image
-              src={birdeyeIcon.src || noImg.src}
+              src={birdeyeIcon.src}
               alt="Birdeye"
               width={22}
               height={22}
@@ -96,7 +96,7 @@ const columns: ColumnDef<Token>[] = [
             rel="noopener noreferrer"
           >
             <Image
-              src={dexscreenerIcon.src || noImg.src}
+              src={dexscreenerIcon.src}
               alt="Dexscreener"
               width={22}
               height={22}
@@ -115,9 +115,9 @@ export default function AccountTokens({ address }: { address: string }) {
 
   if (isError)
     return (
-      <Card className="col-span-12 shadow mb-10">
-        <CardContent className="flex flex-col items-center pt-6 gap-4 pb-6">
-          <div className="text-secondary font-semibold">
+      <Card className="col-span-12 mb-10 shadow">
+        <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
+          <div className="font-semibold text-secondary">
             Unable to fetch account balances
           </div>
           <div className="text-gray-500">
@@ -135,45 +135,45 @@ export default function AccountTokens({ address }: { address: string }) {
 
   if (isLoading)
     return (
-      <Card className="col-span-12 shadow mb-10">
-        <CardContent className="flex flex-col py-6 gap-4">
-          <div className="flex justify-start font-medium text-sm">
-            <Skeleton className="h-4 w-[200px] ml-2" />
+      <Card className="col-span-12 mb-10 shadow">
+        <CardContent className="flex flex-col gap-4 py-6">
+          <div className="flex justify-start text-sm font-medium">
+            <Skeleton className="ml-2 h-4 w-[200px]" />
           </div>
-          <div className="grid grid-cols-5 px-4 items-center pb-8">
-            <div className="flex items-center col-span-1 space-x-4"></div>
+          <div className="grid grid-cols-5 items-center px-4 pb-8">
+            <div className="col-span-1 flex items-center space-x-4"></div>
             <div className="col-span-1 space-y-2">
-              <Skeleton className="h-4 w-[50px] ml-auto" />
+              <Skeleton className="ml-auto h-4 w-[50px]" />
             </div>
             <div className="col-span-1 space-y-2">
-              <Skeleton className="h-4 w-[50px] ml-auto" />
+              <Skeleton className="ml-auto h-4 w-[50px]" />
             </div>
             <div className="col-span-1 space-y-2">
-              <Skeleton className="h-4 w-[50px] ml-auto" />
+              <Skeleton className="ml-auto h-4 w-[50px]" />
             </div>
-            <div className="flex col-span-1 space-x-2">
-              <Skeleton className="hidden md:flex h-4 w-[50px] ml-10" />
+            <div className="col-span-1 flex space-x-2">
+              <Skeleton className="ml-10 hidden h-4 w-[50px] md:flex" />
             </div>
           </div>
           {[...Array(5)].map((_, index) => (
-            <div key={index} className="grid grid-cols-5 px-4 items-center">
-              <div className="flex items-center col-span-1 space-x-4">
+            <div key={index} className="grid grid-cols-5 items-center px-4">
+              <div className="col-span-1 flex items-center space-x-4">
                 <Skeleton className="h-12 w-12 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-[100px]" />
                   <Skeleton className="h-4 w-[50px]" />
                 </div>
               </div>
-              <div className="hidden md:block col-span-1 space-y-2">
-                <Skeleton className="h-4 w-[50px] ml-auto" />
+              <div className="col-span-1 hidden space-y-2 md:block">
+                <Skeleton className="ml-auto h-4 w-[50px]" />
               </div>
-              <div className="hidden md:block col-span-1 space-y-2">
-                <Skeleton className="h-4 w-[50px] ml-auto" />
+              <div className="col-span-1 hidden space-y-2 md:block">
+                <Skeleton className="ml-auto h-4 w-[50px]" />
               </div>
-              <div className="hidden md:block col-span-1 space-y-2">
-                <Skeleton className="h-4 w-[50px] ml-auto" />
+              <div className="col-span-1 hidden space-y-2 md:block">
+                <Skeleton className="ml-auto h-4 w-[50px]" />
               </div>
-              <div className="hidden md:flex col-span-1 space-x-2 justify-center">
+              <div className="col-span-1 hidden justify-center space-x-2 md:flex">
                 <Skeleton className="h-6 w-6 rounded-full" />
                 <Skeleton className="h-6 w-6 rounded-full" />
               </div>
@@ -189,9 +189,9 @@ export default function AccountTokens({ address }: { address: string }) {
     }, 0) || 0;
 
   return (
-    <Card className="col-span-12 shadow mb-10">
-      <CardContent className="flex flex-col pt-6 gap-4 pb-6">
-        <div className="flex justify-start font-medium text-sm">
+    <Card className="col-span-12 mb-10 shadow">
+      <CardContent className="flex flex-col gap-4 pb-6 pt-6">
+        <div className="flex justify-start text-sm font-medium">
           Account Balance: ${totalFungibleValue.toFixed(2)}
         </div>
         <DataTable columns={columns} data={data!} />
