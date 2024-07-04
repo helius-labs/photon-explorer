@@ -1,26 +1,18 @@
 import { useCluster } from "@/providers/cluster-provider";
-import { DAS } from "@/types/helius-sdk/das-types";
-import { Interface } from "@/types/helius-sdk/enums";
+import { DAS, Interface } from "@/types/helius-sdk";
 import { Token } from "@/types/token";
-import { Cluster } from "@/utils/cluster";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-import { getAccountTokens } from "./useGetAccountTokens";
-
-export function useGetTokens(address: string, enabled: boolean = true) {
-  const { cluster, endpoint } = useCluster();
+export function useGetTokensByOwnerDAS(
+  address: string,
+  enabled: boolean = true,
+) {
+  const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [cluster, endpoint, "getTokens", address],
-    queryFn: async () => {
-      // Use Helius DAS API for Mainnet and Devnet
-      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(cluster)) {
-        return getTokensByOwner(address, 1, endpoint);
-      } else {
-        return getAccountTokens(address, cluster, endpoint);
-      }
-    },
+    queryKey: [endpoint, "getTokensByOwnerDAS", address],
+    queryFn: async () => getTokensByOwnerDAS(address, 1, endpoint),
     enabled,
   });
 }
@@ -35,7 +27,7 @@ type AssetResponse = {
   };
 };
 
-async function getTokensByOwner(
+export async function getTokensByOwnerDAS(
   address: string,
   page: number = 1,
   endpoint: string,

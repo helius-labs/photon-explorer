@@ -9,7 +9,7 @@ import cloudflareLoader from "@/utils/imageLoader";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
-import { useGetTokens } from "@/hooks/useGetTokens";
+import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { Card, CardContent } from "@/components/ui/card";
@@ -111,7 +111,7 @@ const columns: ColumnDef<Token>[] = [
 ];
 
 export default function AccountTokens({ address }: { address: string }) {
-  const { data, isLoading, isError } = useGetTokens(address);
+  const { data, isLoading, isError } = useGetTokensByOwner(address);
 
   if (isError)
     return (
