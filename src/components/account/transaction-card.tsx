@@ -85,7 +85,7 @@ export const columns: ColumnDef<TransactionData>[] = [
             : null;
       } else if (isXrayTransaction(transaction)) {
         description = descriptionParser(transaction.description || ""); // Use descriptionParser
-        actions = transaction.actions;
+        actions = transaction.actions || [];
         type = transaction.type;
       }
 
@@ -101,25 +101,25 @@ export const columns: ColumnDef<TransactionData>[] = [
               <>
                 {actions.map((action, index) => (
                   <div key={index}>
-                    {action.actionType === ActionTypes.TRANSFER && (
+                    {action.actionType === ActionTypes.TRANSFER && action.mint && action.to && (
                       <div className="flex items-center">
                         <span className="text-sm font-medium leading-none">Transfer</span>
-                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint!)} />
-                        <Address pubkey={new PublicKey(action.to!)} />
+                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint)} />
+                        <Address pubkey={new PublicKey(action.to)} />
                       </div>
                     )}
-                    {action.actionType === ActionTypes.SENT && (
+                    {action.actionType === ActionTypes.SENT && action.mint && action.to && (
                       <div className="flex items-center">
                         <span className="text-sm font-medium leading-none">Sent</span>
-                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint!)} />
-                        <Address pubkey={new PublicKey(action.to!)} />
+                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint)} />
+                        <Address pubkey={new PublicKey(action.to)} />
                       </div>
                     )}
-                    {action.actionType === ActionTypes.RECEIVED && (
+                    {action.actionType === ActionTypes.RECEIVED && action.mint && action.from && (
                       <div className="flex items-center">
                         <span className="text-sm font-medium leading-none">Received</span>
-                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint!)} />
-                        <Address pubkey={new PublicKey(action.from!)} />
+                        <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint)} />
+                        <Address pubkey={new PublicKey(action.from)} />
                       </div>
                     )}
                   </div>

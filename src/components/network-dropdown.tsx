@@ -1,28 +1,20 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react";
-import { useCluster } from "@/providers/cluster-provider";
-import { CLUSTERS, Cluster, clusterName, clusterSlug } from "@/utils/cluster";
-import { useGetRecentPerformanceSamples } from "@/hooks/web3";
-import { useGetPriorityFeeEstimate } from "@/hooks/useGetPriorityFeeEstimate";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Loading from "@/components/common/loading";
-import { lamportsToSolString } from "@/utils/common";
+import { useCluster } from '@/providers/cluster-provider';
+import { CLUSTERS, Cluster, clusterName, clusterSlug } from '@/utils/cluster';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import Loading from '@/components/common/loading';
+import { lamportsToSolString } from '@/utils/common';
+import { useGetRecentPerformanceSamples } from '@/hooks/web3';
+import { useGetPriorityFeeEstimate } from '@/hooks/useGetPriorityFeeEstimate';
+import { useEffect, useState } from 'react';
 
-const accountKeys = ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"];
+const accountKeys = ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'];
 
 export function NetworkStatusDropdown() {
   const {
@@ -34,51 +26,54 @@ export function NetworkStatusDropdown() {
     setCustomCompressionEndpoint,
   } = useCluster();
 
-  const { data: networkStatus, isLoading: isNetworkLoading } =
-    useGetRecentPerformanceSamples(cluster !== Cluster.Localnet);
+  const { data: networkStatus, isLoading: isNetworkLoading } = useGetRecentPerformanceSamples({
+    enabled: cluster !== Cluster.Localnet,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: 30000, // 30 seconds
+    refetchIntervalInBackground: true,
+  });
 
-  const { data: priorityFeeLevels, isLoading: isFeeLoading } =
-    useGetPriorityFeeEstimate(accountKeys, cluster === Cluster.MainnetBeta);
+  const { data: priorityFeeLevels, isLoading: isFeeLoading } = useGetPriorityFeeEstimate(accountKeys, {
+    enabled: cluster === Cluster.MainnetBeta,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: 30000, // 30 seconds
+    refetchIntervalInBackground: true,
+  });
 
-  const averageTps =
-    networkStatus?.avgTps !== undefined
-      ? Math.round(networkStatus.avgTps).toLocaleString("en-US")
-      : "N/A";
-  const latency =
-    networkStatus?.latency !== undefined ? networkStatus.latency : "N/A";
-  const priorityFeeInSol =
-    priorityFeeLevels?.medium !== undefined
-      ? lamportsToSolString(priorityFeeLevels.medium * 100, 5)
-      : "N/A";
+  const averageTps = networkStatus?.avgTps !== undefined ? Math.round(networkStatus.avgTps).toLocaleString('en-US') : 'N/A';
+  const latency = networkStatus?.latency !== undefined ? networkStatus.latency : 'N/A';
+  const priorityFeeInSol = priorityFeeLevels?.medium !== undefined ? lamportsToSolString(priorityFeeLevels.medium * 100, 5) : 'N/A';
 
-  let tpsColor = "bg-white";
-  let pingColor = "bg-white";
+  let tpsColor = 'bg-white';
+  let pingColor = 'bg-white';
 
   if (networkStatus?.avgTps !== undefined) {
     if (cluster === Cluster.MainnetBeta) {
       if (networkStatus.avgTps >= 1000) {
-        tpsColor = "bg-green-500";
+        tpsColor = 'bg-green-500';
       } else if (networkStatus.avgTps >= 100 && networkStatus.avgTps < 1000) {
-        tpsColor = "bg-yellow-500";
+        tpsColor = 'bg-yellow-500';
       } else if (networkStatus.avgTps < 100) {
-        tpsColor = "bg-red-500";
+        tpsColor = 'bg-red-500';
       }
     } else {
       if (networkStatus.avgTps === 0) {
-        tpsColor = "bg-yellow-500";
+        tpsColor = 'bg-yellow-500';
       } else if (networkStatus.avgTps > 0) {
-        tpsColor = "bg-green-500";
+        tpsColor = 'bg-green-500';
       }
     }
   }
 
-  if (latency !== "N/A") {
+  if (latency !== 'N/A') {
     if (latency < 500) {
-      pingColor = "bg-green-500";
+      pingColor = 'bg-green-500';
     } else if (latency >= 500 && latency <= 1000) {
-      pingColor = "bg-yellow-500";
+      pingColor = 'bg-yellow-500';
     } else if (latency > 1000) {
-      pingColor = "bg-red-500";
+      pingColor = 'bg-red-500';
     }
   }
 
@@ -86,14 +81,14 @@ export function NetworkStatusDropdown() {
 
   useEffect(() => {
     const checkIfTouchDevice = () => {
-      setIsTouchDevice("ontouchstart" in window || navigator.maxTouchPoints > 0);
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
     };
 
     checkIfTouchDevice();
-    window.addEventListener("resize", checkIfTouchDevice);
+    window.addEventListener('resize', checkIfTouchDevice);
 
     return () => {
-      window.removeEventListener("resize", checkIfTouchDevice);
+      window.removeEventListener('resize', checkIfTouchDevice);
     };
   }, []);
 
@@ -102,9 +97,7 @@ export function NetworkStatusDropdown() {
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-semibold">Network Status</h2>
         <div className="flex items-center">
-          <div className="text-sm mr-2">
-            {clusterName(cluster)}
-          </div>
+          <div className="text-sm mr-2">{clusterName(cluster)}</div>
         </div>
       </div>
       <Separator />
@@ -158,13 +151,13 @@ export function NetworkStatusDropdown() {
       <div>
         <h2 className="text-md font-semibold mb-2">Choose a Network</h2>
         <div className="grid gap-2">
-          {CLUSTERS.filter(
-            (clusterItem) => clusterItem === Cluster.MainnetBeta,
-          ).map((clusterItem) => (
+          {CLUSTERS.filter((clusterItem) => clusterItem === Cluster.MainnetBeta).map((clusterItem) => (
             <div
               key={clusterSlug(clusterItem)}
               onClick={() => setCluster(clusterItem)}
-              className={`cursor-pointer rounded-md px-4 py-2 border text-center ${cluster === clusterItem ? "ring-1" : ""}`}
+              className={`cursor-pointer rounded-md px-4 py-2 border text-center ${
+                cluster === clusterItem ? 'ring-1' : ''
+              }`}
             >
               {clusterName(clusterItem)}
             </div>
@@ -172,14 +165,14 @@ export function NetworkStatusDropdown() {
           <div className="grid grid-cols-3 gap-2">
             {CLUSTERS.filter(
               (clusterItem) =>
-                clusterItem === Cluster.Testnet ||
-                clusterItem === Cluster.Devnet ||
-                clusterItem === Cluster.Localnet,
+                clusterItem === Cluster.Testnet || clusterItem === Cluster.Devnet || clusterItem === Cluster.Localnet,
             ).map((clusterItem) => (
               <div
                 key={clusterSlug(clusterItem)}
                 onClick={() => setCluster(clusterItem)}
-                className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${cluster === clusterItem ? "ring-1" : ""}`}
+                className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${
+                  cluster === clusterItem ? 'ring-1' : ''
+                }`}
               >
                 {clusterName(clusterItem)}
               </div>
@@ -187,7 +180,9 @@ export function NetworkStatusDropdown() {
           </div>
           <div
             onClick={() => setCluster(Cluster.Custom)}
-            className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${cluster === Cluster.Custom ? "ring-1" : ""}`}
+            className={`cursor-pointer rounded-md px-4 py-2 border text-center text-xs md:text-base ${
+              cluster === Cluster.Custom ? 'ring-1' : ''
+            }`}
           >
             Custom
           </div>
@@ -204,9 +199,7 @@ export function NetworkStatusDropdown() {
                 />
               </div>
               <div className="grid w-full max-w-sm items-center gap-2">
-                <Label htmlFor="customCompressionEndpoint">
-                  Custom Compression RPC URL
-                </Label>
+                <Label htmlFor="customCompressionEndpoint">Custom Compression RPC URL</Label>
                 <Input
                   id="customCompressionEndpoint"
                   className="pl-2"
@@ -230,9 +223,7 @@ export function NetworkStatusDropdown() {
           className="flex items-center justify-center rounded-full h-10 w-10 md:rounded-md md:h-auto md:w-auto"
         >
           <div className="flex items-center justify-center">
-            <div className="hidden md:block">
-              {clusterName(cluster)}
-            </div>
+            <div className="hidden md:block">{clusterName(cluster)}</div>
             <div className={`w-2 h-2 md:ml-2 rounded-full ${tpsColor} animate-pulse`}></div>
           </div>
         </Button>
@@ -244,20 +235,14 @@ export function NetworkStatusDropdown() {
   ) : (
     <HoverCard openDelay={100} closeDelay={400}>
       <HoverCardTrigger asChild>
-        <Button
-          variant="outline"
-          className="flex items-center justify-between rounded-md"
-        >
+        <Button variant="outline" className="flex items-center justify-between rounded-md">
           <div className="min-w-24 px-1 flex items-center justify-between">
             {clusterName(cluster)}
             <div className={`w-2 h-2 mr-2 rounded-full ${tpsColor} animate-pulse`}></div>
           </div>
         </Button>
       </HoverCardTrigger>
-      <HoverCardContent
-        align="end"
-        className="w-full max-w-xs md:max-w-md bg-background text-foreground rounded-lg shadow-lg mt-2 cursor-default"
-      >
+      <HoverCardContent align="end" className="w-full max-w-xs md:max-w-md bg-background text-foreground rounded-lg shadow-lg mt-2 cursor-default">
         {renderContent()}
       </HoverCardContent>
     </HoverCard>
