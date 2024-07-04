@@ -119,7 +119,7 @@ export function useGetParsedAccountInfo(
   });
 }
 
-export function useGetRecentPerformanceSamples(enabled: boolean = true) {
+export function useGetRecentPerformanceSamples(options = {}) {
   const { endpoint } = useCluster();
 
   return useQuery({
@@ -142,7 +142,6 @@ export function useGetRecentPerformanceSamples(enabled: boolean = true) {
 
       return { avgTps, latency };
     },
-    enabled,
-    refetchInterval: enabled ? 2000 : false,
+    ...options,
   });
 }
