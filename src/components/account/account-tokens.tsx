@@ -3,11 +3,12 @@
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import noImg from "@/../public/assets/noimg.svg";
+import Image from "next/image";
 import { Token } from "@/types/token";
 import { normalizeTokenAmount } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import { ColumnDef } from "@tanstack/react-table";
-import Image from "next/image";
+import { formatLargeSize } from "@/utils/numbers";
 
 import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
@@ -49,10 +50,9 @@ const columns: ColumnDef<Token>[] = [
     header: "Balance",
     accessorKey: "balance",
     cell: ({ row }) => {
-      return normalizeTokenAmount(
-        row.original.amount,
-        row.original.decimals,
-      ).toFixed(3);
+      return formatLargeSize(
+        normalizeTokenAmount(row.original.amount, row.original.decimals).toFixed(3)
+      );
     },
   },
   {
@@ -194,7 +194,45 @@ export default function AccountTokens({ address }: { address: string }) {
         <div className="flex justify-start text-sm font-medium">
           Account Balance: ${totalFungibleValue.toFixed(2)}
         </div>
-        <DataTable columns={columns} data={data!} />
+        <div className="block md:hidden">
+          {data?.map((token, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between px-4 py-2 border-b"
+            >
+              <div className="flex items-center">
+                <Image
+                  loader={cloudflareLoader}
+                  src={token.logoURI || noImg.src}
+                  alt={token.name || "Unknown"}
+                  width={32}
+                  height={32}
+                  loading="eager"
+                  onError={(event: any) => {
+                    event.target.id = "noimg";
+                    event.target.srcset = noImg.src;
+                  }}
+                  className="h-8 w-8 rounded-full"
+                />
+                <div className="ml-2">
+                  <div className="text-sm font-medium">{token.name || "Unknown"}</div>
+                  <div className="text-xs font-bold">{token.symbol || "Unknown"}</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium">
+                  {formatLargeSize(normalizeTokenAmount(token.amount, token.decimals).toFixed(3))}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {token.value ? `$${token.value.toFixed(2)}` : "N/A"}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="hidden md:block">
+          <DataTable columns={columns} data={data!} />
+        </div>
       </CardContent>
     </Card>
   );
