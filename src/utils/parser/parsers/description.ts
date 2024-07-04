@@ -1,4 +1,4 @@
-export function extractKeyPoints(description: string): string {
+export function descriptionParser(description: string): string {
   if (description.includes("multiple accounts")) {
     return "UNKNOWN";
   }

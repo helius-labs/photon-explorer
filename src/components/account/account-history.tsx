@@ -18,10 +18,10 @@ import { useGetParsedTransactions } from "@/hooks/parser";
 import { Cluster } from "@/utils/cluster";
 import { ActionTypes, XrayTransaction } from "@/utils/parser";
 import { TokenBalance } from "../common/token-balance";
-import { extractKeyPoints } from "@/utils/descriptionParser";
 import Address from "../common/address";
 import { BalanceDelta } from "../common/balance-delta";
 import BigNumber from "bignumber.js";
+import { descriptionParser } from "@/utils/parser/parsers/description";
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
@@ -80,7 +80,7 @@ export default function AccountHistory({ address }: { address: string }) {
       </Card>
     );
 
-  const data: TransactionData[] = 
+  const data: TransactionData[] =
     parsedTransactions.data?.length
       ? parsedTransactions.data
       : signatures.data?.length
@@ -99,7 +99,7 @@ export default function AccountHistory({ address }: { address: string }) {
             const isXrayTrans = isXrayTransaction(transaction);
 
             const time = isParsedTransaction ? transaction.blockTime : isXrayTrans ? transaction.timestamp : undefined;
-            const description = isParsedTransaction ? transaction.meta?.logMessages?.join(' ') : isXrayTrans ? transaction.description : undefined;
+            const description = isParsedTransaction ? transaction.meta?.logMessages?.join(' ') : isXrayTrans ? descriptionParser(transaction.description || "") : undefined;
             const rootAccountDelta = isParsedTransaction && transaction.meta
               ? new BigNumber(transaction.meta.postBalances[0]).minus(new BigNumber(transaction.meta.preBalances[0]))
               : null;
@@ -129,9 +129,10 @@ export default function AccountHistory({ address }: { address: string }) {
                   </div>
                   <div className="grid gap-1 text-center">
                     {description ? (
-                      <div className="text-sm text-muted-foreground">{extractKeyPoints(description)}</div>
+                      <div className="text-sm text-muted-foreground">{description}</div>
                     ) : (
-                      "actions" in transaction && transaction.actions.map((action, index) => (
+                      "actions" in transaction &&
+                      transaction.actions.map((action, index) => (
                         <div key={index}>
                           {action.actionType === ActionTypes.TRANSFER && (
                             <div className="flex items-center">
@@ -176,7 +177,7 @@ export default function AccountHistory({ address }: { address: string }) {
                       </div>
                     )}
                     {!description && !("actions" in transaction && transaction.actions.length) && (
-                      <div className="text-sm text-muted-foreground">APP INTERACTION</div>
+                      <div className="text-sm text-muted-foreground">UNKNOWN</div>
                     )}
                   </div>
                 </div>
