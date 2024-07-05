@@ -1,13 +1,12 @@
 "use client";
 
+import noImg from "@/../public/assets/noimg.svg";
 import { DAS } from "@/types/helius-sdk/das-types";
+import cloudflareLoader from "@/utils/imageLoader";
 import Image from "next/image";
 import React, { useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-
-import noImg from "../../../public/assets/noimg.svg";
-import cloudflareLoader from "../../utils/imageLoader";
 
 interface NFTGridItemProps {
   nft: DAS.GetAssetResponse;

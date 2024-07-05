@@ -1,5 +1,6 @@
 "use client";
 
+import noImg from "@/../public/assets/noimg.svg";
 import { useCluster } from "@/providers/cluster-provider";
 import {
   isSolanaAccountAddress,
@@ -7,6 +8,7 @@ import {
   isSolanaSignature,
   shortenLong,
 } from "@/utils/common";
+import cloudflareLoader from "@/utils/imageLoader";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { Circle, CogIcon, SearchIcon } from "lucide-react";
 import Image from "next/image";
@@ -124,11 +126,17 @@ export function Search({
                   name: token.name,
                   icon: token.logoURI ? (
                     <Image
+                      loader={cloudflareLoader}
+                      loading="eager"
                       src={token.logoURI}
                       alt={token.name}
-                      width={20}
-                      height={20}
-                      className="rounded-md"
+                      width={48}
+                      height={48}
+                      className="h-6 w-6 rounded-full"
+                      onError={(event: any) => {
+                        event.target.id = "noimg";
+                        event.target.srcset = noImg.src;
+                      }}
                     />
                   ) : (
                     <Circle />
@@ -273,7 +281,7 @@ export function Search({
 
   return (
     <div
-      className="relative w-full max-w-lg mx-auto px-4 md:px-0"
+      className="relative mx-auto w-full max-w-lg px-4 md:px-0"
       onKeyDown={handleKeyDown}
     >
       <form
@@ -297,12 +305,12 @@ export function Search({
           {suggestions.length > 0 && (
             <ul
               ref={suggestionsRef}
-              className="absolute z-10 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto mt-1"
+              className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-background shadow-lg"
             >
               {suggestions.map((suggestion, index) => (
                 <li
                   key={index}
-                  className={`p-2 cursor-pointer hover:bg-secondary flex items-center gap-2 ${
+                  className={`flex cursor-pointer items-center gap-2 p-2 hover:bg-secondary ${
                     index === selectedIndex ? "bg-secondary" : ""
                   }`}
                   onMouseDown={(e) => e.preventDefault()}
