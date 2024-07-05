@@ -135,17 +135,21 @@ export function useGetCompressedTokenAccountsByOwner(
   });
 }
 
-export function useGetCompressedAccount(hash: string, enabled: boolean = true) {
+export function useGetCompressedAccount(
+  address: string,
+  enabled: boolean = true,
+) {
   const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
-    queryKey: [compressionEndpoint, "getCompressedAccount", hash],
+    queryKey: [compressionEndpoint, "getCompressedAccount", address],
     queryFn: async () => {
       const connection = createRpc(endpoint, compressionEndpoint, undefined, {
         commitment: "processed",
       });
 
-      return await connection.getCompressedAccount(createBN254(hash, "base58"));
+      const hash = createBN254(address, "base58");
+      return await connection.getCompressedAccount(undefined, hash);
     },
     enabled,
   });
