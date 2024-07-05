@@ -1,8 +1,8 @@
 "use client";
 
+import { isSolanaAccountAddress } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import { PropsWithChildren } from "react";
-import { isAddress } from "web3js-experimental";
 
 import { useGetCompressedAccount } from "@/hooks/compression";
 import { useGetAccountInfo } from "@/hooks/web3";
@@ -21,9 +21,9 @@ export default function AddressLayout({
   // Address could be compressed account hash or address
   const compressedAccount = useGetCompressedAccount(address);
 
-  if (!isAddress(address)) {
+  if (!isSolanaAccountAddress(address)) {
     return (
-      <div className="flex items-center justify-center p-6 text-muted-foreground text-lg">
+      <div className="flex items-center justify-center p-6 text-lg text-muted-foreground">
         Invalid address
       </div>
     );
@@ -31,7 +31,7 @@ export default function AddressLayout({
 
   if (accountInfo.isError) {
     return (
-      <div className="flex items-center justify-center p-6 text-muted-foreground text-lg">
+      <div className="flex items-center justify-center p-6 text-lg text-muted-foreground">
         Invalid connection, check your config and try again.
       </div>
     );
