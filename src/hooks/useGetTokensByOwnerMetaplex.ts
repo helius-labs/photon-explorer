@@ -41,8 +41,13 @@ export async function getTokensByOwnerMetaplex(
   );
 
   const tokens: Token[] = assets.flatMap((item) => {
+    const tokenStandard = unwrapOption(item.metadata.tokenStandard);
+
     if (
-      unwrapOption(item.metadata.tokenStandard) === TokenStandard.NonFungible
+      tokenStandard &&
+      [TokenStandard.Fungible, TokenStandard.FungibleAsset].includes(
+        tokenStandard,
+      )
     ) {
       return {
         raw: item,
@@ -52,7 +57,7 @@ export async function getTokensByOwnerMetaplex(
         decimals: item.mint.decimals,
         name: item.metadata.name,
         symbol: item.metadata.symbol,
-        logoURI: item.metadata.uri,
+        logoURI: undefined,
       };
     }
     return [];
@@ -74,8 +79,6 @@ export async function getTokensByOwnerMetaplex(
       }
     });
   }
-
-  tokens.sort((a, b) => b.value! - a.value!);
 
   return tokens;
 }

@@ -46,10 +46,10 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   if (parsed.isError || transaction.isError || compressed.isError)
     return (
-      <Card className="w-full max-w-lg mx-auto">
+      <Card className="mx-auto w-full max-w-lg">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center p-6">
-            <div className="text-muted-foreground text-lg">
+            <div className="text-lg text-muted-foreground">
               Failed to load transaction.
             </div>
             <Button variant="outline" className="mt-4" onClick={handleReturn}>
@@ -61,7 +61,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     );
   if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
     return (
-      <Card className="w-full max-w-lg mx-auto">
+      <Card className="mx-auto w-full max-w-lg">
         <CardContent className="pt-6">
           <div className="flex items-center space-x-4">
             <div className="space-y-2">
@@ -74,7 +74,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     );
 
   let transactionOverview = (
-    <Card className="w-full max-w-lg mx-auto">
+    <Card className="mx-auto w-full max-w-lg">
       <CardContent className="pt-6">
         <div>Transaction not found</div>
       </CardContent>
@@ -97,7 +97,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     <>
       {transactionOverview}
       {transaction.data && (
-        <div className="flex w-full max-w-lg mx-auto mt-4 mb-6">
+        <div className="mx-auto mb-6 mt-4 flex w-full max-w-lg">
           <Badge className="mr-2" variant="outline">
             Advanced Details
           </Badge>

@@ -84,7 +84,5 @@ export async function getTokensByOwnerDAS(
     return [];
   });
 
-  tokens.sort((a, b) => (b.value || 0) - (a.value || 0));
-
   return tokens;
 }
