@@ -1,22 +1,25 @@
 "use client";
 
-import noImg from "@/../public/assets/noimg.svg";
+import * as React from "react";
 import { useCluster } from "@/providers/cluster-provider";
+import { useRouter } from "next/navigation";
+import { Connection } from "@solana/web3.js";
+import { debounce } from "lodash";
+
+import noImg from "@/../public/assets/noimg.svg";
+import Image from "next/image";
+import cloudflareLoader from "@/utils/imageLoader";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import {
   isSolanaAccountAddress,
   isSolanaProgramAddress,
   isSolanaSignature,
   shortenLong,
 } from "@/utils/common";
-import cloudflareLoader from "@/utils/imageLoader";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
-import { Circle, CogIcon, SearchIcon } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import * as React from "react";
+import { getDomainInfo, hasDomainSyntax } from "@/utils/domain-info";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-
+import { Circle, CogIcon, SearchIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -28,131 +31,117 @@ interface Suggestion {
   logoURI?: string;
 }
 
-async function resolveAddress(address: string): Promise<string | null> {
-  const response = await fetch(
-    `https://sns-sdk-proxy.bonfida.workers.dev/resolve/${address.toLowerCase()}`,
-  );
-  const data = await response.json();
-  if (data.s === "ok") {
-    return data.result;
-  }
-  return null;
-}
-
-export function Search({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLElement>) {
+export function Search() {
   const router = useRouter();
-  const { cluster } = useCluster();
+  const { cluster, endpoint } = useCluster();
   const [search, setSearch] = React.useState("");
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
+  const [filteredSuggestions, setFilteredSuggestions] = React.useState<Suggestion[]>([]);
   const [selectedIndex, setSelectedIndex] = React.useState<number>(-1);
+  const [noResults, setNoResults] = React.useState<boolean>(false);
+  const [activeFilter, setActiveFilter] = React.useState<string>("All");
 
-  const { data: tokenList, isLoading: tokenListLoading } =
-    useGetTokenListStrict();
-
+  const { data: tokenList } = useGetTokenListStrict();
   const suggestionsRef = React.useRef<HTMLUListElement>(null);
 
-  React.useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || e.key === "/") {
-        if (
-          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
-        ) {
-          return;
+  const debouncedFetchSuggestions = React.useCallback(
+    debounce(async (value: string) => {
+      const connection = new Connection(endpoint, "confirmed");
+      const newSuggestions: Suggestion[] = [];
+
+      if (value) {
+        if (hasDomainSyntax(value)) {
+          const domainInfo = await getDomainInfo(value, connection);
+          if (domainInfo) {
+            newSuggestions.push({
+              name: domainInfo.name,
+              icon: <SearchIcon />,
+              type: "Domain",
+              address: domainInfo.owner,
+            });
+          }
+        } else {
+          const isProgramAddress = isSolanaProgramAddress(value);
+          const isAccountAddress = isSolanaAccountAddress(value);
+          const isSignature = isSolanaSignature(value);
+
+          if (isProgramAddress || isAccountAddress || isSignature) {
+            newSuggestions.push({
+              name: value,
+              icon: <SearchIcon />,
+              type: "Input",
+            });
+          } else {
+            const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
+              .filter(([, { name, deployments }]) => deployments.includes(cluster) && name.toLowerCase().includes(value.toLowerCase()))
+              .map(([address, { name }]) => ({
+                name,
+                icon: <CogIcon />,
+                type: "Program",
+                address,
+              }));
+
+            const tokenSuggestions = tokenList
+              ? tokenList
+                  .filter((token) => token.name.toLowerCase().includes(value.toLowerCase()))
+                  .map((token) => ({
+                    name: token.name,
+                    icon: token.logoURI ? (
+                      <Image
+                        loader={cloudflareLoader}
+                        loading="eager"
+                        src={token.logoURI}
+                        alt={token.name}
+                        width={48}
+                        height={48}
+                        className="h-6 w-6 rounded-full"
+                        onError={(event: any) => {
+                          event.target.id = "noimg";
+                          event.target.srcset = noImg.src;
+                        }}
+                      />
+                    ) : (
+                      <Circle />
+                    ),
+                    type: "Token",
+                    address: token.address,
+                    logoURI: token.logoURI,
+                  }))
+              : [];
+
+            newSuggestions.push(...programSuggestions, ...tokenSuggestions);
+          }
         }
-
-        e.preventDefault();
-        document.getElementById("search-input")?.focus();
       }
-    };
 
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
+      setSuggestions(newSuggestions);
+      setNoResults(value !== "" && newSuggestions.length === 0);
+      filterSuggestions(newSuggestions, activeFilter);
+    }, 300),
+    [cluster, endpoint, tokenList, activeFilter]
+  );
 
-  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const filterSuggestions = (suggestions: Suggestion[], filter: string) => {
+    let filtered;
+    if (filter === "All") {
+      filtered = suggestions;
+    } else {
+      filtered = suggestions.filter((suggestion) => suggestion.type === filter);
+    }
+    setFilteredSuggestions(filtered);
+    setNoResults(search !== "" && filtered.length === 0);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
     setSelectedIndex(-1);
+    debouncedFetchSuggestions(value);
+  };
 
-    const newSuggestions: Suggestion[] = [];
-
-    if (value) {
-      if (value.toLowerCase().endsWith(".sol")) {
-        const resolvedAddress = await resolveAddress(value);
-        if (resolvedAddress) {
-          newSuggestions.push({
-            name: resolvedAddress,
-            icon: <SearchIcon />,
-            type: "Input",
-          });
-        }
-      } else {
-        // Check if the input is a Solana address or signature
-        const isProgramAddress = isSolanaProgramAddress(value);
-        const isAccountAddress = isSolanaAccountAddress(value);
-        const isSignature = isSolanaSignature(value);
-
-        if (isProgramAddress || isAccountAddress || isSignature) {
-          newSuggestions.push({
-            name: value,
-            icon: <SearchIcon />,
-            type: "Input",
-          });
-        } else {
-          const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
-            .filter(([, { name, deployments }]) => {
-              if (!deployments.includes(cluster)) return false;
-              return name.toLowerCase().includes(value.toLowerCase());
-            })
-            .map(([address, { name }]) => ({
-              name,
-              icon: <CogIcon />,
-              type: "Program",
-              address,
-            }));
-
-          const tokenSuggestions = tokenList
-            ? tokenList
-                .filter((token) =>
-                  token.name.toLowerCase().includes(value.toLowerCase()),
-                )
-                .map((token) => ({
-                  name: token.name,
-                  icon: token.logoURI ? (
-                    <Image
-                      loader={cloudflareLoader}
-                      loading="eager"
-                      src={token.logoURI}
-                      alt={token.name}
-                      width={48}
-                      height={48}
-                      className="h-6 w-6 rounded-full"
-                      onError={(event: any) => {
-                        event.target.id = "noimg";
-                        event.target.srcset = noImg.src;
-                      }}
-                    />
-                  ) : (
-                    <Circle />
-                  ),
-                  type: "Token",
-                  address: token.address,
-                  logoURI: token.logoURI,
-                }))
-            : [];
-
-          newSuggestions.push(...programSuggestions, ...tokenSuggestions);
-        }
-      }
-    }
-
-    setSuggestions(newSuggestions);
+  const handleFilterClick = (filter: string) => {
+    setActiveFilter(filter);
+    filterSuggestions(suggestions, filter);
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
@@ -162,11 +151,13 @@ export function Search({
 
   const navigateToSuggestion = (suggestion: Suggestion) => {
     setSuggestions([]);
+    setFilteredSuggestions([]);
 
     if (
       suggestion.type === "Program" ||
       suggestion.type === "Token" ||
-      suggestion.type === "Account"
+      suggestion.type === "Account" ||
+      suggestion.type === "Domain"
     ) {
       router.push(`/address/${suggestion.address}/?cluster=${cluster}`);
     } else if (suggestion.type === "Input") {
@@ -183,28 +174,26 @@ export function Search({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "ArrowDown") {
       setSelectedIndex((prevIndex) => {
-        const nextIndex = Math.min(prevIndex + 1, suggestions.length - 1);
-        setSearch(suggestions[nextIndex]?.name || search);
+        const nextIndex = Math.min(prevIndex + 1, filteredSuggestions.length - 1);
+        setSearch(filteredSuggestions[nextIndex]?.name || search);
         return nextIndex;
       });
     } else if (e.key === "ArrowUp") {
       setSelectedIndex((prevIndex) => {
         const nextIndex = Math.max(prevIndex - 1, 0);
-        setSearch(suggestions[nextIndex]?.name || search);
+        setSearch(filteredSuggestions[nextIndex]?.name || search);
         return nextIndex;
       });
     } else if (e.key === "Enter") {
-      if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-        navigateToSuggestion(suggestions[selectedIndex]);
+      if (selectedIndex >= 0 && selectedIndex < filteredSuggestions.length) {
+        navigateToSuggestion(filteredSuggestions[selectedIndex]);
       } else {
         onFormSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
       }
     }
 
     if (suggestionsRef.current) {
-      const currentItem = suggestionsRef.current.children[
-        selectedIndex
-      ] as HTMLLIElement;
+      const currentItem = suggestionsRef.current.children[selectedIndex] as HTMLLIElement;
       if (currentItem) {
         const container = suggestionsRef.current;
         const containerHeight = container.clientHeight;
@@ -229,21 +218,18 @@ export function Search({
     }
 
     const selectedSuggestion = suggestions.find(
-      (suggestion) => suggestion.name.toLowerCase() === search.toLowerCase(),
+      (suggestion) => suggestion.name.toLowerCase() === search.toLowerCase()
     );
 
     if (selectedSuggestion) {
       navigateToSuggestion(selectedSuggestion);
     } else {
-      // Reverse lookup in program and token address lookup tables
       const programEntry = Object.entries(PROGRAM_INFO_BY_ID).find(
-        ([, { name }]) => name.toLowerCase() === search.toLowerCase(),
+        ([, { name }]) => name.toLowerCase() === search.toLowerCase()
       );
 
       const tokenEntry = tokenList
-        ? tokenList.find(
-            (token) => token.name.toLowerCase() === search.toLowerCase(),
-          )
+        ? tokenList.find((token) => token.name.toLowerCase() === search.toLowerCase())
         : null;
 
       if (programEntry) {
@@ -256,39 +242,45 @@ export function Search({
         return;
       }
 
-      // Check if is a Solana program address
       if (isSolanaProgramAddress(search)) {
         router.push(`/address/${search}/?cluster=${cluster}`);
         return;
       }
 
-      // Check if is a Solana account address
       if (isSolanaAccountAddress(search)) {
         router.push(`/address/${search}/?cluster=${cluster}`);
         return;
       }
 
-      // Check if is transaction id
       if (isSolanaSignature(search)) {
         router.push(`/tx/${search}/?cluster=${cluster}`);
         return;
       }
 
-      // Default to address if no specific match
-      router.push(`/address/${search}/?cluster=${cluster}`);
+      // Show no results message
+      setNoResults(true);
     }
   };
 
+  const filterCounts = {
+    all: suggestions.length,
+    token: suggestions.filter((s) => s.type === "Token").length,
+    program: suggestions.filter((s) => s.type === "Program").length,
+    domain: suggestions.filter((s) => s.type === "Domain").length,
+    account: suggestions.filter((s) => s.type === "Account").length,
+  };
+
   return (
-    <div
-      className="relative mx-auto w-full max-w-lg px-4 md:px-0"
-      onKeyDown={handleKeyDown}
-    >
-      <form
-        onSubmit={onFormSubmit}
-        className="flex flex-col items-center space-y-4"
-      >
-        <div className="relative w-full">
+    <div className="relative mx-auto w-full max-w-lg px-4 md:px-0" onKeyDown={handleKeyDown}>
+      <form onSubmit={onFormSubmit} className="flex flex-col items-center space-y-4">
+        <div className="relative w-full flex items-center">
+          <button
+            type="button"
+            className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${search ? "visible" : "invisible"}`}
+            onClick={() => setSearch("")}
+          >
+            <XIcon className="h-4 w-4 text-muted-foreground" />
+          </button>
           <Input
             id="search-input"
             startIcon={SearchIcon}
@@ -296,38 +288,143 @@ export function Search({
             placeholder="Search for accounts, transactions, programs, or tokens..."
             value={search}
             onChange={handleInputChange}
-            className="h-12 w-full overflow-hidden"
+            className="h-12 w-full overflow-hidden pl-10"
             iconClassName="left-4"
             inputPaddingClassName="pl-12 pr-4"
-            endiconclassname="right-6"
             autoComplete="off"
           />
-          {suggestions.length > 0 && (
-            <ul
-              ref={suggestionsRef}
-              className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-background shadow-lg"
-            >
-              {suggestions.map((suggestion, index) => (
+        </div>
+        {suggestions.length > 0 && (
+          <div className="w-full">
+            <div className="flex flex-wrap justify-center space-x-2 mb-2">
+              <div className="hidden sm:flex">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleFilterClick("All")}
+                  className={activeFilter === "All" ? "bg-secondary" : ""}
+                >
+                  All ({filterCounts.all})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleFilterClick("Token")}
+                  className={activeFilter === "Token" ? "bg-secondary" : ""}
+                >
+                  Tokens ({filterCounts.token})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleFilterClick("Program")}
+                  className={activeFilter === "Program" ? "bg-secondary" : ""}
+                >
+                  Programs ({filterCounts.program})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleFilterClick("Domain")}
+                  className={activeFilter === "Domain" ? "bg-secondary" : ""}
+                >
+                  Domains ({filterCounts.domain})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => handleFilterClick("Account")}
+                  className={activeFilter === "Account" ? "bg-secondary" : ""}
+                >
+                  Wallets ({filterCounts.account})
+                </Button>
+              </div>
+              <div className="flex sm:hidden">
+                {filterCounts.all > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => handleFilterClick("All")}
+                    className={activeFilter === "All" ? "bg-secondary" : ""}
+                  >
+                    All ({filterCounts.all})
+                  </Button>
+                )}
+                {filterCounts.token > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => handleFilterClick("Token")}
+                    className={activeFilter === "Token" ? "bg-secondary" : ""}
+                  >
+                    Tokens ({filterCounts.token})
+                  </Button>
+                )}
+                {filterCounts.program > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => handleFilterClick("Program")}
+                    className={activeFilter === "Program" ? "bg-secondary" : ""}
+                  >
+                    Programs ({filterCounts.program})
+                  </Button>
+                )}
+                {filterCounts.domain > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => handleFilterClick("Domain")}
+                    className={activeFilter === "Domain" ? "bg-secondary" : ""}
+                  >
+                    Domains ({filterCounts.domain})
+                  </Button>
+                )}
+                {filterCounts.account > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => handleFilterClick("Account")}
+                    className={activeFilter === "Account" ? "bg-secondary" : ""}
+                  >
+                    Wallets ({filterCounts.account})
+                  </Button>
+                )}
+              </div>
+            </div>
+            <ul ref={suggestionsRef} className="mt-1 max-h-60 w-full overflow-y-auto rounded-md border bg-background shadow-lg">
+              {filteredSuggestions.map((suggestion, index) => (
                 <li
                   key={index}
-                  className={`flex cursor-pointer items-center gap-2 p-2 hover:bg-secondary ${
-                    index === selectedIndex ? "bg-secondary" : ""
-                  }`}
+                  className={`flex cursor-pointer items-center gap-2 p-2 hover:bg-secondary ${index === selectedIndex ? "bg-secondary" : ""}`}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion.icon}
-                  {suggestion.type === "Input"
-                    ? `Search for "${shortenLong(suggestion.name)}"`
-                    : suggestion.name}
+                  <div className="flex flex-col">
+                    <span>{suggestion.name}</span>
+                    {suggestion.address && <span className="text-xs text-muted-foreground">{shortenLong(suggestion.address)}</span>}
+                  </div>
                 </li>
               ))}
             </ul>
-          )}
-        </div>
-        <Button type="submit" variant="outline" disabled={!search}>
-          Search
-        </Button>
+          </div>
+        )}
+        {noResults && search !== "" && filteredSuggestions.length === 0 && (
+          <div className="w-full text-center text-sm text-muted-foreground">
+            No results found.
+          </div>
+        )}
       </form>
     </div>
   );
