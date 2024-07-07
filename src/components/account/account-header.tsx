@@ -180,7 +180,7 @@ export function AccountHeader({
                   )}
                   {!loadingDomains && userDomains && userDomains.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {userDomains.map((domain) => (
+                      {userDomains.slice(0, 3).map((domain) => (
                         <Badge
                           key={domain.address.toBase58()}
                           variant="outline"
