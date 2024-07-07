@@ -2,7 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { BigNumber } from "bignumber.js";
 import React from "react";
 
-import { useGetFullTokenInfo } from "@/hooks/tokenInfo";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -13,7 +13,8 @@ export function TokenBalanceDelta({
   mint: PublicKey;
   delta: BigNumber;
 }) {
-  const { data: token } = useGetFullTokenInfo(mint.toBase58());
+  const { data: tokenList } = useGetTokenListStrict();
+  const token = tokenList?.find((t) => t.address === mint.toBase58());
 
   let avatar = <></>;
   if (token) {

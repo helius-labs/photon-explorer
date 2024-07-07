@@ -1,7 +1,7 @@
 import { normalizeTokenAmount } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 
-import { useGetFullTokenInfo } from "@/hooks/tokenInfo";
+import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -14,7 +14,8 @@ export function TokenBalance({
   amount: number;
   decimals?: number;
 }) {
-  const { data: token } = useGetFullTokenInfo(mint.toBase58());
+  const { data: tokenList } = useGetTokenListStrict();
+  const token = tokenList?.find((t) => t.address === mint.toBase58());
 
   let avatar = <></>;
   if (token) {

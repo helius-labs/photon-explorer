@@ -37,6 +37,8 @@ export function useGetTokensByOwner(address: string, enabled: boolean = true) {
         tokens = tokens.concat(compressed);
       }
 
+      tokens.sort((a, b) => (b.value || 0) - (a.value || 0));
+
       return tokens;
     },
     enabled,

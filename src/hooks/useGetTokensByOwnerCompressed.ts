@@ -65,7 +65,5 @@ export async function getTokensByOwnerCompressed(
     });
   }
 
-  tokens.sort((a, b) => b.value! - a.value!);
-
   return tokens;
 }
