@@ -44,6 +44,7 @@ export function Search() {
   const { data: tokenList } = useGetTokenListStrict();
   const suggestionsRef = React.useRef<HTMLUListElement>(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedFetchSuggestions = React.useCallback(
     debounce(async (value: string) => {
       const connection = new Connection(endpoint, "confirmed");
@@ -420,6 +421,9 @@ export function Search() {
             </ul>
           </div>
         )}
+        <Button type="submit" variant="outline" disabled={!search}>
+          Search
+        </Button>
         {noResults && search !== "" && filteredSuggestions.length === 0 && (
           <div className="w-full text-center text-sm text-muted-foreground">
             No results found.
