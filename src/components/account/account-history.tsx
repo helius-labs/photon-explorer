@@ -2,34 +2,17 @@
 
 import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
-import { DataTable } from "@/components/data-table/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { columns } from "@/components/account/transaction-card";
-import { ConfirmedSignatureInfo, PublicKey, ParsedTransactionWithMeta } from "@solana/web3.js";
+import { TransactionCard } from "@/components/account/transaction-card";
+import { ConfirmedSignatureInfo, ParsedTransactionWithMeta } from "@solana/web3.js";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
-import { timeAgoWithFormat } from "@/utils/common";
-import { CircleArrowDown, CircleCheck } from "lucide-react";
-import Signature from "../common/signature";
 import { Button } from "../ui/button";
 import { useCluster } from "@/providers/cluster-provider";
 import { useRouter } from "next/navigation";
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { Cluster } from "@/utils/cluster";
-import { ActionTypes, XrayTransaction } from "@/utils/parser";
-import { TokenBalance } from "../common/token-balance";
-import Address from "../common/address";
-import { BalanceDelta } from "../common/balance-delta";
-import BigNumber from "bignumber.js";
-import { descriptionParser } from "@/utils/parser/parsers/description";
-
-function isXrayTransaction(transaction: any): transaction is XrayTransaction {
-  return (transaction as XrayTransaction).timestamp !== undefined;
-}
-
-function isParsedTransactionWithMeta(transaction: any): transaction is ParsedTransactionWithMeta {
-  return (transaction as ParsedTransactionWithMeta).transaction !== undefined;
-}
+import { XrayTransaction } from "@/utils/parser";
 
 type TransactionData = ConfirmedSignatureInfo | SignatureWithMetadata | XrayTransaction | ParsedTransactionWithMeta;
 
@@ -90,101 +73,7 @@ export default function AccountHistory({ address }: { address: string }) {
   return (
     <Card className="col-span-12 mb-10">
       <CardContent className="pt-6">
-        <div className="hidden md:block">
-          <DataTable columns={columns} data={data} />
-        </div>
-        <div className="block md:hidden">
-          {data.map((transaction, index) => {
-            const isParsedTransaction = isParsedTransactionWithMeta(transaction);
-            const isXrayTrans = isXrayTransaction(transaction);
-
-            const time = isParsedTransaction ? transaction.blockTime : isXrayTrans ? transaction.timestamp : undefined;
-            const description = isParsedTransaction ? transaction.meta?.logMessages?.join(' ') : isXrayTrans ? descriptionParser(transaction.description || "") : undefined;
-            const rootAccountDelta = isParsedTransaction && transaction.meta
-              ? new BigNumber(transaction.meta.postBalances[0]).minus(new BigNumber(transaction.meta.preBalances[0]))
-              : null;
-
-            return (
-              <div key={index} className="border-b pb-3 mb-3">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-2">
-                    <CircleArrowDown strokeWidth={1} className="h-8 w-8" />
-                    <div>
-                      <div className="text-sm font-base leading-none">Received</div>
-                      <div className="text-sm text-muted-foreground">
-                        {time ? timeAgoWithFormat(Number(time), true) : ""}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="text-sm text-muted-foreground">From</div>
-                    <div className="text-sm font-base leading-none">
-                      <Signature copy={false} signature={"signature" in transaction ? transaction.signature : ""} />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 justify-start">
-                  <div className="h-8 w-8 flex items-center justify-center">
-                    <CircleCheck strokeWidth={1} className="h-full w-full" />
-                  </div>
-                  <div className="grid gap-1 text-center">
-                    {description ? (
-                      <div className="text-sm text-muted-foreground">{description}</div>
-                    ) : (
-                      "actions" in transaction &&
-                      transaction.actions.map((action, index) => (
-                        <div key={index}>
-                          {action.actionType === ActionTypes.TRANSFER && (
-                            <div className="flex items-center">
-                              <span className="text-sm font-medium leading-none">Transfer</span>
-                              <TokenBalance
-                                amount={action.amount}
-                                decimals={action.decimals}
-                                mint={new PublicKey(action.mint!)}
-                              />
-                              <Address pubkey={new PublicKey(action.to!)} />
-                            </div>
-                          )}
-                          {action.actionType === ActionTypes.SENT && (
-                            <div className="flex items-center">
-                              <span className="text-sm font-medium leading-none">Sent</span>
-                              <TokenBalance
-                                amount={action.amount}
-                                decimals={action.decimals}
-                                mint={new PublicKey(action.mint!)}
-                              />
-                              <Address pubkey={new PublicKey(action.to!)} />
-                            </div>
-                          )}
-                          {action.actionType === ActionTypes.RECEIVED && (
-                            <div className="flex items-center">
-                              <span className="text-sm font-medium leading-none">Received</span>
-                              <TokenBalance
-                                amount={action.amount}
-                                decimals={action.decimals}
-                                mint={new PublicKey(action.mint!)}
-                              />
-                              <Address pubkey={new PublicKey(action.from!)} />
-                            </div>
-                          )}
-                        </div>
-                      ))
-                    )}
-                    {rootAccountDelta && (
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium leading-none">Balance Change</span>
-                        <BalanceDelta delta={rootAccountDelta} isSol />
-                      </div>
-                    )}
-                    {!description && !("actions" in transaction && transaction.actions.length) && (
-                      <div className="text-sm text-muted-foreground">UNKNOWN</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TransactionCard data={data} />
       </CardContent>
     </Card>
   );

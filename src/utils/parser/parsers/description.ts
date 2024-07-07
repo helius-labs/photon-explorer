@@ -7,7 +7,9 @@ export function descriptionParser(description: string): string {
     /swapped ([\d.]+) (\w+) for ([\d.]+) (\w+)/,
   );
   if (swapMatch) {
-    return `SWAPPED ${swapMatch[1]} ${swapMatch[2]} for ${swapMatch[3]} ${swapMatch[4]}`;
+    const token1 = swapMatch[2].length > 30 ? "Token" : swapMatch[2];
+    const token2 = swapMatch[4].length > 30 ? "Token" : swapMatch[4];
+    return `SWAPPED ${swapMatch[1]} ${token1} for ${swapMatch[3]} ${token2}`;
   }
 
   const transferMatch = description.match(/transferred ([\d.]+) (\w+) to/);

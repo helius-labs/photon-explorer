@@ -22,11 +22,13 @@ import { DAS } from "@/types/helius-sdk";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onQuickView: (nftData: DAS.GetAssetResponse) => void;
 }
 
 export function NFTGridTable<TData, TValue>({
   columns,
   data,
+  onQuickView,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -68,7 +70,11 @@ export function NFTGridTable<TData, TValue>({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {table.getRowModel().rows?.length ? (
           table.getRowModel().rows.map((row) => (
-            <NFTGridItem key={row.id} nft={row.original as DAS.GetAssetResponse} />
+            <NFTGridItem
+              key={row.id}
+              nft={row.original as DAS.GetAssetResponse}
+              onQuickView={onQuickView}
+            />
           ))
         ) : (
           <div className="text-center col-span-full">No results.</div>
