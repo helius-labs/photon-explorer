@@ -86,6 +86,12 @@ export default function TransactionOverviewCompressed({
     );
 
     tokenRows = tempRows.flatMap((row) => {
+      // SOL tokens are already covered by the native balance changes
+      if (row.mint === SOL) {
+        return [];
+      }
+
+      // Ignore zero balance changes
       if (row.delta.eq(0)) {
         return [];
       }
