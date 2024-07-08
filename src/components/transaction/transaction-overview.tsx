@@ -1,5 +1,6 @@
 import {
   dateFormat,
+  lamportsToSolString,
   normalizeTokenAmount,
   timeAgoWithFormat,
 } from "@/utils/common";
@@ -43,6 +44,7 @@ export default function TransactionOverviewCompressed({
     pubkey: PublicKey;
     delta: BigNumber;
     mint?: PublicKey;
+    sortOrder: number;
   }
 
   // Native balance changes
@@ -66,6 +68,7 @@ export default function TransactionOverviewCompressed({
       return {
         pubkey,
         delta,
+        sortOrder: 2,
       };
     },
   );
@@ -93,6 +96,7 @@ export default function TransactionOverviewCompressed({
         pubkey: row.account,
         delta: row.delta,
         mint: new PublicKey(row.mint),
+        sortOrder: 1,
       };
     });
   }
@@ -113,6 +117,7 @@ export default function TransactionOverviewCompressed({
         return {
           pubkey,
           delta,
+          sortOrder: 2,
         };
       });
 
@@ -125,6 +130,7 @@ export default function TransactionOverviewCompressed({
         return {
           pubkey,
           delta,
+          sortOrder: 2,
         };
       });
 
@@ -140,6 +146,7 @@ export default function TransactionOverviewCompressed({
               normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9),
             ),
             mint: item.maybeTokenData.mint,
+            sortOrder: 1,
           };
         }
         return [];
@@ -158,6 +165,7 @@ export default function TransactionOverviewCompressed({
                 -1,
             ),
             mint: item.maybeTokenData.mint,
+            sortOrder: 1,
           };
         }
         return [];
@@ -172,7 +180,12 @@ export default function TransactionOverviewCompressed({
     ...openedTokenAccounts,
     ...closedTokenAccounts,
   ]
-    .sort((a, b) => b.delta.toNumber() - a.delta.toNumber())
+    .sort(
+      (a, b) =>
+        a.sortOrder - b.sortOrder ||
+        Math.abs(b.delta.toNumber()) - Math.abs(a.delta.toNumber()) ||
+        b.delta.toNumber() - a.delta.toNumber(),
+    )
     .map((item, index) => {
       if (item.mint) {
         return (
@@ -200,21 +213,21 @@ export default function TransactionOverviewCompressed({
     });
 
   return (
-    <Card className="w-full max-w-lg mx-auto p-3">
-      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-3 md:space-y-0">
+    <Card className="mx-auto w-full max-w-lg p-3">
+      <CardHeader className="flex flex-col items-start justify-between space-y-3 md:flex-row md:items-center md:space-y-0">
         <div className="flex items-center space-x-3">
           <ArrowRightLeft className="h-6 w-6" />
-          <CardTitle className="text-xl md:text-2xl font-bold">
+          <CardTitle className="text-xl font-bold md:text-2xl">
             Transaction
           </CardTitle>
           <Badge
-            className="text-xs py-1 px-2"
+            className="px-2 py-1 text-xs"
             variant={data.meta?.err === null ? "success" : "destructive"}
           >
             {data.meta?.err === null ? "Success" : "Failed"}
           </Badge>
         </div>
-        <div className="flex flex-col items-start md:items-end text-left md:text-right">
+        <div className="flex flex-col items-start text-left md:items-end md:text-right">
           <span>{timeAgoWithFormat(data.blockTime!, true)}</span>
           <span className="text-xs text-muted-foreground">
             {dateFormat(data.blockTime!)}
@@ -229,12 +242,23 @@ export default function TransactionOverviewCompressed({
               <TableHead>Change</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>{rows}</TableBody>
+          <TableBody>
+            {rows}
+            <TableRow>
+              <TableCell className="font-mono">Transaction Fee</TableCell>
+              <TableCell className="font-mono text-red-400">
+                -
+                {data?.meta?.fee && (
+                  <span>{lamportsToSolString(data?.meta?.fee, 7)} SOL</span>
+                )}
+              </TableCell>
+            </TableRow>
+          </TableBody>
         </Table>
 
         <Separator />
 
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+        <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
           <span className="font-medium">Signature</span>
           <div className="flex items-center space-x-2">
             <Signature link={false} signature={signature} />
