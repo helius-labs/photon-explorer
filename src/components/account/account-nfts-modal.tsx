@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/button";
 import cloudflareLoader from "@/utils/imageLoader";
 import { DAS } from "@/types/helius-sdk";
 import { X } from "lucide-react";
-import { useUserDomains } from "@/utils/name-service";
+import { useAllDomains } from "@/hooks/useAllDomains";
 import { shorten, shortenLong } from "@/utils/common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "@/components/common/loading";
+import { useCluster } from "@/providers/cluster-provider";
 
 interface AccountNFTsModalProps {
   nft: DAS.GetAssetResponse | null;
@@ -32,13 +33,16 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
 }) => {
   // State to hold the owner's domain name
   const [ownerDomain, setOwnerDomain] = React.useState<string | null>(null);
+  const { endpoint } = useCluster();
+  
   // Fetch user domains based on the NFT owner's address
-  const [userDomains, loading] = useUserDomains(nft?.ownership?.owner || "");
+  const { data: userDomains, isLoading: loadingDomains } = useAllDomains(nft?.ownership?.owner || "", endpoint);
 
   // Set the owner's domain name if domains are available
   React.useEffect(() => {
     if (userDomains && userDomains.length > 0) {
-      setOwnerDomain(userDomains[0].name);
+      const domain = "name" in userDomains[0] ? userDomains[0].name : userDomains[0].domain;
+      setOwnerDomain(domain);
     }
   }, [userDomains]);
 
@@ -90,7 +94,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
               {/* Details section for mobile view */}
               <div className="block lg:hidden">
                 <ScrollArea style={{ maxHeight: '70vh' }}>
-                  {loading ? (
+                  {loadingDomains ? (
                     <div className="flex items-center justify-center h-full mt-2">
                       <Loading />
                     </div>

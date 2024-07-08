@@ -24,7 +24,7 @@ const columns: ColumnDef<Token>[] = [
       const tokenName = row.original.name || "Unknown";
       const tokenSymbol = row.original.symbol || "Unknown";
       return (
-        <div className="flex items-center">
+        <div className="flex items-center md:w-60">
           <Image
             loader={cloudflareLoader}
             src={row.original.logoURI || noImg.src}
@@ -39,7 +39,7 @@ const columns: ColumnDef<Token>[] = [
             className="ml-4 h-12 w-12 rounded-full"
           />
           <div className="ml-4">
-            <div className="text-sm font-medium">{tokenName}</div>
+            <div className="text-sm font-medium md:w-60">{tokenName}</div>
             <div className="text-sm font-bold">{tokenSymbol}</div>
           </div>
         </div>
@@ -50,8 +50,12 @@ const columns: ColumnDef<Token>[] = [
     header: "Balance",
     accessorKey: "balance",
     cell: ({ row }) => {
-      return formatLargeSize(
-        normalizeTokenAmount(row.original.amount, row.original.decimals).toFixed(3)
+      return (
+        <div className="w-28">
+          {formatLargeSize(
+            normalizeTokenAmount(row.original.amount, row.original.decimals).toFixed(3)
+          )}
+        </div>
       );
     },
   },
@@ -59,14 +63,22 @@ const columns: ColumnDef<Token>[] = [
     header: "Value",
     accessorKey: "value",
     cell: ({ row }) => {
-      return row.original.value ? `$${row.original.value.toFixed(2)}` : "N/A";
+      return (
+        <div className="w-28">
+          {row.original.value ? `$${row.original.value.toFixed(2)}` : "N/A"}
+        </div>
+      );
     },
   },
   {
     header: "Price",
     accessorKey: "price",
     cell: ({ row }) => {
-      return row.original.price ? `$${row.original.price.toFixed(2)}` : "N/A";
+      return (
+        <div className="w-28">
+          {row.original.price ? `$${row.original.price.toFixed(2)}` : "N/A"}
+        </div>
+      );
     },
   },
   {
@@ -75,7 +87,7 @@ const columns: ColumnDef<Token>[] = [
     cell: ({ row }) => {
       const tokenMint = row.original.mint.toBase58();
       return (
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 w-20">
           <a
             href={`https://birdeye.so/token/${tokenMint}`}
             target="_blank"
