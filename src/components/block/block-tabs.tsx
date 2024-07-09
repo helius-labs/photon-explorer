@@ -9,16 +9,16 @@ import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  block: number;
+  slot: string;
 }
 
-export function BlockTabs({ block, className, ...props }: Props) {
+export function BlockTabs({ slot, className, ...props }: Props) {
   const pathname = usePathname();
 
   const tabs = [
     {
       name: "History",
-      href: `/block/${block}`,
+      href: `/block/${slot}`,
     },
   ];
 

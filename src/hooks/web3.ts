@@ -26,10 +26,8 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
     queryFn: async () => {
       const connection = new Connection(endpoint, "confirmed");
 
-      return await connection.getParsedBlock(Number(slot), {
+      return await connection.getBlock(Number(slot), {
         maxSupportedTransactionVersion: 0,
-        transactionDetails: "full",
-        rewards: false,
       });
     },
     enabled,

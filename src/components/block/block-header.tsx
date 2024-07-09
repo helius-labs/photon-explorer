@@ -1,27 +1,26 @@
+"use client";
+
 import { timeAgoWithFormat } from "@/utils/common";
-import { ParsedAccountsModeBlockResponse } from "@solana/web3.js";
 import Avatar from "boring-avatars";
+
+import { useGetBlock } from "@/hooks/web3";
 
 import { Badge } from "@/components/ui/badge";
 
-export default function BlockHeader({
-  block,
-  data,
-}: {
-  block: number;
-  data: ParsedAccountsModeBlockResponse | undefined;
-}) {
+export default function BlockHeader({ slot }: { slot: number }) {
+  const { data, isLoading, isError } = useGetBlock(Number(slot));
+
   return (
     <div className="mb-8 flex items-center gap-4">
       <Avatar
         size={80}
-        name={block.toString()}
+        name={slot.toString()}
         variant="marble"
         colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
       />
 
       <div className="grid gap-2">
-        <div className="text-3xl font-medium leading-none">{block}</div>
+        <div className="text-3xl font-medium leading-none">{slot}</div>
         <div className="flex flex-wrap items-center gap-2">
           {data && timeAgoWithFormat(Number(data?.blockTime), true)}
           <Badge variant="success">Block</Badge>
