@@ -1,6 +1,8 @@
 import { lamportsToSolString, timeAgoWithFormat } from "@/utils/common";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 
+import { useGetSignatureStatus } from "@/hooks/web3";
+
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,10 +10,14 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 export default function TransactionInfo({
+  tx,
   data,
 }: {
+  tx: string;
   data: ParsedTransactionWithMeta;
 }) {
+  const { data: signatureStatus } = useGetSignatureStatus(tx);
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -59,6 +65,12 @@ export default function TransactionInfo({
             <TableRow>
               <TableCell>Recent Blockhash</TableCell>
               <TableCell>{data?.transaction.message.recentBlockhash}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Confirmation status</TableCell>
+              <TableCell className="capitalize">
+                {signatureStatus?.value?.confirmationStatus}
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
