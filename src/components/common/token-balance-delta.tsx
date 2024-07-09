@@ -34,7 +34,10 @@ export function TokenBalanceDelta({
       <div className="inline-flex items-center gap-2 text-green-400">
         {avatar}
         <span>
-          +{delta.toString()}{" "}
+          +
+          {new Intl.NumberFormat("en-US", { maximumFractionDigits: 7 }).format(
+            delta.toNumber(),
+          )}{" "}
           {token && token.symbol ? token.symbol : "token(s)"}
         </span>
       </div>
@@ -44,7 +47,10 @@ export function TokenBalanceDelta({
       <div className="inline-flex items-center gap-2 text-red-400">
         {avatar}
         <span>
-          {delta.toString()} {token && token.symbol ? token.symbol : "token(s)"}
+          {new Intl.NumberFormat("en-US", { maximumFractionDigits: 7 }).format(
+            delta.toNumber(),
+          )}{" "}
+          {token && token.symbol ? token.symbol : "token(s)"}
         </span>
       </div>
     );

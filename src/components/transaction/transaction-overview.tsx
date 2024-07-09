@@ -1,8 +1,10 @@
 import {
   dateFormat,
+  lamportsToSolString,
   normalizeTokenAmount,
   timeAgoWithFormat,
 } from "@/utils/common";
+import { SOL } from "@/utils/parser";
 import { CompressedTransaction } from "@lightprotocol/stateless.js";
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
@@ -33,16 +35,13 @@ export default function TransactionOverviewCompressed({
 }: {
   signature: string;
   data: ParsedTransactionWithMeta;
-  compressed?: CompressedTransaction;
+  compressed: CompressedTransaction | null;
 }) {
-  const signer = data.transaction.message.accountKeys.find(
-    (account) => account.signer,
-  );
-
   interface Row {
     pubkey: PublicKey;
     delta: BigNumber;
-    mint?: PublicKey;
+    mint: PublicKey;
+    sortOrder: number;
   }
 
   // Native balance changes
@@ -65,7 +64,9 @@ export default function TransactionOverviewCompressed({
 
       return {
         pubkey,
-        delta,
+        delta: new BigNumber(lamportsToSolString(delta.toNumber(), 9)),
+        mint: new PublicKey(SOL),
+        sortOrder: 2,
       };
     },
   );
@@ -85,6 +86,12 @@ export default function TransactionOverviewCompressed({
     );
 
     tokenRows = tempRows.flatMap((row) => {
+      // SOL tokens are already covered by the native balance changes
+      if (row.mint === SOL) {
+        return [];
+      }
+
+      // Ignore zero balance changes
       if (row.delta.eq(0)) {
         return [];
       }
@@ -93,6 +100,7 @@ export default function TransactionOverviewCompressed({
         pubkey: row.account,
         delta: row.delta,
         mint: new PublicKey(row.mint),
+        sortOrder: 1,
       };
     });
   }
@@ -108,11 +116,15 @@ export default function TransactionOverviewCompressed({
       .filter((openedAccount) => openedAccount.account.lamports > 0)
       .map((item, index) => {
         const pubkey = new PublicKey(item.account.hash);
-        const delta = new BigNumber(item.account.lamports);
+        const delta = new BigNumber(
+          lamportsToSolString(item.account.lamports, 9),
+        );
 
         return {
           pubkey,
           delta,
+          mint: new PublicKey(SOL),
+          sortOrder: 2,
         };
       });
 
@@ -120,11 +132,15 @@ export default function TransactionOverviewCompressed({
       .filter((closedAccount) => closedAccount.account.lamports > 0)
       .map((item, index) => {
         const pubkey = new PublicKey(item.account.hash);
-        const delta = new BigNumber(item.account.lamports * -1);
+        const delta = new BigNumber(
+          lamportsToSolString(item.account.lamports * -1, 9),
+        );
 
         return {
           pubkey,
           delta,
+          mint: new PublicKey(SOL),
+          sortOrder: 2,
         };
       });
 
@@ -140,6 +156,7 @@ export default function TransactionOverviewCompressed({
               normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9),
             ),
             mint: item.maybeTokenData.mint,
+            sortOrder: 1,
           };
         }
         return [];
@@ -158,6 +175,7 @@ export default function TransactionOverviewCompressed({
                 -1,
             ),
             mint: item.maybeTokenData.mint,
+            sortOrder: 1,
           };
         }
         return [];
@@ -172,49 +190,41 @@ export default function TransactionOverviewCompressed({
     ...openedTokenAccounts,
     ...closedTokenAccounts,
   ]
-    .sort((a, b) => b.delta.toNumber() - a.delta.toNumber())
+    .sort(
+      (a, b) =>
+        a.sortOrder - b.sortOrder ||
+        Math.abs(b.delta.toNumber()) - Math.abs(a.delta.toNumber()) ||
+        a.delta.toNumber() - b.delta.toNumber(),
+    )
     .map((item, index) => {
-      if (item.mint) {
-        return (
-          <TableRow key={`account-rows-${index}`} className="font-mono">
-            <TableCell>
-              <Address pubkey={item.pubkey} />
-            </TableCell>
-            <TableCell>
-              <TokenBalanceDelta mint={item.mint} delta={item.delta} />
-            </TableCell>
-          </TableRow>
-        );
-      }
-
       return (
         <TableRow key={`account-rows-${index}`} className="font-mono">
           <TableCell>
             <Address pubkey={item.pubkey} />
           </TableCell>
           <TableCell>
-            <BalanceDelta delta={item.delta} isSol />
+            <TokenBalanceDelta mint={item.mint} delta={item.delta} />
           </TableCell>
         </TableRow>
       );
     });
 
   return (
-    <Card className="w-full max-w-lg mx-auto p-3">
-      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between space-y-3 md:space-y-0">
+    <Card className="mx-auto w-full max-w-lg p-3">
+      <CardHeader className="flex flex-col items-start justify-between space-y-3 md:flex-row md:items-center md:space-y-0">
         <div className="flex items-center space-x-3">
           <ArrowRightLeft className="h-6 w-6" />
-          <CardTitle className="text-xl md:text-2xl font-bold">
+          <CardTitle className="text-xl font-bold md:text-2xl">
             Transaction
           </CardTitle>
           <Badge
-            className="text-xs py-1 px-2"
+            className="px-2 py-1 text-xs"
             variant={data.meta?.err === null ? "success" : "destructive"}
           >
             {data.meta?.err === null ? "Success" : "Failed"}
           </Badge>
         </div>
-        <div className="flex flex-col items-start md:items-end text-left md:text-right">
+        <div className="flex flex-col items-start text-left md:items-end md:text-right">
           <span>{timeAgoWithFormat(data.blockTime!, true)}</span>
           <span className="text-xs text-muted-foreground">
             {dateFormat(data.blockTime!)}
@@ -229,12 +239,39 @@ export default function TransactionOverviewCompressed({
               <TableHead>Change</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>{rows}</TableBody>
+          <TableBody>
+            {rows}
+
+            {data?.meta?.fee && (
+              <TableRow
+                key={`account-rows-transaction-fee`}
+                className="font-mono"
+              >
+                <TableCell>
+                  <span>Transaction Fee</span>
+                  <br />
+                  <Address
+                    pubkey={data.transaction.message.accountKeys[0].pubkey}
+                  />
+                </TableCell>
+                <TableCell className="text-red-400">
+                  <TokenBalanceDelta
+                    mint={new PublicKey(SOL)}
+                    delta={
+                      new BigNumber(
+                        lamportsToSolString(data?.meta?.fee * -1, 9),
+                      )
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
         </Table>
 
         <Separator />
 
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
+        <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
           <span className="font-medium">Signature</span>
           <div className="flex items-center space-x-2">
             <Signature link={false} signature={signature} />
