@@ -50,6 +50,25 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
   });
 }
 
+export function useGetSignatureStatus(
+  signature: string,
+  enabled: boolean = true,
+) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getSignatureStatus", signature],
+    queryFn: async () => {
+      const connection = new Connection(endpoint, "processed");
+
+      return await connection.getSignatureStatus(signature, {
+        searchTransactionHistory: true,
+      });
+    },
+    enabled,
+  });
+}
+
 export function useGetAccountInfo(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 

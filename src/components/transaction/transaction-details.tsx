@@ -106,7 +106,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       )}
       {showDetails && transaction.data && (
         <>
-          <TransactionInfo data={transaction.data} />
+          <TransactionInfo tx={tx} data={transaction.data} />
           <TransactionAccountBalances data={transaction.data} />
           <TransactionCompressionAccountBalances tx={tx} />
           <TransactionTokenBalances data={transaction.data} />
