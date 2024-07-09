@@ -24,12 +24,10 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
   return useQuery({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
-      const connection = new Connection(endpoint, "processed");
+      const connection = new Connection(endpoint, "confirmed");
 
-      return await connection.getParsedBlock(slot, {
+      return await connection.getBlock(Number(slot), {
         maxSupportedTransactionVersion: 0,
-        transactionDetails: "full",
-        rewards: false,
       });
     },
     enabled,

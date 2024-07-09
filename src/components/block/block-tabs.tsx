@@ -9,39 +9,18 @@ import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-  address: string;
+  slot: string;
 }
 
-export function AccountTabs({ address, className, ...props }: Props) {
+export function BlockTabs({ slot, className, ...props }: Props) {
   const pathname = usePathname();
-  const { cluster } = useCluster();
 
   const tabs = [
     {
-      name: "Tokens",
-      href: `/address/${address}`,
-    },
-    {
       name: "History",
-      href: `/address/${address}/history`,
+      href: `/block/${slot}`,
     },
   ];
-
-  // Only include the NFTs tab if the cluster is not localnet or testnet
-  if (cluster !== "localnet" && cluster !== "testnet") {
-    tabs.splice(1, 0, {
-      name: "NFTs",
-      href: `/address/${address}/nfts`,
-    });
-  }
-
-  // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"
-  if (pathname.includes("compressed-accounts")) {
-    tabs.push({
-      name: "Compressed Accounts",
-      href: `/address/${address}/compressed-accounts`,
-    });
-  }
 
   return (
     <div className="relative">
