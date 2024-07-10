@@ -2,6 +2,8 @@
 
 XRAY: The human-readable Solana explorer.
 
+![hero](hero.png)
+
 ## Getting Started
 
 Install dependencies:
