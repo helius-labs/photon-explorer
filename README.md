@@ -1,6 +1,6 @@
 # XRAY
 
-XRAY: The human-readable Solana explorer.
+The human-readable Solana explorer.
 
 ![hero](hero.png)
 
@@ -18,7 +18,7 @@ First, run the development server:
 bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
 ## License
 
