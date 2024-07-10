@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   AccountInfo,
   ParsedAccountData,
@@ -41,6 +41,19 @@ interface AnsDomainInfo {
   domain: string;
 }
 
+const fetchSolPrice = async () => {
+  try {
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
+    );
+    const data = await response.json();
+    return data.solana.usd;
+  } catch (error) {
+    console.error("Error fetching SOL price:", error);
+    return null;
+  }
+};
+
 export function AccountHeader({
   address,
   accountInfo,
@@ -56,6 +69,8 @@ export function AccountHeader({
     Error
   >;
 }) {
+  const [solPrice, setSolPrice] = useState<number | null>(null);
+
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
   );
@@ -95,8 +110,23 @@ export function AccountHeader({
     return { accountType: type, tokenName: name, tokenImageURI: imageURI };
   }, [address, cluster, tokenList, compressedBalance]);
 
+  useEffect(() => {
+    const getSolPrice = async () => {
+      const price = await fetchSolPrice();
+      setSolPrice(price);
+    };
+
+    getSolPrice();
+  }, []);
+
+  const solBalance =
+    accountInfo.data?.value?.lamports
+      ? parseFloat(lamportsToSolString(accountInfo.data.value.lamports, 2))
+      : 0;
+  const solBalanceUSD = solPrice ? (solBalance * solPrice).toFixed(2) : null;
+
   return (
-    <div className="mb-8 flex items-center gap-4">
+    <div className="mb-8 flex flex-col md:flex-row items-center gap-4">
       {accountDetails.tokenImageURI ? (
         <Image
           loader={cloudflareLoader}
@@ -120,10 +150,15 @@ export function AccountHeader({
         />
       )}
       <div className="grid gap-2">
-        <div className="text-3xl font-medium leading-none">
-          {accountDetails.tokenName || <Address pubkey={address} />}
+        <div className="text-3xl font-medium leading-none text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-2">
+            {accountDetails.tokenName || <Address pubkey={address} />}
+            {accountDetails.accountType && (
+              <Badge variant="success">{accountDetails.accountType}</Badge>
+            )}
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col md:flex-row items-center gap-2">
           {accountInfo.isLoading || tokenListLoading ? (
             <Skeleton className="h-7 w-[250px]" />
           ) : (
@@ -132,21 +167,28 @@ export function AccountHeader({
                 <>
                   {accountInfo.data?.value &&
                     accountInfo.data?.value.lamports && (
-                      <span className="flex items-center text-lg text-muted-foreground">
-                        <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                          <Image
-                            src={solLogo}
-                            alt="SOL logo"
-                            loading="eager"
-                            width={24}
-                            height={24}
-                          />
-                        </div>
-                        {`${lamportsToSolString(
-                          accountInfo.data?.value.lamports,
-                          2,
-                        )} SOL`}
-                      </span>
+                      <div className="flex flex-col items-center text-lg text-muted-foreground">
+                        <span className="flex items-center">
+                          <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                            <Image
+                              src={solLogo}
+                              alt="SOL logo"
+                              loading="eager"
+                              width={24}
+                              height={24}
+                            />
+                          </div>
+                          {`${lamportsToSolString(
+                            accountInfo.data?.value.lamports,
+                            2,
+                          )} SOL`}
+                        </span>
+                        {solBalanceUSD && (
+                          <span className="ml-0 md:ml-6 mt-1 md:mt-0 text-xs text-muted-foreground opacity-80">
+                            ${solBalanceUSD} USD
+                          </span>
+                        )}
+                      </div>
                     )}
                   {compressedBalance && compressedBalance.value && (
                     <span className="flex items-center text-lg text-muted-foreground">
@@ -181,9 +223,6 @@ export function AccountHeader({
                         2,
                       )} SOL`}
                     </span>
-                  )}
-                  {accountDetails.accountType && (
-                    <Badge variant="success">{accountDetails.accountType}</Badge>
                   )}
                   {!loadingDomains && userDomains && userDomains.length > 0 && (
                     <div className="flex flex-wrap gap-2">
