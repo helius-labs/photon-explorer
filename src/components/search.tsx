@@ -1,4 +1,5 @@
-"use client";
+// on ice
+{/* "use client";
 
 import * as React from "react";
 import { useCluster } from "@/providers/cluster-provider";
@@ -433,3 +434,5 @@ export function Search() {
     </div>
   );
 }
+
+*/}
