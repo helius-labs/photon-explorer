@@ -248,8 +248,8 @@ export function CommandMenu({ ...props }: DialogProps) {
   }, [suggestions]);
 
   const handleSearchSelect = (suggestion: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }) => {
-    const pathname = `/address/${suggestion.address}/`;
-    router.push(pathname);
+    const pathname = suggestion.type === "Transaction" ? `/tx/${suggestion.address}/` : `/address/${suggestion.address}/`;
+    router.push(pathname);    router.push(pathname);
 
     // Update recent searches
     setRecentSearches((prevSearches) => {
