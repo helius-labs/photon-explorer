@@ -297,7 +297,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       <Button
         variant="outline"
         className={cn(
-          "relative h-12 w-full justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12 lg:w-[600px]"
+          "relative h-12 w-full max-w-[300px] mx-8 lg:mx-0 lg:min-w-[600px] justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12",
         )}
         onClick={() => setOpen(true)}
         ref={searchButtonRef}
