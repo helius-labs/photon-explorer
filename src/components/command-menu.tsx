@@ -19,7 +19,6 @@ import { DialogProps } from "@radix-ui/react-dialog";
 import { CommandLoading } from "cmdk";
 import { CogIcon, SearchIcon } from "lucide-react";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-import { TldParser } from "@onsol/tldparser";
 import { Connection } from "@solana/web3.js";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +34,7 @@ import Loading from "./common/loading";
 import { debounce } from "lodash";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Separator } from "./ui/separator";
+import { TldParser } from "@onsol/tldparser";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
@@ -44,6 +44,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const { data: tokenList } = useGetTokenListStrict();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [domainLoading, setDomainLoading] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState<
     { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }[]
   >([]);
@@ -81,15 +82,20 @@ export function CommandMenu({ ...props }: DialogProps) {
 
     if (search === "") {
       setSuggestions([]);
+      setDomainLoading(false);
+      setLoading(false);
       return;
     }
 
     if (cache.has(search)) {
       setSuggestions(cache.get(search));
+      setDomainLoading(false);
+      setLoading(false);
       return;
     }
 
     setLoading(true);
+    setDomainLoading(false);
 
     const newSuggestions: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }[] = [];
 
@@ -121,6 +127,11 @@ export function CommandMenu({ ...props }: DialogProps) {
         type: "Transaction",
         address: search,
       });
+    }
+
+    // If search string contains '.', assume it's a domain and start domain loading
+    if (search.includes(".")) {
+      setDomainLoading(true);
     }
 
     // Perform domain checks in parallel
@@ -239,6 +250,7 @@ export function CommandMenu({ ...props }: DialogProps) {
     setSuggestions(newSuggestions);
     setCache((prevCache) => new Map(prevCache).set(search, newSuggestions));
     setLoading(false);
+    setDomainLoading(false);
   }, 100);
 
   React.useEffect(() => {
@@ -249,7 +261,7 @@ export function CommandMenu({ ...props }: DialogProps) {
 
   const handleSearchSelect = (suggestion: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }) => {
     const pathname = suggestion.type === "Transaction" ? `/tx/${suggestion.address}/` : `/address/${suggestion.address}/`;
-    router.push(pathname);    router.push(pathname);
+    router.push(pathname);
 
     // Update recent searches
     setRecentSearches((prevSearches) => {
@@ -311,7 +323,17 @@ export function CommandMenu({ ...props }: DialogProps) {
         <Separator />
         <ScrollArea className="max-h-[300px]" ref={scrollAreaRef}>
           <CommandList>
-            {!loading && suggestions.length === 0 && (
+            {loading && (
+              <CommandLoading>
+                <Loading className="pb-4 mt-4" />
+              </CommandLoading>
+            )}
+            {!loading && domainLoading && (
+              <CommandLoading>
+                <Loading className="pb-4 mt-4" />
+              </CommandLoading>
+            )}
+            {!loading && !domainLoading && suggestions.length === 0 && (
               <>
                 <CommandEmpty>No results found.</CommandEmpty>
                 {recentSearches.length > 0 && (
@@ -335,11 +357,6 @@ export function CommandMenu({ ...props }: DialogProps) {
                   </CommandGroup>
                 )}
               </>
-            )}
-            {loading && (
-              <CommandLoading>
-                <Loading className="pb-4" />
-              </CommandLoading>
             )}
             {tokenSuggestions.length > 0 && (
               <CommandGroup heading="Token">
