@@ -241,6 +241,12 @@ export function CommandMenu({ ...props }: DialogProps) {
     setLoading(false);
   }, 100);
 
+  React.useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTo(0, 0);
+    }
+  }, [suggestions]);
+
   const handleSearchSelect = (suggestion: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }) => {
     const pathname = `/address/${suggestion.address}/`;
     router.push(pathname);
@@ -259,19 +265,19 @@ export function CommandMenu({ ...props }: DialogProps) {
 
   // Group suggestions by type
   const tokenSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Token",
+    (suggestion) => suggestion.type === "Token"
   );
   const accountSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Account",
+    (suggestion) => suggestion.type === "Account"
   );
   const transactionSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Transaction",
+    (suggestion) => suggestion.type === "Transaction"
   );
   const programSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Program",
+    (suggestion) => suggestion.type === "Program"
   );
   const domainSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "bonfida-domain" || suggestion.type === "ans-domain",
+    (suggestion) => suggestion.type === "bonfida-domain" || suggestion.type === "ans-domain"
   );
 
   return (
@@ -279,7 +285,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       <Button
         variant="outline"
         className={cn(
-          "relative h-12 w-full justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12 lg:w-[600px]",
+          "relative h-12 w-full justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12 lg:w-[600px]"
         )}
         onClick={() => setOpen(true)}
         ref={searchButtonRef}
