@@ -12,13 +12,6 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
-const getMetaData = async (uri: string) => {
-  const response = await fetch(uri);
-  const externalMetadata = await response.json();
-
-  return externalMetadata;
-};
-
 export function useGetNFTsByOwner(address: string, enabled: boolean = true) {
   const { cluster, endpoint } = useCluster();
 
@@ -27,7 +20,7 @@ export function useGetNFTsByOwner(address: string, enabled: boolean = true) {
     queryFn: async () => {
       let nfts: NFT[] = [];
 
-      if ([Cluster.Devnet].includes(cluster)) {
+      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(cluster)) {
         // Use Helius DAS API for Mainnet and Devnet
         nfts = await getNFTsByOwnerDAS(address, 1, endpoint);
       } else {
@@ -135,7 +128,6 @@ async function getNFTsByOwnerMetaplex(address: string, endpoint: string) {
     },
   );
 
-  // TODO: Add support for cNFTs
   const nfts: NFT[] = assets.flatMap((item) => {
     const tokenStandard = unwrapOption(item.metadata.tokenStandard);
 
@@ -161,5 +153,24 @@ async function getNFTsByOwnerMetaplex(address: string, endpoint: string) {
     return [];
   });
 
+  // Fetch metadata in parallel
+  await fetchNftMetadata(nfts);
+
   return nfts;
 }
+
+const fetchNftMetadata = async (nfts: NFT[]) => {
+  const fetchMetadata = async (nft: NFT) => {
+    if (nft.raw.metadata.uri) {
+      try {
+        const response = await fetch(nft.raw.metadata.uri);
+        const externalMetadata = await response.json();
+        nft.image = externalMetadata.image;
+      } catch (error) {
+        // Ignore errors and continue
+      }
+    }
+  };
+
+  await Promise.all(nfts.map(fetchMetadata));
+};

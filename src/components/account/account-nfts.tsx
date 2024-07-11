@@ -10,12 +10,11 @@ import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-
-import { Button } from "../ui/button";
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const [showNonVerified, setShowNonVerified] = useState(false);

@@ -175,6 +175,9 @@ async function getTokensByOwnerMetaplex(address: string, endpoint: string) {
     });
   }
 
+  // Fetch metadata in parallel
+  await fetchTokenMetadata(tokens);
+
   return tokens;
 }
 
@@ -220,3 +223,19 @@ async function getTokensByOwnerCompressed(
 
   return tokens;
 }
+
+const fetchTokenMetadata = async (tokens: Token[]) => {
+  const fetchMetadata = async (token: Token) => {
+    if (token.raw.metadata.uri) {
+      try {
+        const response = await fetch(token.raw.metadata.uri);
+        const externalMetadata = await response.json();
+        token.logoURI = externalMetadata.image;
+      } catch (error) {
+        // Ignore errors and continue
+      }
+    }
+  };
+
+  await Promise.all(tokens.map(fetchMetadata));
+};
