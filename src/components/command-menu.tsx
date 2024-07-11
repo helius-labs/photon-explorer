@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import noImg from "@/../public/assets/noimg.svg";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCluster } from "@/providers/cluster-provider";
 import {
   cn,
@@ -17,11 +17,9 @@ import cloudflareLoader from "@/utils/imageLoader";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { DialogProps } from "@radix-ui/react-dialog";
 import { CommandLoading } from "cmdk";
-import { Circle, CogIcon, SearchIcon } from "lucide-react";
+import { CogIcon, SearchIcon, ClockIcon, XIcon } from "lucide-react";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-import { TldParser } from "@onsol/tldparser";
 import { Connection } from "@solana/web3.js";
-import debounce from "lodash/debounce";
 import { Button } from "@/components/ui/button";
 import {
   CommandDialog,
@@ -33,20 +31,26 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "./common/loading";
+import { debounce } from "lodash";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { Separator } from "./ui/separator";
+import { TldParser } from "@onsol/tldparser";
 
 export function CommandMenu({ ...props }: DialogProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { cluster, endpoint } = useCluster();
   const connection = new Connection(endpoint, "confirmed");
 
   const { data: tokenList } = useGetTokenListStrict();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [domainLoading, setDomainLoading] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState<
-    { name: string; icon: JSX.Element | string; type?: string; address?: string }[]
+    { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }[]
   >([]);
   const [cache, setCache] = React.useState<Map<string, any>>(new Map());
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const [recentSearches, setRecentSearches] = useLocalStorage<string[]>("recentSearches", []);
 
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
 
@@ -72,19 +76,28 @@ export function CommandMenu({ ...props }: DialogProps) {
   }, []);
 
   const handleOnValueChange = debounce(async (search: string) => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTo(0, 0);
+    }
+
     if (search === "") {
       setSuggestions([]);
+      setDomainLoading(false);
+      setLoading(false);
       return;
     }
 
     if (cache.has(search)) {
       setSuggestions(cache.get(search));
+      setDomainLoading(false);
+      setLoading(false);
       return;
     }
 
     setLoading(true);
+    setDomainLoading(false);
 
-    const newSuggestions: { name: string; icon: JSX.Element | string; type?: string; address?: string }[] = [];
+    const newSuggestions: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }[] = [];
 
     // Check if is program address
     if (isSolanaProgramAddress(search)) {
@@ -114,6 +127,11 @@ export function CommandMenu({ ...props }: DialogProps) {
         type: "Transaction",
         address: search,
       });
+    }
+
+    // If search string contains '.', assume it's a domain and start domain loading
+    if (search.includes(".")) {
+      setDomainLoading(true);
     }
 
     // Perform domain checks in parallel
@@ -163,7 +181,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       })
       .map(([address, { name }]) => ({
         name,
-        icon: <CogIcon />,
+        icon: <CogIcon width={30} height={30} />,
         type: "Program",
         address,
       }));
@@ -172,61 +190,122 @@ export function CommandMenu({ ...props }: DialogProps) {
     const tokenSuggestions = tokenList
       ? tokenList
           .filter((token) =>
-            token.name.toLowerCase().includes(search.toLowerCase()),
+            token.symbol.toLowerCase().includes(search.toLowerCase()) || token.name.toLowerCase().includes(search.toLowerCase())
           )
           .map((token) => ({
             name: token.name,
-            icon: token.logoURI ? (
+            icon: (
               <Image
                 loader={cloudflareLoader}
-                src={token.logoURI}
+                src={token.logoURI || noImg.src}
                 alt={token.name}
-                width={20}
-                height={20}
+                width={30}
+                height={30}
                 className="rounded-md"
                 loading="eager"
                 onError={(event: any) => {
-                  event.target.id = "noimg";
-                  event.target.src = noImg.src;
+                  event.target.id = "noImg";
+                  event.target.srcset = noImg.src;
                 }}
               />
-            ) : (
-              <Circle />
             ),
             type: "Token",
             address: token.address,
+            symbol: token.symbol,
           }))
+          .sort((a, b) => {
+            const searchLower = search.toLowerCase();
+
+            // Exact symbol match
+            const aSymbolExactMatch = a.symbol?.toLowerCase() === searchLower;
+            const bSymbolExactMatch = b.symbol?.toLowerCase() === searchLower;
+            if (aSymbolExactMatch && !bSymbolExactMatch) return -1;
+            if (!aSymbolExactMatch && bSymbolExactMatch) return 1;
+
+            // Exact name match
+            const aNameExactMatch = a.name.toLowerCase() === searchLower;
+            const bNameExactMatch = b.name.toLowerCase() === searchLower;
+            if (aNameExactMatch && !bNameExactMatch) return -1;
+            if (!aNameExactMatch && bNameExactMatch) return 1;
+
+            // Partial symbol match
+            const aSymbolPartialMatch = a.symbol?.toLowerCase().includes(searchLower);
+            const bSymbolPartialMatch = b.symbol?.toLowerCase().includes(searchLower);
+            if (aSymbolPartialMatch && !bSymbolPartialMatch) return -1;
+            if (!aSymbolPartialMatch && bSymbolPartialMatch) return 1;
+
+            // Partial name match
+            const aNamePartialMatch = a.name.toLowerCase().includes(searchLower);
+            const bNamePartialMatch = b.name.toLowerCase().includes(searchLower);
+            if (aNamePartialMatch && !bNamePartialMatch) return -1;
+            if (!aNamePartialMatch && bNamePartialMatch) return 1;
+
+            // Default alphabetical sorting by name
+            return a.name.localeCompare(b.name);
+          })
       : [];
 
     newSuggestions.push(...programSuggestions, ...tokenSuggestions);
 
+    // Add recent searches to suggestions
+    const recentSearchSuggestions = recentSearches.map((search) => ({
+      name: search,
+      icon: <ClockIcon />,
+      type: "Recent",
+    }));
+
+    newSuggestions.unshift(...recentSearchSuggestions);
+
     setSuggestions(newSuggestions);
     setCache((prevCache) => new Map(prevCache).set(search, newSuggestions));
     setLoading(false);
-  }, 200);
+    setDomainLoading(false);
+  }, 300);
 
-  const handleSearchSelect = (suggestion: { name: string; icon: JSX.Element | string; type?: string; address?: string }) => {
-    const pathname = `/address/${suggestion.address}/`;
-    const nextQueryString = searchParams?.toString();
+  React.useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTo(0, 0);
+    }
+  }, [suggestions]);
 
-    router.push(`${pathname}${nextQueryString ? `?${nextQueryString}` : ''}`);
+  const handleSearchSelect = (suggestion: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }) => {
+    const pathname = suggestion.type === "Transaction" ? `/tx/${suggestion.address}/` : `/address/${suggestion.address}/`;
+    router.push(pathname);
+
+    // Update recent searches
+    setRecentSearches((prevSearches) => {
+      const newSearch = suggestion.symbol || suggestion.name;
+      const newSearches = [newSearch, ...prevSearches.filter((item) => item !== newSearch)];
+      return newSearches.slice(0, 5); // Limit to 5 recent searches
+    });
+  };
+
+  const clearRecentSearch = (search: string) => {
+    setRecentSearches((prevSearches) => prevSearches.filter((item) => item !== search));
+  };
+
+  const clearAllRecentSearches = () => {
+    setRecentSearches([]);
   };
 
   // Group suggestions by type
-  const programSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Program",
+  const tokenSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Token"
   );
   const accountSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Account",
+    (suggestion) => suggestion.type === "Account"
   );
   const transactionSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Transaction",
+    (suggestion) => suggestion.type === "Transaction"
   );
-  const tokenSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Token",
+  const programSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Program"
   );
   const domainSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "bonfida-domain" || suggestion.type === "ans-domain",
+    (suggestion) => suggestion.type === "bonfida-domain" || suggestion.type === "ans-domain"
+  );
+  const recentSearchSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Recent"
   );
 
   return (
@@ -234,7 +313,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       <Button
         variant="outline"
         className={cn(
-          "relative h-12 w-full justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12 lg:w-[600px]",
+          "relative h-12 w-full max-w-[300px] mx-8 lg:mx-0 lg:min-w-[600px] justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12",
         )}
         onClick={() => setOpen(true)}
         ref={searchButtonRef}
@@ -253,30 +332,110 @@ export function CommandMenu({ ...props }: DialogProps) {
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen} triggerRef={searchButtonRef}>
         <CommandInput
-          placeholder="Search for accounts and transactions..."
+          placeholder="Search for accounts, transactions, tokens and programs..."
           onValueChange={handleOnValueChange}
+          withShortcut
         />
-        <ScrollArea className="max-h-[300px]">
+        <Separator />
+        <ScrollArea className="max-h-[300px]" ref={scrollAreaRef}>
           <CommandList>
-            {!loading && suggestions.length === 0 && (
-              <CommandEmpty>No results found.</CommandEmpty>
-            )}
             {loading && (
               <CommandLoading>
-                <Loading className="pb-4" />
+                <Loading className="pb-4 mt-4" />
               </CommandLoading>
             )}
-            {programSuggestions.length > 0 && (
-              <CommandGroup heading="Program">
-                {programSuggestions.map((suggestion, index) => (
+            {!loading && domainLoading && (
+              <CommandLoading>
+                <Loading className="pb-4 mt-4" />
+              </CommandLoading>
+            )}
+            {!loading && !domainLoading && suggestions.length === 0 && (
+              <>
+                <CommandEmpty>No results found.</CommandEmpty>
+                {recentSearches.length > 0 && (
+                  <CommandGroup heading="Recent Searches">
+                    {recentSearches.map((search, index) => (
+                      <CommandItem
+                        key={`recent-${index}`}
+                        value={search}
+                        onSelect={() => handleOnValueChange(search)}
+                      >
+                        <span className="flex items-center gap-2 w-full">
+                          <ClockIcon className="h-5 w-5 text-muted-foreground" />
+                          <span className="md:flex-grow truncate">{search}</span>
+                          <button
+                            className="md:ml-auto p-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearRecentSearch(search);
+                            }}
+                          >
+                            <XIcon className="h-4 w-4" />
+                          </button>
+                        </span>
+                      </CommandItem>
+                    ))}
+                    <CommandItem
+                      key="clear-all-recent"
+                      onSelect={clearAllRecentSearches}
+                      className="text-red-500"
+                    >
+                      Clear All
+                    </CommandItem>
+                  </CommandGroup>
+                )}
+              </>
+            )}
+            {recentSearchSuggestions.length > 0 && (
+              <CommandGroup heading="Recent Searches">
+                {recentSearchSuggestions.map((suggestion, index) => (
                   <CommandItem
-                    key={`program-${index}`}
+                    key={`recent-search-${index}`}
                     value={suggestion.name}
                     onSelect={() => handleSearchSelect(suggestion)}
                   >
+                    <span className="flex items-center gap-2 w-full">
+                      <ClockIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="md:flex-grow truncate">{suggestion.name}</span>
+                      <button
+                        className="md:ml-auto p-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearRecentSearch(suggestion.name);
+                        }}
+                      >
+                        <XIcon className="h-4 w-4" />
+                      </button>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {tokenSuggestions.length > 0 && (
+              <CommandGroup heading="Token">
+                {tokenSuggestions.map((suggestion, index) => (
+                  <CommandItem
+                    key={`token-${index}`}
+                    value={suggestion.symbol || suggestion.name}
+                    onSelect={() => handleSearchSelect(suggestion)}
+                  >
                     <span className="flex items-center gap-2">
-                      {suggestion.icon}
-                      <span className="truncate">{suggestion.name}</span>
+                      <span className="flex-shrink-0">{suggestion.icon}</span>
+                      <span className="flex flex-col">
+                        <span className="flex items-center gap-1">
+                          <span className="truncate">{suggestion.name}</span>
+                          {suggestion.symbol && (
+                            <span className="text-xs text-muted-foreground">
+                              ({suggestion.symbol})
+                            </span>
+                          )}
+                        </span>
+                        {suggestion.address && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {suggestion.address}
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </CommandItem>
                 ))}
@@ -291,8 +450,17 @@ export function CommandMenu({ ...props }: DialogProps) {
                     onSelect={() => handleSearchSelect(suggestion)}
                   >
                     <span className="flex items-center gap-2">
-                      {suggestion.icon}
-                      <span className="truncate">{suggestion.name}</span>
+                      <span className="flex-shrink-0">{suggestion.icon}</span>
+                      <span className="flex flex-col">
+                        <span className="flex items-center gap-1">
+                          <span className="truncate">{suggestion.name}</span>
+                        </span>
+                        {suggestion.address && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {suggestion.address}
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </CommandItem>
                 ))}
@@ -305,27 +473,44 @@ export function CommandMenu({ ...props }: DialogProps) {
                     key={`transaction-${index}`}
                     value={suggestion.name}
                     onSelect={() => handleSearchSelect(suggestion)}
-                    className="truncate"
                   >
                     <span className="flex items-center gap-2">
-                      {suggestion.icon}
-                      <span className="truncate">{suggestion.name}</span>
+                      <span className="flex-shrink-0">{suggestion.icon}</span>
+                      <span className="flex flex-col">
+                        <span className="flex items-center gap-1">
+                          <span className="truncate">{suggestion.name}</span>
+                        </span>
+                        {suggestion.address && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {suggestion.address}
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </CommandItem>
                 ))}
               </CommandGroup>
             )}
-            {tokenSuggestions.length > 0 && (
-              <CommandGroup heading="Token">
-                {tokenSuggestions.map((suggestion, index) => (
+            {programSuggestions.length > 0 && (
+              <CommandGroup heading="Program">
+                {programSuggestions.map((suggestion, index) => (
                   <CommandItem
-                    key={`token-${index}`}
+                    key={`program-${index}`}
                     value={suggestion.name}
                     onSelect={() => handleSearchSelect(suggestion)}
                   >
                     <span className="flex items-center gap-2">
-                      {suggestion.icon}
-                      <span className="truncate">{suggestion.name}</span>
+                      <span className="flex-shrink-0">{suggestion.icon}</span>
+                      <span className="flex flex-col">
+                        <span className="flex items-center gap-1">
+                          <span className="truncate">{suggestion.name}</span>
+                        </span>
+                        {suggestion.address && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {suggestion.address}
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </CommandItem>
                 ))}
@@ -340,8 +525,17 @@ export function CommandMenu({ ...props }: DialogProps) {
                     onSelect={() => handleSearchSelect(suggestion)}
                   >
                     <span className="flex items-center gap-2">
-                      {suggestion.icon}
-                      <span className="truncate">{suggestion.name}</span>
+                      <span className="flex-shrink-0">{suggestion.icon}</span>
+                      <span className="flex flex-col">
+                        <span className="flex items-center gap-1">
+                          <span className="truncate">{suggestion.name}</span>
+                        </span>
+                        {suggestion.address && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {suggestion.address}
+                          </span>
+                        )}
+                      </span>
                     </span>
                   </CommandItem>
                 ))}
