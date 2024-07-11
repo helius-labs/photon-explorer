@@ -204,7 +204,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                 className="rounded-md"
                 loading="eager"
                 onError={(event: any) => {
-                  event.target.id = "noimg";
+                  event.target.id = "noImg";
                   event.target.srcset = noImg.src;
                 }}
               />
