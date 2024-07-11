@@ -1,7 +1,16 @@
 {
-  "name": "xray-beta",
-  "version": "0.1.2",
+  "name": "XRAY",
+  "description": "XRAY is a human-readable Solana explorer.",
+  "version": "0.2.0",
   "private": true,
+  "license": "MIT",
+  "author": "Koen Rijpstra <koen@helius.xyz>",
+  "homepage": "https://xray.helius.xyz",
+  "keywords": [
+    "Solana",
+    "Explorer",
+    "Helius"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
