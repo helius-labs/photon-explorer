@@ -17,7 +17,7 @@ import cloudflareLoader from "@/utils/imageLoader";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { DialogProps } from "@radix-ui/react-dialog";
 import { CommandLoading } from "cmdk";
-import { CogIcon, SearchIcon } from "lucide-react";
+import { CogIcon, SearchIcon, ClockIcon, XIcon } from "lucide-react";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { Connection } from "@solana/web3.js";
 import { Button } from "@/components/ui/button";
@@ -247,6 +247,15 @@ export function CommandMenu({ ...props }: DialogProps) {
 
     newSuggestions.push(...programSuggestions, ...tokenSuggestions);
 
+    // Add recent searches to suggestions
+    const recentSearchSuggestions = recentSearches.map((search) => ({
+      name: search,
+      icon: <ClockIcon />,
+      type: "Recent",
+    }));
+
+    newSuggestions.unshift(...recentSearchSuggestions);
+
     setSuggestions(newSuggestions);
     setCache((prevCache) => new Map(prevCache).set(search, newSuggestions));
     setLoading(false);
@@ -271,7 +280,11 @@ export function CommandMenu({ ...props }: DialogProps) {
     });
   };
 
-  const clearRecentSearches = () => {
+  const clearRecentSearch = (search: string) => {
+    setRecentSearches((prevSearches) => prevSearches.filter((item) => item !== search));
+  };
+
+  const clearAllRecentSearches = () => {
     setRecentSearches([]);
   };
 
@@ -290,6 +303,9 @@ export function CommandMenu({ ...props }: DialogProps) {
   );
   const domainSuggestions = suggestions.filter(
     (suggestion) => suggestion.type === "bonfida-domain" || suggestion.type === "ans-domain"
+  );
+  const recentSearchSuggestions = suggestions.filter(
+    (suggestion) => suggestion.type === "Recent"
   );
 
   return (
@@ -344,19 +360,56 @@ export function CommandMenu({ ...props }: DialogProps) {
                         value={search}
                         onSelect={() => handleOnValueChange(search)}
                       >
-                        {search}
+                        <span className="flex items-center gap-2 w-full">
+                          <ClockIcon className="h-5 w-5 text-muted-foreground" />
+                          <span className="md:flex-grow truncate">{search}</span>
+                          <button
+                            className="md:ml-auto p-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearRecentSearch(search);
+                            }}
+                          >
+                            <XIcon className="h-4 w-4" />
+                          </button>
+                        </span>
                       </CommandItem>
                     ))}
                     <CommandItem
-                      key="clear-recent"
-                      onSelect={clearRecentSearches}
+                      key="clear-all-recent"
+                      onSelect={clearAllRecentSearches}
                       className="text-red-500"
                     >
-                      Clear Recent Searches
+                      Clear All
                     </CommandItem>
                   </CommandGroup>
                 )}
               </>
+            )}
+            {recentSearchSuggestions.length > 0 && (
+              <CommandGroup heading="Recent Searches">
+                {recentSearchSuggestions.map((suggestion, index) => (
+                  <CommandItem
+                    key={`recent-search-${index}`}
+                    value={suggestion.name}
+                    onSelect={() => handleSearchSelect(suggestion)}
+                  >
+                    <span className="flex items-center gap-2 w-full">
+                      <ClockIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="md:flex-grow truncate">{suggestion.name}</span>
+                      <button
+                        className="md:ml-auto p-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearRecentSearch(suggestion.name);
+                        }}
+                      >
+                        <XIcon className="h-4 w-4" />
+                      </button>
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             )}
             {tokenSuggestions.length > 0 && (
               <CommandGroup heading="Token">
