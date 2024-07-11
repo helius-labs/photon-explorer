@@ -51,7 +51,6 @@ export function CommandMenu({ ...props }: DialogProps) {
   const [cache, setCache] = React.useState<Map<string, any>>(new Map());
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const [recentSearches, setRecentSearches] = useLocalStorage<string[]>("recentSearches", []);
-
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
@@ -79,26 +78,26 @@ export function CommandMenu({ ...props }: DialogProps) {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo(0, 0);
     }
-
+  
     if (search === "") {
       setSuggestions([]);
       setDomainLoading(false);
       setLoading(false);
       return;
     }
-
+  
     if (cache.has(search)) {
       setSuggestions(cache.get(search));
       setDomainLoading(false);
       setLoading(false);
       return;
     }
-
+  
     setLoading(true);
     setDomainLoading(false);
-
+  
     const newSuggestions: { name: string; icon: JSX.Element | string; type?: string; address?: string; symbol?: string }[] = [];
-
+  
     // Check if is program address
     if (isSolanaProgramAddress(search)) {
       newSuggestions.push({
@@ -108,7 +107,7 @@ export function CommandMenu({ ...props }: DialogProps) {
         address: search,
       });
     }
-
+  
     // Check if address and not program address
     if (isSolanaAccountAddress(search) && !isSolanaProgramAddress(search)) {
       newSuggestions.push({
@@ -118,7 +117,7 @@ export function CommandMenu({ ...props }: DialogProps) {
         address: search,
       });
     }
-
+  
     // Check if is transaction id
     if (isSolanaSignature(search)) {
       newSuggestions.push({
@@ -128,51 +127,53 @@ export function CommandMenu({ ...props }: DialogProps) {
         address: search,
       });
     }
-
-    // If search string contains '.', assume it's a domain and start domain loading
-    if (search.includes(".")) {
-      setDomainLoading(true);
+  
+  // If search string contains specific domain extensions, assume it's a domain and start domain loading
+  const domainExtensions = ['.sol', '.bonk', '.abc', '.poor', '.eth'];
+  const domainPattern = new RegExp(`(${domainExtensions.join('|')})$`, 'i');
+  if (domainPattern.test(search)) {
+    setDomainLoading(true);
+  
+      // Perform domain checks in parallel
+      const [bonfidaDomain, ansDomain] = await Promise.all([
+        (async () => {
+          if (await isBonfidaDomainAddress(search, connection)) {
+            const response = await fetch(
+              `https://sns-sdk-proxy.bonfida.workers.dev/resolve/${search.toLowerCase()}`
+            );
+            const { result = "" } = await response.json();
+            if (result) {
+              return {
+                name: search,
+                icon: <SearchIcon />,
+                type: "bonfida-domain",
+                address: result,
+              };
+            }
+          }
+          return null;
+        })(),
+        (async () => {
+          if (await isAlternativeDomainAddress(search, connection)) {
+            const ans = new TldParser(connection);
+            const owner = await ans.getOwnerFromDomainTld(search);
+            if (owner) {
+              return {
+                name: search,
+                icon: <SearchIcon />,
+                type: "ans-domain",
+                address: owner.toBase58(),
+              };
+            }
+          }
+          return null;
+        })(),
+      ]);
+  
+      if (bonfidaDomain) newSuggestions.push(bonfidaDomain);
+      if (ansDomain) newSuggestions.push(ansDomain);
     }
-
-    // Perform domain checks in parallel
-    const [bonfidaDomain, ansDomain] = await Promise.all([
-      (async () => {
-        if (await isBonfidaDomainAddress(search, connection)) {
-          const response = await fetch(
-            `https://sns-sdk-proxy.bonfida.workers.dev/resolve/${search.toLowerCase()}`
-          );
-          const { result = "" } = await response.json();
-          if (result) {
-            return {
-              name: search,
-              icon: <SearchIcon />,
-              type: "bonfida-domain",
-              address: result,
-            };
-          }
-        }
-        return null;
-      })(),
-      (async () => {
-        if (await isAlternativeDomainAddress(search, connection)) {
-          const ans = new TldParser(connection);
-          const owner = await ans.getOwnerFromDomainTld(search);
-          if (owner) {
-            return {
-              name: search,
-              icon: <SearchIcon />,
-              type: "ans-domain",
-              address: owner.toBase58(),
-            };
-          }
-        }
-        return null;
-      })(),
-    ]);
-
-    if (bonfidaDomain) newSuggestions.push(bonfidaDomain);
-    if (ansDomain) newSuggestions.push(ansDomain);
-
+  
     // Add program suggestions
     const programSuggestions = Object.entries(PROGRAM_INFO_BY_ID)
       .filter(([, { name, deployments }]) => {
@@ -185,7 +186,7 @@ export function CommandMenu({ ...props }: DialogProps) {
         type: "Program",
         address,
       }));
-
+  
     // Add token suggestions
     const tokenSuggestions = tokenList
       ? tokenList
@@ -215,45 +216,45 @@ export function CommandMenu({ ...props }: DialogProps) {
           }))
           .sort((a, b) => {
             const searchLower = search.toLowerCase();
-
+  
             // Exact symbol match
             const aSymbolExactMatch = a.symbol?.toLowerCase() === searchLower;
             const bSymbolExactMatch = b.symbol?.toLowerCase() === searchLower;
             if (aSymbolExactMatch && !bSymbolExactMatch) return -1;
             if (!aSymbolExactMatch && bSymbolExactMatch) return 1;
-
+  
             // Exact name match
             const aNameExactMatch = a.name.toLowerCase() === searchLower;
             const bNameExactMatch = b.name.toLowerCase() === searchLower;
             if (aNameExactMatch && !bNameExactMatch) return -1;
             if (!aNameExactMatch && bNameExactMatch) return 1;
-
+  
             // Partial symbol match
             const aSymbolPartialMatch = a.symbol?.toLowerCase().includes(searchLower);
             const bSymbolPartialMatch = b.symbol?.toLowerCase().includes(searchLower);
             if (aSymbolPartialMatch && !bSymbolPartialMatch) return -1;
             if (!aSymbolPartialMatch && bSymbolPartialMatch) return 1;
-
+  
             // Partial name match
             const aNamePartialMatch = a.name.toLowerCase().includes(searchLower);
             const bNamePartialMatch = b.name.toLowerCase().includes(searchLower);
             if (aNamePartialMatch && !bNamePartialMatch) return -1;
             if (!aNamePartialMatch && bNamePartialMatch) return 1;
-
+  
             // Default alphabetical sorting by name
             return a.name.localeCompare(b.name);
           })
       : [];
-
+  
     newSuggestions.push(...programSuggestions, ...tokenSuggestions);
-
+  
     // Add recent searches to suggestions
     const recentSearchSuggestions = recentSearches.map((search) => ({
       name: search,
       icon: <ClockIcon />,
       type: "Recent",
     }));
-
+  
     newSuggestions.unshift(...recentSearchSuggestions);
 
     setSuggestions(newSuggestions);
@@ -313,7 +314,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       <Button
         variant="outline"
         className={cn(
-          "relative h-12 w-full max-w-[300px] mx-8 lg:mx-0 lg:min-w-[600px] justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12",
+          "relative h-12 w-full max-w-[300px] mx-6 lg:mx-0 lg:min-w-[600px] justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12",
         )}
         onClick={() => setOpen(true)}
         ref={searchButtonRef}
