@@ -251,7 +251,7 @@ export function CommandMenu({ ...props }: DialogProps) {
     setCache((prevCache) => new Map(prevCache).set(search, newSuggestions));
     setLoading(false);
     setDomainLoading(false);
-  }, 100);
+  }, 300);
 
   React.useEffect(() => {
     if (scrollAreaRef.current) {
