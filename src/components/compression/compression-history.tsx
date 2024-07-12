@@ -1,7 +1,6 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { Cluster } from "@/utils/cluster";
 import { XrayTransaction } from "@/utils/parser";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import {
@@ -10,8 +9,7 @@ import {
 } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 
-import { useGetParsedTransactions } from "@/hooks/parser";
-import { useGetSignaturesForAddress } from "@/hooks/web3";
+import { useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 
 import { TransactionCard } from "@/components/account/transaction-card";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,22 +23,17 @@ type TransactionData =
   | XrayTransaction
   | ParsedTransactionWithMeta;
 
-export default function AccountHistory({ address }: { address: string }) {
+export default function CompressionHistory({ address }: { address: string }) {
   const { cluster } = useCluster();
   const router = useRouter();
 
-  const signatures = useGetSignaturesForAddress(address);
-
-  const parsedTransactions = useGetParsedTransactions(
-    signatures.data?.map((sig) => sig.signature) || [],
-    cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet,
-  );
+  const signatures = useGetCompressionSignaturesForAccount(address);
 
   const handleReturn = () => {
     router.push(`/?cluster=${cluster}`);
   };
 
-  if (signatures.isError || parsedTransactions.isError)
+  if (signatures.isError)
     return (
       <Card className="col-span-12">
         <CardContent className="pt-6">
@@ -56,7 +49,7 @@ export default function AccountHistory({ address }: { address: string }) {
       </Card>
     );
 
-  if (signatures.isLoading || parsedTransactions.isLoading)
+  if (signatures.isLoading)
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col gap-4 pt-6">
@@ -73,11 +66,9 @@ export default function AccountHistory({ address }: { address: string }) {
       </Card>
     );
 
-  const data: TransactionData[] = parsedTransactions.data?.length
-    ? parsedTransactions.data
-    : signatures.data?.length
-      ? signatures.data
-      : [];
+  const data: TransactionData[] = signatures.data?.length
+    ? signatures.data
+    : [];
 
   return (
     <Card className="col-span-12 mb-10">

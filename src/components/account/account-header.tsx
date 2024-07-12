@@ -1,29 +1,23 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  AccountInfo,
-  ParsedAccountData,
-  PublicKey,
-  RpcResponseAndContext,
-} from "@solana/web3.js";
 import noImg from "@/../public/assets/noimg.svg";
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
+import { AccountType, getAccountType } from "@/utils/account";
 import { lamportsToSolString } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
-import { useAllDomains } from "@/hooks/useAllDomains";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { SerumMarketRegistry } from "@/utils/serumMarketRegistry";
-import { CompressedAccountWithMerkleContext } from "@lightprotocol/stateless.js";
-import { UseQueryResult } from "@tanstack/react-query";
+import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
 import { MoreVertical } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+import { useAllDomains } from "@/hooks/useAllDomains";
 
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +28,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface AnsDomainInfo {
   nameAccount: PublicKey;
@@ -44,7 +37,7 @@ interface AnsDomainInfo {
 const fetchSolPrice = async () => {
   try {
     const response = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
+      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
     );
     const data = await response.json();
     return data.solana.usd;
@@ -57,30 +50,26 @@ const fetchSolPrice = async () => {
 export function AccountHeader({
   address,
   accountInfo,
-  compressedAccount,
 }: {
   address: PublicKey;
-  accountInfo: UseQueryResult<
-    RpcResponseAndContext<AccountInfo<Buffer | ParsedAccountData> | null>,
-    Error
-  >;
-  compressedAccount: UseQueryResult<
-    CompressedAccountWithMerkleContext | null,
-    Error
-  >;
+  accountInfo: AccountInfo<Buffer | ParsedAccountData>;
 }) {
   const [solPrice, setSolPrice] = useState<number | null>(null);
+  const router = useRouter();
+  const { endpoint, cluster } = useCluster();
 
+  const accountType = getAccountType(accountInfo);
+
+  // Fetch compressed balance for the address
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
   );
 
-  const { endpoint, cluster } = useCluster();
-  
-  // Use the custom hook to fetch all domain names
-  const { data: userDomains, isLoading: loadingDomains } = useAllDomains(address.toBase58(), endpoint);
-
-  const router = useRouter();
+  // Fetch domain names for the address
+  const { data: userDomains, isLoading: loadingDomains } = useAllDomains(
+    address.toBase58(),
+    endpoint,
+  );
 
   // Fetch the token list
   const { data: tokenList, isLoading: tokenListLoading } =
@@ -102,13 +91,8 @@ export function AccountHeader({
       }
     }
 
-    if (!type && PROGRAM_INFO_BY_ID[addressStr]) type = "Program";
-    if (!type && SerumMarketRegistry.get(addressStr, cluster)) type = "Market";
-    if (!type && compressedBalance && compressedBalance.value)
-      type = "Compressed";
-
-    return { accountType: type, tokenName: name, tokenImageURI: imageURI };
-  }, [address, cluster, tokenList, compressedBalance]);
+    return { tokenName: name, tokenImageURI: imageURI };
+  }, [address, tokenList]);
 
   useEffect(() => {
     const getSolPrice = async () => {
@@ -119,14 +103,13 @@ export function AccountHeader({
     getSolPrice();
   }, []);
 
-  const solBalance =
-    accountInfo.data?.value?.lamports
-      ? parseFloat(lamportsToSolString(accountInfo.data.value.lamports, 2))
-      : 0;
+  const solBalance = accountInfo.lamports
+    ? parseFloat(lamportsToSolString(accountInfo.lamports, 2))
+    : 0;
   const solBalanceUSD = solPrice ? (solBalance * solPrice).toFixed(2) : null;
 
   return (
-    <div className="mb-8 flex flex-col md:flex-row items-center gap-4">
+    <div className="mb-8 flex flex-col items-center gap-4 md:flex-row">
       {accountDetails.tokenImageURI ? (
         <Image
           loader={cloudflareLoader}
@@ -150,99 +133,75 @@ export function AccountHeader({
         />
       )}
       <div className="grid gap-2">
-        <div className="text-3xl font-medium leading-none text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-2">
+        <div className="text-center text-3xl font-medium leading-none md:text-left">
+          <div className="flex items-center justify-center gap-2 md:justify-start">
             {accountDetails.tokenName || <Address pubkey={address} />}
-            {accountDetails.accountType && (
-              <Badge variant="success">{accountDetails.accountType}</Badge>
-            )}
+            {accountType && <Badge variant="success">{accountType}</Badge>}
           </div>
         </div>
-        <div className="flex flex-col md:flex-row items-center gap-2">
-          {accountInfo.isLoading || tokenListLoading ? (
-            <Skeleton className="h-7 w-[250px]" />
-          ) : (
+        <div className="flex flex-col items-center gap-2 md:flex-row">
+          {accountInfo ? (
             <>
-              {accountInfo.data?.value || compressedAccount.data ? (
-                <>
-                  {accountInfo.data?.value &&
-                    accountInfo.data?.value.lamports && (
-                      <div className="flex flex-col items-center text-lg text-muted-foreground">
-                        <span className="flex items-center">
-                          <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                            <Image
-                              src={solLogo}
-                              alt="SOL logo"
-                              loading="eager"
-                              width={24}
-                              height={24}
-                            />
-                          </div>
-                          {`${lamportsToSolString(
-                            accountInfo.data?.value.lamports,
-                            2,
-                          )} SOL`}
-                        </span>
-                        {solBalanceUSD && (
-                          <span className="ml-0 md:ml-6 mt-1 md:mt-0 text-xs text-muted-foreground opacity-80">
-                            ${solBalanceUSD} USD
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  {compressedBalance && compressedBalance.value && (
-                    <span className="flex items-center text-lg text-muted-foreground">
-                      <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                        <Image
-                          src={solLogo}
-                          alt="SOL logo"
-                          loading="eager"
-                          width={24}
-                          height={24}
-                        />
-                      </div>
-                      {` | ${lamportsToSolString(
-                        compressedBalance.value,
-                        2,
-                      )} COMPRESSED SOL`}
-                    </span>
-                  )}
-                  {compressedAccount.data && (
-                    <span className="flex items-center text-lg text-muted-foreground">
-                      <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                        <Image
-                          src={solLogo}
-                          alt="SOL logo"
-                          loading="eager"
-                          width={24}
-                          height={24}
-                        />
-                      </div>
-                      {`${lamportsToSolString(
-                        compressedAccount.data.lamports,
-                        2,
-                      )} SOL`}
-                    </span>
-                  )}
-                  {!loadingDomains && userDomains && userDomains.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {userDomains.slice(0, 3).map((domain) => (
-                        <Badge
-                          key={("address" in domain ? domain.address : (domain as AnsDomainInfo).nameAccount).toBase58()}
-                          variant="outline"
-                        >
-                          {"name" in domain ? domain.name : (domain as AnsDomainInfo).domain}
-                        </Badge>
-                      ))}
+              {accountInfo.lamports && (
+                <div className="flex flex-col items-center text-lg text-muted-foreground">
+                  <span className="flex items-center">
+                    <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                      <Image
+                        src={solLogo}
+                        alt="SOL logo"
+                        loading="eager"
+                        width={24}
+                        height={24}
+                      />
                     </div>
+                    {`${lamportsToSolString(accountInfo.lamports, 2)} SOL`}
+                  </span>
+                  {solBalanceUSD && (
+                    <span className="ml-0 mt-1 text-xs text-muted-foreground opacity-80 md:ml-6 md:mt-0">
+                      ${solBalanceUSD} USD
+                    </span>
                   )}
-                </>
-              ) : (
-                <span className="text-lg text-muted-foreground">
-                  Account does not exist
+                </div>
+              )}
+              {compressedBalance && compressedBalance.value && (
+                <span className="flex items-center text-lg text-muted-foreground">
+                  <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                    <Image
+                      src={solLogo}
+                      alt="SOL logo"
+                      loading="eager"
+                      width={24}
+                      height={24}
+                    />
+                  </div>
+                  {` | ${lamportsToSolString(
+                    compressedBalance.value,
+                    2,
+                  )} COMPRESSED SOL`}
                 </span>
               )}
+              {!loadingDomains && userDomains && userDomains.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {userDomains.slice(0, 3).map((domain) => (
+                    <Badge
+                      key={("address" in domain
+                        ? domain.address
+                        : (domain as AnsDomainInfo).nameAccount
+                      ).toBase58()}
+                      variant="outline"
+                    >
+                      {"name" in domain
+                        ? domain.name
+                        : (domain as AnsDomainInfo).domain}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </>
+          ) : (
+            <span className="text-lg text-muted-foreground">
+              Account does not exist
+            </span>
           )}
         </div>
       </div>
@@ -256,13 +215,6 @@ export function AccountHeader({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  accountInfo.refetch();
-                }}
-              >
-                Refresh
-              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   router.push(
