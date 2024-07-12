@@ -57,7 +57,7 @@ export function CompressionHeader({
   return (
     <div className="mb-8 flex flex-col items-center gap-4 md:flex-row">
       <Avatar
-        size={80}
+        size={64}
         name={address.toBase58()}
         variant="marble"
         colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}

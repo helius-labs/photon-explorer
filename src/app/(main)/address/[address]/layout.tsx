@@ -5,7 +5,7 @@ import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
-import { PropsWithChildren, useEffect } from "react";
+import { useEffect } from "react";
 
 import { useGetCompressedAccount } from "@/hooks/compression";
 import { useGetAccountInfo } from "@/hooks/web3";
@@ -18,13 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AddressLayout({
   children,
-  compression,
   params: { address },
 }: {
   children: React.ReactNode;
-  compression: React.ReactNode;
   params: { address: string };
 }) {
+  const router = useRouter();
   const { cluster } = useCluster();
   const pathname = usePathname();
 
@@ -34,36 +33,24 @@ export default function AddressLayout({
   // Fetch compressed account data
   const compressedAccount = useGetCompressedAccount(address);
 
-  // Check if the address is valid
-  if (!isSolanaAccountAddress(address)) {
-    return <ErrorCard text="Invalid address" />;
-  }
-
   const tabs: Tab[] = [];
 
+  let accountType: AccountType | undefined;
+
   if (accountInfo.data && accountInfo.data.value) {
-    const accountType = getAccountType(accountInfo.data.value);
+    accountType = getAccountType(accountInfo.data.value);
 
-    if (pathname === `/address/${address}`) {
-      // Change the url state to history if the account is a wallet
-      if (accountType === AccountType.Wallet) {
-        window.history.replaceState(
-          null,
-          "",
-          `${pathname}/tokens?cluster=${cluster}`,
-        );
-      }
+    if (accountType === AccountType.Wallet) {
+      tabs.push({
+        name: "Tokens",
+        href: `/address/${address}/tokens`,
+      });
+
+      tabs.push({
+        name: "NFTs",
+        href: `/address/${address}/nfts`,
+      });
     }
-
-    tabs.push({
-      name: "Tokens",
-      href: `/address/${address}/tokens`,
-    });
-
-    tabs.push({
-      name: "NFTs",
-      href: `/address/${address}/nfts`,
-    });
 
     tabs.push({
       name: "History",
@@ -80,19 +67,35 @@ export default function AddressLayout({
   }
 
   if (compressedAccount.data) {
-    if (pathname === `/address/${address}`) {
-      // Change the url state to history-compressed
-      window.history.replaceState(
-        null,
-        "",
-        `${pathname}/history-compressed?cluster=${cluster}`,
-      );
-    }
-
     tabs.push({
       name: "History",
       href: `/address/${address}/history-compressed`,
     });
+  }
+
+  useEffect(() => {
+    if (pathname === `/address/${address}`) {
+      // Change the url state to history if the account is a wallet
+      if (accountType === AccountType.Wallet) {
+        router.push(`${pathname}/tokens?cluster=${cluster}`);
+      }
+
+      if (accountType === AccountType.Token) {
+        router.push(`${pathname}/history?cluster=${cluster}`);
+      }
+
+      if (compressedAccount.data) {
+        if (pathname === `/address/${address}`) {
+          // Change the url state to history-compressed
+          router.push(`${pathname}/history-compressed?cluster=${cluster}`);
+        }
+      }
+    }
+  }, [accountType, address, cluster, compressedAccount.data, pathname, router]);
+
+  // Check if the address is valid
+  if (!isSolanaAccountAddress(address)) {
+    return <ErrorCard text="Invalid address" />;
   }
 
   if (accountInfo.isError) {
@@ -106,9 +109,9 @@ export default function AddressLayout({
       <div>
         <div className="mb-8 flex flex-row items-center gap-4">
           <div>
-            <Skeleton className="h-20 w-20 rounded-full" />
+            <Skeleton className="h-16 w-16 rounded-full" />
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <Skeleton className="h-8 w-[200px]" />
             <Skeleton className="h-5 w-[100px]" />
           </div>
@@ -126,7 +129,7 @@ export default function AddressLayout({
 
   return (
     <>
-      {accountInfo.data && accountInfo.data.value && (
+      {accountInfo.data && accountInfo.data.value ? (
         <>
           <AccountHeader
             address={new PublicKey(address)}
@@ -135,16 +138,17 @@ export default function AddressLayout({
           <TabNav tabs={tabs} />
           {children}
         </>
-      )}
-      {compressedAccount.data && (
+      ) : compressedAccount.data ? (
         <>
           <CompressionHeader
             address={new PublicKey(address)}
             compressedAccount={compressedAccount.data}
           />
           <TabNav tabs={tabs} />
-          {compression}
+          {children}
         </>
+      ) : (
+        <ErrorCard text="Address not found" />
       )}
     </>
   );
