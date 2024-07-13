@@ -182,9 +182,27 @@ export default function TransactionOverviewCompressed({
       });
   }
 
-  const rows = [
-    ...accountRows,
-    ...tokenRows,
+  const rows = [...accountRows, ...tokenRows]
+    .sort(
+      (a, b) =>
+        a.sortOrder - b.sortOrder ||
+        Math.abs(b.delta.toNumber()) - Math.abs(a.delta.toNumber()) ||
+        a.delta.toNumber() - b.delta.toNumber(),
+    )
+    .map((item, index) => {
+      return (
+        <TableRow key={`account-rows-${index}`} className="font-mono">
+          <TableCell>
+            <Address pubkey={item.pubkey} />
+          </TableCell>
+          <TableCell>
+            <TokenBalanceDelta mint={item.mint} delta={item.delta} />
+          </TableCell>
+        </TableRow>
+      );
+    });
+
+  const compressedRows = [
     ...openedAccounts,
     ...closedAccounts,
     ...openedTokenAccounts,
@@ -268,6 +286,22 @@ export default function TransactionOverviewCompressed({
             )}
           </TableBody>
         </Table>
+        {compressedRows.length > 0 && (
+          <>
+            <div className="space-y-4">
+              <h2 className="text text-md font-medium">Compressed</h2>
+              <Table className="mb-8">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/2">Address</TableHead>
+                    <TableHead>Change</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{compressedRows}</TableBody>
+              </Table>
+            </div>
+          </>
+        )}
 
         <Separator />
 

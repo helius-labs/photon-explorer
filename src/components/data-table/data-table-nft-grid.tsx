@@ -1,5 +1,6 @@
 "use client";
 
+import { NFT } from "@/types/nft";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -17,12 +18,11 @@ import * as React from "react";
 
 import { NFTGridItem } from "../common/nft-items";
 import { NFTGridPagination } from "./data-table-nft-grid-pagination";
-import { DAS } from "@/types/helius-sdk";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onQuickView: (nftData: DAS.GetAssetResponse) => void;
+  onQuickView: (nftData: NFT) => void;
 }
 
 export function NFTGridTable<TData, TValue>({
@@ -67,17 +67,19 @@ export function NFTGridTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <NFTGridItem
-              key={row.id}
-              nft={row.original as DAS.GetAssetResponse}
-              onQuickView={onQuickView}
-            />
-          ))
+          table
+            .getRowModel()
+            .rows.map((row) => (
+              <NFTGridItem
+                key={row.id}
+                nft={row.original as NFT}
+                onQuickView={onQuickView}
+              />
+            ))
         ) : (
-          <div className="text-center col-span-full">No results.</div>
+          <div className="col-span-full text-center">No results.</div>
         )}
       </div>
       <NFTGridPagination table={table} />

@@ -12,12 +12,11 @@ export function useGetParsedTransactions(
   const { cluster } = useCluster();
 
   return useQuery({
-    queryKey: ["parser", transactions],
+    queryKey: [cluster, "getParsedTransactions", transactions],
     queryFn: async () => {
-      // Disabled for now to test fallback
-      // if (cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet) {
-      //   return getParsedTransactions(transactions, cluster);
-      // }
+      if (cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet) {
+        return getParsedTransactions(transactions, cluster);
+      }
       return null;
     },
     enabled,

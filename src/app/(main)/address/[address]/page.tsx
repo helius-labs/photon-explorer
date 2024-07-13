@@ -1,21 +1,6 @@
-import { shorten } from "@/utils/common";
+// Blank page for address routes
+// This is to prevent the 404 error when the address route is not found
 
-import AccountTokens from "@/components/account/account-tokens";
-
-type Props = Readonly<{
-  params: {
-    address: string;
-  };
-}>;
-
-// or Dynamic metadata
-export async function generateMetadata({ params }: Props) {
-  return {
-    title: `Address ${shorten(params.address)} - Tokens | XRAY`,
-    description: `All Tokens owned by the address ${params.address}`,
-  };
-}
-
-export default async function Page({ params }: Props) {
-  return <AccountTokens address={params.address} />;
+export default async function Page() {
+  return <></>;
 }

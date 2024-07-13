@@ -3,12 +3,12 @@
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import noImg from "@/../public/assets/noimg.svg";
-import Image from "next/image";
 import { Token } from "@/types/token";
 import { normalizeTokenAmount } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
-import { ColumnDef } from "@tanstack/react-table";
 import { formatLargeSize } from "@/utils/numbers";
+import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 
 import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
@@ -53,7 +53,10 @@ const columns: ColumnDef<Token>[] = [
       return (
         <div className="w-28">
           {formatLargeSize(
-            normalizeTokenAmount(row.original.amount, row.original.decimals).toFixed(3)
+            normalizeTokenAmount(
+              row.original.amount,
+              row.original.decimals,
+            ).toFixed(3),
           )}
         </div>
       );
@@ -87,7 +90,7 @@ const columns: ColumnDef<Token>[] = [
     cell: ({ row }) => {
       const tokenMint = row.original.mint.toBase58();
       return (
-        <div className="flex space-x-2 w-20">
+        <div className="flex w-20 space-x-2">
           <a
             href={`https://birdeye.so/token/${tokenMint}`}
             target="_blank"
@@ -210,7 +213,7 @@ export default function AccountTokens({ address }: { address: string }) {
           {data?.map((token, index) => (
             <div
               key={index}
-              className="flex items-center justify-between px-4 py-2 border-b"
+              className="flex items-center justify-between border-b px-4 py-2"
             >
               <div className="flex items-center">
                 <Image
@@ -227,13 +230,21 @@ export default function AccountTokens({ address }: { address: string }) {
                   className="h-8 w-8 rounded-full"
                 />
                 <div className="ml-2">
-                  <div className="text-sm font-medium">{token.name || "Unknown"}</div>
-                  <div className="text-xs font-bold">{token.symbol || "Unknown"}</div>
+                  <div className="text-sm font-medium">
+                    {token.name || "Unknown"}
+                  </div>
+                  <div className="text-xs font-bold">
+                    {token.symbol || "Unknown"}
+                  </div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-sm font-medium">
-                  {formatLargeSize(normalizeTokenAmount(token.amount, token.decimals).toFixed(3))}
+                  {formatLargeSize(
+                    normalizeTokenAmount(token.amount, token.decimals).toFixed(
+                      3,
+                    ),
+                  )}
                 </div>
                 <div className="text-xs text-gray-500">
                   {token.value ? `$${token.value.toFixed(2)}` : "N/A"}
@@ -243,7 +254,13 @@ export default function AccountTokens({ address }: { address: string }) {
           ))}
         </div>
         <div className="hidden md:block">
-          <DataTable columns={columns} data={data!} />
+          {data && data?.length > 0 ? (
+            <DataTable columns={columns} data={data} />
+          ) : (
+            <p className="flex items-center justify-center p-6 text-lg text-muted-foreground">
+              No Tokens found
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
