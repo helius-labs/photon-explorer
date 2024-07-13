@@ -20,6 +20,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Image from "next/image";
+import noImg from "@/../public/assets/noimg.svg";
+import { Button } from "@/components/ui/button";
+import cloudflareLoader from "@/utils/imageLoader";
+import { DAS } from "@/types/helius-sdk";
+import { X } from "lucide-react";
+import { useFetchDomains } from "@/hooks/useFetchDomains";
+import { shorten, shortenLong } from "@/utils/common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AccountNFTsModalProps {
@@ -38,17 +46,16 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
   const { endpoint } = useCluster();
 
   // Fetch user domains based on the NFT owner's address
-  const { data: userDomains, isLoading: loadingDomains } = useAllDomains(
-    nft?.owner || "",
-    endpoint,
+  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
+    nft?.ownership?.owner || "",
+    endpoint
   );
 
   // Set the owner's domain name if domains are available
   React.useEffect(() => {
     if (userDomains && userDomains.length > 0) {
-      const domain =
-        "name" in userDomains[0] ? userDomains[0].name : userDomains[0].domain;
-      setOwnerDomain(domain);
+      const domain = "name" in userDomains[0] ? userDomains[0].name : userDomains[0].domain;
+      setOwnerDomain(domain ?? null);
     }
   }, [userDomains]);
 
@@ -185,14 +192,12 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 </h3>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                   <p className="text-muted-foreground">
-                    <span className="font-semibold">Owner Address: </span>
-                    {ownerDomain
-                      ? ownerDomain
-                      : shorten(nft.owner || "Unknown")}
+                    <span className="font-semibold">Owner: </span>
+                    {ownerDomain ? ownerDomain : shorten(nft.ownership?.owner || "Unknown")}
                   </p>
                   <p className="text-muted-foreground">
-                    <span className="font-semibold">Mint Address: </span>
-                    {shorten(nft.mint.toBase58() || "Unknown")}
+                    <span className="font-semibold">Mint: </span>
+                    {shorten(nft.id || "Unknown")}
                   </p>
                   <p className="text-muted-foreground">
                     <span className="font-semibold">Mint Authority: </span>
