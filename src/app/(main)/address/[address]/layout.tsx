@@ -37,7 +37,7 @@ export default function AddressLayout({
 
   let accountType: AccountType | undefined;
 
-  if (accountInfo.data && accountInfo.data.value) {
+  if (accountInfo.data?.value) {
     accountType = getAccountType(accountInfo.data.value);
 
     if (accountType === AccountType.Wallet) {
@@ -133,11 +133,12 @@ export default function AddressLayout({
 
   return (
     <>
-      {accountInfo.data && accountInfo.data.value ? (
+      {accountInfo.data?.value ? (
         <>
           <AccountHeader
             address={new PublicKey(address)}
-            accountInfo={accountInfo.data.value}
+            accountInfo={accountInfo}
+            compressedAccount={compressedAccount}
           />
           <TabNav tabs={tabs} />
           {children}

@@ -1,4 +1,4 @@
-import { getDomainInfo } from "@/utils/domain-info";
+import { isBonfidaDomainAddress } from "@/utils/domain-info";
 import { Connection } from "@solana/web3.js";
 import { NextResponse } from "next/server";
 
@@ -8,14 +8,16 @@ type Params = {
   };
 };
 
-export type FetchedDomainInfo = Awaited<ReturnType<typeof getDomainInfo>>;
+export type FetchedDomainInfo = Awaited<
+  ReturnType<typeof isBonfidaDomainAddress>
+>;
 
 export async function GET(_request: Request, { params: { domain } }: Params) {
   // Intentionally using legacy web3js for compatibility with bonfida library
   // This is an API route so won't affect client bundle
   // We only fetch domains on mainnet
   const connection = new Connection(process.env.NEXT_PUBLIC_MAINNET!);
-  const domainInfo = await getDomainInfo(domain, connection);
+  const domainInfo = await isBonfidaDomainAddress(domain, connection);
 
   return NextResponse.json(domainInfo, {
     headers: {
