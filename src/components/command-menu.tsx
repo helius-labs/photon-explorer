@@ -12,9 +12,7 @@ import {
   isSolanaProgramAddress,
   isSolanaSignature,
 } from "@/utils/common";
-import {
-  isBonfidaDomainAddress,
-} from "@/utils/domain-info";
+import { isBonfidaDomainAddress } from "@/utils/domain-info";
 import cloudflareLoader from "@/utils/imageLoader";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
 import { DialogProps } from "@radix-ui/react-dialog";
@@ -54,68 +52,70 @@ const fetchSuggestions = async (
     symbol?: string;
   }[] = [];
 
+  // Helper function to push suggestions
+  const pushSuggestion = (
+    name: string,
+    icon: JSX.Element | string,
+    type: string,
+    address: string,
+    symbol?: string
+  ) => {
+    newSuggestions.push({ name, icon, type, address, symbol });
+  };
+
+  // Check for both domain patterns simultaneously
+  const domainChecks = async () => {
+    const solDomainPattern = /\.sol$/i;
+    const domainPattern = new RegExp(`(${allTlds.join("|")})$`, "i");
+
+    const promises = [];
+
+    if (solDomainPattern.test(search)) {
+      promises.push(
+        isBonfidaDomainAddress(search, connection).then(async (isBonfida) => {
+          if (isBonfida) {
+            const response = await fetch(
+              `https://sns-sdk-proxy.bonfida.workers.dev/resolve/${search.toLowerCase()}`
+            );
+            const { result = "" } = await response.json();
+            if (result) {
+              pushSuggestion(search, <SearchIcon />, "bonfida-domain", result);
+            }
+          }
+        })
+      );
+    }
+
+    if (domainPattern.test(search)) {
+      promises.push(
+        (async () => {
+          const ans = new TldParser(connection);
+          const owner = await ans.getOwnerFromDomainTld(search);
+          if (owner) {
+            pushSuggestion(search, <SearchIcon />, "ans-domain", owner.toBase58());
+          }
+        })()
+      );
+    }
+
+    await Promise.all(promises);
+  };
+
+  await domainChecks();
+
   // Check if is program address
   if (isSolanaProgramAddress(search)) {
-    newSuggestions.push({
-      name: search,
-      icon: <SearchIcon />,
-      type: "Program",
-      address: search,
-    });
+    pushSuggestion(search, <SearchIcon />, "Program", search);
   }
 
   // Check if address and not program address
   if (isSolanaAccountAddress(search) && !isSolanaProgramAddress(search)) {
-    newSuggestions.push({
-      name: search,
-      icon: <SearchIcon />,
-      type: "Account",
-      address: search,
-    });
+    pushSuggestion(search, <SearchIcon />, "Account", search);
   }
 
   // Check if is transaction id
   if (isSolanaSignature(search)) {
-    newSuggestions.push({
-      name: search,
-      icon: <SearchIcon />,
-      type: "Transaction",
-      address: search,
-    });
-  }
-
-  // Check if it's an SNS domain
-  const solDomainPattern = /\.sol$/i;
-  if (solDomainPattern.test(search)) {
-    if (await isBonfidaDomainAddress(search, connection)) {
-      const response = await fetch(
-        `https://sns-sdk-proxy.bonfida.workers.dev/resolve/${search.toLowerCase()}`
-      );
-      const { result = "" } = await response.json();
-      if (result) {
-        newSuggestions.push({
-          name: search,
-          icon: <SearchIcon />,
-          type: "bonfida-domain",
-          address: result,
-        });
-      }
-    }
-  } else {
-    // Check if it's an ANS domain
-    const domainPattern = new RegExp(`(${allTlds.join("|")})$`, "i");
-    if (domainPattern.test(search)) {
-      const ans = new TldParser(connection);
-      const owner = await ans.getOwnerFromDomainTld(search);
-      if (owner) {
-        newSuggestions.push({
-          name: search,
-          icon: <SearchIcon />,
-          type: "ans-domain",
-          address: owner.toBase58(),
-        });
-      }
-    }
+    pushSuggestion(search, <SearchIcon />, "Transaction", search);
   }
 
   // Add program suggestions
@@ -137,7 +137,7 @@ const fetchSuggestions = async (
         .filter(
           (token) =>
             token.symbol.toLowerCase().includes(search.toLowerCase()) ||
-            token.name.toLowerCase().includes(search.toLowerCase())
+            token.name.toLowerCase() === search.toLowerCase() // Exact match for name
         )
         .map((token) => ({
           name: token.name,
@@ -160,28 +160,7 @@ const fetchSuggestions = async (
           address: token.address,
           symbol: token.symbol,
         }))
-        .sort((a, b) => {
-          const searchLower = search.toLowerCase();
-
-          // Exact symbol match
-          const aSymbolExactMatch = a.symbol?.toLowerCase() === searchLower;
-          const bSymbolExactMatch = b.symbol?.toLowerCase() === searchLower;
-          if (aSymbolExactMatch && !bSymbolExactMatch) return -1;
-          if (!aSymbolExactMatch && bSymbolExactMatch) return 1;
-
-          // Partial symbol match
-          const aSymbolPartialMatch = a.symbol
-            ?.toLowerCase()
-            .includes(searchLower);
-          const bSymbolPartialMatch = b.symbol
-            ?.toLowerCase()
-            .includes(searchLower);
-          if (aSymbolPartialMatch && !bSymbolPartialMatch) return -1;
-          if (!aSymbolPartialMatch && bSymbolPartialMatch) return 1;
-
-          // Default alphabetical sorting by name
-          return a.name.localeCompare(b.name);
-        })
+        .sort((a, b) => a.name.localeCompare(b.name))
     : [];
 
   newSuggestions.push(...programSuggestions, ...tokenSuggestions);
@@ -212,10 +191,14 @@ export function CommandMenu({ ...props }: DialogProps) {
   >([]);
   const [cache, setCache] = React.useState<Map<string, any>>(new Map());
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
-  const [recentSearches, setRecentSearches] = useLocalStorage<string[]>(
-    "recentSearches",
-    []
-  );
+  const [recentSearches, setRecentSearches] = useLocalStorage<
+    {
+      name: string;
+      symbol?: string;
+      icon: JSX.Element | string;
+      address: string;
+    }[]
+  >("recentSearches", []);
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 300);
@@ -309,23 +292,35 @@ export function CommandMenu({ ...props }: DialogProps) {
   }) => {
     const pathname =
       suggestion.type === "Transaction"
-        ? `/tx/${suggestion.address}/`
-        : `/address/${suggestion.address}/`;
+        ? `/tx/${suggestion.address}/?cluster=${cluster}`
+        : `/address/${suggestion.address}/?cluster=${cluster}`;
     router.push(pathname);
 
     // Update recent searches
     setRecentSearches((prevSearches) => {
-      const newSearch = suggestion.symbol || suggestion.name;
+      const newSearch = {
+        name: suggestion.name,
+        symbol: suggestion.symbol,
+        icon: suggestion.icon,
+        address: suggestion.address!,
+      };
       const newSearches = [
         newSearch,
-        ...prevSearches.filter((item) => item !== newSearch),
+        ...prevSearches.filter((item) => item.address !== newSearch.address),
       ];
       return newSearches.slice(0, 5); // Limit to 5 recent searches
     });
   };
 
-  const clearRecentSearch = (search: string) => {
-    setRecentSearches((prevSearches) => prevSearches.filter((item) => item !== search));
+  const clearRecentSearch = (search: {
+    name: string;
+    symbol?: string;
+    icon: JSX.Element | string;
+    address: string;
+  }) => {
+    setRecentSearches((prevSearches) =>
+      prevSearches.filter((item) => item.address !== search.address)
+    );
   };
 
   const clearAllRecentSearches = () => {
@@ -348,9 +343,6 @@ export function CommandMenu({ ...props }: DialogProps) {
   const domainSuggestions = suggestions.filter(
     (suggestion) =>
       suggestion.type === "bonfida-domain" || suggestion.type === "ans-domain"
-  );
-  const recentSearchSuggestions = suggestions.filter(
-    (suggestion) => suggestion.type === "Recent"
   );
 
   return (
@@ -399,12 +391,16 @@ export function CommandMenu({ ...props }: DialogProps) {
                     {recentSearches.map((search, index) => (
                       <CommandItem
                         key={`recent-${index}`}
-                        value={search}
-                        onSelect={() => handleOnValueChange(search)}
+                        value={search.name}
+                        onSelect={() =>
+                          router.push(`/address/${search.address}/?cluster=${cluster}`)
+                        }
                       >
                         <span className="flex items-center gap-2 w-full">
                           <ClockIcon className="h-5 w-5 text-muted-foreground" />
-                          <span className="md:flex-grow truncate">{search}</span>
+                          <span className="md:flex-grow truncate">
+                            {search.name}
+                          </span>
                           <button
                             className="md:ml-auto p-2"
                             onClick={(e) => {
@@ -427,33 +423,6 @@ export function CommandMenu({ ...props }: DialogProps) {
                   </CommandGroup>
                 )}
               </>
-            )}
-            {recentSearchSuggestions.length > 0 && (
-              <CommandGroup heading="Recent Searches">
-                {recentSearchSuggestions.map((suggestion, index) => (
-                  <CommandItem
-                    key={`recent-search-${index}`}
-                    value={suggestion.name}
-                    onSelect={() => handleSearchSelect(suggestion)}
-                  >
-                    <span className="flex items-center gap-2 w-full">
-                      <ClockIcon className="h-5 w-5 text-muted-foreground" />
-                      <span className="md:flex-grow truncate">
-                        {suggestion.name}
-                      </span>
-                      <button
-                        className="md:ml-auto p-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          clearRecentSearch(suggestion.name);
-                        }}
-                      >
-                        <XIcon className="h-4 w-4" />
-                      </button>
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
             )}
             {tokenSuggestions.length > 0 && (
               <CommandGroup heading="Token">
