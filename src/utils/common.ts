@@ -1,10 +1,3 @@
-import {
-  getHashedNameSync,
-  getNameAccountKeySync,
-  resolve,
-} from "@bonfida/spl-name-service";
-import { TldParser } from "@onsol/tldparser";
-import { Connection, PublicKey } from "@solana/web3.js";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -111,80 +104,6 @@ export function isSolanaAccountAddress(address: string): boolean {
   } else {
     return false;
   }
-}
-
-// Address of the SOL TLD
-export const SOL_TLD_AUTHORITY = new PublicKey(
-  "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx",
-);
-
-export function getDomainKeySync(
-  name: string,
-  nameClass?: PublicKey,
-  nameParent?: PublicKey,
-) {
-  const hashedDomainName = getHashedNameSync(name);
-  const nameKey = getNameAccountKeySync(
-    hashedDomainName,
-    nameClass,
-    nameParent,
-  );
-  return nameKey;
-}
-
-export interface DomainInfo {
-  name: string;
-  address: PublicKey;
-  owner: string;
-}
-
-export const hasDomainSyntax = (value: string) => {
-  return value.length > 4 && value.substring(value.length - 4) === ".sol";
-};
-
-// Check if a string is a valid Bonfida domain
-export async function isBonfidaDomainAddress(
-  domain: string,
-  connection: Connection,
-): Promise<boolean> {
-  const probablyBonfidaName = hasDomainSyntax(domain);
-  if (probablyBonfidaName) {
-    try {
-      const domainKey = getDomainKeySync(
-        domain.slice(0, -4), // remove .sol
-        undefined,
-        SOL_TLD_AUTHORITY,
-      );
-      const accountInfo = await connection.getAccountInfo(domainKey);
-      if (accountInfo) {
-        const ownerPublicKey = await resolve(connection, domain);
-        return ownerPublicKey !== null;
-      }
-      return false;
-    } catch (error) {
-      return false;
-    }
-  }
-  return false;
-}
-
-// Function to check if a string is a valid ANS domain
-export async function isAlternativeDomainAddress(
-  domain: string,
-  connection: Connection,
-): Promise<boolean> {
-  const probablyAnsDomain = domain.length > 4 && domain.includes(".");
-  if (probablyAnsDomain) {
-    const ans = new TldParser(connection);
-    try {
-      const owner = await ans.getOwnerFromDomainTld(domain);
-      return owner !== undefined;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  return false;
 }
 
 export function timeAgoWithFormat(
