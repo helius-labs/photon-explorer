@@ -77,21 +77,25 @@ export default function AddressLayout({
     if (pathname === `/address/${address}`) {
       // Change the url state to history if the account is a wallet
       if (accountType === AccountType.Wallet) {
-        router.push(`${pathname}/tokens?cluster=${cluster}`);
+        router.replace(`${pathname}/tokens?cluster=${cluster}`);
       }
 
       if (accountType === AccountType.Token) {
-        router.push(`${pathname}/history?cluster=${cluster}`);
+        router.replace(`${pathname}/history?cluster=${cluster}`);
       }
+    }
+  }, [accountType, address, cluster, pathname, router]);
 
+  useEffect(() => {
+    if (pathname === `/address/${address}`) {
       if (compressedAccount.data) {
         if (pathname === `/address/${address}`) {
           // Change the url state to history-compressed
-          router.push(`${pathname}/history-compressed?cluster=${cluster}`);
+          router.replace(`${pathname}/history-compressed?cluster=${cluster}`);
         }
       }
     }
-  }, [accountType, address, cluster, compressedAccount.data, pathname, router]);
+  }, [address, cluster, compressedAccount.data, pathname, router]);
 
   // Check if the address is valid
   if (!isSolanaAccountAddress(address)) {
