@@ -1,8 +1,4 @@
-import {
-  AccountInfo,
-  ParsedAccountData,
-  RpcResponseAndContext,
-} from "@solana/web3.js";
+import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
 
 export enum AccountType {
   Wallet = "Wallet",
@@ -46,4 +42,16 @@ export function getAccountType(
   }
 
   return AccountType.Unknown;
+}
+
+export function createEmptyAccountInfo(
+  owner: PublicKey,
+): AccountInfo<Buffer | ParsedAccountData> {
+  return {
+    executable: false,
+    lamports: 0,
+    owner,
+    rentEpoch: 0,
+    data: Buffer.alloc(0),
+  };
 }
