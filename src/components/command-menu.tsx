@@ -6,12 +6,7 @@ import noImg from "@/../public/assets/noimg.svg";
 import { useRouter } from "next/navigation";
 import { useCluster } from "@/providers/cluster-provider";
 import { Cluster } from "@/utils/cluster";
-import {
-  cn,
-  isSolanaAccountAddress,
-  isSolanaProgramAddress,
-  isSolanaSignature,
-} from "@/utils/common";
+import { cn, isSolanaAccountAddress, isSolanaProgramAddress, isSolanaSignature } from "@/utils/common";
 import { isBonfidaDomainAddress } from "@/utils/domain-info";
 import cloudflareLoader from "@/utils/imageLoader";
 import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
@@ -21,14 +16,7 @@ import { CogIcon, SearchIcon, ClockIcon, XIcon } from "lucide-react";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { Connection } from "@solana/web3.js";
 import { Button } from "@/components/ui/button";
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "./common/loading";
 import useLocalStorage from "@/hooks/useLocalStorage";
