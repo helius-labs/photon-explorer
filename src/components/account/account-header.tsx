@@ -11,9 +11,7 @@ import {
   AccountInfo,
   ParsedAccountData,
   PublicKey,
-  RpcResponseAndContext,
 } from "@solana/web3.js";
-import { UseQueryResult } from "@tanstack/react-query";
 import { useCluster } from "@/providers/cluster-provider";
 import cloudflareLoader from "@/utils/imageLoader";
 import { lamportsToSolString } from "@/utils/common";
@@ -47,16 +45,17 @@ const fetchSolPrice = async () => {
 export function AccountHeader({
   address,
   accountInfo,
+  compressedAccount
 }: {
   address: PublicKey;
-  accountInfo: UseQueryResult<RpcResponseAndContext<AccountInfo<Buffer | ParsedAccountData> | null>, Error>;
+  accountInfo: AccountInfo<Buffer | ParsedAccountData>;
+  compressedAccount: any; // Add appropriate type for compressedAccount
 }) {
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const router = useRouter();
   const { endpoint, cluster } = useCluster();
 
-  const accountData = accountInfo.data?.value || null;
-  const accountType = accountData ? getAccountType(accountData) : undefined;
+  const accountType = useMemo(() => getAccountType(accountInfo), [accountInfo]);
 
   // Fetch compressed balance for the address
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
@@ -101,10 +100,9 @@ export function AccountHeader({
     getSolPrice();
   }, []);
 
-  const solBalance = accountData?.lamports
-    ? parseFloat(lamportsToSolString(accountData.lamports, 2))
+  const solBalance = accountInfo.lamports
+    ? parseFloat(lamportsToSolString(accountInfo.lamports, 2))
     : 0;
-
   const solBalanceUSD = solPrice ? (solBalance * solPrice).toFixed(2) : null;
 
   return (
@@ -139,7 +137,7 @@ export function AccountHeader({
           </div>
         </div>
         <div className="flex flex-col items-center gap-2 md:flex-row">
-          {accountData ? (
+          {accountInfo ? (
             <>
               <div className="flex flex-col items-center text-lg text-muted-foreground">
                 <span className="flex items-center">
@@ -152,7 +150,7 @@ export function AccountHeader({
                       height={24}
                     />
                   </div>
-                  {`${lamportsToSolString(accountData.lamports, 2)} SOL`}
+                  {`${lamportsToSolString(accountInfo.lamports, 2)} SOL`}
                   </span>
                 {solBalanceUSD && (
                   <span className="ml-0 mt-1 text-xs text-muted-foreground opacity-80 md:ml-6 md:mt-0">
