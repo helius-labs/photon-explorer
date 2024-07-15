@@ -43,7 +43,7 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & { withShortcut?: boolean }
 >(({ className, withShortcut = false, ...props }, ref) => (
-  <div className="flex items-center px-3 mt-[-4px] relative" cmdk-input-wrapper="">
+  <div className="flex items-center px-3 mt-[-5.5px] relative" cmdk-input-wrapper="">
     <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
     <CommandPrimitive.Input
       ref={ref}
