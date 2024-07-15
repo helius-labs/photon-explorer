@@ -40,12 +40,22 @@ export const parseTransfer = (
   const actions: TransactionAction[] = [];
 
   if (nativeTransfers.length === 1) {
+    console.log("amount: ", nativeTransfers[0].amount);
     actions.push({
       actionType: ActionTypes.TRANSFER,
       from: nativeTransfers[0].fromUserAccount!,
       to: nativeTransfers[0].toUserAccount!,
-      amount: nativeTransfers[0].amount,
+      amount: nativeTransfers[0].amount / LAMPORTS_PER_SOL,
       mint: SOL,
+    });
+  }
+  if (tokenTransfers.length >= 1) {
+    actions.push({
+      actionType: ActionTypes.TRANSFER,
+      from: tokenTransfers[0].fromUserAccount!,
+      to: tokenTransfers[0].toUserAccount!,
+      amount: tokenTransfers[0].tokenAmount,
+      mint: tokenTransfers[0].mint,
     });
   }
 

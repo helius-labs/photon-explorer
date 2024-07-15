@@ -83,7 +83,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   if (parsed.data && parsed.data.length > 0) {
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
-  } else if (transaction.data && compressed.data !== undefined) {
+  } else if (transaction.data && compressed.data) {
     transactionOverview = (
       <TransactionOverview
         signature={tx}
