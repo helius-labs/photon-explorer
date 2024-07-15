@@ -1,23 +1,27 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import Avatar from "boring-avatars";
-import Image from "next/image";
 import noImg from "@/../public/assets/noimg.svg";
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
-import { MoreVertical } from "lucide-react";
+import { useCluster } from "@/providers/cluster-provider";
+import { AccountType, getAccountType } from "@/utils/account";
+import { lamportsToSolString } from "@/utils/common";
+import cloudflareLoader from "@/utils/imageLoader";
 import {
   AccountInfo,
+  ConfirmedSignatureInfo,
   ParsedAccountData,
   PublicKey,
 } from "@solana/web3.js";
-import { useCluster } from "@/providers/cluster-provider";
-import cloudflareLoader from "@/utils/imageLoader";
-import { lamportsToSolString } from "@/utils/common";
+import Avatar from "boring-avatars";
+import { MoreVertical } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
+
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +31,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AccountType, getAccountType } from "@/utils/account";
 
 const fetchSolPrice = async () => {
   try {
@@ -45,17 +48,17 @@ const fetchSolPrice = async () => {
 export function AccountHeader({
   address,
   accountInfo,
-  compressedAccount
+  signatures,
+  accountType,
 }: {
   address: PublicKey;
-  accountInfo: AccountInfo<Buffer | ParsedAccountData>;
-  compressedAccount: any; // Add appropriate type for compressedAccount
+  accountInfo: AccountInfo<Buffer | ParsedAccountData> | null;
+  signatures: ConfirmedSignatureInfo[];
+  accountType: AccountType;
 }) {
   const [solPrice, setSolPrice] = useState<number | null>(null);
   const router = useRouter();
   const { endpoint, cluster } = useCluster();
-
-  const accountType = useMemo(() => getAccountType(accountInfo), [accountInfo]);
 
   // Fetch compressed balance for the address
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
@@ -65,7 +68,7 @@ export function AccountHeader({
   // Use the custom hook to fetch all domain names
   const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
     address.toBase58(),
-    endpoint
+    endpoint,
   );
 
   // Fetch the token list
@@ -100,7 +103,7 @@ export function AccountHeader({
     getSolPrice();
   }, []);
 
-  const solBalance = accountInfo.lamports
+  const solBalance = accountInfo?.lamports
     ? parseFloat(lamportsToSolString(accountInfo.lamports, 2))
     : 0;
   const solBalanceUSD = solPrice ? (solBalance * solPrice).toFixed(2) : null;
@@ -137,7 +140,7 @@ export function AccountHeader({
           </div>
         </div>
         <div className="flex flex-col items-center gap-2 md:flex-row">
-          {accountInfo ? (
+          {accountInfo && (
             <>
               <div className="flex flex-col items-center text-lg text-muted-foreground">
                 <span className="flex items-center">
@@ -151,7 +154,7 @@ export function AccountHeader({
                     />
                   </div>
                   {`${lamportsToSolString(accountInfo.lamports, 2)} SOL`}
-                  </span>
+                </span>
                 {solBalanceUSD && (
                   <span className="ml-0 mt-1 text-xs text-muted-foreground opacity-80 md:ml-6 md:mt-0">
                     ${solBalanceUSD} USD
@@ -187,10 +190,6 @@ export function AccountHeader({
                 </div>
               )}
             </>
-          ) : (
-            <span className="text-lg text-muted-foreground">
-              Account does not exist
-            </span>
           )}
         </div>
       </div>

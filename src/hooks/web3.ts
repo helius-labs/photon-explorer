@@ -101,8 +101,8 @@ export function useGetBalance(address: string, enabled: boolean = true) {
 
 export function useGetSignaturesForAddress(
   address: string,
-  enabled: boolean = true,
   limit: number = 10,
+  enabled: boolean = true,
 ) {
   const { endpoint } = useCluster();
 
