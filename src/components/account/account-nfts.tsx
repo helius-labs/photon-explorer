@@ -1,93 +1,56 @@
 "use client";
 
-import { useCluster } from "@/providers/cluster-provider";
-import { DAS } from "@/types/helius-sdk";
-import { Cluster } from "@/utils/cluster";
+import noImg from "@/../public/assets/noimg.svg";
+import { NFT } from "@/types/nft";
 import { ColumnDef } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 
-import { useGetAssetsByOwner } from "@/hooks/useGetAssetsByOwner";
+import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
+
+import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import AccountNFTsModal from "@/components/account/account-nfts-modal";
-import noImg from "@/../public/assets/noimg.svg";
-import { Button } from "../ui/button";
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const [showNonVerified, setShowNonVerified] = useState(false);
-  const { cluster } = useCluster();
-  const router = useRouter();
-  const [selectedNft, setSelectedNft] = useState<DAS.GetAssetResponse | null>(null);
+  const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const {
-    verifiedNfts,
-    nonVerifiedNfts,
-    totalNftValue,
-    isLoading,
-    isError,
-    refetch,
-  } = useGetAssetsByOwner(
-    address,
-    1,
-    cluster !== Cluster.Localnet && cluster !== Cluster.Testnet,
-  );
+  const { data, isLoading, isError } = useGetNFTsByOwner(address);
 
-  // Redirect to tokens page if on localnet or testnet
-  useEffect(() => {
-    if (cluster === Cluster.Localnet || cluster === Cluster.Testnet) {
-      router.push(`/account/${address}`);
-    } else {
-      refetch();
-    }
-  }, [cluster, address, router, refetch]);
+  const displayedNfts =
+    data?.filter((nft) => nft.verified !== showNonVerified) || [];
 
-  const displayedNfts = showNonVerified ? nonVerifiedNfts : verifiedNfts;
+  // Calculate total value of NFTs
+  const total =
+    displayedNfts?.reduce((accumulator, token) => {
+      return accumulator + (token.value || 0);
+    }, 0) || 0;
 
-  const handleQuickViewClick = (nftData: DAS.GetAssetResponse) => {
+  const handleQuickViewClick = (nftData: NFT) => {
     setSelectedNft(nftData);
     setIsModalOpen(true);
   };
 
-  if (isError)
-    return (
-      <Card className="col-span-12 mb-10 shadow">
-        <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
-          <div className="font-semibold text-secondary">
-            Unable to fetch NFTs
-          </div>
-          <div className="text-gray-500">
-            <button
-              onClick={() => window.location.reload()}
-              className="text-blue-500 underline"
-            >
-              Refresh
-            </button>{" "}
-            or change networks.
-          </div>
-        </CardContent>
-      </Card>
-    );
-
-  const columns: ColumnDef<DAS.GetAssetResponse>[] = [
+  const columns: ColumnDef<NFT>[] = [
     {
       header: "Image",
       accessorKey: "content.links.image",
       cell: ({ getValue, row }) => {
         const imageUrl = getValue<string>() || noImg.src;
         return (
-          <div className="relative group">
+          <div className="group relative">
             <Image
               src={imageUrl}
               alt="NFT"
-              className="w-full h-40 object-cover rounded-md"
+              className="h-40 w-full rounded-md object-cover"
             />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50">
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
               <Button
                 onClick={() => handleQuickViewClick(row.original)}
                 className="text-white"
@@ -113,6 +76,26 @@ const AccountNFTs = ({ address }: { address: string }) => {
     },
   ];
 
+  if (isError)
+    return (
+      <Card className="col-span-12 mb-10 shadow">
+        <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
+          <div className="font-semibold text-secondary">
+            Unable to fetch NFTs
+          </div>
+          <div className="text-gray-500">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-blue-500 underline"
+            >
+              Refresh
+            </button>{" "}
+            or change networks.
+          </div>
+        </CardContent>
+      </Card>
+    );
+
   return (
     <>
       <Card className="col-span-12 mb-10 shadow">
@@ -131,7 +114,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
               <div className="mb-4 flex flex-col justify-between text-xs sm:flex-row sm:items-center sm:text-sm">
                 <div className="flex flex-col font-medium sm:flex-row sm:space-x-4">
                   <span>Total NFTs: {displayedNfts.length}</span>
-                  <span>Total Floor Value: {totalNftValue.toFixed(2)} SOL</span>
+                  <span>Total Floor Value: {total.toFixed(2)} SOL</span>
                 </div>
                 <div className="mt-2 flex items-center space-x-2 sm:mt-0">
                   <Label className="text-xs sm:text-sm">

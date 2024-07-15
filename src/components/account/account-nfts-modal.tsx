@@ -12,16 +12,16 @@ import Image from "next/image";
 import noImg from "@/../public/assets/noimg.svg";
 import { Button } from "@/components/ui/button";
 import cloudflareLoader from "@/utils/imageLoader";
-import { DAS } from "@/types/helius-sdk";
 import { X } from "lucide-react";
-import { useAllDomains } from "@/hooks/useAllDomains";
+import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { shorten, shortenLong } from "@/utils/common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "@/components/common/loading";
 import { useCluster } from "@/providers/cluster-provider";
+import { NFT } from "@/types/nft";
 
 interface AccountNFTsModalProps {
-  nft: DAS.GetAssetResponse | null;
+  nft: NFT | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -34,25 +34,28 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
   // State to hold the owner's domain name
   const [ownerDomain, setOwnerDomain] = React.useState<string | null>(null);
   const { endpoint } = useCluster();
-  
+
   // Fetch user domains based on the NFT owner's address
-  const { data: userDomains, isLoading: loadingDomains } = useAllDomains(nft?.ownership?.owner || "", endpoint);
+  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
+    nft?.owner || "",
+    endpoint
+  );
 
   // Set the owner's domain name if domains are available
   React.useEffect(() => {
     if (userDomains && userDomains.length > 0) {
       const domain = "name" in userDomains[0] ? userDomains[0].name : userDomains[0].domain;
-      setOwnerDomain(domain);
+      setOwnerDomain(domain ?? null); // Use null if domain is undefined
     }
   }, [userDomains]);
 
   if (!nft) return null;
 
   // Determine the token image URL
-  const tokenImage = nft.content?.links?.image || noImg.src;
+  const tokenImage = nft.image || noImg.src;
 
   // Extract the update authority, handle case where it might be missing
-  const updateAuthority = nft.mint_extensions?.metadata_pointer?.authority || "N/A";
+  const updateAuthority = nft.updateAuthority || "N/A";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -71,7 +74,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
               <Image
                 loader={cloudflareLoader}
                 src={tokenImage}
-                alt={nft.content?.metadata?.name || "Unknown NFT"}
+                alt={nft.name || "Unknown NFT"}
                 width={300}
                 height={300}
                 className="rounded-lg shadow-md"
@@ -85,10 +88,10 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
             <div className="flex-grow">
               <DialogHeader>
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-4">
-                  {nft.content?.metadata?.name || "Unknown NFT"}
+                  {nft.name || "Unknown NFT"}
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground text-center lg:text-left mb-2 sm:mb-4">
-                  {nft.content?.metadata?.description || "No description available"}
+                  {nft.description || "No description available"}
                 </DialogDescription>
               </DialogHeader>
               {/* Details section for mobile view */}
@@ -106,15 +109,15 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                       <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Owner: </span>
-                          {ownerDomain ? ownerDomain : shorten(nft.ownership?.owner || "Unknown")}
+                          {ownerDomain ? ownerDomain : shorten(nft.owner || "Unknown")}
                         </p>
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Mint: </span>
-                          {shorten(nft.id || "Unknown")}
+                          {shorten(nft.mint.toBase58() || "Unknown")}
                         </p>
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Mint Authority: </span>
-                          {shorten(nft.token_info?.mint_authority || "N/A")}
+                          {shorten(nft.mintAuthority || "N/A")}
                         </p>
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Update Authority: </span>
@@ -122,11 +125,11 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                         </p>
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Collection: </span>
-                          {shortenLong(nft.grouping?.find(group => group.group_key === 'collection')?.group_value || "N/A")}
+                          {shortenLong(nft.collection || "N/A")}
                         </p>
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Token Standard: </span>
-                          {(nft.content?.metadata?.token_standard || "N/A")}
+                          {nft.tokenStandard || "N/A"}
                         </p>
                       </div>
                       {nft.creators && nft.creators.length > 0 && (
@@ -144,13 +147,13 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                           </div>
                         </>
                       )}
-                      {nft.content?.metadata?.attributes && nft.content.metadata.attributes.length > 0 && (
+                      {nft.attributes && nft.attributes.length > 0 && (
                         <>
                           <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-2 sm:mt-4">
                             Attributes
                           </h3>
                           <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {nft.content.metadata.attributes.map((attribute, index) => (
+                            {nft.attributes.map((attribute, index) => (
                               <p key={index} className="text-muted-foreground">
                                 <span className="font-semibold">{attribute.trait_type}: </span>
                                 {attribute.value}
@@ -170,16 +173,16 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 </h3>
                 <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <p className="text-muted-foreground">
-                    <span className="font-semibold">Owner Address: </span>
-                    {ownerDomain ? ownerDomain : shorten(nft.ownership?.owner || "Unknown")}
+                    <span className="font-semibold">Owner: </span>
+                    {ownerDomain ? ownerDomain : shorten(nft.owner || "Unknown")}
                   </p>
                   <p className="text-muted-foreground">
-                    <span className="font-semibold">Mint Address: </span>
-                    {shorten(nft.id || "Unknown")}
+                    <span className="font-semibold">Mint: </span>
+                    {shorten(nft.mint.toBase58() || "Unknown")}
                   </p>
                   <p className="text-muted-foreground">
                     <span className="font-semibold">Mint Authority: </span>
-                    {shorten(nft.token_info?.mint_authority || "N/A")}
+                    {shorten(nft.mintAuthority || "N/A")}
                   </p>
                   <p className="text-muted-foreground">
                     <span className="font-semibold">Update Authority: </span>
@@ -187,11 +190,11 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                   </p>
                   <p className="text-muted-foreground">
                     <span className="font-semibold">Collection: </span>
-                    {shortenLong(nft.grouping?.find(group => group.group_key === 'collection')?.group_value || "N/A")}
+                    {shortenLong(nft.collection || "N/A")}
                   </p>
                   <p className="text-muted-foreground">
                     <span className="font-semibold">Token Standard: </span>
-                    {(nft.content?.metadata?.token_standard || "N/A")}
+                    {nft.tokenStandard || "N/A"}
                   </p>
                 </div>
                 {nft.creators && nft.creators.length > 0 && (
@@ -209,13 +212,13 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                     </div>
                   </>
                 )}
-                {nft.content?.metadata?.attributes && nft.content.metadata.attributes.length > 0 && (
+                {nft.attributes && nft.attributes.length > 0 && (
                   <>
                     <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-2 sm:mt-4">
                       Attributes
                     </h3>
                     <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {nft.content.metadata.attributes.map((attribute, index) => (
+                      {nft.attributes.map((attribute, index) => (
                         <p key={index} className="text-muted-foreground">
                           <span className="font-semibold">{attribute.trait_type}: </span>
                           {attribute.value}

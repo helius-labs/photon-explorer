@@ -1,6 +1,16 @@
 import { useCluster } from "@/providers/cluster-provider";
 import { useQuery } from "@tanstack/react-query";
 
+export function useGetPriorityFeeEstimate(accounts: string[], options = {}) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getPriorityFeeEstimate", accounts],
+    queryFn: () => getPriorityFeeEstimate(endpoint, accounts),
+    ...options,
+  });
+}
+
 async function getPriorityFeeEstimate(endpoint: string, accounts: string[]) {
   const response = await fetch(endpoint, {
     method: "POST",
@@ -24,14 +34,4 @@ async function getPriorityFeeEstimate(endpoint: string, accounts: string[]) {
   }).then((res) => res.json());
 
   return response.result.priorityFeeLevels;
-}
-
-export function useGetPriorityFeeEstimate(accounts: string[], options = {}) {
-  const { endpoint } = useCluster();
-
-  return useQuery({
-    queryKey: [endpoint, "getPriorityFeeEstimate", accounts],
-    queryFn: () => getPriorityFeeEstimate(endpoint, accounts),
-    ...options,
-  });
 }

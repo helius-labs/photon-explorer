@@ -12,7 +12,7 @@ export function useGetParsedTransactions(
   const { cluster } = useCluster();
 
   return useQuery({
-    queryKey: ["parser", transactions],
+    queryKey: [cluster, "getParsedTransactions", transactions],
     queryFn: async () => {
       if (cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet) {
         return getParsedTransactions(transactions, cluster);
