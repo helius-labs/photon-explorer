@@ -1,20 +1,39 @@
-import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
+import {
+  AccountInfo,
+  ConfirmedSignatureInfo,
+  ParsedAccountData,
+  PublicKey,
+} from "@solana/web3.js";
 
 export enum AccountType {
   Wallet = "Wallet",
   Token = "Token",
   Program = "Program",
+  Closed = "Closed",
+  NotFound = "NotFound",
   Unknown = "Unknown",
+  MetaplexNFT = "MetaplexNFT",
+  NFToken = "NFToken", // NFToken: https://nftoken.so/docs/overview
 }
+
+const SYSTEM_PROGRAM = "11111111111111111111111111111111";
+const NFTOKEN_ADDRESS = "nftokf9qcHSYkVSP3P2gUMmV6d4AwjMueXgUu43HyLL";
 
 export function getAccountType(
   accountInfo: AccountInfo<Buffer | ParsedAccountData> | null,
+  signatures: ConfirmedSignatureInfo[],
 ): AccountType {
-  if (!accountInfo) {
-    return AccountType.Unknown;
+  // Check if the account has been closed
+  if (signatures && signatures.length > 0 && accountInfo === null) {
+    return AccountType.Closed;
   }
 
-  if (accountInfo.data && "parsed" in accountInfo.data) {
+  // Check if the account has never beed submitted to the blockchain
+  if (signatures && signatures.length === 0 && accountInfo === null) {
+    return AccountType.NotFound;
+  }
+
+  if (accountInfo && accountInfo.data && "parsed" in accountInfo.data) {
     switch (accountInfo.data.program) {
       case "bpf-upgradeable-loader":
       case "stake":
@@ -26,6 +45,13 @@ export function getAccountType(
         return AccountType.Program;
       case "spl-token":
       case "spl-token-2022":
+        if (
+          accountInfo.data.parsed.type === "mint" &&
+          accountInfo.data.parsed.info.decimals === 0 &&
+          parseInt(accountInfo.data.parsed.info.supply) === 1
+        ) {
+          return AccountType.MetaplexNFT;
+        }
         if (accountInfo.data.parsed.type === "mint") {
           return AccountType.Token;
         }
@@ -33,25 +59,13 @@ export function getAccountType(
   }
 
   // If there is no parsed data, check if the account is a program or wallet
-  if (accountInfo.executable) {
+  if (accountInfo && accountInfo.executable) {
     return AccountType.Program;
-  } else if (
-    accountInfo.owner.toBase58() === "11111111111111111111111111111111"
-  ) {
+  } else if (accountInfo && accountInfo.owner.toBase58() === SYSTEM_PROGRAM) {
     return AccountType.Wallet;
+  } else if (accountInfo && accountInfo.owner.toBase58() === NFTOKEN_ADDRESS) {
+    return AccountType.NFToken;
   }
 
   return AccountType.Unknown;
-}
-
-export function createEmptyAccountInfo(
-  owner: PublicKey,
-): AccountInfo<Buffer | ParsedAccountData> {
-  return {
-    executable: false,
-    lamports: 0,
-    owner,
-    rentEpoch: 0,
-    data: Buffer.alloc(0),
-  };
 }
