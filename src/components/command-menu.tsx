@@ -70,17 +70,21 @@ const fetchSuggestions = async (
               pushSuggestion(search, <SearchIcon />, "bonfida-domain", result);
             }
           }
-        })
+        }).catch(() => {})
       );
     }
 
     if (domainPattern.test(search)) {
       promises.push(
         (async () => {
-          const ans = new TldParser(connection);
-          const owner = await ans.getOwnerFromDomainTld(search);
-          if (owner) {
-            pushSuggestion(search, <SearchIcon />, "ans-domain", owner.toBase58());
+          try {
+            const ans = new TldParser(connection);
+            const owner = await ans.getOwnerFromDomainTld(search);
+            if (owner) {
+              pushSuggestion(search, <SearchIcon />, "ans-domain", owner.toBase58());
+            }
+          } catch (error) {
+            console.error("Error fetching domain owner:", error);
           }
         })()
       );
@@ -188,7 +192,9 @@ export function CommandMenu({ ...props }: DialogProps) {
     }[]
   >("recentSearches", []);
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const [search, setSearch] = React.useState("");
+  const [inputValue, setInputValue] = React.useState<string>("");
   const debouncedSearch = useDebounce(search, 300);
 
   React.useEffect(() => {
@@ -267,37 +273,41 @@ export function CommandMenu({ ...props }: DialogProps) {
     allTlds,
   ]);
 
+  const handleSearchSelect = React.useCallback(
+    (suggestion: {
+      name: string;
+      icon: JSX.Element | string;
+      type?: string;
+      address?: string;
+      symbol?: string;
+    }) => {
+      const pathname =
+        suggestion.type === "Transaction"
+          ? `/tx/${suggestion.address}/?cluster=${cluster}`
+          : `/address/${suggestion.address}/?cluster=${cluster}`;
+      router.push(pathname);
+
+      // Update recent searches
+      setRecentSearches((prevSearches) => {
+        const newSearch = {
+          name: suggestion.name,
+          symbol: suggestion.symbol,
+          icon: suggestion.icon,
+          address: suggestion.address!,
+        };
+        const newSearches = [
+          newSearch,
+          ...prevSearches.filter((item) => item.address !== newSearch.address),
+        ];
+        return newSearches.slice(0, 5); // Limit to 5 recent searches
+      });
+    },
+    [router, cluster, setRecentSearches]
+  );
+
   const handleOnValueChange = (value: string) => {
     setSearch(value);
-  };
-
-  const handleSearchSelect = (suggestion: {
-    name: string;
-    icon: JSX.Element | string;
-    type?: string;
-    address?: string;
-    symbol?: string;
-  }) => {
-    const pathname =
-      suggestion.type === "Transaction"
-        ? `/tx/${suggestion.address}/?cluster=${cluster}`
-        : `/address/${suggestion.address}/?cluster=${cluster}`;
-    router.push(pathname);
-
-    // Update recent searches
-    setRecentSearches((prevSearches) => {
-      const newSearch = {
-        name: suggestion.name,
-        symbol: suggestion.symbol,
-        icon: suggestion.icon,
-        address: suggestion.address!,
-      };
-      const newSearches = [
-        newSearch,
-        ...prevSearches.filter((item) => item.address !== newSearch.address),
-      ];
-      return newSearches.slice(0, 5); // Limit to 5 recent searches
-    });
+    setInputValue(value);
   };
 
   const clearRecentSearch = (search: {
@@ -314,6 +324,40 @@ export function CommandMenu({ ...props }: DialogProps) {
   const clearAllRecentSearches = () => {
     setRecentSearches([]);
   };
+
+  const handleBlur = React.useCallback(() => {
+    setTimeout(() => {
+      if (!open) {
+        setInputValue(search);
+      }
+    }, 0);
+  }, [open, search]);
+
+  const handleFocus = React.useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const handleSelectOption = React.useCallback(
+    (selectedOption: {
+      name: string;
+      icon: JSX.Element | string;
+      type?: string;
+      address?: string;
+      symbol?: string;
+    }) => {
+      setInputValue(selectedOption.name);
+
+      setSearch(selectedOption.name);
+      handleSearchSelect(selectedOption);
+
+      // This is a hack to prevent the input from being focused after the user selects an option
+      // We can call this hack: "The next tick"
+      setTimeout(() => {
+        inputRef?.current?.blur();
+      }, 0);
+    },
+    [handleSearchSelect]
+  );
 
   // Group suggestions by type
   const tokenSuggestions = suggestions.filter(
@@ -361,6 +405,10 @@ export function CommandMenu({ ...props }: DialogProps) {
         <CommandInput
           placeholder="Search for accounts, transactions, tokens and programs..."
           onValueChange={handleOnValueChange}
+          value={inputValue}
+          ref={inputRef}
+          onBlur={handleBlur}
+          onFocus={handleFocus}
           withShortcut
         />
         <Separator />
@@ -418,7 +466,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                   <CommandItem
                     key={`token-${index}`}
                     value={suggestion.symbol || suggestion.name}
-                    onSelect={() => handleSearchSelect(suggestion)}
+                    onSelect={() => handleSelectOption(suggestion)}
                   >
                     <span className="flex items-center gap-2">
                       <span className="flex-shrink-0">{suggestion.icon}</span>
@@ -448,7 +496,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                   <CommandItem
                     key={`account-${index}`}
                     value={suggestion.name}
-                    onSelect={() => handleSearchSelect(suggestion)}
+                    onSelect={() => handleSelectOption(suggestion)}
                   >
                     <span className="flex items-center gap-2">
                       <span className="flex-shrink-0">{suggestion.icon}</span>
@@ -473,7 +521,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                   <CommandItem
                     key={`transaction-${index}`}
                     value={suggestion.name}
-                    onSelect={() => handleSearchSelect(suggestion)}
+                    onSelect={() => handleSelectOption(suggestion)}
                   >
                     <span className="flex items-center gap-2">
                       <span className="flex-shrink-0">{suggestion.icon}</span>
@@ -498,7 +546,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                   <CommandItem
                     key={`program-${index}`}
                     value={suggestion.name}
-                    onSelect={() => handleSearchSelect(suggestion)}
+                    onSelect={() => handleSelectOption(suggestion)}
                   >
                     <span className="flex items-center gap-2">
                       <span className="flex-shrink-0">{suggestion.icon}</span>
@@ -523,7 +571,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                   <CommandItem
                     key={`domain-${index}`}
                     value={suggestion.name}
-                    onSelect={() => handleSearchSelect(suggestion)}
+                    onSelect={() => handleSelectOption(suggestion)}
                   >
                     <span className="flex items-center gap-2">
                       <span className="flex-shrink-0">{suggestion.icon}</span>
