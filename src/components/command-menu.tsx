@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import noImg from "@/../public/assets/noimg.svg";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCluster } from "@/providers/cluster-provider";
 import { Cluster } from "@/utils/cluster";
 import { cn, isSolanaAccountAddress, isSolanaProgramAddress, isSolanaSignature } from "@/utils/common";
@@ -172,6 +172,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const { data: tokenList } = useGetTokenListStrict();
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [isSearching, setIsSearching] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState<
     {
       name: string;
@@ -193,30 +194,10 @@ export function CommandMenu({ ...props }: DialogProps) {
   >("recentSearches", []);
   const searchButtonRef = React.useRef<HTMLButtonElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const [search, setSearch] = React.useState("");
-  const [inputValue, setInputValue] = React.useState<string>("");
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [search, setSearch] = React.useState(searchParams.get("search") || "");
   const debouncedSearch = useDebounce(search, 300);
-
-  React.useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || e.key === "/") {
-        if (
-          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
-        ) {
-          return;
-        }
-
-        e.preventDefault();
-        setOpen((open) => !open);
-      }
-    };
-
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
 
   React.useEffect(() => {
     const fetchAllTlds = async () => {
@@ -281,11 +262,13 @@ export function CommandMenu({ ...props }: DialogProps) {
       address?: string;
       symbol?: string;
     }) => {
-      const pathname =
+      const newPathname =
         suggestion.type === "Transaction"
           ? `/tx/${suggestion.address}/?cluster=${cluster}`
           : `/address/${suggestion.address}/?cluster=${cluster}`;
-      router.push(pathname);
+
+      setIsSearching(true);
+      router.push(newPathname);
 
       // Update recent searches
       setRecentSearches((prevSearches) => {
@@ -305,9 +288,20 @@ export function CommandMenu({ ...props }: DialogProps) {
     [router, cluster, setRecentSearches]
   );
 
+  React.useEffect(() => {
+    if (isSearching) {
+      setIsSearching(false);
+    }
+  }, [isSearching, pathname, searchParams]);
+
   const handleOnValueChange = (value: string) => {
     setSearch(value);
-    setInputValue(value);
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setIsSearching(true);
+    }
   };
 
   const clearRecentSearch = (search: {
@@ -328,7 +322,7 @@ export function CommandMenu({ ...props }: DialogProps) {
   const handleBlur = React.useCallback(() => {
     setTimeout(() => {
       if (!open) {
-        setInputValue(search);
+        setSearch(search);
       }
     }, 0);
   }, [open, search]);
@@ -345,8 +339,6 @@ export function CommandMenu({ ...props }: DialogProps) {
       address?: string;
       symbol?: string;
     }) => {
-      setInputValue(selectedOption.name);
-
       setSearch(selectedOption.name);
       handleSearchSelect(selectedOption);
 
@@ -358,6 +350,28 @@ export function CommandMenu({ ...props }: DialogProps) {
     },
     [handleSearchSelect]
   );
+
+  // Event listener for command key
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || e.key === "/") {
+        if (
+          (e.target instanceof HTMLElement && e.target.isContentEditable) ||
+          e.target instanceof HTMLInputElement ||
+          e.target instanceof HTMLTextAreaElement ||
+          e.target instanceof HTMLSelectElement
+        ) {
+          return;
+        }
+
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   // Group suggestions by type
   const tokenSuggestions = suggestions.filter(
@@ -382,7 +396,7 @@ export function CommandMenu({ ...props }: DialogProps) {
       <Button
         variant="outline"
         className={cn(
-          "relative h-12 w-full max-w-[300px] mx-6 lg:mx-0 lg:min-w-[600px] justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12"
+          "relative h-12 w-full max-w-[300px] mx-6 lg:mx-0 lg:min-w-[600px] justify-start rounded-md bg-background text-sm font-normal text-muted-foreground shadow-none sm:pr-12 focus:outline-none focus:ring-0"
         )}
         onClick={() => setOpen(true)}
         ref={searchButtonRef}
@@ -405,194 +419,203 @@ export function CommandMenu({ ...props }: DialogProps) {
         <CommandInput
           placeholder="Search for accounts, transactions, tokens and programs..."
           onValueChange={handleOnValueChange}
-          value={inputValue}
+          value={search}
           ref={inputRef}
           onBlur={handleBlur}
           onFocus={handleFocus}
           withShortcut
+          onKeyPress={handleKeyPress}
         />
         <Separator />
         <ScrollArea className="max-h-[300px]" ref={scrollAreaRef}>
           <CommandList>
-            {loading && (
+            {loading || isSearching ? (
               <CommandLoading>
                 <Loading className="pb-4 mt-4" />
               </CommandLoading>
-            )}
-            {!loading && suggestions.length === 0 && (
+            ) : (
               <>
-                <CommandEmpty>No results found.</CommandEmpty>
-                {recentSearches.length > 0 && (
-                  <CommandGroup heading="Recent Searches">
-                    {recentSearches.map((search, index) => (
-                      <CommandItem
-                        key={`recent-${index}`}
-                        value={search.name}
-                        onSelect={() =>
-                          router.push(`/address/${search.address}/?cluster=${cluster}`)
-                        }
-                      >
-                        <span className="flex items-center gap-2 w-full">
-                          <ClockIcon className="h-5 w-5 text-muted-foreground" />
-                          <span className="md:flex-grow truncate">
-                            {search.name}
-                          </span>
-                          <button
-                            className="md:ml-auto p-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              clearRecentSearch(search);
-                            }}
+                {suggestions.length === 0 && (
+                  <>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    {recentSearches.length > 0 && (
+                      <CommandGroup heading="Recent Searches">
+                        {recentSearches.map((search, index) => (
+                          <CommandItem
+                            key={`recent-${index}`}
+                            value={search.name}
+                            onSelect={() =>
+                              router.push(`/address/${search.address}/?cluster=${cluster}`)
+                            }
                           >
-                            <XIcon className="h-4 w-4" />
-                          </button>
+                            <span className="flex items-center gap-2 w-full">
+                              <ClockIcon className="h-5 w-5 text-muted-foreground" />
+                              <span className="md:flex-grow truncate">
+                                {search.name}
+                              </span>
+                              <button
+                                className="md:ml-auto p-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  clearRecentSearch(search);
+                                }}
+                              >
+                                  <XIcon className="h-4 w-4" />
+                              </button>
+                            </span>
+                          </CommandItem>
+                        ))}
+                        <CommandItem
+                          key="clear-all-recent"
+                          onSelect={clearAllRecentSearches}
+                          className="text-red-500"
+                        >
+                          Clear All
+                        </CommandItem>
+                      </CommandGroup>
+                    )}
+                  </>
+                )}
+                {tokenSuggestions.length > 0 && (
+                  <CommandGroup heading="Token">
+                    {tokenSuggestions.map((suggestion, index) => (
+                      <CommandItem
+                        key={`token-${index}`}
+                        value={suggestion.symbol || suggestion.name}
+                        onSelect={() => handleSelectOption(suggestion)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="flex-shrink-0">{suggestion.icon}</span>
+                          <span className="flex flex-col">
+                            <span className="flex items-center gap-1">
+                              <span className="truncate">{suggestion.name}</span>
+                              {suggestion.symbol && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({suggestion.symbol})
+                                </span>
+                              )}
+                            </span>
+                            {suggestion.address && (
+                              <span className="text-xs text-muted-foreground truncate">
+                                {suggestion.address}
+                              </span>
+                            )}
+                          </span>
                         </span>
                       </CommandItem>
                     ))}
-                    <CommandItem
-                      key="clear-all-recent"
-                      onSelect={clearAllRecentSearches}
-                      className="text-red-500"
-                    >
-                      Clear All
-                    </CommandItem>
+                  </CommandGroup>
+                )}
+                {accountSuggestions.length > 0 && (
+                  <CommandGroup heading="Account">
+                    {accountSuggestions.map((suggestion, index) => (
+                      <CommandItem
+                        key={`account-${index}`}
+                        value={suggestion.name}
+                        onSelect={() => handleSelectOption(suggestion)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="flex-shrink-0">{suggestion.icon}</span>
+                          <span className="flex flex-col">
+                            <span className="flex items-center gap-1">
+                              <span className="truncate">{suggestion.name}</span>
+                            </span>
+                            {suggestion.address && (
+                              <span className="text-xs text-muted-foreground truncate">
+                                {suggestion.address}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+                {transactionSuggestions.length > 0 && (
+                  <CommandGroup heading="Transaction">
+                    {transactionSuggestions.map((suggestion, index) => (
+                      <CommandItem
+                        key={`transaction-${index}`}
+                        value={suggestion.name}
+                        onSelect={() => handleSelectOption(suggestion)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="flex-shrink-0">{suggestion.icon}</span>
+                          <span className="flex flex-col">
+                            <span className="flex items-center gap-1">
+                              <span className="truncate">{suggestion.name}</span>
+                            </span>
+                            {suggestion.address && (
+                              <span className="text-xs text-muted-foreground truncate">
+                                {suggestion.address}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+                {programSuggestions.length > 0 && (
+                  <CommandGroup heading="Program">
+                    {programSuggestions.map((suggestion, index) => (
+                      <CommandItem
+                        key={`program-${index}`}
+                        value={suggestion.name}
+                        onSelect={() => handleSelectOption(suggestion)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="flex-shrink-0">{suggestion.icon}</span>
+                          <span className="flex flex-col">
+                            <span className="flex items-center gap-1">
+                              <span className="truncate">{suggestion.name}</span>
+                            </span>
+                            {suggestion.address && (
+                              <span className="text-xs text-muted-foreground truncate">
+                                {suggestion.address}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+                {domainSuggestions.length > 0 && (
+                  <CommandGroup heading="Domain">
+                    {domainSuggestions.map((suggestion, index) => (
+                      <CommandItem
+                        key={`domain-${index}`}
+                        value={suggestion.name}
+                        onSelect={() => handleSelectOption(suggestion)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="flex-shrink-0">{suggestion.icon}</span>
+                          <span className="flex flex-col">
+                            <span className="flex items-center gap-1">
+                              <span className="truncate">{suggestion.name}</span>
+                            </span>
+                            {suggestion.address && (
+                              <span className="text-xs text-muted-foreground truncate">
+                                {suggestion.address}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                      </CommandItem>
+                    ))}
                   </CommandGroup>
                 )}
               </>
             )}
-            {tokenSuggestions.length > 0 && (
-              <CommandGroup heading="Token">
-                {tokenSuggestions.map((suggestion, index) => (
-                  <CommandItem
-                    key={`token-${index}`}
-                    value={suggestion.symbol || suggestion.name}
-                    onSelect={() => handleSelectOption(suggestion)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="flex-shrink-0">{suggestion.icon}</span>
-                      <span className="flex flex-col">
-                        <span className="flex items-center gap-1">
-                          <span className="truncate">{suggestion.name}</span>
-                          {suggestion.symbol && (
-                            <span className="text-xs text-muted-foreground">
-                              ({suggestion.symbol})
-                            </span>
-                          )}
-                        </span>
-                        {suggestion.address && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {suggestion.address}
-                          </span>
-                        )}
-                      </span>
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-            {accountSuggestions.length > 0 && (
-              <CommandGroup heading="Account">
-                {accountSuggestions.map((suggestion, index) => (
-                  <CommandItem
-                    key={`account-${index}`}
-                    value={suggestion.name}
-                    onSelect={() => handleSelectOption(suggestion)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="flex-shrink-0">{suggestion.icon}</span>
-                      <span className="flex flex-col">
-                        <span className="flex items-center gap-1">
-                          <span className="truncate">{suggestion.name}</span>
-                        </span>
-                        {suggestion.address && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {suggestion.address}
-                          </span>
-                        )}
-                      </span>
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-            {transactionSuggestions.length > 0 && (
-              <CommandGroup heading="Transaction">
-                {transactionSuggestions.map((suggestion, index) => (
-                  <CommandItem
-                    key={`transaction-${index}`}
-                    value={suggestion.name}
-                    onSelect={() => handleSelectOption(suggestion)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="flex-shrink-0">{suggestion.icon}</span>
-                      <span className="flex flex-col">
-                        <span className="flex items-center gap-1">
-                          <span className="truncate">{suggestion.name}</span>
-                        </span>
-                        {suggestion.address && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {suggestion.address}
-                          </span>
-                        )}
-                      </span>
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-            {programSuggestions.length > 0 && (
-              <CommandGroup heading="Program">
-                {programSuggestions.map((suggestion, index) => (
-                  <CommandItem
-                    key={`program-${index}`}
-                    value={suggestion.name}
-                    onSelect={() => handleSelectOption(suggestion)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="flex-shrink-0">{suggestion.icon}</span>
-                      <span className="flex flex-col">
-                        <span className="flex items-center gap-1">
-                          <span className="truncate">{suggestion.name}</span>
-                        </span>
-                        {suggestion.address && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {suggestion.address}
-                          </span>
-                        )}
-                      </span>
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-            {domainSuggestions.length > 0 && (
-              <CommandGroup heading="Domain">
-                {domainSuggestions.map((suggestion, index) => (
-                  <CommandItem
-                    key={`domain-${index}`}
-                    value={suggestion.name}
-                    onSelect={() => handleSelectOption(suggestion)}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="flex-shrink-0">{suggestion.icon}</span>
-                      <span className="flex flex-col">
-                        <span className="flex items-center gap-1">
-                          <span className="truncate">{suggestion.name}</span>
-                        </span>
-                        {suggestion.address && (
-                          <span className="text-xs text-muted-foreground truncate">
-                            {suggestion.address}
-                          </span>
-                        )}
-                      </span>
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
           </CommandList>
         </ScrollArea>
       </CommandDialog>
+      {isSearching && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background bg-opacity-50">
+          <Loading />
+        </div>
+      )}
     </>
   );
 }

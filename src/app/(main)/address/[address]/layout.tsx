@@ -70,6 +70,11 @@ export default function AddressLayout({
         name: "NFTs",
         href: `/address/${address}/nfts`,
       });
+
+      newTabs.push({
+        name: "Domains",
+        href: `/address/${address}/domains`,
+      });
     }
 
     if (compressedAccount.data) {

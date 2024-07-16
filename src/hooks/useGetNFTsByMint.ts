@@ -1,0 +1,167 @@
+import { useCluster } from "@/providers/cluster-provider";
+import { DAS, Interface } from "@/types/helius-sdk";
+import { NFT } from "@/types/nft";
+import { Cluster } from "@/utils/cluster";
+import {
+  TokenStandard,
+  fetchAllDigitalAssetWithTokenByOwner,
+  mplTokenMetadata,
+} from "@metaplex-foundation/mpl-token-metadata";
+import { publicKey, unwrapOption } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { PublicKey } from "@solana/web3.js";
+import { useQuery } from "@tanstack/react-query";
+
+export function useGetNFTsByMint(mint: string, enabled: boolean = true) {
+  const { cluster, endpoint } = useCluster();
+
+  return useQuery<NFT | null, Error>({
+    queryKey: [cluster, endpoint, "getNFTsByMint", mint],
+    queryFn: async () => {
+      let nft: NFT | null = null;
+
+      try {
+        if ([Cluster.MainnetBeta, Cluster.Devnet].includes(cluster)) {
+          nft = await getNFTByMintDAS(mint, endpoint);
+        } else {
+          nft = await getNFTByMintMetaplex(mint, endpoint);
+        }
+
+        console.log("Fetched NFT data from API:", nft); // Log the fetched NFT data
+        return nft;
+      } catch (error) {
+        console.error("Error fetching NFT data:", error);
+        throw error; // Rethrow the error to let react-query handle it
+      }
+    },
+    enabled,
+  });
+}
+
+async function getNFTByMintDAS(
+  mint: string,
+  endpoint: string,
+): Promise<NFT | null> {
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getAsset",
+        params: {
+          id: mint,
+          options: {
+            showFungible: false,
+            showUnverifiedCollections: true,
+            showCollectionMetadata: true,
+            showInscription: true,
+          },
+        },
+      }),
+    });
+
+    const data: { result: DAS.GetAssetResponse } = await response.json();
+    console.log("Full response from DAS API:", data); // Log the full response
+
+    const item = data.result;
+
+    if (!item) {
+      console.error("No item found in the result:", data.result);
+      return null;
+    }
+
+    if (
+      [
+        Interface.V1NFT,
+        Interface.V2NFT,
+        Interface.PROGRAMMABLENFT,
+        Interface.LEGACYNFT,
+        Interface.V1PRINT,
+      ].includes(item.interface)
+    ) {
+      const nft: NFT = {
+        raw: item,
+        mint: new PublicKey(item.id),
+        name: item.content?.metadata?.name || "Unnamed NFT",
+        image: item.content?.links?.image || "",
+        description: item.content?.metadata?.description || "",
+        owner: item.ownership?.owner || "",
+        mintAuthority: item.token_info?.mint_authority || "",
+        updateAuthority:
+          item.mint_extensions?.metadata_pointer?.authority || "",
+        collection:
+          item.grouping?.find((group) => group.group_key === "collection")
+            ?.group_value || "",
+        tokenStandard: item.content?.metadata?.token_standard || "",
+        creators: item.creators || [],
+        attributes: item.content?.metadata?.attributes || [],
+        verified: item.creators?.some((creator) => creator.verified) || false,
+        value: item.token_info?.price_info?.price_per_token || 0,
+      };
+      return nft;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching NFT data from DAS:", error);
+    return null;
+  }
+}
+
+async function getNFTByMintMetaplex(
+  mint: string,
+  endpoint: string,
+): Promise<NFT | null> {
+  const umi = createUmi(endpoint).use(mplTokenMetadata());
+
+  const assets = await fetchAllDigitalAssetWithTokenByOwner(
+    umi,
+    publicKey(mint),
+    {
+      tokenStrategy: "getProgramAccounts",
+    },
+  );
+
+  const item = assets.find(
+    (item: any) =>
+      unwrapOption(item.metadata.tokenStandard) === TokenStandard.NonFungible &&
+      item.mint.publicKey.toBase58() === mint,
+  );
+
+  if (!item) return null;
+
+  const nft: NFT = {
+    raw: item,
+    mint: new PublicKey(item.mint.publicKey),
+    name: item.metadata.name || "Unnamed NFT",
+    image: item.metadata.uri || "",
+    verified:
+      unwrapOption(item.metadata.creators)?.some(
+        (creator: any) => creator.verified,
+      ) || false,
+  };
+
+  await fetchNftMetadata([nft]);
+
+  return nft;
+}
+
+const fetchNftMetadata = async (nfts: NFT[]) => {
+  const fetchMetadata = async (nft: NFT) => {
+    if (nft.raw.metadata.uri) {
+      try {
+        const response = await fetch(nft.raw.metadata.uri);
+        const externalMetadata = await response.json();
+        nft.image = externalMetadata.image;
+      } catch (error) {
+        console.error("Error fetching external metadata for NFT:", error);
+      }
+    }
+  };
+
+  await Promise.all(nfts.map(fetchMetadata));
+};
