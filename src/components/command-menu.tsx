@@ -17,7 +17,7 @@ import { DialogProps } from "@radix-ui/react-dialog";
 import { Connection } from "@solana/web3.js";
 import { useDebounce } from "@uidotdev/usehooks";
 import { CommandLoading, Command as CommandPrimitive } from "cmdk";
-import { ClockIcon, CogIcon, SearchIcon, XIcon } from "lucide-react";
+import { ClockIcon, CogIcon, SearchIcon, X, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -443,7 +443,26 @@ export function CommandMenu({ ...props }: DialogProps) {
           onFocus={handleFocus}
           withShortcut
         />
-        <div className="pointer-events-none absolute right-[1rem] top-[0.70rem] hidden h-6 w-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-[14px] font-medium opacity-80 sm:flex">
+        <button
+          className={cn(
+            "absolute right-[3rem] top-[0.70rem] select-none items-center justify-center rounded px-1.5",
+            inputValue && inputValue.length > 0 ? "flex" : "hidden",
+          )}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={() => {
+            handleOnValueChange("");
+          }}
+        >
+          <X className="h-6 w-6" />
+        </button>
+        <div
+          className={cn(
+            "pointer-events-none absolute right-[1rem] top-[0.70rem] hidden h-6 w-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-[14px] font-medium opacity-80 sm:flex",
+          )}
+        >
           {"/"}
         </div>
       </div>
