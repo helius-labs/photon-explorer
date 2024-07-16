@@ -6,7 +6,13 @@ import {
 } from "@/utils/parser";
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import { ArrowRight, ArrowRightLeftIcon, CircleHelp } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowRightLeftIcon,
+  CircleHelp,
+  Flame,
+  Printer,
+} from "lucide-react";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
@@ -21,10 +27,17 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
+  // console.log(
+  //   "In TransactionOverviewParsed:\n",
+  //   "Actions: ",
+  //   actions,
+  //   "Type:",
+  //   type,
+  // );
 
   return (
-    <Card className=" mx-auto w-full max-w-lg p-3">
-      <CardHeader className=" flex flex-row items-center  justify-between ">
+    <Card className="mx-auto w-full max-w-lg p-3">
+      <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-3">
           {type === ParserTransactionTypes.SWAP && (
             <ArrowRightLeftIcon className="h-6 w-6" />
@@ -34,6 +47,12 @@ export default function TransactionOverviewParsed({
           )}
           {type === ParserTransactionTypes.UNKNOWN && (
             <CircleHelp className="h-6 w-6" />
+          )}
+          {type === ParserTransactionTypes.BURN && (
+            <Flame className="h-6 w-6" />
+          )}
+          {type === ParserTransactionTypes.TOKEN_MINT && (
+            <Printer className="h-6 w-6" />
           )}
           <CardTitle className="text-2xl font-bold">{type}</CardTitle>
         </div>
@@ -85,7 +104,11 @@ export default function TransactionOverviewParsed({
                 <div className="flex items-center">
                   <span className="w-1/4 text-muted-foreground">To</span>
                   <span className="ml-2 w-3/4">
-                    <Address pubkey={new PublicKey(action.to!)} />
+                    {action.to ? (
+                      <Address pubkey={new PublicKey(action.to)} />
+                    ) : (
+                      "Unknown Address"
+                    )}
                   </span>
                 </div>
               </>
@@ -110,6 +133,32 @@ export default function TransactionOverviewParsed({
                     amount={action.amount}
                     decimals={action.decimals}
                     mint={new PublicKey(action.mint!)}
+                  />
+                </span>
+              </div>
+            )}
+            {action.actionType === ActionTypes.BURNT && (
+              <div className="flex items-center">
+                <span className="w-1/4 text-muted-foreground">BURNT</span>
+                <span className="ml-2 w-3/4">
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                  />
+                </span>
+              </div>
+            )}
+            {action.actionType === ActionTypes.MINT && (
+              <div className="flex items-center">
+                <span className="w-1/4 text-muted-foreground">MINT</span>
+                <span className="ml-2 w-3/4">
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
                   />
                 </span>
               </div>

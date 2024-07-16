@@ -37,21 +37,43 @@ export const parseSwap = (
   }
 
   const actions: TransactionAction[] = [];
+  // console.log("SWAP");
+  if ("swap" in events && events.swap !== null) {
+    const { swap } = events;
 
-  if ("swap" in events && "tokenInputs" in events.swap!) {
-    actions.push({
-      actionType: ActionTypes.SENT,
-      amount: Number(events.swap.tokenInputs[0].rawTokenAmount.tokenAmount),
-      mint: events.swap.tokenInputs[0].mint,
-      decimals: events.swap.tokenInputs[0].rawTokenAmount.decimals,
-    });
-  }
-  if ("swap" in events && "nativeOutput" in events.swap!) {
-    actions.push({
-      actionType: ActionTypes.RECEIVED,
-      amount: nativeTransfers[0].amount,
-      mint: SOL,
-    });
+    if ("tokenInputs" in swap && swap.tokenInputs.length > 0) {
+      actions.push({
+        actionType: ActionTypes.SENT,
+        amount: Number(swap.tokenInputs[0].rawTokenAmount.tokenAmount),
+        mint: swap.tokenInputs[0].mint,
+        decimals: swap.tokenInputs[0].rawTokenAmount.decimals,
+      });
+    }
+
+    if (swap.nativeOutput !== null) {
+      actions.push({
+        actionType: ActionTypes.RECEIVED,
+        amount: Number(swap.nativeOutput.amount),
+        mint: SOL,
+      });
+    }
+
+    if (swap.nativeInput !== null) {
+      actions.push({
+        actionType: ActionTypes.SENT,
+        amount: Number(swap.nativeInput.amount),
+        mint: SOL,
+      });
+    }
+
+    if ("tokenOutputs" in swap && swap.tokenOutputs.length > 0) {
+      actions.push({
+        actionType: ActionTypes.RECEIVED,
+        amount: Number(swap.tokenOutputs[0].rawTokenAmount.tokenAmount),
+        mint: swap.tokenOutputs[0].mint,
+        decimals: swap.tokenOutputs[0].rawTokenAmount.decimals,
+      });
+    }
   }
 
   return {
