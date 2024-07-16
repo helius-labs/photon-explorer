@@ -37,26 +37,27 @@ export const parseUnknown = (
     };
   }
 
-  const actions: TransactionAction[] = [];
-  nativeTransfers.forEach((transfer) => {
-    actions.push({
-      actionType: ActionTypes.TRANSFER,
-      from: transfer.fromUserAccount!,
-      to: transfer.toUserAccount!,
-      amount: transfer.amount,
-      mint: SOL,
-    });
-  });
+  //trying to add more details for unknown transactions
+  // const actions: TransactionAction[] = [];
+  // nativeTransfers.forEach((transfer) => {
+  //   actions.push({
+  //     actionType: ActionTypes.TRANSFER,
+  //     from: transfer.fromUserAccount!,
+  //     to: transfer.toUserAccount!,
+  //     amount: transfer.amount,
+  //     mint: SOL,
+  //   });
+  // });
 
-  tokenTransfers.forEach((transfer) => {
-    actions.push({
-      actionType: ActionTypes.TRANSFER,
-      from: transfer.fromUserAccount!,
-      to: transfer.toUserAccount!,
-      amount: transfer.tokenAmount,
-      mint: transfer.mint,
-    });
-  });
+  // tokenTransfers.forEach((transfer) => {
+  //   actions.push({
+  //     actionType: ActionTypes.TRANSFER,
+  //     from: transfer.fromUserAccount!,
+  //     to: transfer.toUserAccount!,
+  //     amount: transfer.tokenAmount,
+  //     mint: transfer.mint,
+  //   });
+  // });
 
   return {
     signature,
@@ -64,7 +65,7 @@ export const parseUnknown = (
     type: ParserTransactionTypes.UNKNOWN,
     source,
     timestamp,
-    actions: actions,
+    actions: [],
     description,
   };
 };
