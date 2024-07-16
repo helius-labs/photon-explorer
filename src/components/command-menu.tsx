@@ -571,7 +571,7 @@ export function CommandMenu({ ...props }: DialogProps) {
                   {tokenSuggestions.map((suggestion, index) => (
                     <CommandItem
                       key={`token-${index}`}
-                      value={`${suggestion.name} (${suggestion.symbol})`}
+                      value={`${suggestion.name} (${suggestion.symbol}) ${suggestion.address}`}
                       onMouseDown={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
