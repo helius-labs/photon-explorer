@@ -464,7 +464,7 @@ export function CommandMenu({ ...props }: DialogProps) {
     <CommandPrimitive onKeyDown={handleKeyDown}>
       <div
         className={cn(
-          "relative mx-6 inline-flex h-12 w-full min-w-[300px] items-center justify-center whitespace-nowrap rounded-lg border border-input px-4 py-2 text-sm font-medium text-muted-foreground shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12 lg:mx-0 lg:min-w-[500px]",
+          "relative inline-flex h-12 w-full items-center justify-center whitespace-nowrap rounded-lg border border-input px-4 py-2 text-sm font-medium text-muted-foreground shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
           open ? "rounded-none rounded-t-lg bg-popover" : "bg-background",
         )}
       >

@@ -41,7 +41,7 @@ export default function LatestNonVotingSignatures() {
           <DataTableColumnHeader
             column={column}
             title="Status"
-            className="hidden md:table-cell"
+            className="hidden sm:table-cell"
           />
         ),
         cell: ({ row }) => {
@@ -54,11 +54,11 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="hidden items-center justify-center md:flex md:justify-start">
+            <div className="hidden items-center justify-center sm:flex sm:justify-start">
               {status.icon && (
                 <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               )}
-              <span className="hidden md:inline">{status.label}</span>
+              <span className="hidden sm:inline">{status.label}</span>
             </div>
           );
         },
@@ -111,7 +111,7 @@ export default function LatestNonVotingSignatures() {
   }
 
   return (
-    <Card className="mx-auto mb-16 border md:mb-0" style={{ maxWidth: "90vw" }}>
+    <Card className="mx-auto mb-16 w-full border md:mb-0">
       <CardContent className="pt-4">
         <div className="mb-2 flex justify-center text-sm text-secondary">
           Recent transactions
@@ -119,17 +119,8 @@ export default function LatestNonVotingSignatures() {
         <div
           className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
         >
-          <div className="h-72 md:hidden">
-            <ScrollArea className="h-full">
-              <div className="flex justify-center">
-                <DataTable data={signatures!} columns={columns} />
-              </div>
-            </ScrollArea>
-          </div>
-          <div className="hidden md:block">
-            <div className="flex justify-center overflow-x-auto">
-              <DataTable data={signatures!} columns={columns} />
-            </div>
+          <div className="flex justify-center overflow-x-auto">
+            <DataTable data={signatures!} columns={columns} />
           </div>
         </div>
       </CardContent>

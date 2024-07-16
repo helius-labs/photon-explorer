@@ -25,7 +25,7 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      <div className="grid pt-20 md:pt-40">
+      <div className="grid px-4 pt-20 md:pt-40">
         <div className="flex flex-col items-center space-y-6 md:space-y-10">
           <h1 className="text-5xl font-bold md:text-9xl">XRAY</h1>
 
