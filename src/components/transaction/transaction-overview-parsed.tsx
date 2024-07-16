@@ -177,9 +177,6 @@ export default function TransactionOverviewParsed({
           <div className="flex w-3/4 items-center space-x-2">
             <Signature link={false} signature={signature} />
           </div>
-          <div className="flex w-3/4 items-center space-x-2">
-            <p>This has been parsed</p>
-          </div>
         </div>
       </CardContent>
     </Card>
