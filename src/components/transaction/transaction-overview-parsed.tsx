@@ -64,11 +64,13 @@ export default function TransactionOverviewParsed({
           </span>
         </div>
       </CardHeader>
-      <Separator className="mb-4" />
-      <div className="space-y-4">
-        <span className="text-sm">{description}</span>
-      </div>
-      <Separator className="my-4" />
+      <CardContent className="space-y-4">
+        <Separator className="mb-4" />
+        <div className="space-y-4">
+          <span className="text-sm">{description}</span>
+        </div>
+        <Separator className="my-4" />
+      </CardContent>
 
       <CardContent className="space-y-4">
         {actions.length === 0 && description ? (
