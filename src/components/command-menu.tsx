@@ -19,7 +19,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { CommandLoading, Command as CommandPrimitive } from "cmdk";
 import { ClockIcon, CogIcon, SearchIcon, X, XIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
@@ -393,9 +393,8 @@ export function CommandMenu({ ...props }: DialogProps) {
   const handleBlur = React.useCallback(() => {
     setTimeout(() => {
       setOpen(false);
-      setInputValue(search);
     }, 0);
-  }, [search]);
+  }, []);
 
   const handleFocus = React.useCallback(() => {
     setOpen(true);
@@ -482,7 +481,7 @@ export function CommandMenu({ ...props }: DialogProps) {
         <button
           className={cn(
             "absolute right-[3rem] top-[0.70rem] select-none items-center justify-center rounded px-1.5",
-            inputValue && inputValue.length > 0 ? "flex" : "hidden",
+            search && search.length > 0 ? "flex" : "hidden",
           )}
           onMouseDown={(event) => {
             event.preventDefault();
