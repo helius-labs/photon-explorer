@@ -48,21 +48,29 @@ export function useGetCompressionSignaturesForOwner(
 }
 
 export function useGetCompressionSignaturesForAccount(
-  hash: string,
+  address: string,
   enabled: boolean = true,
 ) {
   const { endpoint, compressionEndpoint } = useCluster();
 
   return useQuery({
-    queryKey: [compressionEndpoint, "getCompressionSignaturesForAccount", hash],
+    queryKey: [
+      compressionEndpoint,
+      "getCompressionSignaturesForAccount",
+      address,
+    ],
     queryFn: async () => {
       const connection = createRpc(endpoint, compressionEndpoint, undefined, {
         commitment: "processed",
       });
 
-      return await connection.getCompressionSignaturesForAccount(
-        createBN254(hash, "base58"),
-      );
+      try {
+        const hash = createBN254(address, "base58");
+        return await connection.getCompressionSignaturesForAccount(hash);
+      } catch (error) {
+        // If the address is not a valid base58 string, return null
+        return null;
+      }
     },
     enabled,
   });
@@ -148,8 +156,13 @@ export function useGetCompressedAccount(
         commitment: "processed",
       });
 
-      const hash = createBN254(address, "base58");
-      return await connection.getCompressedAccount(undefined, hash);
+      try {
+        const hash = createBN254(address, "base58");
+        return await connection.getCompressedAccount(undefined, hash);
+      } catch (error) {
+        // If the address is not a valid base58 string, return null
+        return null;
+      }
     },
     enabled,
   });

@@ -1,13 +1,12 @@
 "use client";
 
+import { cn } from "@/utils/common";
 import { type DialogProps } from "@radix-ui/react-dialog";
 import { Command as CommandPrimitive } from "cmdk";
+import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "@/utils/common";
-
 import { Dialog, DialogContent } from "@/components/ui/command-menu-dialog";
-import { SearchIcon } from "lucide-react";
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -30,7 +29,10 @@ interface CommandDialogProps extends DialogProps {
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden mt-[-48px] rounded-md p-1 lg:min-w-[600px]" triggerRef={props.triggerRef}>
+      <DialogContent
+        className="mt-[-48px] overflow-hidden rounded-md p-1 lg:min-w-[600px]"
+        triggerRef={props.triggerRef}
+      >
         <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>
@@ -41,14 +43,16 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
 
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & { withShortcut?: boolean }
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+    withShortcut?: boolean;
+  }
 >(({ className, withShortcut = false, ...props }, ref) => (
-  <div className="flex items-center px-3 mt-[-4px] relative" cmdk-input-wrapper="">
-    <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+  <div className="flex w-full items-center px-3" cmdk-input-wrapper="">
+    <SearchIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        "flex ml-8 h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "ml-6 flex w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}

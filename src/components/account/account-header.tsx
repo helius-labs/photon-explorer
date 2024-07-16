@@ -1,23 +1,28 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import Avatar from "boring-avatars";
-import Image from "next/image";
 import noImg from "@/../public/assets/noimg.svg";
-import solLogo from "@/../public/assets/solanaLogoMark.svg";
-import { MoreVertical } from "lucide-react";
+import { useCluster } from "@/providers/cluster-provider";
+import { AccountType } from "@/utils/account";
+import { fetchSolPrice, lamportsToSolString, shortenLong } from "@/utils/common";
+import cloudflareLoader from "@/utils/imageLoader";
 import {
   AccountInfo,
+  ConfirmedSignatureInfo,
   ParsedAccountData,
   PublicKey,
 } from "@solana/web3.js";
-import { useCluster } from "@/providers/cluster-provider";
-import cloudflareLoader from "@/utils/imageLoader";
-import { lamportsToSolString } from "@/utils/common";
+import Avatar from "boring-avatars";
+import { MoreVertical, CheckIcon, Copy } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
+import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
+import { getTokenPrices } from "@/server/getTokenPrice";
+import solLogo from "@/../public/assets/solanaLogoMark.svg";
+
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,139 +32,181 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AccountType, getAccountType } from "@/utils/account";
-
-const fetchSolPrice = async () => {
-  try {
-    const response = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
-    );
-    const data = await response.json();
-    return data.solana.usd;
-  } catch (error) {
-    console.error("Error fetching SOL price:", error);
-    return null;
-  }
-};
+import TokenDetails from "@/components/account/token-details";
+import NFTDetails from "@/components/account/nft-details";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function AccountHeader({
   address,
   accountInfo,
-  compressedAccount
+  signatures,
+  accountType,
 }: {
   address: PublicKey;
-  accountInfo: AccountInfo<Buffer | ParsedAccountData>;
-  compressedAccount: any; // Add appropriate type for compressedAccount
+  accountInfo: AccountInfo<Buffer | ParsedAccountData> | null;
+  signatures: ConfirmedSignatureInfo[];
+  accountType: AccountType;
 }) {
   const [solPrice, setSolPrice] = useState<number | null>(null);
+  const [tokenPrice, setTokenPrice] = useState<number | null>(null);
   const router = useRouter();
   const { endpoint, cluster } = useCluster();
+  const [hasCopied, setHasCopied] = useState(false);
 
-  const accountType = useMemo(() => getAccountType(accountInfo), [accountInfo]);
-
-  // Fetch compressed balance for the address
-  const { data: compressedBalance } = useGetCompressedBalanceByOwner(
-    address.toBase58(),
-  );
-
-  // Use the custom hook to fetch all domain names
-  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
-    address.toBase58(),
-    endpoint
-  );
-
-  // Fetch the token list
-  const { data: tokenList, isLoading: tokenListLoading } =
-    useGetTokenListStrict();
-
-  // Determine the type of account and token name if applicable
-  const accountDetails = useMemo(() => {
-    const addressStr = address.toBase58();
-    let type: string | null = null;
-    let name: string | null = null;
-    let imageURI: string | null = null;
-
-    if (tokenList) {
-      const token = tokenList.find((token) => token.address === addressStr);
-      if (token) {
-        type = "Token";
-        name = token.name || null;
-        imageURI = token.logoURI || null;
-      }
-    }
-
-    return { tokenName: name, tokenImageURI: imageURI };
-  }, [address, tokenList]);
+  const { data: compressedBalance } = useGetCompressedBalanceByOwner(address.toBase58());
+  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(address.toBase58(), endpoint);
+  const { data: tokenList } = useGetTokenListStrict();
+  const { data: nftData } = useGetNFTsByMint(address.toBase58(), true);
 
   useEffect(() => {
     const getSolPrice = async () => {
       const price = await fetchSolPrice();
       setSolPrice(price);
     };
-
     getSolPrice();
   }, []);
 
-  const solBalance = accountInfo.lamports
-    ? parseFloat(lamportsToSolString(accountInfo.lamports, 2))
-    : 0;
+  useEffect(() => {
+    if (accountType === AccountType.Token && tokenList) {
+      const addressStr = address.toBase58();
+      const token = tokenList.find((token) => token.address === addressStr);
+      if (token) {
+        getTokenPrices([token.address]).then((prices) => {
+          const tokenPrice = prices?.data[token.address]?.price || null;
+          setTokenPrice(tokenPrice);
+        });
+      }
+    }
+  }, [accountType, address, tokenList]);
+
+  const solBalance = accountInfo?.lamports ? parseFloat(lamportsToSolString(accountInfo.lamports, 2)) : 0;
   const solBalanceUSD = solPrice ? (solBalance * solPrice).toFixed(2) : null;
+
+  const tokenDetails = useMemo(() => {
+    const addressStr = address.toBase58();
+    let name: string | null = null;
+    let imageURI: string | null = null;
+    let symbol: string | null = null;
+    let decimals: number | null = null;
+
+    if (tokenList) {
+      const token = tokenList.find((token) => token.address === addressStr);
+      if (token) {
+        name = token.name || null;
+        imageURI = token.logoURI || null;
+        symbol = token.symbol || null;
+        decimals = token.decimals || null;
+      }
+    }
+
+    return { tokenName: name, tokenImageURI: imageURI, tokenSymbol: symbol, tokenDecimals: decimals };
+  }, [address, tokenList]);
+
+  const displayName = tokenDetails.tokenName || nftData?.name;
+  const displayImage = tokenDetails.tokenImageURI || nftData?.image;
+  const fallbackAddress = address.toBase58();
+
+  useEffect(() => {
+    if (hasCopied) {
+      const timer = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCopied]);
 
   return (
     <div className="mb-8 flex flex-col items-center gap-4 md:flex-row">
-      {accountDetails.tokenImageURI ? (
-        <Image
-          loader={cloudflareLoader}
-          src={accountDetails.tokenImageURI}
-          alt={accountDetails.tokenName || "Token"}
-          width={128}
-          height={128}
-          loading="eager"
-          className="h-16 w-16 rounded-full"
-          onError={(event: any) => {
-            event.target.id = "noimg";
-            event.target.srcset = noImg.src;
-          }}
-        />
-      ) : (
-        <Avatar
-          size={80}
-          name={address.toBase58()}
-          variant="marble"
-          colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
-        />
-      )}
-      <div className="grid gap-2">
+      <div className="flex-shrink-0">
+        {displayImage ? (
+          <Image
+            loader={cloudflareLoader}
+            src={displayImage}
+            alt={displayName || "Asset"}
+            width={80}
+            height={80}
+            loading="eager"
+            className="h-18 w-18 rounded-full"
+            onError={(event: any) => {
+              event.target.id = "noimg";
+              event.target.srcset = noImg.src;
+            }}
+          />
+        ) : (
+          <Avatar
+            size={80}
+            name={fallbackAddress}
+            variant="marble"
+            colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
+          />
+        )}
+      </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
         <div className="text-center text-3xl font-medium leading-none md:text-left">
           <div className="flex items-center justify-center gap-2 md:justify-start">
-            {accountDetails.tokenName || <Address pubkey={address} />}
+            {displayName || <Address pubkey={address} short />}
             {accountType && <Badge variant="success">{accountType}</Badge>}
           </div>
-        </div>
-        <div className="flex flex-col items-center gap-2 md:flex-row">
-          {accountInfo ? (
-            <>
-              <div className="flex flex-col items-center text-lg text-muted-foreground">
-                <span className="flex items-center">
-                  <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                    <Image
-                      src={solLogo}
-                      alt="SOL logo"
-                      loading="eager"
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                  {`${lamportsToSolString(accountInfo.lamports, 2)} SOL`}
-                  </span>
+          {accountType === AccountType.MetaplexNFT && nftData && (
+            <div className="text-xs w-[320px] text-muted-foreground mt-2 md:mt-1">
+              <span>{nftData.description || "N/A"}</span>
+            </div>
+          )}
+          {accountType === AccountType.Token && (
+            <div className="text-sm text-muted-foreground mt-2 md:mt-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
+                      onClick={() => {
+                        navigator.clipboard.writeText(address.toBase58());
+                        setHasCopied(true);
+                      }}
+                    >
+                      <span className="sr-only">Copy</span>
+                      {hasCopied ? <CheckIcon /> : <Copy />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Copy address</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>{shortenLong(address.toBase58())}</span>
+                  </TooltipTrigger>
+                  <TooltipContent>{address.toBase58()}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+          {accountType === AccountType.Wallet && accountInfo && (
+            <div className="flex flex-col items-center md:items-start gap-2 text-lg text-muted-foreground mt-4 md:mt-1">
+              <div className="flex items-center">
+                <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                  <Image
+                    src={solLogo}
+                    alt="SOL logo"
+                    loading="eager"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+                <span>{`${lamportsToSolString(accountInfo.lamports, 2)} SOL`}</span>
                 {solBalanceUSD && (
-                  <span className="ml-0 mt-1 text-xs text-muted-foreground opacity-80 md:ml-6 md:mt-0">
+                  <span className="ml-4 text-sm text-muted-foreground opacity-80">
                     ${solBalanceUSD} USD
                   </span>
                 )}
               </div>
               {compressedBalance && compressedBalance.value && (
-                <span className="flex items-center text-lg text-muted-foreground">
+                <div className="flex items-center">
                   <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
                     <Image
                       src={solLogo}
@@ -173,7 +220,7 @@ export function AccountHeader({
                     compressedBalance.value,
                     2,
                   )} COMPRESSED SOL`}
-                </span>
+                </div>
               )}
               {!loadingDomains && userDomains && userDomains.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -186,15 +233,24 @@ export function AccountHeader({
                   ))}
                 </div>
               )}
-            </>
-          ) : (
-            <span className="text-lg text-muted-foreground">
-              Account does not exist
-            </span>
+            </div>
           )}
         </div>
+        {accountType === AccountType.Token && (
+          <div className="mt-4 md:mt-0 flex flex-grow justify-center">
+            <TokenDetails
+              tokenDetails={tokenDetails}
+              tokenPrice={tokenPrice}
+            />
+          </div>
+        )}
+        {accountType === AccountType.MetaplexNFT && nftData && (
+          <div className="mt-4 md:mt-0 flex flex-grow justify-center">
+            <NFTDetails nft={nftData} />
+          </div>
+        )}
       </div>
-      <div className="ml-auto self-start font-medium">
+      <div className="ml-auto self-start font-medium mt-4 md:mt-0">
         <div className="ml-auto flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -206,9 +262,7 @@ export function AccountHeader({
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => {
-                  router.push(
-                    `/address/${address.toBase58()}/compressed-accounts?cluster=${cluster}`,
-                  );
+                  router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${cluster}`);
                 }}
               >
                 Compressed Accounts

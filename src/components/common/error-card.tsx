@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Card, CardContent } from "../ui/card";
+
 export function ErrorCard({
   retry,
   retryText,
@@ -13,13 +15,13 @@ export function ErrorCard({
 }) {
   const buttonText = retryText || "Try Again";
   return (
-    <div className="card">
-      <div className="card-body text-center">
+    <Card>
+      <CardContent className="pt-6">
         {text}
         {retry && (
           <>
             <span
-              className="btn btn-white ms-3 d-none d-md-inline"
+              className="btn btn-white d-none d-md-inline ms-3"
               onClick={retry}
             >
               {buttonText}
@@ -37,7 +39,7 @@ export function ErrorCard({
             )}
           </>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

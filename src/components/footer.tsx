@@ -1,12 +1,13 @@
-import * as React from "react";
-import {
-  IconTwitterX,
-  IconGithub,
-  IconYoutube,
-  IconDiscord,
-  IconBook
-} from "@/components/Icons";
 import Link from "next/link";
+import * as React from "react";
+
+import {
+  IconBook,
+  IconDiscord,
+  IconGithub,
+  IconTwitterX,
+  IconYoutube,
+} from "@/components/Icons";
 
 const footerLinks = [
   {
@@ -33,7 +34,7 @@ const footerLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-background shadow fixed bottom-0 w-full p-2 flex items-center justify-between z-20">
+    <footer className="sticky bottom-0 top-[100vh] z-20 flex w-full items-center justify-between bg-background p-2 shadow">
       <div className="flex items-center">
         <p className="text-sm leading-loose text-muted-foreground">
           Powered by{" "}
@@ -49,7 +50,7 @@ export const Footer = () => {
         </p>
       </div>
       <nav className="flex justify-end">
-        <ul className="flex gap-4 list-none p-0 m-0">
+        <ul className="m-0 flex list-none gap-4 p-0">
           {footerLinks.map((link, index) => (
             <li key={index}>
               <Link

@@ -1,14 +1,17 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
-import { AccountType, getAccountType, createEmptyAccountInfo } from "@/utils/account";
+import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
 import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
-import { useGetCompressedAccount } from "@/hooks/compression";
-import { useGetAccountInfo } from "@/hooks/web3";
+import {
+  useGetCompressedAccount,
+  useGetCompressionSignaturesForAccount,
+} from "@/hooks/compression";
+import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import { AccountHeader } from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
@@ -27,23 +30,37 @@ export default function AddressLayout({
   const { cluster } = useCluster();
   const pathname = usePathname();
 
-  // Fetch account data
+  // Fetch 1 signature to check if the address has been used
+  const signatures = useGetSignaturesForAddress(address, 1);
+
+  // Fetch account info can be null if the address is not used or the account has been closed
   const accountInfo = useGetAccountInfo(address);
 
-  // Fetch compressed account data
+  // Fetch 1 compression signature to check if the address has been used
+  const compressedSignatures = useGetCompressionSignaturesForAccount(address);
+
+  // Fetch account info can be null if the address is not used or the account has been closed
   const compressedAccount = useGetCompressedAccount(address);
 
   const accountType = useMemo(() => {
-    if (accountInfo.data?.value) {
-      return getAccountType(accountInfo.data.value);
+    if (
+      accountInfo.data &&
+      accountInfo.data.value !== undefined &&
+      signatures.data !== undefined
+    ) {
+      return getAccountType(accountInfo.data.value, signatures.data);
     }
     return AccountType.Unknown;
-  }, [accountInfo.data]);
+  }, [accountInfo.data, signatures.data]);
 
+  // TODO: Create better logic for the tabs based on the account type
   const tabs: Tab[] = useMemo(() => {
     const newTabs: Tab[] = [];
 
-    if (accountType === AccountType.Wallet || accountType === AccountType.Unknown) {
+    if (
+      accountType === AccountType.Wallet ||
+      accountType === AccountType.Closed
+    ) {
       newTabs.push({
         name: "Tokens",
         href: `/address/${address}/tokens`,
@@ -53,12 +70,10 @@ export default function AddressLayout({
         name: "NFTs",
         href: `/address/${address}/nfts`,
       });
-    }
 
-    if (accountType !== AccountType.Unknown) {
       newTabs.push({
-        name: "History",
-        href: `/address/${address}/history`,
+        name: "Domains",
+        href: `/address/${address}/domains`,
       });
     }
 
@@ -66,6 +81,11 @@ export default function AddressLayout({
       newTabs.push({
         name: "History",
         href: `/address/${address}/history-compressed`,
+      });
+    } else {
+      newTabs.push({
+        name: "History",
+        href: `/address/${address}/history`,
       });
     }
 
@@ -80,33 +100,74 @@ export default function AddressLayout({
     return newTabs;
   }, [accountType, compressedAccount.data, address, pathname]);
 
+  // Route to the correct tab based on the account type
   useEffect(() => {
     if (pathname === `/address/${address}`) {
       // Change the URL state to the appropriate tab based on the account type
-      if (accountType === AccountType.Wallet || accountType === AccountType.Unknown) {
+      if (
+        accountType === AccountType.Wallet ||
+        accountType === AccountType.Closed
+      ) {
         router.replace(`${pathname}/tokens?cluster=${cluster}`);
-      } else if (accountType === AccountType.Token) {
+      } else if (
+        accountType === AccountType.Token ||
+        accountType === AccountType.Program ||
+        accountType === AccountType.MetaplexNFT
+      ) {
         router.replace(`${pathname}/history?cluster=${cluster}`);
-      } else if (compressedAccount.data) {
+      }
+    }
+  }, [accountType, address, cluster, pathname, router]);
+
+  // Route to the correct tab based on the compressed account data
+  useEffect(() => {
+    if (pathname === `/address/${address}`) {
+      if (
+        compressedSignatures.data &&
+        compressedSignatures.data.length > 0 &&
+        compressedAccount.data !== undefined
+      ) {
         router.replace(`${pathname}/history-compressed?cluster=${cluster}`);
       }
     }
-  }, [accountType, compressedAccount.data, address, cluster, pathname, router]);
+  }, [
+    compressedAccount.data,
+    compressedSignatures.data,
+    address,
+    cluster,
+    pathname,
+    router,
+  ]);
 
   // Check if the address is valid
   if (!isSolanaAccountAddress(address)) {
-    console.error("Invalid address:", address);
     return <ErrorCard text="Invalid address" />;
   }
 
-  if (accountInfo.isError) {
-    console.error("Error fetching account info:", accountInfo.error);
+  if (
+    signatures.isError ||
+    accountInfo.isError ||
+    compressedAccount.isError ||
+    compressedSignatures.isError
+  ) {
     return (
-      <ErrorCard text="Invalid connection, check your config and try again." />
+      <ErrorCard
+        text={`Error fetching data please try again: ${
+          signatures.error?.message ||
+          accountInfo.error?.message ||
+          compressedAccount.error?.message ||
+          compressedSignatures.error?.message
+        }`}
+      />
     );
   }
 
-  if (accountInfo.isLoading) {
+  if (
+    signatures.isLoading ||
+    accountInfo.isLoading ||
+    compressedAccount.isLoading ||
+    compressedSignatures.isLoading
+  ) {
     return (
       <div>
         <div className="mb-8 flex flex-row items-center gap-4">
@@ -129,35 +190,34 @@ export default function AddressLayout({
     );
   }
 
-  // Add logging to understand the data structure
-  console.log("Account Info Data:", accountInfo.data);
-  console.log("Compressed Account Data:", compressedAccount.data);
-
-  const accountData: AccountInfo<Buffer | ParsedAccountData> = accountInfo.data?.value ?? createEmptyAccountInfo(new PublicKey(address));
-
   return (
     <>
-      {(accountInfo.data || compressedAccount.data) ? (
+      {signatures.data &&
+      signatures.data.length > 0 &&
+      accountInfo.data !== undefined ? (
         <>
           <AccountHeader
             address={new PublicKey(address)}
-            accountInfo={accountData}
-            compressedAccount={compressedAccount.data ?? null}
-            />
-            <TabNav tabs={tabs} />
-            {children}
-          </>
-        ) : compressedAccount.data ? (
-          <>
-            <CompressionHeader
-              address={new PublicKey(address)}
-              compressedAccount={compressedAccount.data}
-            />
-            <TabNav tabs={tabs} />
-            {children}
+            accountInfo={accountInfo.data.value}
+            signatures={signatures.data}
+            accountType={accountType}
+          />
+          <TabNav tabs={tabs} />
+          {children}
+        </>
+      ) : compressedSignatures.data &&
+        compressedSignatures.data.length > 0 &&
+        compressedAccount.data !== undefined ? (
+        <>
+          <CompressionHeader
+            address={new PublicKey(address)}
+            compressedAccount={compressedAccount.data}
+          />
+          <TabNav tabs={tabs} />
+          {children}
         </>
       ) : (
-        <ErrorCard text="Address not found" />
+        <ErrorCard text="Address not found on chain" />
       )}
     </>
   );

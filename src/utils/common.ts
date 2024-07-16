@@ -161,3 +161,11 @@ export function dateFormat(unixTimestamp: number): string {
     timeZone: "UTC",
   });
 }
+
+export function fetchSolPrice(): Promise<number> {
+  return fetch(
+    "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
+  )
+    .then((response) => response.json())
+    .then((data) => data.solana.usd);
+}
