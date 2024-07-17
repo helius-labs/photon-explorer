@@ -11,6 +11,15 @@ export type Creators = {
   verified: boolean;
 };
 
+export interface Royalty {
+  royalty_model: string;
+  target?: string;
+  percent: number;
+  basis_points: number;
+  primary_sale_happened: boolean;
+  locked: boolean;
+}
+
 export type NFT = {
   raw: any;
   mint: PublicKey;
@@ -26,4 +35,5 @@ export type NFT = {
   attributes?: Attribute[];
   verified?: boolean;
   value?: number;
+  royalty?: Royalty;
 };

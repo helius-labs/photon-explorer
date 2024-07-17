@@ -1,6 +1,6 @@
 "use client";
 
-import noImg from "@/../public/assets/noimg.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { useCluster } from "@/providers/cluster-provider";
 import { Cluster } from "@/utils/cluster";
 import {
@@ -160,15 +160,15 @@ const fetchSuggestions = async (
           icon: (
             <Image
               loader={cloudflareLoader}
-              src={token.logoURI || noImg.src}
+              src={token.logoURI || noLogoImg.src}
               alt={token.name}
               width={40}
               height={40}
               className="rounded-full"
               loading="eager"
               onError={(event: any) => {
-                event.target.id = "noImg";
-                event.target.srcset = noImg.src;
+                event.target.id = "noLogoImg";
+                event.target.srcset = noLogoImg.src;
               }}
             />
           ),

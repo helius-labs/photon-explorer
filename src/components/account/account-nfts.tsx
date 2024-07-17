@@ -1,6 +1,6 @@
 "use client";
 
-import noImg from "@/../public/assets/noimg.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
@@ -42,7 +42,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
       header: "Image",
       accessorKey: "content.links.image",
       cell: ({ getValue, row }) => {
-        const imageUrl = getValue<string>() || noImg.src;
+        const imageUrl = getValue<string>() || noLogoImg.src;
         return (
           <div className="group relative">
             <Image
