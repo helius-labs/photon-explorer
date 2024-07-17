@@ -13,7 +13,7 @@ import {
 } from "@/hooks/compression";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
-import { AccountHeader } from "@/components/account/account-header";
+import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";

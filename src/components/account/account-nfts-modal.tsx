@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import noImg from "@/../public/assets/noimg.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { Button } from "@/components/ui/button";
 import cloudflareLoader from "@/utils/imageLoader";
 import { X } from "lucide-react";
@@ -52,7 +52,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
   if (!nft) return null;
 
   // Determine the token image URL
-  const tokenImage = nft.image || noImg.src;
+  const tokenImage = nft.image || noLogoImg.src;
 
   // Extract the update authority, handle case where it might be missing
   const updateAuthority = nft.updateAuthority || "N/A";
@@ -80,8 +80,8 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 className="rounded-lg shadow-md"
                 loading="eager"
                 onError={(event: any) => {
-                  event.target.id = "noimg";
-                  event.target.srcset = noImg.src;
+                  event.target.id = "noLogoImg";
+                  event.target.srcset = noLogoImg.src;
                 }}
               />
             </div>

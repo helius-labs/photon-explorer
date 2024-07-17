@@ -2,7 +2,7 @@
 
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
-import noImg from "@/../public/assets/noimg.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { Token } from "@/types/token";
 import { normalizeTokenAmount } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
@@ -27,14 +27,14 @@ const columns: ColumnDef<Token>[] = [
         <div className="flex items-center md:w-60">
           <Image
             loader={cloudflareLoader}
-            src={row.original.logoURI || noImg.src}
+            src={row.original.logoURI || noLogoImg.src}
             alt={tokenName}
             width={96}
             height={96}
             loading="eager"
             onError={(event: any) => {
-              event.target.id = "noimg";
-              event.target.srcset = noImg.src;
+              event.target.id = "noLogoImg";
+              event.target.srcset = noLogoImg.src;
             }}
             className="ml-4 h-12 w-12 rounded-full"
           />
@@ -218,14 +218,14 @@ export default function AccountTokens({ address }: { address: string }) {
               <div className="flex items-center">
                 <Image
                   loader={cloudflareLoader}
-                  src={token.logoURI || noImg.src}
+                  src={token.logoURI || noLogoImg.src}
                   alt={token.name || "Unknown"}
                   width={32}
                   height={32}
                   loading="eager"
                   onError={(event: any) => {
-                    event.target.id = "noimg";
-                    event.target.srcset = noImg.src;
+                    event.target.id = "noLogoImg";
+                    event.target.srcset = noLogoImg.src;
                   }}
                   className="h-8 w-8 rounded-full"
                 />

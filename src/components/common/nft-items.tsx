@@ -1,6 +1,6 @@
 "use client";
 
-import noImg from "@/../public/assets/noimg.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import cloudflareLoader from "@/utils/imageLoader";
 import Image from "next/image";
@@ -17,7 +17,7 @@ interface NFTGridItemProps {
 
 export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const tokenImage = nft.image || noImg;
+  const tokenImage = nft.image || noLogoImg;
 
   return (
     <div className="group relative flex flex-col items-center rounded-lg border shadow-lg">
@@ -35,8 +35,8 @@ export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
           className="max-h-48 min-h-48 w-full rounded-lg"
           onLoad={() => setIsLoading(false)}
           onError={(event: any) => {
-            event.target.id = "noimg";
-            event.target.srcset = noImg.src;
+            event.target.id = "noLogoImg";
+            event.target.srcset = noLogoImg.src;
             setIsLoading(false);
           }}
         />
