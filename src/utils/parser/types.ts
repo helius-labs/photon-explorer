@@ -9,6 +9,8 @@ export enum ActionTypes {
   TRANSFER = "TRANSFER",
   SENT = "SENT",
   RECEIVED = "RECEIVED",
+  BURNT = "BURNT",
+  MINT = "MINT",
 }
 
 export enum ParserTransactionTypes {
@@ -17,6 +19,7 @@ export enum ParserTransactionTypes {
   BURN = "BURN",
   MINT = "MINT",
   UNKNOWN = "UNKNOWN",
+  TOKEN_MINT = "TOKEN_MINT",
 }
 
 export type XrayParser = (
@@ -65,7 +68,7 @@ export const unknownXrayTransaction: XrayTransaction = {
 };
 
 export const XrayParsers = {
-  //   BURN: parser.parseBurn,
+  BURN: parser.parseBurn,
   //   BURN_NFT: parser.parseBurn,
   //   COMPRESSED_NFT_BURN: parser.parseCompressedNftBurn,
   //   COMPRESSED_NFT_MINT: parser.parseCompressedNftMint,
@@ -79,7 +82,7 @@ export const XrayParsers = {
   //   NFT_MINT: parser.parseNftMint,
   //   NFT_SALE: parser.parseNftSale,
   SWAP: parser.parseSwap,
-  //   TOKEN_MINT: parser.parseTokenMint,
+  TOKEN_MINT: parser.parseTokenMint,
   TRANSFER: parser.parseTransfer,
   UNKNOWN: parser.parseUnknown,
 };

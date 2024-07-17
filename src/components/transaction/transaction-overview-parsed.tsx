@@ -6,7 +6,13 @@ import {
 } from "@/utils/parser";
 import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
-import { ArrowRight, ArrowRightLeftIcon, CircleHelp } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowRightLeftIcon,
+  CircleHelp,
+  Flame,
+  Printer,
+} from "lucide-react";
 
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
@@ -21,9 +27,16 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
+  // console.log(
+  //   "In TransactionOverviewParsed:\n",
+  //   "Actions: ",
+  //   actions,
+  //   "Type:",
+  //   type,
+  // );
 
   return (
-    <Card className="w-full max-w-lg mx-auto p-3">
+    <Card className="mx-auto w-full max-w-lg p-3">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center space-x-3">
           {type === ParserTransactionTypes.SWAP && (
@@ -35,8 +48,15 @@ export default function TransactionOverviewParsed({
           {type === ParserTransactionTypes.UNKNOWN && (
             <CircleHelp className="h-6 w-6" />
           )}
+          {type === ParserTransactionTypes.BURN && (
+            <Flame className="h-6 w-6" />
+          )}
+          {type === ParserTransactionTypes.TOKEN_MINT && (
+            <Printer className="h-6 w-6" />
+          )}
           <CardTitle className="text-2xl font-bold">{type}</CardTitle>
         </div>
+
         <div className="flex flex-col text-right">
           <span>{timeAgoWithFormat(timestamp, true)}</span>
           <span className="text-xs text-muted-foreground">
@@ -45,16 +65,24 @@ export default function TransactionOverviewParsed({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        <Separator className="mb-4" />
+        <div className="space-y-4">
+          <span className="text-sm">{description}</span>
+        </div>
+        <Separator className="my-4" />
+      </CardContent>
+
+      <CardContent className="space-y-4">
         {actions.length === 0 && description ? (
           <div className="flex items-center">
-            <span className="w-full text-muted-foreground text-sm">
+            <span className="w-full text-sm text-muted-foreground">
               {description}
             </span>
           </div>
         ) : (
           <div className="flex items-center">
             <span className="w-1/4 text-muted-foreground">Account</span>
-            <span className="w-3/4 ml-2">
+            <span className="ml-2 w-3/4">
               <Address pubkey={new PublicKey(account)} />
             </span>
           </div>
@@ -66,18 +94,23 @@ export default function TransactionOverviewParsed({
               <>
                 <div className="flex items-center">
                   <span className="w-1/4 text-muted-foreground">Sent</span>
-                  <span className="w-3/4 ml-2">
+                  <span className="ml-2 w-3/4">
                     <TokenBalance
                       amount={action.amount}
-                      decimals={action.decimals}
+                      decimals={0}
                       mint={new PublicKey(action.mint!)}
+                      isReadable={true}
                     />
                   </span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-1/4 text-muted-foreground">To</span>
-                  <span className="w-3/4 ml-2">
-                    <Address pubkey={new PublicKey(action.to!)} />
+                  <span className="ml-2 w-3/4">
+                    {action.to ? (
+                      <Address pubkey={new PublicKey(action.to)} />
+                    ) : (
+                      "Unknown Address"
+                    )}
                   </span>
                 </div>
               </>
@@ -85,7 +118,7 @@ export default function TransactionOverviewParsed({
             {action.actionType === ActionTypes.SENT && (
               <div className="flex items-center">
                 <span className="w-1/4 text-muted-foreground">Sent</span>
-                <span className="w-3/4 ml-2">
+                <span className="ml-2 w-3/4">
                   <TokenBalance
                     amount={action.amount}
                     decimals={action.decimals}
@@ -97,7 +130,7 @@ export default function TransactionOverviewParsed({
             {action.actionType === ActionTypes.RECEIVED && (
               <div className="flex items-center">
                 <span className="w-1/4 text-muted-foreground">Received</span>
-                <span className="w-3/4 ml-2">
+                <span className="ml-2 w-3/4">
                   <TokenBalance
                     amount={action.amount}
                     decimals={action.decimals}
@@ -106,18 +139,44 @@ export default function TransactionOverviewParsed({
                 </span>
               </div>
             )}
+            {action.actionType === ActionTypes.BURNT && (
+              <div className="flex items-center">
+                <span className="w-1/4 text-muted-foreground">BURNT</span>
+                <span className="ml-2 w-3/4">
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                  />
+                </span>
+              </div>
+            )}
+            {action.actionType === ActionTypes.MINT && (
+              <div className="flex items-center">
+                <span className="w-1/4 text-muted-foreground">MINT</span>
+                <span className="ml-2 w-3/4">
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                  />
+                </span>
+              </div>
+            )}
           </div>
         ))}
         <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Program</span>
-          <span className="w-3/4 ml-2">{source}</span>
+          <span className="ml-2 w-3/4">{source}</span>
         </div>
 
         <Separator />
 
         <div className="flex items-center">
           <span className="w-1/4 text-muted-foreground">Signature</span>
-          <div className="w-3/4 flex items-center space-x-2">
+          <div className="flex w-3/4 items-center space-x-2">
             <Signature link={false} signature={signature} />
           </div>
         </div>

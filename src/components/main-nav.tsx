@@ -1,6 +1,5 @@
 "use client";
 
-import "@/styles/styles.css";
 import { cn } from "@/utils/common";
 import Image from "next/image";
 
@@ -26,7 +25,7 @@ export function MainNav({
       >
         {/* Desktop logos */}
         <Image
-          className="logo-container hidden dark:hidden md:block"
+          className="hidden dark:hidden md:block"
           alt="XRAY logo"
           width={100}
           height={100}
@@ -34,7 +33,7 @@ export function MainNav({
           src={LogoBlack}
         />
         <Image
-          className="logo-container hidden md:dark:block"
+          className="hidden md:dark:block"
           alt="XRAY logo"
           width={100}
           height={100}

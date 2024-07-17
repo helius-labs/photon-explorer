@@ -68,7 +68,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="relative flex h-full flex-col">
       {/* <DataTableToolbar table={table} /> */}
       <div className="flex-1 overflow-auto pb-2 md:pb-0">
         <Table className="min-w-full">
@@ -120,8 +120,8 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="sticky bottom-0 bg-popover w-full z-10 md:relative md:p-0">
-        <div className="block md:hidden h-4"></div>
+      <div className="sticky bottom-0 z-10 w-full md:relative md:p-0">
+        <div className="block h-4 md:hidden"></div>
         <div className="flex justify-center">
           <DataTablePagination table={table} />
         </div>

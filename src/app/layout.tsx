@@ -1,11 +1,10 @@
 import { ClusterProvider } from "@/providers/cluster-provider";
 import { ReactQueryClientProvider } from "@/providers/query-client-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { cn } from "@/utils/common";
 import type { Metadata } from "next";
 import { Inter as Fontface } from "next/font/google";
 import { Suspense } from "react";
-
-import { cn } from "@/utils/common";
 
 import "./globals.css";
 
@@ -46,13 +45,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        </head>
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background antialiased",
           fontface.className,
         )}
       >
+        <div className="relative top-0 z-[-1]">
+          <div className="absolute bottom-auto left-0 right-0 top-0 mt-[-60px] block h-[720px] w-full dark:bg-[radial-gradient(circle_closest-corner_at_50%_-40%,#38383d,rgba(5,5,5,0)_68%)]"></div>
+        </div>
         <ReactQueryClientProvider>
           <ThemeProvider
             attribute="class"

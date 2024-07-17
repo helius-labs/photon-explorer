@@ -81,14 +81,28 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     </Card>
   );
 
-  if (parsed.data && parsed.data.length > 0) {
+  if (
+    parsed.data &&
+    parsed.data.length > 0 &&
+    parsed.data[0].description != ""
+  ) {
+    // check all the data for txn
+    // console.log("Parsed data: ", parsed);
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
-  } else if (transaction.data && compressed.data !== undefined) {
+  } else if (transaction.data && compressed.data) {
     transactionOverview = (
       <TransactionOverview
         signature={tx}
         data={transaction.data}
         compressed={compressed.data}
+      />
+    );
+  } else if (transaction.data) {
+    transactionOverview = (
+      <TransactionOverview
+        signature={tx}
+        data={transaction.data}
+        compressed={null}
       />
     );
   }
