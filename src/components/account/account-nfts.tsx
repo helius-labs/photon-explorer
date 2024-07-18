@@ -2,10 +2,11 @@
 
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
+import { formatCurrencyValue } from "@/utils/numbers";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-import { useMemo, useState, useEffect, useCallback } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
@@ -14,8 +15,6 @@ import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
@@ -82,7 +83,9 @@ const AccountNFTs = ({ address }: { address: string }) => {
     return (
       data?.filter((nft) => {
         const matchesVerified = nft.verified || showNonVerified;
-        const matchesCollection = collectionFilter ? nft.collectionName === collectionFilter : true;
+        const matchesCollection = collectionFilter
+          ? nft.collectionName === collectionFilter
+          : true;
         return matchesVerified && matchesCollection;
       }) || []
     );
@@ -122,7 +125,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
       accessorKey: "value",
       cell: ({ getValue }) => {
         const price = getValue<number>();
-        return price ? price.toFixed(2) : "N/A";
+        return price ? formatCurrencyValue(price) : "N/A";
       },
     },
   ];
@@ -170,7 +173,9 @@ const AccountNFTs = ({ address }: { address: string }) => {
                   <Select
                     value={collectionFilter || "all"}
                     onValueChange={(value) =>
-                      value === "all" ? handleNoFilter() : handleCollectionFilter(value)
+                      value === "all"
+                        ? handleNoFilter()
+                        : handleCollectionFilter(value)
                     }
                   >
                     <SelectTrigger className="w-full sm:w-48">
@@ -186,12 +191,14 @@ const AccountNFTs = ({ address }: { address: string }) => {
                     </SelectContent>
                   </Select>
                   <div className="flex items-center space-x-2">
-                    <Label className="text-xs sm:text-sm ml-4">
+                    <Label className="ml-4 text-xs sm:text-sm">
                       {showNonVerified ? "Spam ON" : "Spam OFF"}
                     </Label>
                     <Switch
                       checked={showNonVerified}
-                      onCheckedChange={() => setShowNonVerified((prev) => !prev)}
+                      onCheckedChange={() =>
+                        setShowNonVerified((prev) => !prev)
+                      }
                     />
                   </div>
                 </div>

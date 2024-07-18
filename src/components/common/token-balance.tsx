@@ -19,16 +19,6 @@ export function TokenBalance({
   const { data: tokenList } = useGetTokenListStrict();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
 
-  // console.log(
-  //   "In token balance:/n",
-  //   "mint:",
-  //   mint.toBase58(),
-  //   "/n amount:",
-  //   amount,
-  //   "/n decimals:",
-  //   decimals,
-  // );
-
   let avatar = <></>;
   if (token) {
     avatar = (
