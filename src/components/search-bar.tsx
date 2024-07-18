@@ -213,6 +213,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
       defaultOptions
       loadOptions={performSearch}
       inputId={useId()}
+      instanceId={useId()}
       noOptionsMessage={() => "No results found."}
       loadingMessage={() => "loading..."}
       placeholder="Search for accounts, transactions, tokens and programs..."
