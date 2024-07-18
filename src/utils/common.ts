@@ -43,7 +43,10 @@ export function shorten(string: string, chars = 4): string {
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
 }
 
-export function shortenLong(string: string, chars = 8): string {
+export function shortenLong(string: string | undefined, chars = 8): string {
+  if (!string) {
+    return "";
+  }
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
 }
 

@@ -121,21 +121,21 @@ export const columns: ColumnDef<TransactionData>[] = [
                       <div className="flex items-center overflow-hidden text-ellipsis truncate">
                         <span className="text-sm font-medium leading-none">Transfer</span>
                         <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint)} />
-                        <Address pubkey={new PublicKey(action.to)} />
+                        {action.to && <Address pubkey={new PublicKey(action.to)} />}
                       </div>
                     )}
                     {action.actionType === ActionTypes.SENT && action.mint && action.to && (
                       <div className="flex items-center overflow-hidden text-ellipsis truncate">
                         <span className="text-sm font-medium leading-none">Sent</span>
                         <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint)} />
-                        <Address pubkey={new PublicKey(action.to)} />
+                        {action.to && <Address pubkey={new PublicKey(action.to)} />}
                       </div>
                     )}
                     {action.actionType === ActionTypes.RECEIVED && action.mint && action.from && (
                       <div className="flex items-center overflow-hidden text-ellipsis truncate">
                         <span className="text-sm font-medium leading-none">Received</span>
                         <TokenBalance amount={action.amount} decimals={action.decimals} mint={new PublicKey(action.mint)} />
-                        <Address pubkey={new PublicKey(action.from)} />
+                        {action.from && <Address pubkey={new PublicKey(action.from)} />}
                       </div>
                     )}
                   </div>
@@ -262,7 +262,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                               decimals={action.decimals}
                               mint={new PublicKey(action.mint!)}
                             />
-                            <Address pubkey={new PublicKey(action.to!)} />
+                            {action.to && <Address pubkey={new PublicKey(action.to!)} />}
                           </div>
                         )}
                         {action.actionType === ActionTypes.SENT && (
@@ -273,7 +273,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                               decimals={action.decimals}
                               mint={new PublicKey(action.mint!)}
                             />
-                            <Address pubkey={new PublicKey(action.to!)} />
+                            {action.to && <Address pubkey={new PublicKey(action.to!)} />}
                           </div>
                         )}
                         {action.actionType === ActionTypes.RECEIVED && (
@@ -284,7 +284,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                               decimals={action.decimals}
                               mint={new PublicKey(action.mint!)}
                             />
-                            <Address pubkey={new PublicKey(action.from!)} />
+                            {action.from && <Address pubkey={new PublicKey(action.from!)} />}
                           </div>
                         )}
                       </div>

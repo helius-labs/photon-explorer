@@ -28,7 +28,7 @@ export function getAccountType(
     return AccountType.Closed;
   }
 
-  // Check if the account has never beed submitted to the blockchain
+  // Check if the account has never been submitted to the blockchain
   if (signatures && signatures.length === 0 && accountInfo === null) {
     return AccountType.NotFound;
   }

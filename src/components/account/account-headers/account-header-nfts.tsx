@@ -21,12 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCluster } from "@/providers/cluster-provider";
 import { NFT } from "@/types/nft";
@@ -46,6 +41,13 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
   const fallbackAddress = address.toBase58();
 
   const royaltyPercentage = nftData?.royalty?.percent || 0;
+
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length > maxLength) {
+      return description.slice(0, maxLength) + "...";
+    }
+    return description;
+  };
 
   useEffect(() => {
     if (hasCopied) {
@@ -146,7 +148,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
           {nftData && (
             <>
               <div className="text-md max-w-md text-muted-foreground mt-2">
-                <span>{nftData.description || "N/A"}</span>
+                <span>{truncateDescription(nftData.description || "N/A", 150)}</span>
               </div>
               <div className="flex space-x-4 mt-4">
                 <a
