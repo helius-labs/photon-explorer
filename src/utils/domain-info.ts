@@ -35,7 +35,11 @@ export function getDomainKeySync(
 // returns non empty wallet string if a given .sol domain is owned by a wallet
 export async function getDomainInfo(domain: string, connection: Connection) {
   try {
-    const pubkey = getDomainKeySync(domain);
+    const pubkey = getDomainKeySync(
+      domain.slice(0, -4), // remove .sol
+      undefined,
+      SOL_TLD_AUTHORITY,
+    );
 
     const { registry, nftOwner } = await NameRegistryState.retrieve(
       connection,

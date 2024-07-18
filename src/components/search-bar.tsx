@@ -15,12 +15,12 @@ import { searchTokens } from "@/utils/token-search";
 import bs58 from "bs58";
 import clsx from "clsx";
 import {
+  Clock,
   RotateCwSquare,
   Search,
   SquareAsterisk,
   SquareCode,
   SquareGanttChart,
-  SquareMenu,
   SquareUser,
   X,
 } from "lucide-react";
@@ -37,6 +37,8 @@ import {
 } from "react-select";
 import AsyncSelect from "react-select/async";
 
+import useLocalStorage from "@/hooks/useLocalStorage";
+
 interface SearchOptions {
   label: string;
   value: string[];
@@ -44,6 +46,7 @@ interface SearchOptions {
   icon: JSX.Element;
   address?: string;
   symbol?: string;
+  recent?: boolean;
 }
 
 interface GroupedOption {
@@ -55,19 +58,35 @@ const hasDomainSyntax = (value: string) => {
   return value.length > 4 && value.substring(value.length - 4) === ".sol";
 };
 
-export function SearchBar() {
+export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const asyncRef = React.useRef<SelectInstance<SearchOptions> | null>(null);
   const [search, setSearch] = React.useState("");
   const router = useRouter();
   const { cluster } = useCluster();
   const searchParams = useSearchParams();
+  const [isClient, setIsClient] = React.useState(false);
+  const [recentSearches, setRecentSearches] = useLocalStorage<SearchOptions[]>(
+    "recentSearches",
+    [],
+  );
+
   const onChange = (
-    { pathname }: OnChangeValue<any, false>,
-    meta: ActionMeta<any>,
+    option: OnChangeValue<SearchOptions, false>,
+    meta: ActionMeta<SearchOptions>,
   ) => {
     if (meta.action === "select-option") {
+      // Update recent searches
+      setRecentSearches((prevSearches) => {
+        return [
+          option as SearchOptions,
+          ...prevSearches.filter((item) => item?.address !== option?.address),
+        ].slice(0, 5); // Limit to 5 recent searches
+      });
+
       const nextQueryString = searchParams?.toString();
-      router.push(`${pathname}${nextQueryString ? `?${nextQueryString}` : ""}`);
+      router.push(
+        `${option?.pathname}${nextQueryString ? `?${nextQueryString}` : ""}`,
+      );
       setSearch("");
     }
   };
@@ -78,7 +97,36 @@ export function SearchBar() {
     }
   };
 
+  function buildRecentSearchesOptions(
+    search: string,
+    isClient: boolean,
+  ): GroupedOption | undefined {
+    // Only show recent when client is available to prevent hydration errors
+    if (!isClient) return;
+
+    const matchedRecentSearches = recentSearches.filter(
+      (recentSearch) =>
+        search.length === 0 ||
+        recentSearch.label.toLowerCase().includes(search.toLowerCase()),
+    );
+
+    if (matchedRecentSearches.length > 0) {
+      return {
+        label: "Recent Searches",
+        options: matchedRecentSearches.map((recentSearch) => ({
+          label: recentSearch.label,
+          pathname: recentSearch.pathname,
+          value: recentSearch.value,
+          icon: <Clock strokeWidth={0.5} className="h-8 w-8" />,
+          recent: true,
+        })),
+      };
+    }
+  }
+
   async function performSearch(search: string): Promise<GroupedOption[]> {
+    const recentSearchesOptions = buildRecentSearchesOptions(search, isClient);
+
     const localOptions = buildOptions(search, cluster);
     let tokenOptions;
     try {
@@ -88,13 +136,21 @@ export function SearchBar() {
         `Failed to build token options for search: ${e instanceof Error ? e.message : e}`,
       );
     }
+    const recentSearchesOptionsAppendable = recentSearchesOptions
+      ? [recentSearchesOptions]
+      : [];
     const tokenOptionsAppendable = tokenOptions ? [tokenOptions] : [];
     const domainOptions =
       hasDomainSyntax(search) && cluster === Cluster.MainnetBeta
         ? (await buildDomainOptions(search)) ?? []
         : [];
 
-    return [...localOptions, ...tokenOptionsAppendable, ...domainOptions];
+    return [
+      ...recentSearchesOptionsAppendable,
+      ...localOptions,
+      ...tokenOptionsAppendable,
+      ...domainOptions,
+    ];
   }
 
   React.useEffect(() => {
@@ -123,12 +179,17 @@ export function SearchBar() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const controlStyles = {
     base: "border px-4 py-2 border-input shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
     focus: "rounded-t-lg bg-popover",
     nonFocus: "rounded-lg",
   };
-  const placeholderStyles = "text-sm font-medium text-muted-foreground";
+  const placeholderStyles =
+    "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis";
   const selectInputStyles = "text-sm font-medium text-muted-foreground";
   const valueContainerStyles = "p-1 gap-1";
   const singleValueStyles = "leading-7 ml-1";
@@ -147,7 +208,7 @@ export function SearchBar() {
   return (
     <AsyncSelect
       ref={asyncRef}
-      autoFocus={true}
+      autoFocus={autoFocus}
       cacheOptions
       defaultOptions
       loadOptions={performSearch}
@@ -227,6 +288,12 @@ const Control = ({
           action: "input-change",
         });
       }}
+      onTouchStart={() => {
+        props.selectProps.onInputChange("", {
+          prevInputValue: "",
+          action: "input-change",
+        });
+      }}
     >
       <X className="h-6 w-6" />
     </button>
@@ -277,7 +344,7 @@ function buildProgramOptions(search: string, cluster: Cluster) {
         label: name,
         pathname: "/address/" + address,
         value: [name, address],
-        icon: <SquareCode strokeWidth={0.5} className="h-10 w-10" />,
+        icon: <SquareCode strokeWidth={0.5} className="h-8 w-8" />,
       })),
     };
   }
@@ -307,7 +374,7 @@ function buildLoaderOptions(search: string) {
         label: name,
         pathname: "/address/" + id,
         value: [name, id],
-        icon: <RotateCwSquare strokeWidth={0.5} className="h-10 w-10" />,
+        icon: <RotateCwSquare strokeWidth={0.5} className="h-8 w-8" />,
       })),
     };
   }
@@ -330,7 +397,7 @@ function buildSysvarOptions(search: string) {
         label: name,
         pathname: "/address/" + id,
         value: [name, id],
-        icon: <SquareAsterisk strokeWidth={0.5} className="h-10 w-10" />,
+        icon: <SquareAsterisk strokeWidth={0.5} className="h-8 w-8" />,
       })),
     };
   }
@@ -353,7 +420,7 @@ function buildSpecialOptions(search: string) {
         label: name,
         pathname: "/address/" + id,
         value: [name, id],
-        icon: <SquareUser strokeWidth={0.5} className="h-10 w-10" />,
+        icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
       })),
     };
   }
@@ -376,7 +443,7 @@ async function buildTokenOptions(
 async function buildDomainOptions(search: string) {
   const domainInfoResponse = await fetch(`/api/domain-info/${search}`);
   const domainInfo = (await domainInfoResponse.json()) as FetchedDomainInfo;
-
+  console.log(domainInfo);
   if (domainInfo && domainInfo.owner && domainInfo.address) {
     return [
       {
@@ -386,7 +453,7 @@ async function buildDomainOptions(search: string) {
             label: domainInfo.owner,
             pathname: "/address/" + domainInfo.owner,
             value: [search],
-            icon: <SquareUser strokeWidth={0.5} className="h-10 w-10" />,
+            icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
           },
         ],
       },
@@ -397,7 +464,7 @@ async function buildDomainOptions(search: string) {
             label: search,
             pathname: "/address/" + domainInfo.address,
             value: [search],
-            icon: <SquareUser strokeWidth={0.5} className="h-10 w-10" />,
+            icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
           },
         ],
       },
@@ -445,7 +512,7 @@ function buildOptions(rawSearch: string, cluster: Cluster) {
             label: search,
             pathname: "/address/" + search,
             value: [search],
-            icon: <SquareUser strokeWidth={0.5} className="h-10 w-10" />,
+            icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
           },
         ],
       });
@@ -457,7 +524,7 @@ function buildOptions(rawSearch: string, cluster: Cluster) {
             label: search,
             pathname: "/tx/" + search,
             value: [search],
-            icon: <SquareGanttChart strokeWidth={0.5} className="h-10 w-10" />,
+            icon: <SquareGanttChart strokeWidth={0.5} className="h-8 w-8" />,
           },
         ],
       });

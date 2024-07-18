@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { CommandMenu } from "@/components/command-menu";
 import { Footer } from "@/components/footer";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
 import { MainNav } from "@/components/main-nav";

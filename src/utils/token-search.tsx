@@ -89,8 +89,8 @@ export async function searchTokens(
         loader={cloudflareLoader}
         src={token.logoURI || noImg.src}
         alt={token.name}
-        width={40}
-        height={40}
+        width={32}
+        height={32}
         className="rounded-full"
         loading="eager"
         onError={(event: any) => {
