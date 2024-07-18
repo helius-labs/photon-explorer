@@ -97,6 +97,18 @@ export default function AddressLayout({
       });
     }
 
+    // Ensure Metadata tab is added for tokens, NFTs, and programs
+    if (
+      accountType === AccountType.Token ||
+      accountType === AccountType.Program ||
+      accountType === AccountType.MetaplexNFT
+    ) {
+      newTabs.push({
+        name: "Metadata",
+        href: `/address/${address}/metadata`,
+      });
+    }
+
     return newTabs;
   }, [accountType, compressedAccount.data, address, pathname]);
 
