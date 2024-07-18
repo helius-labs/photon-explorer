@@ -50,7 +50,7 @@ async function getNFTsByOwnerDAS(
   address: string,
   page: number = 1,
   endpoint: string,
-) {
+): Promise<NFT[]> {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -68,13 +68,9 @@ async function getNFTsByOwnerDAS(
           sortDirection: "asc",
         },
         options: {
-          showFungible: false,
           showUnverifiedCollections: true,
           showCollectionMetadata: true,
-          showNativeBalance: false,
           showInscription: true,
-          showGrandTotal: false,
-          showZeroBalance: false,
         },
       },
     }),
@@ -92,7 +88,14 @@ async function getNFTsByOwnerDAS(
         Interface.V1PRINT,
       ].includes(item.interface)
     ) {
-      return {
+      const collectionGrouping = item.grouping?.find(
+        (group) => group.group_key === "collection",
+      );
+      const royaltyPercentage = item.royalty?.basis_points
+        ? item.royalty.basis_points / 100
+        : 0;
+
+      const nft: NFT = {
         raw: item,
         mint: new PublicKey(item.id),
         name: item.content?.metadata.name,
@@ -101,15 +104,16 @@ async function getNFTsByOwnerDAS(
         owner: item.ownership?.owner,
         mintAuthority: item.token_info?.mint_authority,
         updateAuthority: item.mint_extensions?.metadata_pointer?.authority,
-        collection: item.grouping?.find(
-          (group) => group.group_key === "collection",
-        )?.group_value,
+        collection: collectionGrouping?.group_value,
+        collectionName: collectionGrouping?.collection_metadata?.name,
         tokenStandard: item.content?.metadata?.token_standard,
         creators: item.creators,
         attributes: item.content?.metadata?.attributes,
         verified: item.creators?.some((creator) => creator.verified),
         value: item.token_info?.price_info?.price_per_token,
+        royaltyPercentage: royaltyPercentage,
       };
+      return nft;
     }
     return [];
   });
@@ -167,7 +171,7 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
         const externalMetadata = await response.json();
         nft.image = externalMetadata.image;
       } catch (error) {
-        // Ignore errors and continue
+        console.error("Error fetching external metadata for NFT:", error);
       }
     }
   };

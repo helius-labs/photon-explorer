@@ -1,10 +1,11 @@
 "use client";
 
-import noImg from "@/../public/assets/noimg.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
@@ -15,34 +16,84 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const AccountNFTs = ({ address }: { address: string }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const collectionFilter = searchParams.get("collection");
+
   const [showNonVerified, setShowNonVerified] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [collections, setCollections] = useState<string[]>([]);
 
   const { data, isLoading, isError } = useGetNFTsByOwner(address);
 
-  const displayedNfts =
-    data?.filter((nft) => nft.verified !== showNonVerified) || [];
+  useEffect(() => {
+    // Extract unique collection values from nftDataArray
+    const collectionSet = new Set<string>();
+    data?.forEach((nft) => {
+      if (nft.collectionName) {
+        collectionSet.add(nft.collectionName);
+      }
+    });
+    setCollections(Array.from(collectionSet));
+  }, [data]);
 
-  // Calculate total value of NFTs
-  const total =
-    displayedNfts?.reduce((accumulator, token) => {
-      return accumulator + (token.value || 0);
-    }, 0) || 0;
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams],
+  );
+
+  const handleCollectionFilter = (collection: string) => {
+    const queryString = createQueryString("collection", collection);
+    router.push(`${pathname}?${queryString}`);
+  };
+
+  const handleNoFilter = () => {
+    // Create a new instance of URLSearchParams
+    const newSearchParams = new URLSearchParams(searchParams);
+    // Delete the 'collection' parameter
+    newSearchParams.delete("collection");
+
+    // Navigate to the updated URL
+    const newURL = `${pathname}?${newSearchParams.toString()}`;
+    router.push(newURL);
+  };
 
   const handleQuickViewClick = (nftData: NFT) => {
     setSelectedNft(nftData);
     setIsModalOpen(true);
   };
 
+  const filteredNfts = useMemo(() => {
+    return (
+      data?.filter((nft) => {
+        const matchesVerified = nft.verified || showNonVerified;
+        const matchesCollection = collectionFilter ? nft.collectionName === collectionFilter : true;
+        return matchesVerified && matchesCollection;
+      }) || []
+    );
+  }, [data, showNonVerified, collectionFilter]);
+
   const columns: ColumnDef<NFT>[] = [
     {
       header: "Image",
-      accessorKey: "content.links.image",
+      accessorKey: "image",
       cell: ({ getValue, row }) => {
-        const imageUrl = getValue<string>() || noImg.src;
+        const imageUrl = getValue<string>() || noLogoImg.src;
         return (
           <div className="group relative">
             <Image
@@ -64,11 +115,11 @@ const AccountNFTs = ({ address }: { address: string }) => {
     },
     {
       header: "Name",
-      accessorKey: "content.metadata.name",
+      accessorKey: "name",
     },
     {
       header: "Price (SOL)",
-      accessorKey: "token_info.price_info.price_per_token",
+      accessorKey: "value",
       cell: ({ getValue }) => {
         const price = getValue<number>();
         return price ? price.toFixed(2) : "N/A";
@@ -113,23 +164,42 @@ const AccountNFTs = ({ address }: { address: string }) => {
             <>
               <div className="mb-4 flex flex-col justify-between text-xs sm:flex-row sm:items-center sm:text-sm">
                 <div className="flex flex-col font-medium sm:flex-row sm:space-x-4">
-                  <span>Total NFTs: {displayedNfts.length}</span>
-                  <span>Total Floor Value: {total.toFixed(2)} SOL</span>
+                  <span>Total NFTs: {filteredNfts.length}</span>
                 </div>
-                <div className="mt-2 flex items-center space-x-2 sm:mt-0">
-                  <Label className="text-xs sm:text-sm">
-                    Show Non-Verified Collections
-                  </Label>
-                  <Switch
-                    checked={showNonVerified}
-                    onCheckedChange={() => setShowNonVerified((prev) => !prev)}
-                  />
+                <div className="mt-2 flex items-center space-x-4 sm:mt-0">
+                  <Select
+                    value={collectionFilter || "all"}
+                    onValueChange={(value) =>
+                      value === "all" ? handleNoFilter() : handleCollectionFilter(value)
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:w-48">
+                      <SelectValue placeholder="Filter by Collection" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Collections</SelectItem>
+                      {collections.map((collection) => (
+                        <SelectItem key={collection} value={collection}>
+                          {collection}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center space-x-2">
+                    <Label className="text-xs sm:text-sm ml-4">
+                      {showNonVerified ? "Spam ON" : "Spam OFF"}
+                    </Label>
+                    <Switch
+                      checked={showNonVerified}
+                      onCheckedChange={() => setShowNonVerified((prev) => !prev)}
+                    />
+                  </div>
                 </div>
               </div>
-              {displayedNfts.length > 0 ? (
+              {filteredNfts.length > 0 ? (
                 <NFTGridTable
                   columns={columns}
-                  data={displayedNfts}
+                  data={filteredNfts}
                   onQuickView={handleQuickViewClick} // Ensure this prop is passed
                 />
               ) : (

@@ -73,20 +73,12 @@ export default function TransactionOverviewParsed({
       </CardContent>
 
       <CardContent className="space-y-4">
-        {actions.length === 0 && description ? (
-          <div className="flex items-center">
-            <span className="w-full text-sm text-muted-foreground">
-              {description}
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center">
-            <span className="w-1/4 text-muted-foreground">Account</span>
-            <span className="ml-2 w-3/4">
-              <Address pubkey={new PublicKey(account)} />
-            </span>
-          </div>
-        )}
+        <div className="flex items-center">
+          <span className="w-1/4 text-muted-foreground">Account</span>
+          <span className="ml-2 w-3/4">
+            <Address pubkey={new PublicKey(account)} />
+          </span>
+        </div>
 
         {actions.map((action, index) => (
           <div key={index} className="space-y-4">

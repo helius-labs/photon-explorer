@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 
-export type Token = {
+export interface Token {
   raw: any;
   pubkey: PublicKey;
   mint: PublicKey;
@@ -11,4 +11,8 @@ export type Token = {
   decimals: number;
   value?: number;
   price?: number;
-};
+  supply?: number;
+  mint_authority?: string;
+  freeze_authority?: string;
+  token_program?: string;
+}
