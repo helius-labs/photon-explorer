@@ -42,6 +42,13 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
 
   const royaltyPercentage = nftData?.royalty?.percent || 0;
 
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length > maxLength) {
+      return description.slice(0, maxLength) + "...";
+    }
+    return description;
+  };
+
   useEffect(() => {
     if (hasCopied) {
       const timer = setTimeout(() => {
@@ -141,7 +148,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
           {nftData && (
             <>
               <div className="text-md max-w-md text-muted-foreground mt-2">
-                <span>{nftData.description || "N/A"}</span>
+                <span>{truncateDescription(nftData.description || "N/A", 150)}</span>
               </div>
               <div className="flex space-x-4 mt-4">
                 <a
