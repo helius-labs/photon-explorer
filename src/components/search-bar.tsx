@@ -302,7 +302,7 @@ const Control = ({
     {children}
     <button
       className={cn(
-        "mr-2 rounded-sm p-2 transition-colors hover:text-red-500",
+        "mr-2 rounded-sm p-1 transition-colors hover:text-red-500",
         props.selectProps.inputValue.length > 0 ? "block" : "hidden",
       )}
       onMouseDown={(event) => {
@@ -352,7 +352,7 @@ const Option = ({ ...props }: OptionProps<SearchOptions, false>) => (
       {props.data.recentSearch && (
         <button
           className={cn(
-            "ml-auto mr-2 rounded-sm transition-colors hover:text-red-500",
+            "ml-auto mr-2 rounded-sm p-1 transition-colors hover:text-red-500",
           )}
           onClick={(event) => {
             // @ts-ignore
