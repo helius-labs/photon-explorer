@@ -42,7 +42,7 @@ export function MainNav({
         />
         {/* Mobile logos */}
         <Image
-          className="block h-6 w-full dark:hidden md:hidden"
+          className="block h-10 w-full dark:hidden md:hidden"
           alt="XRAY logo"
           width={0}
           height={0}
@@ -50,7 +50,7 @@ export function MainNav({
           src={LogoIconWhite}
         />
         <Image
-          className="hidden h-6 w-full dark:block md:hidden md:dark:hidden"
+          className="hidden h-10 w-full dark:block md:hidden md:dark:hidden"
           alt="XRAY logo"
           width={0}
           height={0}
