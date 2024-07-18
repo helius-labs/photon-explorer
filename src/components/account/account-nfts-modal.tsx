@@ -50,11 +50,12 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
   if (!nft) return null;
 
   const tokenImage = nft.image || noLogoImg.src;
+  const royaltyPercentage = nft.raw?.royalty?.basis_points ? nft.raw.royalty.basis_points / 100 : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex items-center justify-center z-50 p-4 w-full h-[70vh] md:min-w-[320px] md:max-w-[600px] lg:max-w-[1000px]">
-        <div className="bg-background rounded-lg shadow-lg w-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg relative p-4 sm:p-8 overflow-hidden h-full">
+      <DialogContent className="flex items-center justify-center z-50 p-4 w-full max-h-[70vh] max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg">
+        <div className="bg-background rounded-lg shadow-lg w-full max-h-[60vh] max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg relative p-4 sm:p-8 overflow-hidden">
           <Button
             onClick={onClose}
             variant="outline"
@@ -62,7 +63,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
           >
             <X size={24} />
           </Button>
-          <div className="flex flex-col items-start lg:flex-row lg:items-start w-full overflow-hidden h-full">
+          <div className="flex flex-col items-start lg:flex-row lg:items-start w-full h-full">
             {/* Image section for the NFT */}
             <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-8">
               <Image
@@ -79,7 +80,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 }}
               />
             </div>
-            <div className="flex-grow overflow-hidden">
+            <div className="flex-grow h-full">
               <DialogHeader>
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-4">
                   {nft.name || "Unknown NFT"}
@@ -88,8 +89,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                   {nft.description || "No description available"}
                 </DialogDescription>
               </DialogHeader>
-              {/* Details section */}
-              <ScrollArea className="h-[calc(100%-120px)]">
+              <ScrollArea className="h-full">
                 {loadingDomains ? (
                   <div className="flex items-center justify-center h-full mt-2">
                     <Loading />
@@ -129,13 +129,15 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                       {nft.collection && nft.collection !== "N/A...N/A" && (
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Collection: </span>
-                          {shortenLong(nft.collection || "N/A")}
+                          <Link href={`/address/${nft.collection}`} className="hover:underline text-muted-foreground">
+                              {nft.collectionName}
+                            </Link>
                         </p>
                       )}
-                      {nft.tokenStandard && nft.tokenStandard !== "N/A...N/A" && (
+                      {royaltyPercentage > 0 && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Token Standard: </span>
-                          {nft.tokenStandard || "N/A"}
+                          <span className="font-semibold">Royalty: </span>
+                          {royaltyPercentage}%
                         </p>
                       )}
                     </div>

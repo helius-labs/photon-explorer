@@ -3,20 +3,14 @@ import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import Avatar from "boring-avatars";
 import { useRouter } from "next/navigation";
-import { CheckIcon, Copy, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
-import { lamportsToSolString, shortenLong, fetchSolPrice } from "@/utils/common";
+import { lamportsToSolString, fetchSolPrice } from "@/utils/common";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";

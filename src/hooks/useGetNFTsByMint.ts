@@ -27,7 +27,6 @@ export function useGetNFTsByMint(mint: string, enabled: boolean = true) {
           nft = await getNFTByMintMetaplex(mint, endpoint);
         }
 
-        console.log("Fetched NFT data from API:", nft); // Log the fetched NFT data
         return nft;
       } catch (error) {
         console.error("Error fetching NFT data:", error);
@@ -55,7 +54,6 @@ async function getNFTByMintDAS(
         params: {
           id: mint,
           options: {
-            showFungible: false,
             showUnverifiedCollections: true,
             showCollectionMetadata: true,
             showInscription: true,
@@ -65,7 +63,6 @@ async function getNFTByMintDAS(
     });
 
     const data: { result: DAS.GetAssetResponse } = await response.json();
-    console.log("Full response from DAS API:", data); // Log the full response
 
     const item = data.result;
 
@@ -83,6 +80,13 @@ async function getNFTByMintDAS(
         Interface.V1PRINT,
       ].includes(item.interface)
     ) {
+      const collectionGrouping = item.grouping?.find(
+        (group) => group.group_key === "collection",
+      );
+      const royaltyPercentage = item.royalty?.basis_points
+        ? item.royalty.basis_points / 100
+        : 0;
+
       const nft: NFT = {
         raw: item,
         mint: new PublicKey(item.id),
@@ -93,14 +97,14 @@ async function getNFTByMintDAS(
         mintAuthority: item.token_info?.mint_authority || "",
         updateAuthority:
           item.mint_extensions?.metadata_pointer?.authority || "",
-        collection:
-          item.grouping?.find((group) => group.group_key === "collection")
-            ?.group_value || "",
+        collection: collectionGrouping?.group_value || "",
+        collectionName: collectionGrouping?.collection_metadata?.name || "",
         tokenStandard: item.content?.metadata?.token_standard || "",
         creators: item.creators || [],
         attributes: item.content?.metadata?.attributes || [],
         verified: item.creators?.some((creator) => creator.verified) || false,
         value: item.token_info?.price_info?.price_per_token || 0,
+        royaltyPercentage: royaltyPercentage,
       };
       return nft;
     }

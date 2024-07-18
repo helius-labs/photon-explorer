@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
 import { useRouter } from "next/navigation";
-import { CheckIcon, Copy, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { useCluster } from "@/providers/cluster-provider";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 
