@@ -5,7 +5,7 @@
  * doesn't use a fallback for search
  * So to avoid pulling in extra dependencies we just use the public API directly for search
  */
-import noImg from "@/../public/assets/noimg.svg";
+import noImg from "@/../public/assets/noLogoImg.svg";
 import cloudflareLoader from "@/utils/imageLoader";
 import Image from "next/image";
 
