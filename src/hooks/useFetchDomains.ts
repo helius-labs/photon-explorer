@@ -39,7 +39,12 @@ async function fetchDomains(
   const ansDomainInfos: DomainInfo[] = await Promise.all(
     allDomains.map(async (nameAccount) => {
       const fullDomain = await constructFullAnsDomain(connection, nameAccount);
-      return { nameAccount, domain: fullDomain, type: "ans-domain" };
+      return {
+        nameAccount,
+        domain: fullDomain,
+        type: "ans-domain",
+        address: nameAccount,
+      };
     }),
   );
 
