@@ -219,12 +219,16 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const noOptionsMessageStyles = "py-4 text-sm";
   const loadingMessageStyles = "py-4 text-sm";
 
+  // Get recent searches as default options
+  const recentSearchesOptions = buildRecentSearchesOptions("", isClient);
+  const defaultOptions = recentSearchesOptions ? [recentSearchesOptions] : [];
+
   return (
     <AsyncSelect
       ref={asyncRef}
       autoFocus={autoFocus}
       cacheOptions
-      defaultOptions
+      defaultOptions={defaultOptions}
       loadOptions={performSearch}
       inputId={useId()}
       instanceId={useId()}
