@@ -22,6 +22,7 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({ address, accountInfo, sig
       case AccountType.Token:
         return <AccountHeaderTokens address={address} />;
       case AccountType.MetaplexNFT:
+      case AccountType.NFToken:
         return <AccountHeaderNFTs address={address} />;
       case AccountType.Wallet:
         return <AccountHeaderWallets address={address} accountInfo={accountInfo} solPrice={null} />;

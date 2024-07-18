@@ -2,20 +2,31 @@
 
 import React from "react";
 import { useCluster } from "@/providers/cluster-provider";
-
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/data-table/data-table";
+import { ColumnDef } from "@tanstack/react-table";
+
+// Define the columns configuration for the data table
+const columns: ColumnDef<any>[] = [
+  {
+    accessorKey: "domain",
+    header: "Domain",
+    cell: ({ getValue }) => getValue(),
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ getValue }) => (getValue() === "sns-domain" ? "SNS" : "ANS"),
+  },
+];
 
 export default function AccountDomains({ address }: { address: string }) {
   const { endpoint } = useCluster();
 
   // Use the custom hook to fetch all domain names
-  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
-    address,
-    endpoint,
-  );
+  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(address, endpoint);
 
   if (loadingDomains) {
     return (
@@ -47,16 +58,15 @@ export default function AccountDomains({ address }: { address: string }) {
     );
   }
 
+  const tableData = userDomains.map((domain: any) => ({
+    domain: domain.type === "sns-domain" ? domain.name : domain.domain,
+    type: domain.type,
+  }));
+
   return (
     <Card className="col-span-12 mb-10">
       <CardContent className="pt-6">
-        <div className="flex flex-wrap gap-2">
-          {userDomains.map((domain) => (
-            <Badge key={domain.domain} variant="outline">
-              {domain.type === "sns-domain" ? domain.name : domain.domain}
-            </Badge>
-          ))}
-        </div>
+        <DataTable columns={columns} data={tableData} />
       </CardContent>
     </Card>
   );
