@@ -58,6 +58,14 @@ const hasDomainSyntax = (value: string) => {
   return value.length > 4 && value.substring(value.length - 4) === ".sol";
 };
 
+const hasAnsDomainSyntax = (value: string) => {
+  return (
+    value.length > 4 &&
+    value.substring(value.length - 4) !== ".sol" &&
+    value.includes(".")
+  );
+};
+
 export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const asyncRef = React.useRef<SelectInstance<SearchOptions> | null>(null);
   const [search, setSearch] = React.useState("");
@@ -145,11 +153,17 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
         ? (await buildDomainOptions(search)) ?? []
         : [];
 
+    const ansDomainOptions =
+      hasAnsDomainSyntax(search) && cluster === Cluster.MainnetBeta
+        ? (await buildAnsDomainOptions(search)) ?? []
+        : [];
+
     return [
       ...recentSearchesOptionsAppendable,
       ...localOptions,
       ...tokenOptionsAppendable,
       ...domainOptions,
+      ...ansDomainOptions,
     ];
   }
 
@@ -444,33 +458,61 @@ async function buildTokenOptions(
 async function buildDomainOptions(search: string) {
   const domainInfoResponse = await fetch(`/api/domain-info/${search}`);
   const domainInfo = (await domainInfoResponse.json()) as FetchedDomainInfo;
-  console.log(domainInfo);
-  if (domainInfo && domainInfo.owner && domainInfo.address) {
-    return [
-      {
-        label: "Domain Owner",
-        options: [
-          {
-            label: domainInfo.owner,
-            pathname: "/address/" + domainInfo.owner,
-            value: [search],
-            icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
-          },
-        ],
-      },
-      {
-        label: "Name Service Account",
-        options: [
-          {
-            label: search,
-            pathname: "/address/" + domainInfo.address,
-            value: [search],
-            icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
-          },
-        ],
-      },
-    ];
+
+  let returnOptions: GroupedOption[] = [];
+
+  if (domainInfo && domainInfo.owner) {
+    returnOptions.push({
+      label: "Domain Owner",
+      options: [
+        {
+          label: domainInfo.owner,
+          pathname: "/address/" + domainInfo.owner,
+          value: [search],
+          icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
+        },
+      ],
+    });
   }
+
+  if (domainInfo && domainInfo.address) {
+    returnOptions.push({
+      label: "Name Service Account",
+      options: [
+        {
+          label: search,
+          pathname: "/address/" + domainInfo.address,
+          value: [search],
+          icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
+        },
+      ],
+    });
+  }
+
+  return returnOptions;
+}
+
+async function buildAnsDomainOptions(search: string) {
+  const domainInfoResponse = await fetch(`/api/ans-domain-info/${search}`);
+  const domainInfo = (await domainInfoResponse.json()) as FetchedDomainInfo;
+
+  let returnOptions: GroupedOption[] = [];
+
+  if (domainInfo && domainInfo.owner) {
+    returnOptions.push({
+      label: "Domain Owner",
+      options: [
+        {
+          label: domainInfo.owner,
+          pathname: "/address/" + domainInfo.owner,
+          value: [search],
+          icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
+        },
+      ],
+    });
+  }
+
+  return returnOptions;
 }
 
 // builds local search options
