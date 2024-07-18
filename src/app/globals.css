@@ -2,27 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Primary color #E84125 */
+
 @layer base {
   :root {
-    --background: 0 0% 97.65%;
+    --background: 190.19 0% 100%;
     --foreground: 0 0% 12.55%;
     --muted: 0 0% 93.73%;
     --muted-foreground: 0 0% 39.22%;
     --popover: 0 0% 98.82%;
     --popover-foreground: 0 0% 12.55%;
-    --card: 0 0% 98.82%;
+    --card: 210 16.67% 97.65%;
     --card-foreground: 0 0% 12.55%;
-    --border: 0 0% 85.1%;
-    --input: 0 0% 80.78%;
-    --primary: 10 78% 54%;
-    --primary-foreground: 0 0% 98.82%;
-    --secondary: 0 0% 55.29%;
-    --secondary-foreground: 0 0% 98.82%;
+    --border: 220 10.34% 88.63%;
+    --input: 220 10.34% 88.63%;
+    --primary: 8.62 80.91% 52.75%;
+    --primary-foreground: 44 0% 100%;
+    --secondary: 8.62 100% 88.6%;
+    --secondary-foreground: 16.27 50.43% 22.94%;
     --accent: 0 0% 90.98%;
     --accent-foreground: 0 0% 12.55%;
     --destructive: 10.16 77.87% 53.92%;
     --destructive-foreground: 0 0% 100%;
-    --ring: 24.8 79.79% 63.14%;
+    --ring: 8.62 80.91% 52.75%;
     --radius: 1.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
