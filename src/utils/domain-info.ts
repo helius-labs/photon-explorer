@@ -57,6 +57,22 @@ export async function getDomainInfo(domain: string, connection: Connection) {
   }
 }
 
+// returns non empty wallet string if a given .sol domain is owned by a wallet
+export async function getAnsDomainInfo(domain: string, connection: Connection) {
+  try {
+    const ans = new TldParser(connection);
+    const owner = await ans.getOwnerFromDomainTld(domain);
+
+    return owner
+      ? {
+          owner: owner.toBase58(),
+        }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export const hasDomainSyntax = (value: string) => {
   return value.length > 4 && value.substring(value.length - 4) === ".sol";
 };
