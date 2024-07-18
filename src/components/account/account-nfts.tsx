@@ -200,7 +200,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                 <NFTGridTable
                   columns={columns}
                   data={filteredNfts}
-                  onQuickView={handleQuickViewClick} // Ensure this prop is passed
+                  onQuickView={handleQuickViewClick}
                 />
               ) : (
                 <p className="flex items-center justify-center p-6 text-lg text-muted-foreground">

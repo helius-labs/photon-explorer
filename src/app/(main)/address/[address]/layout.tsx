@@ -101,7 +101,8 @@ export default function AddressLayout({
     if (
       accountType === AccountType.Token ||
       accountType === AccountType.Program ||
-      accountType === AccountType.MetaplexNFT
+      accountType === AccountType.MetaplexNFT ||
+      accountType === AccountType.NFToken
     ) {
       newTabs.push({
         name: "Metadata",
@@ -124,7 +125,8 @@ export default function AddressLayout({
       } else if (
         accountType === AccountType.Token ||
         accountType === AccountType.Program ||
-        accountType === AccountType.MetaplexNFT
+        accountType === AccountType.MetaplexNFT ||
+        accountType === AccountType.NFToken
       ) {
         router.replace(`${pathname}/history?cluster=${cluster}`);
       }
@@ -181,24 +183,9 @@ export default function AddressLayout({
     compressedSignatures.isLoading
   ) {
     return (
-      <div>
-        <div className="mb-8 flex flex-row items-center gap-4">
-          <div>
-            <Skeleton className="h-16 w-16 rounded-full" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-8 w-[200px]" />
-            <Skeleton className="h-5 w-[100px]" />
-          </div>
-        </div>
-        <div className="mb-8 flex gap-4">
-          <Skeleton className="h-7 w-20" />
-          <Skeleton className="h-7 w-20" />
-        </div>
         <div className="h-96 w-full">
           <Skeleton className="h-full w-full" />
         </div>
-      </div>
     );
   }
 
