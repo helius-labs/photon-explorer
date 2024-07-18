@@ -46,7 +46,7 @@ interface SearchOptions {
   icon: JSX.Element;
   address?: string;
   symbol?: string;
-  recent?: boolean;
+  recentSearch?: boolean;
 }
 
 interface GroupedOption {
@@ -87,7 +87,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
       setRecentSearches((prevSearches) => {
         return [
           option as SearchOptions,
-          ...prevSearches.filter((item) => item?.address !== option?.address),
+          ...prevSearches.filter((item) => item.pathname !== option?.pathname),
         ].slice(0, 5); // Limit to 5 recent searches
       });
 
@@ -126,7 +126,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
           pathname: recentSearch.pathname,
           value: recentSearch.value,
           icon: <Clock strokeWidth={0.5} className="h-8 w-8" />,
-          recent: true,
+          recentSearch: true,
         })),
       };
     }
@@ -205,10 +205,10 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const placeholderStyles =
     "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis";
   const selectInputStyles = "text-sm font-medium text-muted-foreground";
-  const valueContainerStyles = "p-1 gap-1";
+  const valueContainerStyles = "p-1 gap-1 cursor-text";
   const singleValueStyles = "leading-7 ml-1";
   const menuStyles =
-    "p-1  rounded-b-lg border border-t-0 border-input bg-popover";
+    "p-1 rounded-b-lg border border-t-0 border-input bg-popover";
   const groupHeadingStyles =
     "ml-2 mt-2 mb-1 text-muted-foreground text-xs font-medium";
   const optionStyles = {
@@ -223,11 +223,19 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const recentSearchesOptions = buildRecentSearchesOptions("", isClient);
   const defaultOptions = recentSearchesOptions ? [recentSearchesOptions] : [];
 
+  const clearRecentSearch = (pathname: string) => {
+    setRecentSearches((prevSearches) =>
+      prevSearches.filter((item) => item.pathname !== pathname),
+    );
+  };
+
   return (
     <AsyncSelect
       ref={asyncRef}
       autoFocus={autoFocus}
       cacheOptions
+      // @ts-ignore
+      clearRecentSearch={clearRecentSearch}
       defaultOptions={defaultOptions}
       loadOptions={performSearch}
       inputId={useId()}
@@ -294,7 +302,7 @@ const Control = ({
     {children}
     <button
       className={cn(
-        "mr-2 rounded-sm transition-colors hover:text-red-500",
+        "mr-2 rounded-sm p-2 transition-colors hover:text-red-500",
         props.selectProps.inputValue.length > 0 ? "block" : "hidden",
       )}
       onMouseDown={(event) => {
@@ -314,7 +322,7 @@ const Control = ({
         });
       }}
     >
-      <X className="h-6 w-6" />
+      <X className="h-5 w-5" />
     </button>
     <div className="pointer-events-none hidden h-6 w-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-[14px] text-sm font-medium text-muted-foreground opacity-80 sm:flex">
       {"/"}
@@ -341,6 +349,27 @@ const Option = ({ ...props }: OptionProps<SearchOptions, false>) => (
           </span>
         )}
       </span>
+      {props.data.recentSearch && (
+        <button
+          className={cn(
+            "ml-auto mr-2 rounded-sm transition-colors hover:text-red-500",
+          )}
+          onClick={(event) => {
+            // @ts-ignore
+            props.selectProps.clearRecentSearch(props.data.pathname);
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onTouchStart={(event) => {
+            // @ts-ignore
+            props.selectProps.clearRecentSearch(props.data.pathname);
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
     </span>
   </components.Option>
 );
