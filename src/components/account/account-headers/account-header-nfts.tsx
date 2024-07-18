@@ -1,11 +1,10 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
+import Link from "next/link";
 import Avatar from "boring-avatars";
 import { useRouter } from "next/navigation";
-import { CheckIcon, Copy, MoreVertical, HelpCircle } from "lucide-react";
+import { CheckIcon, Copy, MoreVertical, ChevronDownCircleIcon } from "lucide-react";
 import tensorLogo from "@/../public/assets/tensor-logo.svg";
 import magicEdenLogo from "@/../public/assets/magic-eden-logo.svg";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
@@ -15,14 +14,10 @@ import cloudflareLoader from "@/utils/imageLoader";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCluster } from "@/providers/cluster-provider";
 import { NFT } from "@/types/nft";
 
@@ -40,7 +35,9 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
   const displayImage = nftData?.image;
   const fallbackAddress = address.toBase58();
 
-  const royaltyPercentage = nftData?.royalty?.percent || 0;
+  const royaltyPercentage = nftData?.raw?.royalty?.basis_points
+    ? nftData.raw.royalty.basis_points / 100
+    : 0;
 
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
@@ -186,7 +183,13 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 text-md text-muted-foreground">
           <div>
             <span className="font-semibold text-foreground">Collection: </span>
-            {shorten(nftData?.collection || "N/A")}
+            {nftData?.collectionName ? (
+              <Link href={`/address/${nftData.collection}`} className="hover:underline text-muted-foreground">
+                {nftData.collectionName}
+              </Link>
+            ) : (
+              shorten(nftData?.collection || "N/A")
+            )}
           </div>
           <div>
             <span className="font-semibold text-foreground">Mint Authority: </span>
@@ -194,55 +197,59 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
           </div>
           <div>
             <span className="font-semibold text-foreground">Owner: </span>
-            {nftData?.owner ? shorten(nftData.owner) : "Unknown"}
+            {nftData?.owner ? (
+              <Link href={`/address/${nftData.owner}`} className="hover:underline">
+                {shorten(nftData.owner)}
+              </Link>
+            ) : (
+              "Unknown"
+            )}
           </div>
           <div>
-            <div className="flex items-center font-semibold text-foreground cursor-pointer">
-              Token Creators <HelpCircle className="ml-1 h-4 w-4" />
-            </div>
-            <TooltipProvider>
-              {nftData?.creators && nftData.creators.length > 0 && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="hidden" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="p-2 text-sm">
-                      {nftData.creators.map((creator, index) => (
-                        <p key={index} className="text-muted-foreground">
-                          <span className="font-semibold">{shorten(creator.address)}: </span>
-                          {creator.share}% {creator.verified ? "(Verified)" : ""}
-                        </p>
-                      ))}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </TooltipProvider>
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex items-center font-semibold text-foreground cursor-pointer">
+                  Token Creators <ChevronDownCircleIcon className="ml-2 h-5 w-5" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="p-2 text-sm">
+                  {nftData?.creators && nftData.creators.length > 0 ? (
+                    nftData.creators.map((creator, index) => (
+                      <p key={index} className="text-muted-foreground">
+                        <span className="font-semibold">{shorten(creator.address)}: </span>
+                        {creator.share}% {creator.verified ? "(Verified)" : ""}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground">No creators found</p>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
-            <div className="flex items-center font-semibold text-foreground cursor-pointer">
-              Attributes <HelpCircle className="ml-1 h-4 w-4" />
-            </div>
-            <TooltipProvider>
-              {nftData?.attributes && nftData.attributes.length > 0 && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="hidden" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="p-2 text-sm">
-                      {nftData.attributes.map((attribute, index) => (
-                        <p key={index} className="text-muted-foreground">
-                          <span className="font-semibold">{attribute.trait_type}: </span>
-                          {attribute.value}
-                        </p>
-                      ))}
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </TooltipProvider>
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex items-center font-semibold text-foreground cursor-pointer">
+                  Attributes <ChevronDownCircleIcon className="ml-2 h-5 w-5" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="p-2 text-sm">
+                  {nftData?.attributes && nftData.attributes.length > 0 ? (
+                    nftData.attributes.map((attribute, index) => (
+                      <p key={index} className="text-muted-foreground">
+                        <span className="font-semibold">{attribute.trait_type}: </span>
+                        {attribute.value}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground">No attributes found</p>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <span className="font-semibold text-foreground">Royalty: </span>

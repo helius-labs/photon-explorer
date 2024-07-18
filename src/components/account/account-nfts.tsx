@@ -4,7 +4,8 @@ import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
@@ -24,12 +25,53 @@ import {
 } from "@/components/ui/select";
 
 const AccountNFTs = ({ address }: { address: string }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const collectionFilter = searchParams.get("collection");
+
   const [showNonVerified, setShowNonVerified] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [collectionFilter, setCollectionFilter] = useState<string | undefined>(undefined);
+  const [collections, setCollections] = useState<string[]>([]);
 
   const { data, isLoading, isError } = useGetNFTsByOwner(address);
+
+  useEffect(() => {
+    // Extract unique collection values from nftDataArray
+    const collectionSet = new Set<string>();
+    data?.forEach((nft) => {
+      if (nft.collectionName) {
+        collectionSet.add(nft.collectionName);
+      }
+    });
+    setCollections(Array.from(collectionSet));
+  }, [data]);
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+      return params.toString();
+    },
+    [searchParams],
+  );
+
+  const handleCollectionFilter = (collection: string) => {
+    const queryString = createQueryString("collection", collection);
+    router.push(`${pathname}?${queryString}`);
+  };
+
+  const handleNoFilter = () => {
+    // Create a new instance of URLSearchParams
+    const newSearchParams = new URLSearchParams(searchParams);
+    // Delete the 'collection' parameter
+    newSearchParams.delete("collection");
+
+    // Navigate to the updated URL
+    const newURL = `${pathname}?${newSearchParams.toString()}`;
+    router.push(newURL);
+  };
 
   const handleQuickViewClick = (nftData: NFT) => {
     setSelectedNft(nftData);
@@ -40,22 +82,11 @@ const AccountNFTs = ({ address }: { address: string }) => {
     return (
       data?.filter((nft) => {
         const matchesVerified = nft.verified || showNonVerified;
-        const matchesCollection = collectionFilter ? nft.collection === collectionFilter : true;
+        const matchesCollection = collectionFilter ? nft.collectionName === collectionFilter : true;
         return matchesVerified && matchesCollection;
       }) || []
     );
   }, [data, showNonVerified, collectionFilter]);
-
-  const filteredCollections = useMemo(() => {
-    const collectionSet = new Set<string>();
-    data?.forEach((nft) => {
-      const matchesVerified = nft.verified || showNonVerified;
-      if (matchesVerified && nft.collection) {
-        collectionSet.add(nft.collection);
-      }
-    });
-    return Array.from(collectionSet);
-  }, [data, showNonVerified]);
 
   const columns: ColumnDef<NFT>[] = [
     {
@@ -138,14 +169,16 @@ const AccountNFTs = ({ address }: { address: string }) => {
                 <div className="mt-2 flex items-center space-x-4 sm:mt-0">
                   <Select
                     value={collectionFilter || "all"}
-                    onValueChange={(value) => setCollectionFilter(value === "all" ? undefined : value)}
+                    onValueChange={(value) =>
+                      value === "all" ? handleNoFilter() : handleCollectionFilter(value)
+                    }
                   >
                     <SelectTrigger className="w-full sm:w-48">
                       <SelectValue placeholder="Filter by Collection" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Collections</SelectItem>
-                      {filteredCollections?.map((collection) => (
+                      {collections.map((collection) => (
                         <SelectItem key={collection} value={collection}>
                           {collection}
                         </SelectItem>

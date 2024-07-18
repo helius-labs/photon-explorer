@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
@@ -11,12 +9,11 @@ import { CheckIcon, Copy, MoreVertical } from "lucide-react";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
-import { shorten, shortenLong } from "@/utils/common";
+import { shortenLong } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
   Tooltip,
   TooltipContent,
