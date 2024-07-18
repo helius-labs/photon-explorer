@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
 import { MainNav } from "@/components/main-nav";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
+import { SearchBar } from "@/components/search-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ export default async function Home() {
           <h1 className="text-5xl font-bold md:text-9xl">XRAY</h1>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
-            <CommandMenu />
+            <SearchBar />
           </div>
 
           <div className="w-full max-w-md pb-8 md:max-w-lg md:pb-16 lg:max-w-xl">
