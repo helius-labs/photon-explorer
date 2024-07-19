@@ -87,7 +87,6 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     parsed.data[0].description != ""
   ) {
     // check all the data for txn
-    // console.log("Parsed data: ", parsed);
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
   } else if (transaction.data && compressed.data) {
     transactionOverview = (

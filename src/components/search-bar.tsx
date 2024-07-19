@@ -227,13 +227,21 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
     setRecentSearches((prevSearches) =>
       prevSearches.filter((item) => item.pathname !== pathname),
     );
+    setTimeout(() => {
+      asyncRef?.current?.onInputChange(search, {
+        prevInputValue: "",
+        action: "set-value",
+      });
+    });
   };
+
+  const resetValue = "" as any;
 
   return (
     <AsyncSelect
       ref={asyncRef}
       autoFocus={autoFocus}
-      cacheOptions
+      cacheOptions={false}
       // @ts-ignore
       clearRecentSearch={clearRecentSearch}
       defaultOptions={defaultOptions}
@@ -243,6 +251,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
       noOptionsMessage={() => "No results found."}
       loadingMessage={() => "loading..."}
       placeholder="Search for accounts, transactions, tokens and programs..."
+      value={resetValue}
       inputValue={search}
       blurInputOnSelect
       openMenuOnFocus
