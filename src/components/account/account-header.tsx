@@ -8,6 +8,7 @@ import AccountHeaderNFTs from "@/components/account/account-headers/account-head
 import AccountHeaderWallets from "@/components/account/account-headers/account-header-wallet";
 import AccountHeaderPrograms from "@/components/account/account-headers/account-header-programs";
 import AccountHeaderUnknown from "@/components/account/account-headers/account-header-unknown";
+import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 
 interface AccountHeaderProps {
   address: PublicKey;
@@ -17,12 +18,18 @@ interface AccountHeaderProps {
 }
 
 const AccountHeader: React.FC<AccountHeaderProps> = ({ address, accountInfo, signatures, accountType }) => {
+  const { data: nftData } = useGetNFTsByMint(address.toBase58(), true);
+
   const renderAccountHeader = () => {
+    if (nftData?.compression?.compressed) {
+      return <AccountHeaderNFTs address={address} />;
+    }
     switch (accountType) {
       case AccountType.Token:
         return <AccountHeaderTokens address={address} />;
       case AccountType.MetaplexNFT:
       case AccountType.NFToken:
+      case AccountType.CompressedNFT:
         return <AccountHeaderNFTs address={address} />;
       case AccountType.Wallet:
         return <AccountHeaderWallets address={address} accountInfo={accountInfo} solPrice={null} />;

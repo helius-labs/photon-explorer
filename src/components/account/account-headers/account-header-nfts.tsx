@@ -56,7 +56,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
   }, [hasCopied]);
 
   return (
-    <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6 md:h-[400px]">
+    <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6 md:h-auto">
       <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
         <div className="flex-shrink-0">
           {displayImage ? (
@@ -85,12 +85,15 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
         <div className="flex flex-col w-full">
           <div className="flex items-start justify-between w-full">
             <div className="text-center md:text-left">
-              <CardTitle className="text-3xl font-medium leading-none">
+              <CardTitle className="text-3xl font-medium leading-none max-w-[calc(100%-120px)]">
                 <div className="flex items-center justify-center gap-2 md:justify-start">
                   {displayName || <Address pubkey={address} short />}
                   <Badge variant="success">NFT</Badge>
                   {nftData?.verified && (
                     <Badge variant="outline">Verified</Badge>
+                  )}
+                  {nftData?.compression?.compressed && (
+                    <Badge variant="outline">Compressed</Badge>
                   )}
                 </div>
               </CardTitle>
@@ -171,7 +174,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
                     alt="Magic Eden"
                     width={28}
                     height={28}
-                    className="rounded-full"
+                    className="rounded-full border"
                   />
                 </a>
               </div>

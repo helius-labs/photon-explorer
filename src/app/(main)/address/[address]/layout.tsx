@@ -11,13 +11,14 @@ import {
   useGetCompressedAccount,
   useGetCompressionSignaturesForAccount,
 } from "@/hooks/compression";
+import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
+import Loading from "@/components/common/loading";
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";
-import Loading from "@/components/common/loading";
 
 export default function AddressLayout({
   children,
@@ -42,18 +43,32 @@ export default function AddressLayout({
   // Fetch account info can be null if the address is not used or the account has been closed
   const compressedAccount = useGetCompressedAccount(address);
 
+  // Fetch NFT data to check if it's a compressed NFT
+  const {
+    data: nftData,
+    isLoading: nftLoading,
+    isError: nftError,
+  } = useGetNFTsByMint(address);
+
   const accountType = useMemo(() => {
     if (
       accountInfo.data &&
       accountInfo.data.value !== undefined &&
       signatures.data !== undefined
     ) {
-      return getAccountType(accountInfo.data.value, signatures.data);
+      return getAccountType(
+        accountInfo.data.value,
+        signatures.data,
+        nftData || undefined,
+      );
+    }
+    if (nftData?.compression?.compressed) {
+      return AccountType.CompressedNFT;
     }
     return AccountType.Unknown;
-  }, [accountInfo.data, signatures.data]);
+  }, [accountInfo.data, signatures.data, nftData]);
 
-  // TODO: Create better logic for the tabs based on the account type
+  // Create better logic for the tabs based on the account type
   const tabs: Tab[] = useMemo(() => {
     const newTabs: Tab[] = [];
 
@@ -97,12 +112,13 @@ export default function AddressLayout({
       });
     }
 
-    // Ensure Metadata tab is added for tokens, NFTs, and programs
+    // Ensure Metadata tab is added for tokens, NFTs, programs, and compressed NFTs
     if (
       accountType === AccountType.Token ||
       accountType === AccountType.Program ||
       accountType === AccountType.MetaplexNFT ||
-      accountType === AccountType.NFToken
+      accountType === AccountType.NFToken ||
+      accountType === AccountType.CompressedNFT
     ) {
       newTabs.push({
         name: "Metadata",
@@ -111,7 +127,7 @@ export default function AddressLayout({
     }
 
     return newTabs;
-  }, [accountType, compressedAccount.data, address, pathname]);
+  }, [accountType, compressedAccount.data, nftData, address, pathname]);
 
   // Route to the correct tab based on the account type
   useEffect(() => {
@@ -126,7 +142,8 @@ export default function AddressLayout({
         accountType === AccountType.Token ||
         accountType === AccountType.Program ||
         accountType === AccountType.MetaplexNFT ||
-        accountType === AccountType.NFToken
+        accountType === AccountType.NFToken ||
+        accountType === AccountType.CompressedNFT
       ) {
         router.replace(`${pathname}/history?cluster=${cluster}`);
       }
@@ -136,11 +153,7 @@ export default function AddressLayout({
   // Route to the correct tab based on the compressed account data
   useEffect(() => {
     if (pathname === `/address/${address}`) {
-      if (
-        compressedSignatures.data &&
-        compressedSignatures.data.length > 0 &&
-        compressedAccount.data !== undefined
-      ) {
+      if (compressedAccount.data) {
         router.replace(`${pathname}/history-compressed?cluster=${cluster}`);
       }
     }
@@ -162,7 +175,8 @@ export default function AddressLayout({
     signatures.isError ||
     accountInfo.isError ||
     compressedAccount.isError ||
-    compressedSignatures.isError
+    compressedSignatures.isError ||
+    nftError
   ) {
     return (
       <ErrorCard
@@ -170,7 +184,8 @@ export default function AddressLayout({
           signatures.error?.message ||
           accountInfo.error?.message ||
           compressedAccount.error?.message ||
-          compressedSignatures.error?.message
+          compressedSignatures.error?.message ||
+          nftError
         }`}
       />
     );
@@ -180,10 +195,11 @@ export default function AddressLayout({
     signatures.isLoading ||
     accountInfo.isLoading ||
     compressedAccount.isLoading ||
-    compressedSignatures.isLoading
+    compressedSignatures.isLoading ||
+    nftLoading
   ) {
     return (
-      <div className="flex justify-center mt-20">
+      <div className="mt-20 flex justify-center">
         <Loading className="h-32 w-32" />
       </div>
     );
@@ -204,9 +220,18 @@ export default function AddressLayout({
           <TabNav tabs={tabs} />
           {children}
         </>
-      ) : compressedSignatures.data &&
-        compressedSignatures.data.length > 0 &&
-        compressedAccount.data !== undefined ? (
+      ) : nftData?.compression?.compressed ? (
+        <>
+          <AccountHeader
+            address={new PublicKey(address)}
+            accountInfo={null}
+            signatures={signatures.data || []}
+            accountType={AccountType.CompressedNFT}
+          />
+          <TabNav tabs={tabs} />
+          {children}
+        </>
+      ) : compressedAccount.data ? (
         <>
           <CompressionHeader
             address={new PublicKey(address)}

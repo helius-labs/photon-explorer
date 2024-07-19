@@ -105,6 +105,7 @@ async function getNFTByMintDAS(
         verified: item.creators?.some((creator) => creator.verified) || false,
         value: item.token_info?.price_info?.price_per_token || 0,
         royaltyPercentage: royaltyPercentage,
+        compression: item.compression || undefined,
       };
       return nft;
     }

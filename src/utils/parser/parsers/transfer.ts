@@ -40,7 +40,6 @@ export const parseTransfer = (
   const actions: TransactionAction[] = [];
 
   if (nativeTransfers.length === 1) {
-    console.log("amount: ", nativeTransfers[0].amount);
     actions.push({
       actionType: ActionTypes.TRANSFER,
       from: nativeTransfers[0].fromUserAccount!,

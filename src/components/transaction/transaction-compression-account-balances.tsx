@@ -39,6 +39,7 @@ export default function TransactionCompressionAccountBalances({
               <TableRow>
                 <TableHead>Status</TableHead>
                 <TableHead>Hash</TableHead>
+                <TableHead>Address</TableHead>
                 <TableHead>Owner</TableHead>
                 <TableHead>Change</TableHead>
               </TableRow>
@@ -49,6 +50,13 @@ export default function TransactionCompressionAccountBalances({
                   <TableCell>Opened</TableCell>
                   <TableCell>
                     <Address pubkey={new PublicKey(item.account.hash)} />
+                  </TableCell>
+                  <TableCell>
+                    {item.account.address ? (
+                      <Address pubkey={new PublicKey(item.account.address)} />
+                    ) : (
+                      <>-</>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Address pubkey={new PublicKey(item.account.owner)} />
@@ -71,6 +79,13 @@ export default function TransactionCompressionAccountBalances({
                       link={false}
                       pubkey={new PublicKey(item.account.hash)}
                     />
+                  </TableCell>
+                  <TableCell>
+                    {item.account.address ? (
+                      <Address pubkey={new PublicKey(item.account.address)} />
+                    ) : (
+                      <>-</>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Address pubkey={new PublicKey(item.account.owner)} />

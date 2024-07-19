@@ -37,7 +37,6 @@ export const parseSwap = (
   }
 
   const actions: TransactionAction[] = [];
-  // console.log("SWAP");
   if ("swap" in events && events.swap !== null) {
     const { swap } = events;
 

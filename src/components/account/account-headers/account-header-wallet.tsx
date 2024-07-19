@@ -43,7 +43,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
   );
-  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
+  const { data: userDomains } = useFetchDomains(
     address.toBase58(),
     endpoint,
   );
@@ -121,9 +121,8 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                 </div>
               )}
             </div>
-            <div className="ml-auto mt-2 flex flex-wrap gap-2 md:mt-2">
-              {!loadingDomains &&
-                userDomains &&
+            <div className="ml-auto mt-2 flex flex-wrap gap-2 md:mt-2" style={{ height: '30px' }}>
+              {userDomains &&
                 userDomains.length > 0 &&
                 userDomains.slice(0, 3).map((domain: any) => (
                   <Badge key={domain.domain} variant="outline">

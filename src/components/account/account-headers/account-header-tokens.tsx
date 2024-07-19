@@ -14,20 +14,12 @@ import cloudflareLoader from "@/utils/imageLoader";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCluster } from "@/providers/cluster-provider";
 import { formatNumericValue, formatCurrencyValue, calculateMarketCap } from "@/utils/numbers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -36,28 +28,99 @@ interface AccountHeaderTokensProps {
 const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) => {
   const [hasCopied, setHasCopied] = useState(false);
   const [coingeckoId, setCoingeckoId] = useState<string | null>(null);
+  const [tokenDetails, setTokenDetails] = useState<{
+    tokenName: string;
+    tokenImageURI: string | null;
+    tokenSymbol: string;
+    supply: string;
+    price: string;
+    marketCap: string;
+    mint_authority: string;
+    freeze_authority: string;
+    token_program: string;
+  }>({
+    tokenName: "N/A",
+    tokenImageURI: null,
+    tokenSymbol: "N/A",
+    supply: "N/A",
+    price: "N/A",
+    marketCap: "N/A",
+    mint_authority: "N/A",
+    freeze_authority: "N/A",
+    token_program: "N/A",
+  });
+  const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
   const { endpoint } = useCluster() as { endpoint: string };
-  const { data: tokenList } = useGetTokenListStrict();
-  const tokenFromList = tokenList?.find((token) => token.address === address.toBase58());
-  const { data: tokenDataFromAPI } = useGetTokensByMint(address.toBase58(), !!tokenFromList);
+  const { data: tokenList, isLoading: tokenListLoading, isError: tokenListError } = useGetTokenListStrict();
+  const { data: tokenDataFromAPI, isLoading: tokenDataLoading, isError: tokenDataError } = useGetTokensByMint(address.toBase58());
 
-  // Combine token list data with token data from the hook
-  const tokenDetails = {
-    tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "N/A",
-    tokenImageURI: tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
-    tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "N/A",
-    supply: tokenDataFromAPI?.supply !== undefined ? formatNumericValue(tokenDataFromAPI.supply) : "N/A",
-    price: tokenDataFromAPI?.price !== undefined ? formatCurrencyValue(tokenDataFromAPI.price) : "N/A",
-    marketCap: calculateMarketCap(tokenDataFromAPI?.supply, tokenDataFromAPI?.price),
-    mint_authority: tokenDataFromAPI?.mint_authority || "N/A",
-    freeze_authority: tokenDataFromAPI?.freeze_authority || "N/A",
-    token_program: tokenDataFromAPI?.token_program || "N/A",
-  };
-
-  const displayName = `${tokenDetails.tokenName} (${tokenDetails.tokenSymbol})`;
-  const displayImage = tokenDetails.tokenImageURI;
   const fallbackAddress = address.toBase58();
+
+  useEffect(() => {
+    const fetchCoingeckoId = async () => {
+      if (tokenDetails.tokenSymbol !== "N/A") {
+        try {
+          const response = await fetch("https://api.coingecko.com/api/v3/coins/list");
+          if (!response.ok) {
+            throw new Error("Failed to fetch CoinGecko data");
+          }
+          const data = await response.json();
+          const token = data.find((token: any) => token.symbol.toLowerCase() === tokenDetails.tokenSymbol.toLowerCase());
+          if (token) {
+            setCoingeckoId(token.id);
+          }
+        } catch (error) {
+          console.error("Error fetching CoinGecko data:", error);
+        }
+      }
+    };
+
+    fetchCoingeckoId();
+  }, [tokenDetails.tokenSymbol]);
+
+  useEffect(() => {
+    if (tokenListLoading || tokenDataLoading) return;
+
+    if (tokenListError || tokenDataError) {
+      if (retryCount < 3) {
+        setRetryCount(retryCount + 1);
+        setTimeout(() => {
+          if (tokenList) {
+            const tokenFromList = tokenList.find((token) => token.address === address.toBase58());
+            if (tokenFromList || tokenDataFromAPI) {
+              setTokenDetails({
+                tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "N/A",
+                tokenImageURI: tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
+                tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "N/A",
+                supply: tokenDataFromAPI?.supply !== undefined ? formatNumericValue(tokenDataFromAPI.supply) : "N/A",
+                price: tokenDataFromAPI?.price !== undefined ? formatCurrencyValue(tokenDataFromAPI.price) : "N/A",
+                marketCap: calculateMarketCap(tokenDataFromAPI?.supply, tokenDataFromAPI?.price),
+                mint_authority: tokenDataFromAPI?.mint_authority || "N/A",
+                freeze_authority: tokenDataFromAPI?.freeze_authority || "N/A",
+                token_program: tokenDataFromAPI?.token_program || "N/A",
+              });
+            }
+          }
+        }, 2000);
+      }
+    } else if (tokenList) {
+      const tokenFromList = tokenList.find((token) => token.address === address.toBase58());
+      if (tokenFromList || tokenDataFromAPI) {
+        setTokenDetails({
+          tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "N/A",
+          tokenImageURI: tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
+          tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "N/A",
+          supply: tokenDataFromAPI?.supply !== undefined ? formatNumericValue(tokenDataFromAPI.supply) : "N/A",
+          price: tokenDataFromAPI?.price !== undefined ? formatCurrencyValue(tokenDataFromAPI.price) : "N/A",
+          marketCap: calculateMarketCap(tokenDataFromAPI?.supply, tokenDataFromAPI?.price),
+          mint_authority: tokenDataFromAPI?.mint_authority || "N/A",
+          freeze_authority: tokenDataFromAPI?.freeze_authority || "N/A",
+          token_program: tokenDataFromAPI?.token_program || "N/A",
+        });
+      }
+    }
+  }, [tokenList, tokenDataFromAPI, tokenListLoading, tokenDataLoading, tokenListError, tokenDataError, retryCount, address]);
 
   useEffect(() => {
     if (hasCopied) {
@@ -68,31 +131,16 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
     }
   }, [hasCopied]);
 
-  useEffect(() => {
-    const fetchCoingeckoId = async () => {
-      const response = await fetch("https://api.coingecko.com/api/v3/coins/list");
-      const data = await response.json();
-      const token = data.find((token: any) => token.symbol.toLowerCase() === tokenDetails.tokenSymbol.toLowerCase());
-      if (token) {
-        setCoingeckoId(token.id);
-      }
-    };
-
-    if (tokenDetails.tokenSymbol !== "N/A") {
-      fetchCoingeckoId();
-    }
-  }, [tokenDetails.tokenSymbol]);
-
   return (
     <TooltipProvider>
       <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6">
         <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
           <div className="flex-shrink-0">
-            {displayImage ? (
+            {tokenDetails.tokenImageURI ? (
               <Image
                 loader={cloudflareLoader}
-                src={displayImage}
-                alt={displayName || "Token"}
+                src={tokenDetails.tokenImageURI}
+                alt={tokenDetails.tokenName || "Token"}
                 width={80}
                 height={80}
                 loading="eager"
@@ -113,10 +161,10 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
           </div>
           <div className="flex flex-col w-full">
             <div className="flex items-start justify-between w-full">
-              <div className="text-center md:text-left flex-grow">
+              <div className="text-center md:text-left flex-grow max-w-xs">
                 <CardTitle className="text-3xl font-medium leading-none">
                   <div className="flex items-center justify-center gap-2 md:justify-start">
-                    {displayName !== "N/A" ? displayName : <Address pubkey={address} short />}
+                    {tokenDetails.tokenName !== "N/A" ? `${tokenDetails.tokenName} (${tokenDetails.tokenSymbol})` : <Address pubkey={address} short />}
                     <Badge variant="success">Token</Badge>
                   </div>
                 </CardTitle>
@@ -179,16 +227,16 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-2">
-                <div className="flex items-center">
-                  <span className="ml-2 text-3xl text-foreground mb-4">{tokenDetails.price}</span>
+                <div className="flex items-center mb-4">
+                  <span className="text-3xl text-foreground">{tokenDetails.price}</span>
                 </div>
-                <div className="flex items-center text-sm">
-                  <span className="font-semibold text-muted-foreground">Supply: </span>
-                  <span className="ml-2">{tokenDetails.supply}</span>
+                <div className="flex items-center text-sm space-x-2">
+                  <span className="font-semibold text-muted-foreground">Supply:</span>
+                  <span>{tokenDetails.supply}</span>
                 </div>
-                <div className="flex items-center text-sm">
-                  <span className="font-semibold text-muted-foreground">Market Cap: </span>
-                  <span className="ml-2">{tokenDetails.marketCap}</span>
+                <div className="flex items-center text-sm space-x-2">
+                  <span className="font-semibold text-muted-foreground">Market Cap:</span>
+                  <span>{tokenDetails.marketCap}</span>
                 </div>
               </div>
               <div className="ml-4 self-start mt-2 md:mt-0">

@@ -52,6 +52,12 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
   const tokenImage = nft.image || noLogoImg.src;
   const royaltyPercentage = nft.raw?.royalty?.basis_points ? nft.raw.royalty.basis_points / 100 : 0;
 
+  const truncateDescription = (description: string, length: number) => {
+    return description.length > length ? description.substring(0, length) + '...' : description;
+  };
+
+  const truncatedDescription = truncateDescription(nft.description || "No description available", 245);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="flex items-center justify-center z-50 p-4 w-full max-h-[70vh] max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg">
@@ -86,7 +92,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                   {nft.name || "Unknown NFT"}
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground text-center lg:text-left mb-2 sm:mb-4">
-                  {nft.description || "No description available"}
+                  {truncatedDescription}
                 </DialogDescription>
               </DialogHeader>
               <ScrollArea className="h-full">
@@ -138,6 +144,12 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Royalty: </span>
                           {royaltyPercentage}%
+                        </p>
+                      )}
+                      {nft.compression?.compressed && (
+                        <p className="text-muted-foreground">
+                          <span className="font-semibold">Type: </span>
+                          Compressed NFT
                         </p>
                       )}
                     </div>

@@ -158,7 +158,14 @@ export function useGetCompressedAccount(
 
       try {
         const hash = createBN254(address, "base58");
-        return await connection.getCompressedAccount(undefined, hash);
+
+        // Get account hash and account address in parallel
+        const [accountHash, accountAddress] = await Promise.all([
+          connection.getCompressedAccount(undefined, hash),
+          connection.getCompressedAccount(hash, undefined),
+        ]);
+
+        return accountHash || accountAddress || null;
       } catch (error) {
         // If the address is not a valid base58 string, return null
         return null;

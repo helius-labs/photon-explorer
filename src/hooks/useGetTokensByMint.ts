@@ -39,7 +39,6 @@ async function getTokenByMintDAS(
   endpoint: string,
 ): Promise<Token | null> {
   try {
-    console.log("Fetching token data from DAS API...");
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -59,10 +58,8 @@ async function getTokenByMintDAS(
     });
 
     const data: { result: DAS.GetAssetResponse } = await response.json();
-    console.log("DAS API Response:", data);
 
     const item = data.result;
-    console.log("DAS API Item:", item);
 
     if (item && item.interface === Interface.FUNGIBLE_TOKEN) {
       return {
@@ -92,7 +89,6 @@ async function getTokenByMintMetaplex(
   mint: string,
   endpoint: string,
 ): Promise<Token | null> {
-  console.log("Fetching token data from Metaplex API...");
   const umi = createUmi(endpoint).use(mplTokenMetadata());
 
   const asset = await fetchAllDigitalAssetWithTokenByOwner(
@@ -104,7 +100,6 @@ async function getTokenByMintMetaplex(
   );
 
   const item = asset[0];
-  console.log("Metaplex API Response:", item);
 
   if (item) {
     const tokenStandard = unwrapOption(item.metadata.tokenStandard);

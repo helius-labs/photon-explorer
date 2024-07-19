@@ -26,7 +26,11 @@ type TransactionData =
   | XrayTransaction
   | ParsedTransactionWithMeta;
 
-export default function AccountHistory({ address }: { address: string }) {
+interface AccountHistoryProps {
+  address: string;
+}
+
+export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster } = useCluster();
   const router = useRouter();
 
@@ -43,7 +47,7 @@ export default function AccountHistory({ address }: { address: string }) {
     router.push(`/?cluster=${cluster}`);
   };
 
-  if (signatures.isError || parsedTransactions.isError)
+  if (signatures.isError || parsedTransactions.isError) {
     return (
       <Card className="col-span-12">
         <CardContent className="pt-6">
@@ -58,8 +62,9 @@ export default function AccountHistory({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
+  }
 
-  if (signatures.isLoading || parsedTransactions.isLoading)
+  if (signatures.isLoading || parsedTransactions.isLoading) {
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
@@ -68,6 +73,7 @@ export default function AccountHistory({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
+  }
 
   // this is the flow to add transactions to the table. If a txn is parsed, add it to the table, otherwise add the signature
   let result: TransactionData[] = [];
@@ -96,7 +102,13 @@ export default function AccountHistory({ address }: { address: string }) {
   return (
     <Card className="col-span-12 mb-10">
       <CardContent className="pt-6">
-        <TransactionCard data={data} />
+        {data.length > 0 ? (
+          <TransactionCard data={data} />
+        ) : (
+          <div className="text-center text-muted-foreground">
+            No transaction history found for this address.
+          </div>
+        )}
       </CardContent>
     </Card>
   );

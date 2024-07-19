@@ -112,6 +112,7 @@ async function getNFTsByOwnerDAS(
         verified: item.creators?.some((creator) => creator.verified),
         value: item.token_info?.price_info?.price_per_token,
         royaltyPercentage: royaltyPercentage,
+        compression: item.compression,
       };
       return nft;
     }
