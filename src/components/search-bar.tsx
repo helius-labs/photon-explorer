@@ -345,7 +345,7 @@ const Option = ({ ...props }: OptionProps<SearchOptions, false>) => (
   <components.Option {...props}>
     <span className="flex items-center gap-2">
       <span className="flex-shrink-0">{props.data.icon}</span>
-      <span className="flex flex-col">
+      <span className="flex flex-col overflow-hidden">
         <span className="flex items-center gap-1">
           <span className="truncate">{props.data.label}</span>
           {props.data.symbol && (
