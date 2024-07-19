@@ -15,9 +15,9 @@ import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
+import Loading from "@/components/common/loading";
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";
-import Loading from "@/components/common/loading";
 
 export default function AddressLayout({
   children,
@@ -136,11 +136,7 @@ export default function AddressLayout({
   // Route to the correct tab based on the compressed account data
   useEffect(() => {
     if (pathname === `/address/${address}`) {
-      if (
-        compressedSignatures.data &&
-        compressedSignatures.data.length > 0 &&
-        compressedAccount.data !== undefined
-      ) {
+      if (compressedAccount.data !== undefined) {
         router.replace(`${pathname}/history-compressed?cluster=${cluster}`);
       }
     }
@@ -183,7 +179,7 @@ export default function AddressLayout({
     compressedSignatures.isLoading
   ) {
     return (
-      <div className="flex justify-center mt-20">
+      <div className="mt-20 flex justify-center">
         <Loading className="h-32 w-32" />
       </div>
     );
@@ -204,9 +200,7 @@ export default function AddressLayout({
           <TabNav tabs={tabs} />
           {children}
         </>
-      ) : compressedSignatures.data &&
-        compressedSignatures.data.length > 0 &&
-        compressedAccount.data !== undefined ? (
+      ) : compressedAccount.data !== undefined ? (
         <>
           <CompressionHeader
             address={new PublicKey(address)}
