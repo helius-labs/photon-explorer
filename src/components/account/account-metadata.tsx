@@ -14,7 +14,7 @@ type MetadataViewerProps = {
 };
 
 const MetadataViewer: React.FC<MetadataViewerProps> = ({ data }) => {
-  const [showCode, setShowCode] = useState(false);
+  const [showCode, setShowCode] = useState(true);  // Set to true to open by default
   const [hasCopied, setHasCopied] = useState(false);
 
   const formattedMetadata = JSON.stringify(data, null, 2);
@@ -26,8 +26,8 @@ const MetadataViewer: React.FC<MetadataViewerProps> = ({ data }) => {
   };
 
   return (
-    <Card className="col-span-12 mb-10 shadow-lg border rounded-lg">
-      <CardContent className="flex flex-col gap-6 p-8">
+    <Card className="w-full mb-10 shadow-lg rounded-lg">
+      <CardContent className="flex flex-col gap-6 p-6 md:p-12">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <FileJson className="h-10 w-10 text-muted-foreground" />
@@ -44,8 +44,8 @@ const MetadataViewer: React.FC<MetadataViewerProps> = ({ data }) => {
         </div>
         {showCode && (
           <>
-            <ScrollArea className="mt-4 h-96 w-full overflow-auto rounded-lg p-">
-              <pre className="bg-background text-muted-foreground p-6 rounded-lg shadow-inner">
+            <ScrollArea className="mt-4 h-96 w-full overflow-auto rounded-lg">
+              <pre className="bg-background text-muted-foreground p-6 rounded-lg shadow-inner w-full">
                 <code className="text-xs whitespace-pre-wrap break-all">{formattedMetadata}</code>
               </pre>
             </ScrollArea>
@@ -83,10 +83,12 @@ const AccountMetadata: React.FC<Props> = ({ address }) => {
   const { data: tokenData } = useGetTokensByMint(address);
 
   return (
-    <div className="p-8">
-      {nftData && <MetadataViewer data={nftData.raw} />}
-      {tokenData && <MetadataViewer data={tokenData.raw} />}
-      {!nftData && !tokenData && <p className="text-center text-muted-foreground">No metadata found for the given address.</p>}
+    <div className="w-full">
+      <div className="max-w-screen-lg mx-auto">
+        {nftData && <MetadataViewer data={nftData.raw} />}
+        {tokenData && <MetadataViewer data={tokenData.raw} />}
+        {!nftData && !tokenData && <p className="text-center text-muted-foreground">No metadata found for the given address.</p>}
+      </div>
     </div>
   );
 };

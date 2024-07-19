@@ -1,8 +1,8 @@
+import { NFT } from "@/types/nft";
 import {
   AccountInfo,
   ConfirmedSignatureInfo,
   ParsedAccountData,
-  PublicKey,
 } from "@solana/web3.js";
 
 export enum AccountType {
@@ -14,6 +14,7 @@ export enum AccountType {
   Unknown = "Unknown",
   MetaplexNFT = "MetaplexNFT",
   NFToken = "NFToken", // NFToken: https://nftoken.so/docs/overview
+  CompressedNFT = "CompressedNFT",
 }
 
 const SYSTEM_PROGRAM = "11111111111111111111111111111111";
@@ -22,6 +23,7 @@ const NFTOKEN_ADDRESS = "nftokf9qcHSYkVSP3P2gUMmV6d4AwjMueXgUu43HyLL";
 export function getAccountType(
   accountInfo: AccountInfo<Buffer | ParsedAccountData> | null,
   signatures: ConfirmedSignatureInfo[],
+  nftData?: NFT | undefined,
 ): AccountType {
   // Check if the account has been closed
   if (signatures && signatures.length > 0 && accountInfo === null) {
@@ -65,6 +67,10 @@ export function getAccountType(
     return AccountType.Wallet;
   } else if (accountInfo && accountInfo.owner.toBase58() === NFTOKEN_ADDRESS) {
     return AccountType.NFToken;
+  }
+
+  if (nftData?.compression?.compressed) {
+    return AccountType.CompressedNFT;
   }
 
   return AccountType.Unknown;

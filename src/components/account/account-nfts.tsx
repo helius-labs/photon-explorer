@@ -33,6 +33,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const collectionFilter = searchParams.get("collection");
 
   const [showNonVerified, setShowNonVerified] = useState(false);
+  const [showCompressed, setShowCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
@@ -87,10 +88,13 @@ const AccountNFTs = ({ address }: { address: string }) => {
         const matchesCollection = collectionFilter
           ? nft.collectionName === collectionFilter
           : true;
-        return matchesVerified && matchesCollection;
+        const matchesCompressed = showCompressed
+          ? nft.compression?.compressed
+          : true;
+        return matchesVerified && matchesCollection && matchesCompressed;
       }) || []
     );
-  }, [data, showNonVerified, collectionFilter]);
+  }, [data, showNonVerified, collectionFilter, showCompressed]);
 
   const columns: ColumnDef<NFT>[] = [
     {
@@ -195,6 +199,17 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       checked={showNonVerified}
                       onCheckedChange={() =>
                         setShowNonVerified((prev) => !prev)
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Label className="ml-4 text-xs sm:text-sm">
+                      {showCompressed ? "cNFT ON" : "cNFT OFF"}
+                    </Label>
+                    <Switch
+                      checked={showCompressed}
+                      onCheckedChange={() =>
+                        setShowCompressed((prev) => !prev)
                       }
                     />
                   </div>

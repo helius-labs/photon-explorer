@@ -9,6 +9,7 @@ import cloudflareLoader from "@/utils/imageLoader";
 import { formatCurrencyValue, formatLargeSize } from "@/utils/numbers";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import Link from "next/link";
 
 import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
@@ -24,23 +25,28 @@ const columns: ColumnDef<Token>[] = [
     cell: ({ row }) => {
       const tokenName = row.original.name || "Unknown";
       const tokenSymbol = row.original.symbol || "Unknown";
+      const tokenMint = row.original.mint.toBase58();
       return (
         <div className="flex items-center md:w-60">
-          <Image
-            loader={cloudflareLoader}
-            src={row.original.logoURI || noLogoImg.src}
-            alt={tokenName}
-            width={96}
-            height={96}
-            loading="eager"
-            onError={(event: any) => {
-              event.target.id = "noLogoImg";
-              event.target.srcset = noLogoImg.src;
-            }}
-            className="ml-4 h-12 w-12 rounded-full"
-          />
+          <Link href={`/address/${tokenMint}`} passHref>
+            <Image
+              loader={cloudflareLoader}
+              src={row.original.logoURI || noLogoImg.src}
+              alt={tokenName}
+              width={96}
+              height={96}
+              loading="eager"
+              onError={(event: any) => {
+                event.target.id = "noLogoImg";
+                event.target.srcset = noLogoImg.src;
+              }}
+              className="ml-4 h-12 w-12 rounded-full"
+            />
+          </Link>
           <div className="ml-4">
-            <div className="text-sm font-medium md:w-60">{tokenName}</div>
+            <Link href={`/address/${tokenMint}`} passHref>
+              <span className="text-sm font-medium md:w-60">{tokenName}</span>
+            </Link>
             <div className="text-sm font-bold">{tokenSymbol}</div>
           </div>
         </div>
@@ -181,23 +187,27 @@ export default function AccountTokens({ address }: { address: string }) {
               className="flex items-center justify-between border-b px-4 py-2"
             >
               <div className="flex items-center">
-                <Image
-                  loader={cloudflareLoader}
-                  src={token.logoURI || noLogoImg.src}
-                  alt={token.name || "Unknown"}
-                  width={32}
-                  height={32}
-                  loading="eager"
-                  onError={(event: any) => {
-                    event.target.id = "noLogoImg";
-                    event.target.srcset = noLogoImg.src;
-                  }}
-                  className="h-8 w-8 rounded-full"
-                />
+                <Link href={`/address/${token.mint.toBase58()}`} passHref>
+                  <Image
+                    loader={cloudflareLoader}
+                    src={token.logoURI || noLogoImg.src}
+                    alt={token.name || "Unknown"}
+                    width={32}
+                    height={32}
+                    loading="eager"
+                    onError={(event: any) => {
+                      event.target.id = "noLogoImg";
+                      event.target.srcset = noLogoImg.src;
+                    }}
+                    className="h-8 w-8 rounded-full"
+                  />
+                </Link>
                 <div className="ml-2">
-                  <div className="text-sm font-medium">
-                    {token.name || "Unknown"}
-                  </div>
+                  <Link href={`/address/${token.mint.toBase58()}`} passHref>
+                    <span className="text-sm font-medium">
+                      {token.name || "Unknown"}
+                    </span>
+                  </Link>
                   <div className="text-xs font-bold">
                     {token.symbol || "Unknown"}
                   </div>
