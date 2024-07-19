@@ -65,29 +65,7 @@
   * {
     @apply border-border;
   }
-  html {
-    overflow-x: hidden;
-  }
   body {
-    overflow-x: hidden;
     @apply bg-background text-foreground;
   }
-}
-
-/* Invisible Scrollbar Styles */
-
-/* For Webkit browsers: Chrome, Safari, Brave, Edge (Chromium) */
-::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-/* For Firefox */
-* {
-  scrollbar-width: none;
-}
-
-/* For Edge (non-Chromium) */
-body {
-  -ms-overflow-style: none;
 }

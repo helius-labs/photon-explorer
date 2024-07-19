@@ -27,13 +27,6 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
-  // console.log(
-  //   "In TransactionOverviewParsed:\n",
-  //   "Actions: ",
-  //   actions,
-  //   "Type:",
-  //   type,
-  // );
 
   return (
     <Card className="mx-auto w-full max-w-lg p-3">

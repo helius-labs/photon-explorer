@@ -83,6 +83,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     parsed.data.length > 0 &&
     parsed.data[0].description !== ""
   ) {
+    // check all the data for txn
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;
   } else if (transaction.data && compressed.data) {
     transactionOverview = (

@@ -7,10 +7,8 @@ export const parseTransaction: XrayParser = (transaction, address) => {
   let parser: XrayParser = XrayParsers.UNKNOWN;
 
   var transactionType = transaction.type as XrayType;
-  // console.log("starting txn type: ", transactionType);
 
   if (typeof XrayParsers[transactionType] === "undefined") {
-    // console.log("Unknown transaction type (UNDEFINED): ", transactionType);
     return XrayParsers.UNKNOWN(transaction, address);
   }
 
@@ -21,7 +19,7 @@ export const parseTransaction: XrayParser = (transaction, address) => {
   } catch (error) {
     // eslint-disable-next-line no-console
 
-    console.log(error);
+    console.error(error);
 
     return XrayParsers.UNKNOWN(transaction, address);
   }

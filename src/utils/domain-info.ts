@@ -2,7 +2,6 @@ import {
   NameRegistryState,
   getHashedNameSync,
   getNameAccountKeySync,
-  resolve,
 } from "@bonfida/spl-name-service";
 import { NameRecordHeader, TldParser } from "@onsol/tldparser";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -76,38 +75,6 @@ export async function getAnsDomainInfo(domain: string, connection: Connection) {
 export const hasDomainSyntax = (value: string) => {
   return value.length > 4 && value.substring(value.length - 4) === ".sol";
 };
-
-// Check and fetch data to confirm if a string is a valid Bonfida domain
-export async function isBonfidaDomainAddress(
-  domain: string,
-  connection: Connection,
-): Promise<boolean> {
-  // 1. Check if the string has Bonfida domain syntax
-  const probablyBonfidaName = hasDomainSyntax(domain);
-  if (probablyBonfidaName) {
-    try {
-      // 2. Get the domain key
-      const domainKey = getDomainKeySync(
-        domain.slice(0, -4), // remove .sol
-        undefined,
-        SOL_TLD_AUTHORITY,
-      );
-
-      // 3. Fetch account information
-      const accountInfo = await connection.getAccountInfo(domainKey);
-      if (accountInfo) {
-        // 4. Resolve the owner public key
-        const ownerPublicKey = await resolve(connection, domain);
-        return ownerPublicKey !== null;
-      }
-      return false;
-    } catch (error) {
-      return false;
-    }
-  }
-  // 5. If the string does not have the correct syntax, return false
-  return false;
-}
 
 // Function to construct the full ANS domain name
 export async function constructFullAnsDomain(

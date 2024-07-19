@@ -9,12 +9,15 @@ import {
   ParsedTransactionWithMeta,
 } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
+
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
+
 import { TransactionCard } from "@/components/account/transaction-card";
-import { Card, CardContent } from "@/components/ui/card";
 import Loading from "@/components/common/loading";
 import LoadingBadge from "@/components/common/loading-badge";
+import { Card, CardContent } from "@/components/ui/card";
+
 import { Button } from "../ui/button";
 
 type TransactionData =
@@ -31,11 +34,12 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster } = useCluster();
   const router = useRouter();
 
-  // Get all the signatures for an account
-  const signatures = useGetSignaturesForAddress(address);
-  // Parse those transactions
+  // this is used to get all the signatures for an account
+  const signatures = useGetSignaturesForAddress(address, 500);
+  // this then parses those transactions
   const parsedTransactions = useGetParsedTransactions(
-    signatures.data?.map((sig) => sig.signature) || [],
+    //only parse the first 90 transactions
+    (signatures.data?.map((sig) => sig.signature) || []).slice(0, 90),
     cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet,
   );
 
@@ -71,11 +75,29 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     );
   }
 
-  const data: TransactionData[] = parsedTransactions.data?.length
-    ? parsedTransactions.data
-    : signatures.data?.length
-    ? signatures.data
-    : [];
+  // this is the flow to add transactions to the table. If a txn is parsed, add it to the table, otherwise add the signature
+  let result: TransactionData[] = [];
+  let parsedIndex = 0;
+  let signatureIndex = 0;
+
+  while (signatureIndex < (signatures.data ?? []).length) {
+    if (
+      parsedTransactions.data &&
+      parsedTransactions.data[parsedIndex] &&
+      parsedTransactions.data[parsedIndex].signature ===
+        (signatures.data ?? [])[signatureIndex]?.signature
+    ) {
+      result.push(parsedTransactions.data[parsedIndex]);
+      parsedIndex++;
+    } else {
+      if (signatures.data) {
+        result.push(signatures.data[signatureIndex]);
+      }
+    }
+    signatureIndex++;
+  }
+
+  const data: TransactionData[] = result;
 
   return (
     <Card className="col-span-12 mb-10">

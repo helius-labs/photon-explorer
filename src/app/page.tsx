@@ -25,12 +25,12 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      <div className="grid px-4 pt-20 md:pt-40">
+      <div className="grid grow px-4 pt-20 md:pt-40">
         <div className="flex flex-col items-center space-y-6 md:space-y-10">
           <h1 className="text-5xl font-bold md:text-9xl">XRAY</h1>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
-            <SearchBar />
+            <SearchBar autoFocus={false} />
           </div>
 
           <div className="w-full max-w-md pb-8 md:max-w-lg md:pb-16 lg:max-w-xl">

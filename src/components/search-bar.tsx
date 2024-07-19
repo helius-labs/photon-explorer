@@ -133,6 +133,8 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   }
 
   async function performSearch(search: string): Promise<GroupedOption[]> {
+    search = search.trim();
+
     const recentSearchesOptions = buildRecentSearchesOptions(search, isClient);
 
     const localOptions = buildOptions(search, cluster);
@@ -160,10 +162,10 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
 
     return [
       ...recentSearchesOptionsAppendable,
-      ...localOptions,
-      ...tokenOptionsAppendable,
       ...domainOptions,
       ...ansDomainOptions,
+      ...tokenOptionsAppendable,
+      ...localOptions,
     ];
   }
 
@@ -205,10 +207,10 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const placeholderStyles =
     "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis";
   const selectInputStyles = "text-sm font-medium text-muted-foreground";
-  const valueContainerStyles = "p-1 gap-1 cursor-text";
+  const valueContainerStyles = "px-1 cursor-text";
   const singleValueStyles = "leading-7 ml-1";
   const menuStyles =
-    "p-1 rounded-b-lg border border-t-0 border-input bg-popover";
+    "pl-1 rounded-b-lg border border-t-0 border-input bg-popover overflow-hidden";
   const groupHeadingStyles =
     "ml-2 mt-2 mb-1 text-muted-foreground text-xs font-medium";
   const optionStyles = {
@@ -227,13 +229,21 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
     setRecentSearches((prevSearches) =>
       prevSearches.filter((item) => item.pathname !== pathname),
     );
+    setTimeout(() => {
+      asyncRef?.current?.onInputChange(search, {
+        prevInputValue: "",
+        action: "set-value",
+      });
+    });
   };
+
+  const resetValue = "" as any;
 
   return (
     <AsyncSelect
       ref={asyncRef}
       autoFocus={autoFocus}
-      cacheOptions
+      cacheOptions={false}
       // @ts-ignore
       clearRecentSearch={clearRecentSearch}
       defaultOptions={defaultOptions}
@@ -243,6 +253,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
       noOptionsMessage={() => "No results found."}
       loadingMessage={() => "loading..."}
       placeholder="Search for accounts, transactions, tokens and programs..."
+      value={resetValue}
       inputValue={search}
       blurInputOnSelect
       openMenuOnFocus
@@ -287,6 +298,16 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
         control: (baseStyles, state) => ({
           ...baseStyles,
           paddingRight: "16px",
+        }),
+        input: (baseStyles, state) => ({
+          ...baseStyles,
+          paddingTop: "4px",
+          paddingBottom: "4px",
+          display: "flex",
+        }),
+        menuList: (baseStyles, state) => ({
+          ...baseStyles,
+          scrollbarWidth: "thin",
         }),
       }}
     />
@@ -334,7 +355,7 @@ const Option = ({ ...props }: OptionProps<SearchOptions, false>) => (
   <components.Option {...props}>
     <span className="flex items-center gap-2">
       <span className="flex-shrink-0">{props.data.icon}</span>
-      <span className="flex flex-col">
+      <span className="flex flex-col overflow-hidden">
         <span className="flex items-center gap-1">
           <span className="truncate">{props.data.label}</span>
           {props.data.symbol && (
@@ -496,25 +517,11 @@ async function buildDomainOptions(search: string) {
 
   if (domainInfo && domainInfo.owner) {
     returnOptions.push({
-      label: "Domain Owner",
-      options: [
-        {
-          label: domainInfo.owner,
-          pathname: "/address/" + domainInfo.owner,
-          value: [search],
-          icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
-        },
-      ],
-    });
-  }
-
-  if (domainInfo && domainInfo.address) {
-    returnOptions.push({
-      label: "Name Service Account",
+      label: "Domains",
       options: [
         {
           label: search,
-          pathname: "/address/" + domainInfo.address,
+          pathname: "/address/" + domainInfo.owner,
           value: [search],
           icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
         },
@@ -533,10 +540,10 @@ async function buildAnsDomainOptions(search: string) {
 
   if (domainInfo && domainInfo.owner) {
     returnOptions.push({
-      label: "Domain Owner",
+      label: "Domains",
       options: [
         {
-          label: domainInfo.owner,
+          label: search,
           pathname: "/address/" + domainInfo.owner,
           value: [search],
           icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
