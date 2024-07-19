@@ -133,6 +133,8 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   }
 
   async function performSearch(search: string): Promise<GroupedOption[]> {
+    search = search.trim();
+
     const recentSearchesOptions = buildRecentSearchesOptions(search, isClient);
 
     const localOptions = buildOptions(search, cluster);
@@ -508,22 +510,8 @@ async function buildDomainOptions(search: string) {
       label: "Domain Owner",
       options: [
         {
-          label: domainInfo.owner,
-          pathname: "/address/" + domainInfo.owner,
-          value: [search],
-          icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
-        },
-      ],
-    });
-  }
-
-  if (domainInfo && domainInfo.address) {
-    returnOptions.push({
-      label: "Name Service Account",
-      options: [
-        {
           label: search,
-          pathname: "/address/" + domainInfo.address,
+          pathname: "/address/" + domainInfo.owner,
           value: [search],
           icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
         },
