@@ -43,19 +43,38 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
-        <div className="flex-shrink-0">
+        <div className="flex items-center w-full md:w-auto relative justify-center md:justify-start">
           <Avatar
             size={80}
             name={fallbackAddress}
             variant="marble"
             colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
           />
+          <div className="absolute top-0 right-0 md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="outline" className="h-8 w-8">
+                  <MoreVertical className="h-3.5 w-3.5" />
+                  <span className="sr-only">More</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                  }}
+                >
+                  Compressed Accounts
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
-          <div className="text-center text-3xl font-medium leading-none md:text-left">
-            <div className="flex items-center justify-center gap-2 md:justify-start">
+        <div className="flex flex-col items-center text-center w-full md:flex-row md:items-center md:text-left md:justify-between">
+          <div className="text-2xl font-medium leading-none md:text-left">
+            <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
               {displayName || <Address pubkey={address} short />}
-              <Badge variant="success">Program</Badge>
+              <Badge className="md:hidden" variant="success">Program</Badge>
             </div>
             <div className="text-sm text-muted-foreground mt-2 md:mt-1">
               <TooltipProvider>
@@ -85,37 +104,25 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }
               </TooltipProvider>
             </div>
           </div>
-          <div className="mt-4 md:mt-0 flex flex-grow justify-center">
-            <Card className="w-full md:mr-4">
-              <CardContent>
-                <div className="flex flex-col space-y-4 text-xs">
-                  <div className="flex flex-row items-center justify-end space-x-6 text-muted-foreground">
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
-        <div className="ml-auto self-start font-medium mt-4 md:mt-0">
-          <div className="ml-auto flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="outline" className="h-8 w-8">
-                  <MoreVertical className="h-3.5 w-3.5" />
-                  <span className="sr-only">More</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
-                  }}
-                >
-                  Compressed Accounts
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+        <div className="hidden md:flex ml-auto self-start font-medium mt-4 md:mt-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline" className="h-8 w-8">
+                <MoreVertical className="h-3.5 w-3.5" />
+                <span className="sr-only">More</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                }}
+              >
+                Compressed Accounts
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
     </Card>

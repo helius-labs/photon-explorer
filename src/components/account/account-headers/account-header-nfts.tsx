@@ -57,9 +57,9 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
 
   return (
     <TooltipProvider>
-    <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6 md:h-auto">
-      <CardHeader className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
-        <div className="flex-shrink-0">
+      <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6 md:h-auto">
+        <CardHeader className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 relative">
+          <div className="flex-shrink-0 relative">
             {displayImage ? (
               <Image
                 loader={cloudflareLoader}
@@ -82,6 +82,25 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
                 colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
               />
             )}
+            <div className="absolute top-2 right-2 md:hidden transform translate-x-1/2 -translate-y-1/2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="outline" className="h-8 w-8">
+                    <MoreVertical className="h-3.5 w-3.5" />
+                    <span className="sr-only">More</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                    }}
+                  >
+                    Compressed Accounts
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <div className="flex flex-col w-full">
             <div className="flex flex-col md:flex-row md:items-start justify-between w-full">
@@ -91,13 +110,15 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
                     <span className="max-w-full md:max-w-none">
                       {displayName || <Address pubkey={address} short />}
                     </span>
-                    <Badge className="hidden md:inline-block md:ml-2" variant="success">NFT</Badge>
-                    {nftData?.verified && (
-                      <Badge variant="outline" className="hidden md:inline-block md:ml-2">Verified</Badge>
-                    )}
-                    {nftData?.compression?.compressed && (
-                      <Badge variant="outline" className="hidden md:inline-block md:ml-2">Compressed</Badge>
-                    )}
+                    <div className="flex space-x-2 mt-2 md:mt-0 md:ml-2">
+                      <Badge variant="success">NFT</Badge>
+                      {nftData?.verified && (
+                        <Badge variant="outline">Verified</Badge>
+                      )}
+                      {nftData?.compression?.compressed && (
+                        <Badge variant="outline">Compressed</Badge>
+                      )}
+                    </div>
                   </div>
                 </CardTitle>
                 <div className="text-sm text-muted-foreground mt-2">
@@ -129,25 +150,6 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
                 </div>
               </div>
               <div className="ml-auto self-start mt-2 md:mt-0 hidden md:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline" className="h-8 w-8">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
-                      }}
-                    >
-                      Compressed Accounts
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <div className="absolute top-4 right-4 md:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="outline" className="h-8 w-8">
