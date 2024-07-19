@@ -3,7 +3,7 @@
 import { useCluster } from "@/providers/cluster-provider";
 import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
-import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
@@ -17,7 +17,7 @@ import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading";
 
 export default function AddressLayout({
   children,
@@ -97,6 +97,19 @@ export default function AddressLayout({
       });
     }
 
+    // Ensure Metadata tab is added for tokens, NFTs, and programs
+    if (
+      accountType === AccountType.Token ||
+      accountType === AccountType.Program ||
+      accountType === AccountType.MetaplexNFT ||
+      accountType === AccountType.NFToken
+    ) {
+      newTabs.push({
+        name: "Metadata",
+        href: `/address/${address}/metadata`,
+      });
+    }
+
     return newTabs;
   }, [accountType, compressedAccount.data, address, pathname]);
 
@@ -112,7 +125,8 @@ export default function AddressLayout({
       } else if (
         accountType === AccountType.Token ||
         accountType === AccountType.Program ||
-        accountType === AccountType.MetaplexNFT
+        accountType === AccountType.MetaplexNFT ||
+        accountType === AccountType.NFToken
       ) {
         router.replace(`${pathname}/history?cluster=${cluster}`);
       }
@@ -169,23 +183,8 @@ export default function AddressLayout({
     compressedSignatures.isLoading
   ) {
     return (
-      <div>
-        <div className="mb-8 flex flex-row items-center gap-4">
-          <div>
-            <Skeleton className="h-16 w-16 rounded-full" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-8 w-[200px]" />
-            <Skeleton className="h-5 w-[100px]" />
-          </div>
-        </div>
-        <div className="mb-8 flex gap-4">
-          <Skeleton className="h-7 w-20" />
-          <Skeleton className="h-7 w-20" />
-        </div>
-        <div className="h-96 w-full">
-          <Skeleton className="h-full w-full" />
-        </div>
+      <div className="flex justify-center mt-20">
+        <Loading className="h-32 w-32" />
       </div>
     );
   }

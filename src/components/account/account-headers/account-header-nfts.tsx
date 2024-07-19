@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Avatar from "boring-avatars";
 import { useRouter } from "next/navigation";
-import { CheckIcon, Copy, MoreVertical, ChevronDownCircleIcon } from "lucide-react";
+import { CheckIcon, Copy, MoreVertical, ChevronDownCircle } from "lucide-react";
 import tensorLogo from "@/../public/assets/tensor-logo.svg";
 import magicEdenLogo from "@/../public/assets/magic-eden-logo.svg";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
@@ -209,7 +209,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
             <Popover>
               <PopoverTrigger asChild>
                 <div className="flex items-center font-semibold text-foreground cursor-pointer">
-                  Token Creators <ChevronDownCircleIcon className="ml-2 h-5 w-5" />
+                  Token Creators <ChevronDownCircle className="ml-2 h-5 w-5" />
                 </div>
               </PopoverTrigger>
               <PopoverContent>
@@ -232,7 +232,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
             <Popover>
               <PopoverTrigger asChild>
                 <div className="flex items-center font-semibold text-foreground cursor-pointer">
-                  Attributes <ChevronDownCircleIcon className="ml-2 h-5 w-5" />
+                  Attributes <ChevronDownCircle className="ml-2 h-5 w-5" />
                 </div>
               </PopoverTrigger>
               <PopoverContent>
