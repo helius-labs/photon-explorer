@@ -160,10 +160,10 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
 
     return [
       ...recentSearchesOptionsAppendable,
-      ...localOptions,
-      ...tokenOptionsAppendable,
       ...domainOptions,
       ...ansDomainOptions,
+      ...tokenOptionsAppendable,
+      ...localOptions,
     ];
   }
 
