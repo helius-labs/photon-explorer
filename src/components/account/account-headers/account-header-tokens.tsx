@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import Avatar from "boring-avatars";
 import cmcLogo from "@/../public/assets/cmcLogo.svg";
-import coingeckoLogo from "@/../public/assets/coingeckoLogo.svg";
+import coinGeckoLogo from "@/../public/assets/coinGeckoLogo.svg";
 import { useRouter } from "next/navigation";
 import { CheckIcon, Copy, MoreVertical } from "lucide-react";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
@@ -197,7 +197,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                       rel="noopener noreferrer"
                     >
                       <Image
-                        src={coingeckoLogo}
+                        src={coinGeckoLogo}
                         alt="Coin Gecko Logo"
                         width={28}
                         height={28}
