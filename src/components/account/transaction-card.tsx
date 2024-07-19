@@ -18,6 +18,7 @@ import {
   ArrowRight,
   ArrowRightLeftIcon,
   CircleArrowDown,
+  CircleChevronRightIcon,
   CircleHelp,
   XCircle,
 } from "lucide-react";
@@ -83,11 +84,9 @@ export const columns: ColumnDef<TransactionData>[] = [
         transactionWithError.err &&
         transactionWithError.err !== null
       ) {
-        console.log("FAILEDDD");
         txnFailed = true;
       }
 
-      console.log("TRANSACtiON: ", transaction);
       return (
         <div className="flex items-center gap-2 px-4 py-2">
           {txnFailed ? (
@@ -133,7 +132,6 @@ export const columns: ColumnDef<TransactionData>[] = [
         transactionWithError.err &&
         transactionWithError.err !== null
       ) {
-        console.log("FAILEDDD", isConfirmedSignatureInfo(transaction));
         txnFailed = true;
       }
 
@@ -161,8 +159,10 @@ export const columns: ColumnDef<TransactionData>[] = [
           typeIcon = <ArrowRight className="h-6 w-6" />;
           break;
         case ParserTransactionTypes.UNKNOWN:
-        default:
           typeIcon = <CircleHelp className="h-6 w-6" />;
+          break;
+        default:
+          typeIcon = <CircleChevronRightIcon className="h-6 w-6" />;
           break;
       }
       if (txnFailed) {
@@ -290,7 +290,6 @@ export const columns: ColumnDef<TransactionData>[] = [
         transactionWithError.err &&
         transactionWithError.err !== null
       ) {
-        console.log("FAILEDDD");
         txnFailed = true;
       }
 
