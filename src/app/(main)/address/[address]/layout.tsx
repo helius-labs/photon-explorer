@@ -153,7 +153,7 @@ export default function AddressLayout({
   // Route to the correct tab based on the compressed account data
   useEffect(() => {
     if (pathname === `/address/${address}`) {
-      if (compressedAccount.data !== undefined) {
+      if (compressedAccount.data) {
         router.replace(`${pathname}/history-compressed?cluster=${cluster}`);
       }
     }
@@ -231,7 +231,7 @@ export default function AddressLayout({
           <TabNav tabs={tabs} />
           {children}
         </>
-      ) : compressedAccount.data !== undefined ? (
+      ) : compressedAccount.data ? (
         <>
           <CompressionHeader
             address={new PublicKey(address)}
