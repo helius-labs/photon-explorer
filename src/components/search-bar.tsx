@@ -207,7 +207,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const placeholderStyles =
     "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis";
   const selectInputStyles = "text-sm font-medium text-muted-foreground";
-  const valueContainerStyles = "p-1 gap-1 cursor-text";
+  const valueContainerStyles = "px-1 cursor-text";
   const singleValueStyles = "leading-7 ml-1";
   const menuStyles =
     "p-1 rounded-b-lg border border-t-0 border-input bg-popover";
@@ -298,6 +298,12 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
         control: (baseStyles, state) => ({
           ...baseStyles,
           paddingRight: "16px",
+        }),
+        input: (baseStyles, state) => ({
+          ...baseStyles,
+          paddingTop: "4px",
+          paddingBottom: "4px",
+          display: "flex",
         }),
       }}
     />
