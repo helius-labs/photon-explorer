@@ -9,15 +9,12 @@ import {
   ParsedTransactionWithMeta,
 } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
-
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
-
 import { TransactionCard } from "@/components/account/transaction-card";
 import { Card, CardContent } from "@/components/ui/card";
 import Loading from "@/components/common/loading";
 import LoadingBadge from "@/components/common/loading-badge";
-
 import { Button } from "../ui/button";
 
 type TransactionData =
@@ -26,13 +23,17 @@ type TransactionData =
   | XrayTransaction
   | ParsedTransactionWithMeta;
 
-export default function AccountHistory({ address }: { address: string }) {
+interface AccountHistoryProps {
+  address: string;
+}
+
+export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster } = useCluster();
   const router = useRouter();
 
-  // this is used to get all the signatures for an account
+  // Get all the signatures for an account
   const signatures = useGetSignaturesForAddress(address);
-  // this then parses those transactions
+  // Parse those transactions
   const parsedTransactions = useGetParsedTransactions(
     signatures.data?.map((sig) => sig.signature) || [],
     cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet,
@@ -42,7 +43,7 @@ export default function AccountHistory({ address }: { address: string }) {
     router.push(`/?cluster=${cluster}`);
   };
 
-  if (signatures.isError || parsedTransactions.isError)
+  if (signatures.isError || parsedTransactions.isError) {
     return (
       <Card className="col-span-12">
         <CardContent className="pt-6">
@@ -57,8 +58,9 @@ export default function AccountHistory({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
+  }
 
-  if (signatures.isLoading || parsedTransactions.isLoading)
+  if (signatures.isLoading || parsedTransactions.isLoading) {
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
@@ -67,6 +69,7 @@ export default function AccountHistory({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
+  }
 
   const data: TransactionData[] = parsedTransactions.data?.length
     ? parsedTransactions.data
@@ -77,7 +80,13 @@ export default function AccountHistory({ address }: { address: string }) {
   return (
     <Card className="col-span-12 mb-10">
       <CardContent className="pt-6">
-        <TransactionCard data={data} />
+        {data.length > 0 ? (
+          <TransactionCard data={data} />
+        ) : (
+          <div className="text-center text-muted-foreground">
+            No transaction history found for this address.
+          </div>
+        )}
       </CardContent>
     </Card>
   );

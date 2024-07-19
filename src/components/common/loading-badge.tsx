@@ -26,7 +26,7 @@ const LoadingBadge = ({ text }: { text: string }) => {
   };
 
   return (
-    <Badge className="mt-4" variant="secondary">
+    <Badge className="mt-4 cursor-pointer" variant="secondary">
       {getDotsText(dots)}
     </Badge>
   );
