@@ -33,7 +33,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const collectionFilter = searchParams.get("collection");
 
   const [showNonVerified, setShowNonVerified] = useState(false);
-  const [showCompressed, setShowCompressed] = useState(false);
+  const [showCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
