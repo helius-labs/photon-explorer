@@ -30,7 +30,7 @@ export function useGetNFTsByMint(mint: string, enabled: boolean = true) {
         return nft;
       } catch (error) {
         console.error("Error fetching NFT data:", error);
-        throw error; // Rethrow the error to let react-query handle it
+        throw error;
       }
     },
     enabled,

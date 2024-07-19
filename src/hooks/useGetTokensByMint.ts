@@ -4,7 +4,6 @@ import { DAS, Interface } from "@/types/helius-sdk";
 import { Token } from "@/types/token";
 import { Cluster } from "@/utils/cluster";
 import { normalizeTokenAmount } from "@/utils/common";
-import { createRpc } from "@lightprotocol/stateless.js";
 import {
   TokenStandard,
   fetchAllDigitalAssetWithTokenByOwner,

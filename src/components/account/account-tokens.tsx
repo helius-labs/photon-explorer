@@ -14,7 +14,8 @@ import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading";
+import LoadingBadge from "@/components/common/loading-badge";
 
 const columns: ColumnDef<Token>[] = [
   {
@@ -155,49 +156,9 @@ export default function AccountTokens({ address }: { address: string }) {
   if (isLoading)
     return (
       <Card className="col-span-12 mb-10 shadow">
-        <CardContent className="flex flex-col gap-4 py-6">
-          <div className="flex justify-start text-sm font-medium">
-            <Skeleton className="ml-2 h-4 w-[200px]" />
-          </div>
-          <div className="grid grid-cols-5 items-center px-4 pb-8">
-            <div className="col-span-1 flex items-center space-x-4"></div>
-            <div className="col-span-1 space-y-2">
-              <Skeleton className="ml-auto h-4 w-[50px]" />
-            </div>
-            <div className="col-span-1 space-y-2">
-              <Skeleton className="ml-auto h-4 w-[50px]" />
-            </div>
-            <div className="col-span-1 space-y-2">
-              <Skeleton className="ml-auto h-4 w-[50px]" />
-            </div>
-            <div className="col-span-1 flex space-x-2">
-              <Skeleton className="ml-10 hidden h-4 w-[50px] md:flex" />
-            </div>
-          </div>
-          {[...Array(5)].map((_, index) => (
-            <div key={index} className="grid grid-cols-5 items-center px-4">
-              <div className="col-span-1 flex items-center space-x-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-[100px]" />
-                  <Skeleton className="h-4 w-[50px]" />
-                </div>
-              </div>
-              <div className="col-span-1 hidden space-y-2 md:block">
-                <Skeleton className="ml-auto h-4 w-[50px]" />
-              </div>
-              <div className="col-span-1 hidden space-y-2 md:block">
-                <Skeleton className="ml-auto h-4 w-[50px]" />
-              </div>
-              <div className="col-span-1 hidden space-y-2 md:block">
-                <Skeleton className="ml-auto h-4 w-[50px]" />
-              </div>
-              <div className="col-span-1 hidden justify-center space-x-2 md:flex">
-                <Skeleton className="h-6 w-6 rounded-full" />
-                <Skeleton className="h-6 w-6 rounded-full" />
-              </div>
-            </div>
-          ))}
+        <CardContent className="flex flex-col items-center gap-4 py-6">
+          <Loading className="h-12 w-12" />
+          <LoadingBadge text="Loading Tokens" />
         </CardContent>
       </Card>
     );

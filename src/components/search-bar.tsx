@@ -74,7 +74,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = React.useState(false);
   const [recentSearches, setRecentSearches] = useLocalStorage<SearchOptions[]>(
-    "recentSearches",
+    "recentSearchesV2",
     [],
   );
 

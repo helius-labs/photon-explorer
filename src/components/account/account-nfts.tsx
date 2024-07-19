@@ -22,7 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading"; // Import the Loading component
+import LoadingBadge from "@/components/common/loading-badge"; // Import the LoadingBadge component
 import { Switch } from "@/components/ui/switch";
 
 const AccountNFTs = ({ address }: { address: string }) => {
@@ -155,13 +156,9 @@ const AccountNFTs = ({ address }: { address: string }) => {
       <Card className="col-span-12 mb-10 shadow">
         <CardContent className="flex flex-col gap-4 pb-4 pt-6">
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-              {[...Array(12)].map((_, index) => (
-                <Skeleton
-                  key={index}
-                  className="mt-14 h-60 w-full rounded-md md:h-40"
-                />
-              ))}
+            <div className="flex flex-col items-center">
+              <Loading className="h-12 w-12" />
+              <LoadingBadge text="Loading NFTs" />
             </div>
           ) : (
             <>
@@ -207,7 +204,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                 <NFTGridTable
                   columns={columns}
                   data={filteredNfts}
-                  onQuickView={handleQuickViewClick} // Ensure this prop is passed
+                  onQuickView={handleQuickViewClick}
                 />
               ) : (
                 <p className="flex items-center justify-center p-6 text-lg text-muted-foreground">
