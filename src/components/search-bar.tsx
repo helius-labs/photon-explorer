@@ -507,7 +507,7 @@ async function buildDomainOptions(search: string) {
 
   if (domainInfo && domainInfo.owner) {
     returnOptions.push({
-      label: "Domain Owner",
+      label: "Domains",
       options: [
         {
           label: search,
@@ -530,10 +530,10 @@ async function buildAnsDomainOptions(search: string) {
 
   if (domainInfo && domainInfo.owner) {
     returnOptions.push({
-      label: "Domain Owner",
+      label: "Domains",
       options: [
         {
-          label: domainInfo.owner,
+          label: search,
           pathname: "/address/" + domainInfo.owner,
           value: [search],
           icon: <SquareUser strokeWidth={0.5} className="h-8 w-8" />,
