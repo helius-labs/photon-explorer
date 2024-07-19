@@ -107,7 +107,7 @@ export function useGetSignaturesForAddress(
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getSignaturesForAddress", address],
+    queryKey: [endpoint, "getSignaturesForAddress", address, limit],
     queryFn: async () => {
       const connection = new Connection(endpoint, "confirmed");
 
