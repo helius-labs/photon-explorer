@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import Avatar from "boring-avatars";
 import cmcLogo from "@/../public/assets/cmcLogo.svg";
-import coingeckoLogo from "@/../public/assets/coinGeckoLogo.svg";
+import coingeckoLogo from "@/../public/assets/coingeckoLogo.svg";
 import { useRouter } from "next/navigation";
 import { CheckIcon, Copy, MoreVertical } from "lucide-react";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
@@ -19,7 +19,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCluster } from "@/providers/cluster-provider";
 import { formatNumericValue, formatCurrencyValue, calculateMarketCap } from "@/utils/numbers";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -134,8 +133,8 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
   return (
     <TooltipProvider>
       <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6">
-        <CardHeader className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
-          <div className="flex-shrink-0">
+        <CardHeader className="relative flex flex-col md:flex-row items-start gap-4 md:gap-6">
+          <div className="flex items-center justify-center w-full md:w-auto relative">
             {tokenDetails.tokenImageURI ? (
               <Image
                 loader={cloudflareLoader}
@@ -160,42 +159,37 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
             )}
           </div>
           <div className="flex flex-col w-full">
-            <div className="flex items-start justify-between w-full">
+            <div className="flex flex-col md:flex-row md:items-start justify-between w-full">
               <div className="text-center md:text-left flex-grow max-w-xs">
                 <CardTitle className="text-3xl font-medium leading-none">
-                  <div className="flex items-center justify-center gap-2 md:justify-start">
-                    {tokenDetails.tokenName !== "N/A" ? `${tokenDetails.tokenName} (${tokenDetails.tokenSymbol})` : <Address pubkey={address} short />}
-                    <Badge variant="success">Token</Badge>
+                  <div className="flex flex-col items-center md:flex-row md:justify-start">
+                    <span className="max-w-full md:max-w-none">
+                      {tokenDetails.tokenName !== "N/A" ? tokenDetails.tokenName.slice(0, 35) + (tokenDetails.tokenName.length > 35 ? '...' : '') : <Address pubkey={address} short />}
+                    </span>
+                    <Badge className="hidden md:inline-block md:ml-2" variant="success">Token</Badge>
                   </div>
+                  {tokenDetails.tokenName !== "N/A" && (
+                    <div className="text-3xl text-muted-foreground mt-1">
+                      ({tokenDetails.tokenSymbol})
+                    </div>
+                  )}
                 </CardTitle>
                 <div className="text-sm text-muted-foreground mt-2">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
-                          onClick={() => {
-                            navigator.clipboard.writeText(address.toBase58());
-                            setHasCopied(true);
-                          }}
-                        >
-                          <span className="sr-only">Copy</span>
-                          {hasCopied ? <CheckIcon /> : <Copy />}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Copy address</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>{shortenLong(address.toBase58())}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>{address.toBase58()}</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
+                    onClick={() => {
+                      navigator.clipboard.writeText(address.toBase58());
+                      setHasCopied(true);
+                    }}
+                  >
+                    <span className="sr-only">Copy</span>
+                    {hasCopied ? <CheckIcon /> : <Copy />}
+                  </Button>
+                  <span>{shortenLong(address.toBase58())}</span>
                 </div>
-                <div className="flex space-x-4 mt-4">
+                <div className="flex justify-center space-x-4 mt-4 md:justify-start">
                   {coingeckoId && (
                     <a
                       href={`https://www.coingecko.com/en/coins/${coingeckoId}`}
@@ -226,20 +220,20 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                   </a>
                 </div>
               </div>
-              <div className="flex flex-col items-end space-y-2">
-                <div className="flex items-center mb-4">
+              <div className="flex flex-col space-y-2 md:ml-4 mt-4 md:mt-0 text-center md:text-right">
+                <div className="flex items-center mb-4 justify-center md:justify-end">
                   <span className="text-3xl text-foreground">{tokenDetails.price}</span>
                 </div>
-                <div className="flex items-center text-sm space-x-2">
+                <div className="flex justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Supply:</span>
-                  <span>{tokenDetails.supply}</span>
+                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">{tokenDetails.supply}</span>
                 </div>
-                <div className="flex items-center text-sm space-x-2">
+                <div className="flex justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Market Cap:</span>
-                  <span>{tokenDetails.marketCap}</span>
+                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">{tokenDetails.marketCap}</span>
                 </div>
               </div>
-              <div className="ml-4 self-start mt-2 md:mt-0">
+              <div className="ml-4 self-start mt-2 md:mt-0 hidden md:block">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="outline" className="h-8 w-8">
@@ -259,6 +253,25 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                 </DropdownMenu>
               </div>
             </div>
+          </div>
+          <div className="absolute top-4 right-4 md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="outline" className="h-8 w-8">
+                  <MoreVertical className="h-3.5 w-3.5" />
+                  <span className="sr-only">More</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                  }}
+                >
+                  Compressed Accounts
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
       </Card>

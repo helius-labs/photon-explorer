@@ -22,8 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Loading from "@/components/common/loading"; // Import the Loading component
-import LoadingBadge from "@/components/common/loading-badge"; // Import the LoadingBadge component
+import Loading from "@/components/common/loading";
+import LoadingBadge from "@/components/common/loading-badge";
 import { Switch } from "@/components/ui/switch";
 
 const AccountNFTs = ({ address }: { address: string }) => {
@@ -33,7 +33,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const collectionFilter = searchParams.get("collection");
 
   const [showNonVerified, setShowNonVerified] = useState(false);
-  const [showCompressed, setShowCompressed] = useState(false);
+  const [showCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
@@ -199,17 +199,6 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       checked={showNonVerified}
                       onCheckedChange={() =>
                         setShowNonVerified((prev) => !prev)
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Label className="ml-4 text-xs sm:text-sm">
-                      {showCompressed ? "cNFT ON" : "cNFT OFF"}
-                    </Label>
-                    <Switch
-                      checked={showCompressed}
-                      onCheckedChange={() =>
-                        setShowCompressed((prev) => !prev)
                       }
                     />
                   </div>

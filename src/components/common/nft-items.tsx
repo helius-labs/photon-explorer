@@ -18,6 +18,14 @@ interface NFTGridItemProps {
 export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
   const [isLoading, setIsLoading] = useState(true);
   const tokenImage = nft.image || noLogoImg;
+  const maxLength = 16;
+
+  const truncateName = (name: string) => {
+    if (name.length > maxLength) {
+      return name.slice(0, maxLength) + '...';
+    }
+    return name;
+  };
 
   return (
     <div className="group relative flex flex-col items-center rounded-lg border shadow-lg">
@@ -40,14 +48,16 @@ export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
             setIsLoading(false);
           }}
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
           <Button onClick={() => onQuickView(nft)} className="text-white">
             Quick View
           </Button>
         </div>
       </div>
-      <div className="mt-4 text-center">
-        <p className="text-lg font-semibold">{nft.name || "Unknown"}</p>
+      <div className="mt-4 px-4 text-center">
+        <p className="text-lg font-semibold mb-4 truncate" title={nft.name}>
+          {truncateName(nft.name || "Unknown")}
+        </p>
       </div>
     </div>
   );
