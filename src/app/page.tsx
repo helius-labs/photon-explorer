@@ -30,7 +30,7 @@ export default async function Home() {
           <h1 className="text-5xl font-bold md:text-9xl">XRAY</h1>
 
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
-            <SearchBar />
+            <SearchBar autoFocus={false} />
           </div>
 
           <div className="w-full max-w-md pb-8 md:max-w-lg md:pb-16 lg:max-w-xl">
