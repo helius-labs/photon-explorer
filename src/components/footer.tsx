@@ -34,7 +34,7 @@ const footerLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="sticky bottom-0 top-[100vh] z-20 flex w-full items-center justify-between bg-background p-2 shadow">
+    <footer className="flex w-full items-center justify-between bg-background p-2 shadow">
       <div className="flex items-center">
         <p className="text-sm leading-loose text-muted-foreground">
           Powered by{" "}

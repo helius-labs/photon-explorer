@@ -63,7 +63,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
             disableTransitionOnChange
           >
             <Suspense>
-              <ClusterProvider>{children}</ClusterProvider>
+              <ClusterProvider>
+                <div className="flex min-h-screen flex-col">{children}</div>
+              </ClusterProvider>
             </Suspense>
           </ThemeProvider>
         </ReactQueryClientProvider>
