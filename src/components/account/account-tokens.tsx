@@ -6,7 +6,7 @@ import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { Token } from "@/types/token";
 import { normalizeTokenAmount } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
-import { formatLargeSize } from "@/utils/numbers";
+import { formatCurrencyValue, formatLargeSize } from "@/utils/numbers";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
@@ -68,7 +68,9 @@ const columns: ColumnDef<Token>[] = [
     cell: ({ row }) => {
       return (
         <div className="w-28">
-          {row.original.value ? `$${row.original.value.toFixed(2)}` : "N/A"}
+          {row.original.value
+            ? formatCurrencyValue(row.original.value, 2)
+            : "N/A"}
         </div>
       );
     },
@@ -79,7 +81,9 @@ const columns: ColumnDef<Token>[] = [
     cell: ({ row }) => {
       return (
         <div className="w-28">
-          {row.original.price ? `$${row.original.price.toFixed(2)}` : "N/A"}
+          {row.original.price
+            ? formatCurrencyValue(row.original.price, 2)
+            : "N/A"}
         </div>
       );
     },
@@ -207,7 +211,7 @@ export default function AccountTokens({ address }: { address: string }) {
     <Card className="col-span-12 mb-10 shadow">
       <CardContent className="flex flex-col gap-4 pb-6 pt-6">
         <div className="flex justify-start text-sm font-medium">
-          Account Balance: ${totalFungibleValue.toFixed(2)}
+          Account Balance: {formatCurrencyValue(totalFungibleValue, 2)}
         </div>
         <div className="block md:hidden">
           {data?.map((token, index) => (
@@ -247,7 +251,7 @@ export default function AccountTokens({ address }: { address: string }) {
                   )}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {token.value ? `$${token.value.toFixed(2)}` : "N/A"}
+                  {token.value ? formatCurrencyValue(token.value, 2) : "N/A"}
                 </div>
               </div>
             </div>

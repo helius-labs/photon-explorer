@@ -1,6 +1,6 @@
-import { CommandMenu } from "@/components/command-menu";
 import { MainNav } from "@/components/main-nav";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
+import { SearchBar } from "@/components/search-bar";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
@@ -10,7 +10,7 @@ export function Header() {
         <MainNav className="flex-shrink-0 lg:w-56" />
         <div className="flex flex-grow justify-center md:w-auto md:justify-center">
           <div className="w-full sm:max-w-sm md:max-w-md lg:max-w-lg">
-            <CommandMenu />
+            <SearchBar autoFocus={false} />
           </div>
         </div>
         <div className="flex flex-shrink-0 items-center justify-end space-x-2 md:space-x-4 lg:w-56">

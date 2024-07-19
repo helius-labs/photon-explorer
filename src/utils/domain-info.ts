@@ -1,4 +1,5 @@
 import {
+  NameRegistryState,
   getHashedNameSync,
   getNameAccountKeySync,
   resolve,
@@ -10,6 +11,12 @@ import { Connection, PublicKey } from "@solana/web3.js";
 export const SOL_TLD_AUTHORITY = new PublicKey(
   "58PwtjSDuFHuUkYjH9BYnnQKHfwo9reZhC2zMJv9JPkx",
 );
+
+export interface DomainInfo {
+  name: string;
+  address: PublicKey;
+  owner: string;
+}
 
 export function getDomainKeySync(
   name: string,
@@ -25,10 +32,45 @@ export function getDomainKeySync(
   return nameKey;
 }
 
-export interface DomainInfo {
-  name: string;
-  address: PublicKey;
-  owner: string;
+// returns non empty wallet string if a given .sol domain is owned by a wallet
+export async function getDomainInfo(domain: string, connection: Connection) {
+  try {
+    const pubkey = getDomainKeySync(
+      domain.slice(0, -4), // remove .sol
+      undefined,
+      SOL_TLD_AUTHORITY,
+    );
+
+    const { registry, nftOwner } = await NameRegistryState.retrieve(
+      connection,
+      pubkey,
+    );
+
+    return registry.owner
+      ? {
+          address: pubkey.toBase58(),
+          owner: registry.owner.toBase58(),
+        }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+// returns non empty wallet string if a given .sol domain is owned by a wallet
+export async function getAnsDomainInfo(domain: string, connection: Connection) {
+  try {
+    const ans = new TldParser(connection);
+    const owner = await ans.getOwnerFromDomainTld(domain);
+
+    return owner
+      ? {
+          owner: owner.toBase58(),
+        }
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export const hasDomainSyntax = (value: string) => {
@@ -64,27 +106,6 @@ export async function isBonfidaDomainAddress(
     }
   }
   // 5. If the string does not have the correct syntax, return false
-  return false;
-}
-
-// Check and fetch data to confirm if a string is a valid ANS domain
-export async function isAlternativeDomainAddress(
-  domain: string,
-  connection: Connection,
-): Promise<boolean> {
-  // 1. Check if the string is likely an ANS domain
-  const probablyAnsDomain = domain.length > 4 && domain.includes(".");
-  if (probablyAnsDomain) {
-    const ans = new TldParser(connection);
-    try {
-      // 2. Fetch the owner of the domain
-      const owner = await ans.getOwnerFromDomainTld(domain);
-      return owner !== undefined;
-    } catch (error) {
-      return false;
-    }
-  }
-  // 3. If the string is not likely an ANS domain, return false
   return false;
 }
 

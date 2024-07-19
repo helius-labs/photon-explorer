@@ -25,35 +25,35 @@ export function MainNav({
       >
         {/* Desktop logos */}
         <Image
-          className="hidden dark:hidden md:block"
+          className="hidden h-6 w-full dark:hidden md:block"
           alt="XRAY logo"
-          width={100}
-          height={100}
+          width={0}
+          height={0}
           priority
           src={LogoBlack}
         />
         <Image
-          className="hidden md:dark:block"
+          className="hidden h-6 w-full md:dark:block"
           alt="XRAY logo"
-          width={100}
-          height={100}
+          width={0}
+          height={0}
           priority
           src={LogoWhite}
         />
         {/* Mobile logos */}
         <Image
-          className="block dark:hidden md:hidden"
+          className="block h-10 w-full dark:hidden md:hidden"
           alt="XRAY logo"
-          width={40}
-          height={40}
+          width={0}
+          height={0}
           priority
           src={LogoIconWhite}
         />
         <Image
-          className="hidden dark:block md:hidden md:dark:hidden"
+          className="hidden h-10 w-full dark:block md:hidden md:dark:hidden"
           alt="XRAY logo"
-          width={40}
-          height={40}
+          width={0}
+          height={0}
           priority
           src={LogoIconBlack}
         />

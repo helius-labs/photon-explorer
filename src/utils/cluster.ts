@@ -84,3 +84,4 @@ export function clusterCompressionUrl(
 }
 
 export const DEFAULT_CLUSTER = Cluster.MainnetBeta;
+export const MAINNET_BETA_URL = clusterUrl(Cluster.MainnetBeta, "");

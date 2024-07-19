@@ -1,19 +1,27 @@
-import React, { useEffect, useState } from "react";
+import solLogo from "@/../public/assets/solanaLogoMark.svg";
+import { useCluster } from "@/providers/cluster-provider";
+import { fetchSolPrice, lamportsToSolString } from "@/utils/common";
+import { formatCurrencyValue, formatNumericValue } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
-import Image from "next/image";
 import Avatar from "boring-avatars";
-import { useRouter } from "next/navigation";
 import { MoreVertical } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
-import { lamportsToSolString, fetchSolPrice } from "@/utils/common";
+
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import solLogo from "@/../public/assets/solanaLogoMark.svg";
-import { useCluster } from "@/providers/cluster-provider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AccountHeaderWalletsProps {
   address: PublicKey;
@@ -21,21 +29,36 @@ interface AccountHeaderWalletsProps {
   accountInfo: any;
 }
 
-const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({ address, solPrice, accountInfo }) => {
+const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
+  address,
+  solPrice,
+  accountInfo,
+}) => {
   const [hasCopied, setHasCopied] = useState(false);
-  const [currentSolPrice, setCurrentSolPrice] = useState<number | null>(solPrice);
+  const [currentSolPrice, setCurrentSolPrice] = useState<number | null>(
+    solPrice,
+  );
   const router = useRouter();
   const { endpoint } = useCluster();
-  const { data: compressedBalance } = useGetCompressedBalanceByOwner(address.toBase58());
-  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(address.toBase58(), endpoint);
+  const { data: compressedBalance } = useGetCompressedBalanceByOwner(
+    address.toBase58(),
+  );
+  const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
+    address.toBase58(),
+    endpoint,
+  );
 
-  const solBalance = accountInfo?.lamports ? parseFloat(lamportsToSolString(accountInfo.lamports, 2)) : 0;
-  const solBalanceUSD = currentSolPrice ? (solBalance * currentSolPrice).toFixed(2) : null;
+  const solBalance = accountInfo?.lamports
+    ? parseFloat(lamportsToSolString(accountInfo.lamports, 2))
+    : 0;
+  const solBalanceUSD = currentSolPrice
+    ? formatCurrencyValue(solBalance * currentSolPrice, 2)
+    : null;
   const fallbackAddress = address.toBase58();
 
   useEffect(() => {
     if (!solPrice) {
-      fetchSolPrice().then(price => setCurrentSolPrice(price));
+      fetchSolPrice().then((price) => setCurrentSolPrice(price));
     }
   }, [solPrice]);
 
@@ -59,13 +82,13 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({ address, so
             colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
           />
         </div>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
+        <div className="flex w-full flex-col md:flex-row md:items-center md:justify-between">
           <div className="text-center text-3xl font-medium leading-none md:text-left">
             <div className="flex items-center justify-center gap-2 md:justify-start">
               <Address pubkey={address} short />
               <Badge variant="success">Wallet</Badge>
             </div>
-            <div className="flex flex-col items-center md:items-start gap-2 text-lg text-muted-foreground mt-4 md:mt-2">
+            <div className="mt-4 flex flex-col items-center gap-2 text-lg text-muted-foreground md:mt-2 md:items-start">
               <div className="flex items-center">
                 <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
                   <Image
@@ -76,10 +99,10 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({ address, so
                     height={24}
                   />
                 </div>
-                <span>{`${solBalance.toFixed(2)} SOL`}</span>
+                <span>{`${formatNumericValue(solBalance)} SOL`}</span>
                 {solBalanceUSD && (
                   <span className="ml-4 text-sm text-muted-foreground opacity-80">
-                    ${solBalanceUSD} USD
+                    {solBalanceUSD} USD
                   </span>
                 )}
               </div>
@@ -98,18 +121,19 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({ address, so
                 </div>
               )}
             </div>
-            <div className="ml-auto mt-2 md:mt-2 flex flex-wrap gap-2">
-            {!loadingDomains && userDomains && userDomains.length > 0 && (
-              userDomains.slice(0, 3).map((domain: any) => (
-                <Badge key={domain.domain} variant="outline">
-                  {domain.type === "sns-domain" ? domain.name : domain.domain}
-                </Badge>
-              ))
-            )}
-          </div>
+            <div className="ml-auto mt-2 flex flex-wrap gap-2 md:mt-2">
+              {!loadingDomains &&
+                userDomains &&
+                userDomains.length > 0 &&
+                userDomains.slice(0, 3).map((domain: any) => (
+                  <Badge key={domain.domain} variant="outline">
+                    {domain.type === "sns-domain" ? domain.name : domain.domain}
+                  </Badge>
+                ))}
+            </div>
           </div>
         </div>
-        <div className="ml-auto self-start font-medium mt-4 md:mt-0">
+        <div className="ml-auto mt-4 self-start font-medium md:mt-0">
           <div className="ml-auto flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -121,7 +145,9 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({ address, so
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => {
-                    router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                    router.push(
+                      `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
+                    );
                   }}
                 >
                   Compressed Accounts
