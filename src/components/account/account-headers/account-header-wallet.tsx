@@ -153,6 +153,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                     {domain.type === "sns-domain" ? domain.name : domain.domain}
                   </Badge>
                 ))}
+              {loadingDomains && <div className="flex gap-2"><Badge variant="outline" className="invisible">Loading</Badge><Badge variant="outline" className="invisible">Loading</Badge><Badge variant="outline" className="invisible">Loading</Badge></div>}
             </div>
           </div>
         </div>
