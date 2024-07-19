@@ -3,7 +3,7 @@
 import { useCluster } from "@/providers/cluster-provider";
 import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
-import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
@@ -17,7 +17,7 @@ import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading";
 
 export default function AddressLayout({
   children,
@@ -183,9 +183,9 @@ export default function AddressLayout({
     compressedSignatures.isLoading
   ) {
     return (
-        <div className="h-96 w-full">
-          <Skeleton className="h-full w-full" />
-        </div>
+      <div className="flex justify-center mt-20">
+        <Loading className="h-32 w-32" />
+      </div>
     );
   }
 

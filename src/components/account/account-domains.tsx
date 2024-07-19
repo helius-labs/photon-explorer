@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useCluster } from "@/providers/cluster-provider";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading";
+import LoadingBadge from "@/components/common/loading-badge";
 import { DataTable } from "@/components/data-table/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -88,16 +89,9 @@ export default function AccountDomains({ address }: { address: string }) {
   if (loadingDomains) {
     return (
       <Card className="col-span-12">
-        <CardContent className="flex flex-col gap-6 pt-6">
-          {[0, 1, 2].map((_, index) => (
-            <div key={index} className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[250px]" />
-                <Skeleton className="h-4 w-[200px]" />
-              </div>
-            </div>
-          ))}
+        <CardContent className="flex flex-col items-center gap-4 pt-6">
+          <Loading className="h-24 w-24" />
+          <LoadingBadge text="Loading Domains" />
         </CardContent>
       </Card>
     );

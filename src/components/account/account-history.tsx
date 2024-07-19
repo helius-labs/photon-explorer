@@ -15,7 +15,8 @@ import { useGetSignaturesForAddress } from "@/hooks/web3";
 
 import { TransactionCard } from "@/components/account/transaction-card";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading";
+import LoadingBadge from "@/components/common/loading-badge";
 
 import { Button } from "../ui/button";
 
@@ -29,12 +30,8 @@ export default function AccountHistory({ address }: { address: string }) {
   const { cluster } = useCluster();
   const router = useRouter();
 
-  //this is used to get all the signatures for an account
+  // this is used to get all the signatures for an account
   const signatures = useGetSignaturesForAddress(address);
-  //debugging
-  // console.log("ADDRESS: ", address);
-  // console.log("SIGNATURES: ", signatures);
-
   // this then parses those transactions
   const parsedTransactions = useGetParsedTransactions(
     signatures.data?.map((sig) => sig.signature) || [],
@@ -64,16 +61,9 @@ export default function AccountHistory({ address }: { address: string }) {
   if (signatures.isLoading || parsedTransactions.isLoading)
     return (
       <Card className="col-span-12">
-        <CardContent className="flex flex-col gap-4 pt-6">
-          {[0, 1, 2, 3, 4, 5].map((_, index) => (
-            <div key={index} className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[250px]" />
-                <Skeleton className="h-4 w-[200px]" />
-              </div>
-            </div>
-          ))}
+        <CardContent className="flex flex-col items-center gap-4 pt-6">
+          <Loading className="h-12 w-12" />
+          <LoadingBadge text="Loading History" />
         </CardContent>
       </Card>
     );
@@ -81,9 +71,8 @@ export default function AccountHistory({ address }: { address: string }) {
   const data: TransactionData[] = parsedTransactions.data?.length
     ? parsedTransactions.data
     : signatures.data?.length
-      ? signatures.data
-      : [];
-
+    ? signatures.data
+    : [];
 
   return (
     <Card className="col-span-12 mb-10">
