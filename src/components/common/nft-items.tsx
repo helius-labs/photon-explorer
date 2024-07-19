@@ -40,7 +40,7 @@ export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
             setIsLoading(false);
           }}
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
           <Button onClick={() => onQuickView(nft)} className="text-white">
             Quick View
           </Button>

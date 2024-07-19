@@ -19,7 +19,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCluster } from "@/providers/cluster-provider";
 import { formatNumericValue, formatCurrencyValue, calculateMarketCap } from "@/utils/numbers";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
