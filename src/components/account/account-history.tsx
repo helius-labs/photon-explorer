@@ -29,8 +29,13 @@ export default function AccountHistory({ address }: { address: string }) {
   const { cluster } = useCluster();
   const router = useRouter();
 
+  //this is used to get all the signatures for an account
   const signatures = useGetSignaturesForAddress(address);
+  //debugging
+  // console.log("ADDRESS: ", address);
+  // console.log("SIGNATURES: ", signatures);
 
+  // this then parses those transactions
   const parsedTransactions = useGetParsedTransactions(
     signatures.data?.map((sig) => sig.signature) || [],
     cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet,
@@ -78,6 +83,7 @@ export default function AccountHistory({ address }: { address: string }) {
     : signatures.data?.length
       ? signatures.data
       : [];
+
 
   return (
     <Card className="col-span-12 mb-10">
