@@ -42,7 +42,10 @@ export function TokenBalance({
     <div className="inline-flex items-center gap-2">
       {avatar}
       <span>
-        {displayedAmount} {symbol}
+        {displayedAmount}{" "}
+        <a className="underline" href={`/address/${token?.address}`}>
+          {symbol}
+        </a>
       </span>
     </div>
   );
