@@ -1,7 +1,12 @@
-export function descriptionParser(description: string): string {
+import { XrayTransaction } from "../types";
+
+export function descriptionParser(txn: XrayTransaction): string {
+  var description = txn.description || "";
+
   if (description.includes("multiple accounts")) {
     return "UNKNOWN";
   }
+  console.log(description);
 
   const swapMatch = description.match(
     /swapped ([\d.]+) (\w+) for ([\d.]+) (\w+)/,
