@@ -90,7 +90,7 @@ export default function AccountDomains({ address }: { address: string }) {
     return (
       <Card className="col-span-12">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
-          <Loading className="h-24 w-24" />
+          <Loading className="h-12 w-12" />
           <LoadingBadge text="Loading Domains" />
         </CardContent>
       </Card>

@@ -1,10 +1,10 @@
 "use client";
 
+import React, { useState } from "react";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import cloudflareLoader from "@/utils/imageLoader";
 import Image from "next/image";
-import React, { useState } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
