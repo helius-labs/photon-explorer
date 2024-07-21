@@ -1,3 +1,4 @@
+import React from 'react';
 import { timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
@@ -10,7 +11,6 @@ import {
   ConfirmedSignatureInfo,
   ParsedTransactionWithMeta,
   PublicKey,
-  Transaction,
 } from "@solana/web3.js";
 import { ColumnDef } from "@tanstack/react-table";
 import BigNumber from "bignumber.js";
@@ -61,6 +61,18 @@ type TransactionData =
   | XrayTransaction
   | ParsedTransactionWithMeta;
 
+// Helper function to get signature
+function getTransactionSignature(transaction: TransactionData): string {
+  if (isConfirmedSignatureInfo(transaction) || isSignatureWithMetadata(transaction)) {
+    return transaction.signature;
+  } else if (isParsedTransactionWithMeta(transaction)) {
+    return transaction.transaction.signatures[0];
+  } else if (isXrayTransaction(transaction)) {
+    return transaction.signature;
+  }
+  return "unknown_signature";
+}
+
 export const columns: ColumnDef<TransactionData>[] = [
   {
     header: () => (
@@ -71,10 +83,9 @@ export const columns: ColumnDef<TransactionData>[] = [
     accessorKey: "signature",
     cell: ({ getValue, row }) => {
       const transaction = row.original;
+      const signature = getTransactionSignature(transaction);
 
-      //finding failed txn
       let txnFailed = false;
-      // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
         err: any[];
       };
@@ -99,7 +110,7 @@ export const columns: ColumnDef<TransactionData>[] = [
           )}
           <div className="flex flex-col">
             <div className="text-sm font-medium">
-              <Signature copy={false} signature={getValue() as string} />
+              <Signature copy={false} signature={signature} />
             </div>
           </div>
         </div>
@@ -120,9 +131,7 @@ export const columns: ColumnDef<TransactionData>[] = [
       let rootAccountDelta: BigNumber | null = null;
       let type = ParserTransactionTypes.UNKNOWN;
 
-      //finding failed txn
       let txnFailed = false;
-      // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
         err: any[];
       };
@@ -145,7 +154,7 @@ export const columns: ColumnDef<TransactionData>[] = [
               )
             : null;
       } else if (isXrayTransaction(transaction)) {
-        description = descriptionParser(transaction.description || ""); // Use descriptionParser
+        description = descriptionParser(transaction.description || ""); 
         actions = transaction.actions || [];
         type = transaction.type;
       }
@@ -185,56 +194,6 @@ export const columns: ColumnDef<TransactionData>[] = [
               </div>
             ) : (
               <>
-                {/* comment out section that provides description info */}
-                {/* {actions.map((action, index) => (
-                  <div key={index} className="truncate">
-                    {action.actionType === ActionTypes.TRANSFER &&
-                      action.mint &&
-                      action.to && (
-                        <div className="flex items-center overflow-hidden truncate text-ellipsis">
-                          <span className="text-sm font-medium leading-none">
-                            Transfer
-                          </span>
-                          <TokenBalance
-                            amount={action.amount}
-                            decimals={action.decimals}
-                            mint={new PublicKey(action.mint)}
-                          />
-                          <Address pubkey={new PublicKey(action.to)} />
-                        </div>
-                      )}
-                    {action.actionType === ActionTypes.SENT &&
-                      action.mint &&
-                      action.to && (
-                        <div className="flex items-center overflow-hidden truncate text-ellipsis">
-                          <span className="text-sm font-medium leading-none">
-                            Sent
-                          </span>
-                          <TokenBalance
-                            amount={action.amount}
-                            decimals={action.decimals}
-                            mint={new PublicKey(action.mint)}
-                          />
-                          <Address pubkey={new PublicKey(action.to)} />
-                        </div>
-                      )}
-                    {action.actionType === ActionTypes.RECEIVED &&
-                      action.mint &&
-                      action.from && (
-                        <div className="flex items-center overflow-hidden truncate text-ellipsis">
-                          <span className="text-sm font-medium leading-none">
-                            Received
-                          </span>
-                          <TokenBalance
-                            amount={action.amount}
-                            decimals={action.decimals}
-                            mint={new PublicKey(action.mint)}
-                          />
-                          <Address pubkey={new PublicKey(action.from)} />
-                        </div>
-                      )}
-                  </div>
-                ))} */}
                 {rootAccountDelta && (
                   <div className="flex items-center overflow-hidden truncate text-ellipsis">
                     <span className="text-sm font-medium leading-none">
@@ -243,19 +202,6 @@ export const columns: ColumnDef<TransactionData>[] = [
                     <BalanceDelta delta={rootAccountDelta} isSol />
                   </div>
                 )}
-                {/* {txnFailed ? (
-                  <div className="truncate text-sm text-muted-foreground">
-                    Failed Transaction
-                  </div>
-                ) : (
-                  type === ParserTransactionTypes.UNKNOWN &&
-                  !description &&
-                  actions.length === 0 && (
-                    <div className="truncate text-sm text-muted-foreground">
-                      UNKNOWN
-                    </div>
-                  )
-                )} */}
               </>
             )}
           </div>
@@ -269,22 +215,15 @@ export const columns: ColumnDef<TransactionData>[] = [
         <span className="justify-end text-sm font-medium">Timestamp</span>
       </div>
     ),
-    accessorKey: "signature",
-    cell: ({ getValue, row }) => {
+    accessorKey: "timestamp",
+    cell: ({ row }) => {
       const transaction = row.original;
-      const description = isParsedTransactionWithMeta(transaction)
-        ? transaction.meta?.logMessages?.join(" ")
-        : isXrayTransaction(transaction)
-          ? descriptionParser(transaction.description || "")
-          : "";
-      //finding failed txn
-      let txnFailed = false;
       let time: number | undefined;
-      // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
         err: any[];
       };
 
+      let txnFailed = false;
       if (
         isSignatureWithMetadata(transaction) &&
         transactionWithError.err &&
@@ -303,16 +242,12 @@ export const columns: ColumnDef<TransactionData>[] = [
       ) {
         time = transaction.blockTime ?? undefined;
       }
+
       return (
         <div className="flex flex-col items-end gap-1 overflow-hidden px-4 py-2">
           <div className="text-sm text-muted-foreground">
             {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
           </div>
-          {/* {description && (
-            <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
-              {description}
-            </div>
-          )} */}
         </div>
       );
     },
@@ -329,6 +264,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
         {data.map((transaction, index) => {
           const isParsedTransaction = isParsedTransactionWithMeta(transaction);
           const isXrayTrans = isXrayTransaction(transaction);
+          const signature = getTransactionSignature(transaction);
 
           const time = isParsedTransaction
             ? transaction.blockTime
@@ -367,13 +303,13 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
           }
 
           return (
-            <div key={index} className="mb-3 border-b pb-3">
+            <div key={`${signature}_${index}`} className="mb-3 border-b pb-3">
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CircleArrowDown strokeWidth={1} className="h-8 w-8" />
                   <div>
                     <div className="font-base text-sm leading-none">
-                      Completed
+                      Transaction:
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {time ? timeAgoWithFormat(Number(time), true) : ""}
@@ -381,14 +317,9 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
-                  <div className="text-sm text-muted-foreground">Details:</div>
+                  <div className="text-sm text-muted-foreground">Signature:</div>
                   <div className="font-base text-sm leading-none">
-                    <Signature
-                      copy={false}
-                      signature={
-                        "signature" in transaction ? transaction.signature : ""
-                      }
-                    />
+                    <Signature copy={false} signature={signature} />
                   </div>
                 </div>
               </div>
@@ -404,8 +335,8 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                     <></>
                   ) : (
                     "actions" in transaction &&
-                    transaction.actions.map((action, index) => (
-                      <div key={index}>
+                    transaction.actions.map((action, idx) => (
+                      <div key={`${action.actionType}_${idx}`}>
                         {action.actionType === ActionTypes.TRANSFER && (
                           <div className="flex items-center">
                             <span className="text-sm font-medium leading-none">
