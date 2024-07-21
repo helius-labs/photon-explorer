@@ -43,9 +43,9 @@ export function TokenBalance({
       {avatar}
       <span>
         {displayedAmount}{" "}
-        <a className="underline" href={`/address/${token?.address}`}>
-          {symbol}
-        </a>
+        {/* <a className="underline" href={`/address/${token?.address}`}> */}
+        {symbol}
+        {/* </a> */}
       </span>
     </div>
   );
