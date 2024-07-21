@@ -9,6 +9,7 @@ import { CompressedTransaction } from "@lightprotocol/stateless.js";
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { ArrowRightLeft } from "lucide-react";
+import Link from 'next/link';
 
 import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
@@ -182,51 +183,6 @@ export default function TransactionOverviewCompressed({
       });
   }
 
-  const rows = [...accountRows, ...tokenRows]
-    .sort(
-      (a, b) =>
-        a.sortOrder - b.sortOrder ||
-        Math.abs(b.delta.toNumber()) - Math.abs(a.delta.toNumber()) ||
-        a.delta.toNumber() - b.delta.toNumber(),
-    )
-    .map((item, index) => {
-      return (
-        <TableRow key={`account-rows-${index}`} className="font-mono">
-          <TableCell>
-            <Address pubkey={item.pubkey} />
-          </TableCell>
-          <TableCell>
-            <TokenBalanceDelta mint={item.mint} delta={item.delta} />
-          </TableCell>
-        </TableRow>
-      );
-    });
-
-  const compressedRows = [
-    ...openedAccounts,
-    ...closedAccounts,
-    ...openedTokenAccounts,
-    ...closedTokenAccounts,
-  ]
-    .sort(
-      (a, b) =>
-        a.sortOrder - b.sortOrder ||
-        Math.abs(b.delta.toNumber()) - Math.abs(a.delta.toNumber()) ||
-        a.delta.toNumber() - b.delta.toNumber(),
-    )
-    .map((item, index) => {
-      return (
-        <TableRow key={`account-rows-${index}`} className="font-mono">
-          <TableCell>
-            <Address pubkey={item.pubkey} />
-          </TableCell>
-          <TableCell>
-            <TokenBalanceDelta mint={item.mint} delta={item.delta} />
-          </TableCell>
-        </TableRow>
-      );
-    });
-
   return (
     <Card className="mx-auto w-full max-w-lg p-3">
       <CardHeader className="flex flex-col items-start justify-between space-y-3 md:flex-row md:items-center md:space-y-0">
@@ -249,62 +205,67 @@ export default function TransactionOverviewCompressed({
           </span>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col space-y-4">
-        <Table className="mb-8">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/2">Address</TableHead>
-              <TableHead>Change</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows}
-
-            {data?.meta?.fee && (
-              <TableRow
-                key={`account-rows-transaction-fee`}
-                className="font-mono"
-              >
-                <TableCell>
-                  <span>Transaction Fee</span>
-                  <br />
-                  <Address
-                    pubkey={data.transaction.message.accountKeys[0].pubkey}
-                  />
-                </TableCell>
-                <TableCell className="text-red-400">
-                  <TokenBalanceDelta
-                    mint={new PublicKey(SOL)}
-                    delta={
-                      new BigNumber(
-                        lamportsToSolString(data?.meta?.fee * -1, 9),
-                      )
-                    }
-                  />
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        {compressedRows.length > 0 && (
-          <>
-            <div className="space-y-4">
-              <h2 className="text text-md font-medium">Compressed</h2>
-              <Table className="mb-8">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-1/2">Address</TableHead>
-                    <TableHead>Change</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>{compressedRows}</TableBody>
-              </Table>
+      <CardContent className="flex flex-col space-y-2">
+        <div className="block md:hidden space-y-2">
+          {data?.meta?.fee && (
+            <div className="flex flex-col md:flex-row md:justify-between mb-2 md:mb-0">
+              <div className="md:w-1/2 break-words">
+                <span>Transaction Fee</span>
+                <br />
+                <Link href={`/address/${data.transaction.message.accountKeys[0].pubkey.toBase58()}`} className="hover:underline" title={data.transaction.message.accountKeys[0].pubkey.toBase58()}>
+                  <Address pubkey={data.transaction.message.accountKeys[0].pubkey} />
+                </Link>
+              </div>
+              <div className="md:w-1/2 break-words text-red-400 font-mono whitespace-normal">
+                <TokenBalanceDelta
+                  mint={new PublicKey(SOL)}
+                  delta={
+                    new BigNumber(
+                      lamportsToSolString(data?.meta?.fee * -1, 9),
+                    )
+                  }
+                />
+              </div>
             </div>
-          </>
-        )}
-
+          )}
+        </div>
+        <div className="hidden md:block overflow-x-auto">
+          <Table className="mb-8 min-w-full">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-1/2">Address</TableHead>
+                <TableHead>Change</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data?.meta?.fee && (
+                <TableRow
+                  key={`account-rows-transaction-fee`}
+                  className="font-mono"
+                >
+                  <TableCell className="break-words whitespace-normal">
+                    <span>Transaction Fee</span>
+                    <br />
+                    <Link href={`/address/${data.transaction.message.accountKeys[0].pubkey.toBase58()}`} className="hover:underline" title={data.transaction.message.accountKeys[0].pubkey.toBase58()}>
+                      <Address pubkey={data.transaction.message.accountKeys[0].pubkey} />
+                    </Link>
+                  </TableCell>
+                  <TableCell className="break-words whitespace-normal text-red-400">
+                    <TokenBalanceDelta
+                      mint={new PublicKey(SOL)}
+                      delta={
+                        new BigNumber(
+                          lamportsToSolString(data?.meta?.fee * -1, 9),
+                        )
+                      }
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
         <Separator />
-
         <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
           <span className="font-medium">Signature</span>
           <div className="flex items-center space-x-2">

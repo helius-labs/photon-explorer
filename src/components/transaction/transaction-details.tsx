@@ -19,9 +19,8 @@ import TransactionOverviewParsed from "@/components/transaction/transaction-over
 import TransactionTokenBalances from "@/components/transaction/transaction-token-balances";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loading from "@/components/common/loading";
 import { Switch } from "@/components/ui/switch";
-
 import { Button } from "../ui/button";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
@@ -59,15 +58,13 @@ export default function TransactionDetails({ tx }: { tx: string }) {
         </CardContent>
       </Card>
     );
+
   if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
     return (
       <Card className="mx-auto w-full max-w-lg">
         <CardContent className="pt-6">
-          <div className="flex items-center space-x-4">
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-[250px]" />
-              <Skeleton className="h-4 w-[200px]" />
-            </div>
+          <div className="flex items-center justify-center h-10">
+            <Loading className="h-10 w-10" />
           </div>
         </CardContent>
       </Card>
@@ -84,7 +81,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
   if (
     parsed.data &&
     parsed.data.length > 0 &&
-    parsed.data[0].description != ""
+    parsed.data[0].description !== ""
   ) {
     // check all the data for txn
     transactionOverview = <TransactionOverviewParsed data={parsed.data[0]} />;

@@ -8,20 +8,20 @@ export default function TransactionInstructionLogs({
   data: ParsedTransactionWithMeta;
 }) {
   return (
-    <>
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Program Instruction Logs</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Program Instruction Logs</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
           <pre className="whitespace-pre-wrap">
             {data.meta &&
               data.meta.logMessages &&
               data.meta.logMessages.length > 0 &&
               JSON.stringify(data.meta.logMessages, null, 2)}
           </pre>
-        </CardContent>
-      </Card>
-    </>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

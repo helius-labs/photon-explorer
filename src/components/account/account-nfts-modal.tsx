@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import cloudflareLoader from "@/utils/imageLoader";
 import { X } from "lucide-react";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
-import { shorten, shortenLong } from "@/utils/common";
+import { shorten } from "@/utils/common";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "@/components/common/loading";
 import { useCluster } from "@/providers/cluster-provider";
@@ -60,8 +60,8 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex items-center justify-center z-50 p-4 w-full max-h-[70vh] max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg">
-        <div className="bg-background rounded-lg shadow-lg w-full max-h-[60vh] max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg relative p-4 sm:p-8 overflow-hidden">
+      <DialogContent className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm md:max-w-xl lg:max-w-3xl max-h-[70vh] overflow-auto">
+        <div className="bg-background rounded-lg shadow-lg w-full relative sm:p-8">
           <Button
             onClick={onClose}
             variant="outline"
@@ -69,8 +69,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
           >
             <X size={24} />
           </Button>
-          <div className="flex flex-col items-start lg:flex-row lg:items-start w-full h-full">
-            {/* Image section for the NFT */}
+          <div className="flex flex-col items-center lg:flex-row lg:items-start w-full">
             <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-8">
               <Image
                 loader={cloudflareLoader}
@@ -86,7 +85,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 }}
               />
             </div>
-            <div className="flex-grow h-full">
+            <div className="flex-grow h-full w-full">
               <DialogHeader>
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-4">
                   {nft.name || "Unknown NFT"}
@@ -136,8 +135,8 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                         <p className="text-muted-foreground">
                           <span className="font-semibold">Collection: </span>
                           <Link href={`/address/${nft.collection}`} className="hover:underline text-muted-foreground">
-                              {nft.collectionName}
-                            </Link>
+                            {nft.collectionName}
+                          </Link>
                         </p>
                       )}
                       {royaltyPercentage > 0 && (

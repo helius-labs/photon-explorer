@@ -34,33 +34,14 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
-        <div className="flex-shrink-0">
+        <div className="relative flex items-center justify-center w-full md:w-auto">
           <Avatar
             size={80}
             name={fallbackAddress}
             variant="marble"
             colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
           />
-        </div>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
-          <div className="text-center text-3xl font-medium leading-none md:text-left">
-            <div className="flex items-center justify-center gap-2 md:justify-start">
-              <Address pubkey={address} short />
-              <Badge variant="success">Unknown</Badge>
-            </div>
-            <div className="ml-auto mt-2 md:mt-2 flex flex-wrap gap-2">
-            {!loadingDomains && userDomains && userDomains.length > 0 && (
-              userDomains.slice(0, 3).map((domain: any) => (
-                <Badge key={domain.domain} variant="outline">
-                  {domain.type === "sns-domain" ? domain.name : domain.domain}
-                </Badge>
-              ))
-            )}
-          </div>
-          </div>
-        </div>
-        <div className="ml-auto self-start font-medium mt-4 md:mt-0">
-          <div className="ml-auto flex items-center gap-1">
+          <div className="absolute top-0 right-0 md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="outline" className="h-8 w-8">
@@ -79,6 +60,42 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        </div>
+        <div className="flex flex-col items-center text-center w-full md:flex-row md:items-center md:text-left md:justify-between">
+          <div className="text-2xl font-medium leading-none md:text-left">
+            <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
+              <Address pubkey={address} short />
+              <Badge className="md:hidden" variant="success">Unknown</Badge>
+            </div>
+            <div className="mt-2 flex flex-wrap justify-center gap-2 md:ml-auto md:mt-0 md:justify-start">
+              {!loadingDomains && userDomains && userDomains.length > 0 && (
+                userDomains.slice(0, 3).map((domain: any) => (
+                  <Badge key={domain.domain} variant="outline">
+                    {domain.type === "sns-domain" ? domain.name : domain.domain}
+                  </Badge>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:flex ml-auto self-start font-medium mt-4 md:mt-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="outline" className="h-8 w-8">
+                <MoreVertical className="h-3.5 w-3.5" />
+                <span className="sr-only">More</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                }}
+              >
+                Compressed Accounts
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardHeader>
     </Card>

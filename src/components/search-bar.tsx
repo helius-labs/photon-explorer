@@ -210,7 +210,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const valueContainerStyles = "px-1 cursor-text";
   const singleValueStyles = "leading-7 ml-1";
   const menuStyles =
-    "p-1 rounded-b-lg border border-t-0 border-input bg-popover";
+    "pl-1 rounded-b-lg border border-t-0 border-input bg-popover overflow-hidden";
   const groupHeadingStyles =
     "ml-2 mt-2 mb-1 text-muted-foreground text-xs font-medium";
   const optionStyles = {
@@ -304,6 +304,10 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
           paddingTop: "4px",
           paddingBottom: "4px",
           display: "flex",
+        }),
+        menuList: (baseStyles, state) => ({
+          ...baseStyles,
+          scrollbarWidth: "thin",
         }),
       }}
     />
