@@ -20,6 +20,7 @@ import {
   CircleArrowDown,
   CircleChevronRightIcon,
   CircleHelp,
+  ImagePlusIcon,
   XCircle,
 } from "lucide-react";
 
@@ -160,6 +161,9 @@ export const columns: ColumnDef<TransactionData>[] = [
           break;
         case ParserTransactionTypes.UNKNOWN:
           typeIcon = <CircleHelp className="h-6 w-6" />;
+          break;
+        case ParserTransactionTypes.CNFT_MINT:
+          typeIcon = <ImagePlusIcon className="h-6 w-6" />;
           break;
         default:
           typeIcon = <CircleChevronRightIcon className="h-6 w-6" />;
@@ -358,6 +362,10 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
               case ParserTransactionTypes.TRANSFER:
                 typeIcon = <ArrowRight className="h-6 w-6" />;
                 typeText = "TRANSFER";
+                break;
+              case ParserTransactionTypes.CNFT_MINT:
+                typeIcon = <ImagePlusIcon className="h-6 w-6" />;
+                typeText = "CNFT MINT";
                 break;
               case ParserTransactionTypes.UNKNOWN:
               default:

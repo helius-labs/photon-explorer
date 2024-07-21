@@ -11,6 +11,7 @@ import {
   ArrowRightLeftIcon,
   CircleHelp,
   Flame,
+  ImagePlusIcon,
   Printer,
 } from "lucide-react";
 
@@ -43,6 +44,9 @@ export default function TransactionOverviewParsed({
           )}
           {type === ParserTransactionTypes.BURN && (
             <Flame className="h-6 w-6" />
+          )}
+          {type === ParserTransactionTypes.CNFT_MINT && (
+            <ImagePlusIcon className="h-6 w-6" />
           )}
           {type === ParserTransactionTypes.TOKEN_MINT && (
             <Printer className="h-6 w-6" />
@@ -138,6 +142,19 @@ export default function TransactionOverviewParsed({
               </div>
             )}
             {action.actionType === ActionTypes.MINT && (
+              <div className="flex items-center">
+                <span className="w-1/4 text-muted-foreground">MINT</span>
+                <span className="ml-2 w-3/4">
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                  />
+                </span>
+              </div>
+            )}
+            {action.actionType === ActionTypes.CNFT_MINT && (
               <div className="flex items-center">
                 <span className="w-1/4 text-muted-foreground">MINT</span>
                 <span className="ml-2 w-3/4">
