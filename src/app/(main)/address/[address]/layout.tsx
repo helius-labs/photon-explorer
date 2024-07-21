@@ -127,6 +127,7 @@ export default function AddressLayout({
     }
 
     return newTabs;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountType, compressedAccount.data, nftData, address, pathname]);
 
   // Route to the correct tab based on the account type

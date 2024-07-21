@@ -1,3 +1,4 @@
+import React from 'react';
 import { timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
@@ -10,7 +11,6 @@ import {
   ConfirmedSignatureInfo,
   ParsedTransactionWithMeta,
   PublicKey,
-  Transaction,
 } from "@solana/web3.js";
 import { ColumnDef } from "@tanstack/react-table";
 import BigNumber from "bignumber.js";
@@ -63,6 +63,18 @@ type TransactionData =
   | XrayTransaction
   | ParsedTransactionWithMeta;
 
+// Helper function to get signature
+function getTransactionSignature(transaction: TransactionData): string {
+  if (isConfirmedSignatureInfo(transaction) || isSignatureWithMetadata(transaction)) {
+    return transaction.signature;
+  } else if (isParsedTransactionWithMeta(transaction)) {
+    return transaction.transaction.signatures[0];
+  } else if (isXrayTransaction(transaction)) {
+    return transaction.signature;
+  }
+  return "unknown_signature";
+}
+
 export const columns: ColumnDef<TransactionData>[] = [
   {
     header: () => (
@@ -81,7 +93,6 @@ export const columns: ColumnDef<TransactionData>[] = [
       console.log("DATA: ");
       //finding failed txn
       let txnFailed = false;
-      // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
         err: any[];
       };
@@ -261,6 +272,7 @@ export const columns: ColumnDef<TransactionData>[] = [
         err: any[];
       };
 
+      let txnFailed = false;
       if (
         isSignatureWithMetadata(transaction) &&
         transactionWithError.err &&
@@ -284,6 +296,7 @@ export const columns: ColumnDef<TransactionData>[] = [
         type = transaction.type;
         // console.log("ACTIONS", actions);
       }
+
       return (
         <div className="flex flex-col items-start gap-1 overflow-hidden px-4 py-2 md:ml-20">
           {/* <div className="text-sm text-muted-foreground">
@@ -366,6 +379,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
         {data.map((transaction, index) => {
           const isParsedTransaction = isParsedTransactionWithMeta(transaction);
           const isXrayTrans = isXrayTransaction(transaction);
+          const signature = getTransactionSignature(transaction);
 
           const time = isParsedTransaction
             ? transaction.blockTime
@@ -408,13 +422,13 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
           }
 
           return (
-            <div key={index} className="mb-3 border-b pb-3">
+            <div key={`${signature}_${index}`} className="mb-3 border-b pb-3">
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CircleArrowDown strokeWidth={1} className="h-8 w-8" />
                   <div>
                     <div className="font-base text-sm leading-none">
-                      Completed
+                      Transaction:
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {time ? timeAgoWithFormat(Number(time), true) : ""}
@@ -422,14 +436,9 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
-                  <div className="text-sm text-muted-foreground">Details:</div>
+                  <div className="text-sm text-muted-foreground">Signature:</div>
                   <div className="font-base text-sm leading-none">
-                    <Signature
-                      copy={false}
-                      signature={
-                        "signature" in transaction ? transaction.signature : ""
-                      }
-                    />
+                    <Signature copy={false} signature={signature} />
                   </div>
                 </div>
               </div>
@@ -445,8 +454,8 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                     <></>
                   ) : (
                     "actions" in transaction &&
-                    transaction.actions.map((action, index) => (
-                      <div key={index}>
+                    transaction.actions.map((action, idx) => (
+                      <div key={`${action.actionType}_${idx}`}>
                         {action.actionType === ActionTypes.TRANSFER && (
                           <div className="flex items-center">
                             <span className="text-sm font-medium leading-none">

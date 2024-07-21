@@ -148,8 +148,8 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
               {!loadingDomains &&
                 userDomains &&
                 userDomains.length > 0 &&
-                userDomains.slice(0, 3).map((domain: any) => (
-                  <Badge key={domain.domain} variant="outline">
+                userDomains.slice(0, 3).map((domain: any, index: number) => (
+                  <Badge key={index} variant="outline">
                     {domain.type === "sns-domain" ? domain.name : domain.domain}
                   </Badge>
                 ))}
