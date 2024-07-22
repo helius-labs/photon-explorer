@@ -20,6 +20,7 @@ import {
   CircleArrowDown,
   CircleChevronRightIcon,
   CircleHelp,
+  Flame,
   ImagePlusIcon,
   XCircle,
 } from "lucide-react";
@@ -29,6 +30,7 @@ import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
 import Signature from "@/components/common/signature";
 import { TokenBalance } from "@/components/common/token-balance";
+import transactionBreakdown from "@/components/common/txn-history-desc";
 
 import { DataTable } from "../data-table/data-table";
 
@@ -56,6 +58,27 @@ function isSignatureWithMetadata(
 ): transaction is SignatureWithMetadata {
   return (transaction as SignatureWithMetadata) !== undefined;
 }
+// function transactionInfo(transaction: XrayTransaction) {
+//   let info = "";
+//   switch (transaction.type) {
+//     case ParserTransactionTypes.TRANSFER:
+//       return (
+//         <div style={{ display: "flex", alignItems: "center" }}>
+//           <p style={{ margin: 0, marginRight: "8px" }}>Transferred</p>
+//           {transaction?.actions[0]?.mint && (
+//             <TokenBalance
+//               amount={transaction.actions[0].amount}
+//               decimals={transaction.actions[0].decimals}
+//               mint={new PublicKey(transaction.actions[0].mint)}
+//               isReadable={true}
+//             />
+//           )}
+//         </div>
+//       );
+//     // Add other cases here as needed
+//   }
+//   return info;
+// }
 
 type TransactionData =
   | ConfirmedSignatureInfo
@@ -66,8 +89,8 @@ type TransactionData =
 export const columns: ColumnDef<TransactionData>[] = [
   {
     header: () => (
-      <div className="px-4 py-2">
-        <span className="text-sm font-medium">Type</span>
+      <div className="px-4 py-2 text-center">
+        <span className="justify-end text-sm font-medium">Type</span>
       </div>
     ),
     accessorKey: "type",
@@ -122,6 +145,9 @@ export const columns: ColumnDef<TransactionData>[] = [
           break;
         case ParserTransactionTypes.CNFT_MINT:
           typeIcon = <ImagePlusIcon className="h-6 w-6" />;
+          break;
+        case ParserTransactionTypes.BURN:
+          typeIcon = <Flame className="h-6 w-6" />;
           break;
         default:
           typeIcon = <CircleChevronRightIcon className="h-6 w-6" />;
@@ -240,14 +266,14 @@ export const columns: ColumnDef<TransactionData>[] = [
   },
   {
     header: () => (
-      <div className="mr-20 px-4 py-2 text-center">
+      <div className="px-4 py-2 text-center">
         <span className="justify-end text-sm font-medium">Info</span>
       </div>
     ),
     accessorKey: "Info",
     cell: ({ getValue, row }) => {
       const transaction = row.original;
-      let description = "";
+      let description;
       let actions: any[] = [];
       let rootAccountDelta: BigNumber | null = null;
       let type = ParserTransactionTypes.UNKNOWN;
@@ -279,14 +305,13 @@ export const columns: ColumnDef<TransactionData>[] = [
               )
             : null;
       } else if (isXrayTransaction(transaction)) {
-        description = descriptionParser(transaction || ""); // Use descriptionParser
+        description = descriptionParser(transaction || "");
         actions = transaction.actions || [];
         type = transaction.type;
         // console.log("ACTIONS", actions);
-
       }
       return (
-        <div className="flex flex-col items-start gap-1 overflow-hidden px-4 py-2 md:ml-20">
+        <div className="flex flex-col items-center overflow-hidden py-2">
           {/* <div className="text-sm text-muted-foreground">
             {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
           </div> */}
@@ -297,8 +322,10 @@ export const columns: ColumnDef<TransactionData>[] = [
           )}
 
           {description && !txnFailed && (
-            <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
-              {description}
+            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+              {isXrayTransaction(transaction)
+                ? transactionBreakdown(transaction)
+                : "Transaction"}
             </div>
             // <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
             //   {actions[0]?.actionType === "TRANSFER" ? (
@@ -423,7 +450,9 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
-                  <div className="text-sm text-muted-foreground">Signature:</div>
+                  <div className="text-sm text-muted-foreground">
+                    Signature:
+                  </div>
                   <div className="font-base text-sm leading-none">
                     <Signature
                       copy={false}
