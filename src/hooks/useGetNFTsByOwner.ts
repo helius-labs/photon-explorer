@@ -36,16 +36,6 @@ export function useGetNFTsByOwner(address: string, enabled: boolean = true) {
   });
 }
 
-type AssetResponse = {
-  result: DAS.GetAssetResponseList & {
-    nativeBalance?: {
-      lamports: number;
-      price_per_sol: string | number;
-      total_price: string | number;
-    };
-  };
-};
-
 async function getNFTsByOwnerDAS(
   address: string,
   page: number = 1,
@@ -76,7 +66,7 @@ async function getNFTsByOwnerDAS(
     }),
   });
 
-  const data: AssetResponse = await response.json();
+  const data: { result: DAS.GetAssetResponseList } = await response.json();
 
   const nfts: NFT[] = data.result.items.flatMap((item) => {
     if (
@@ -121,7 +111,10 @@ async function getNFTsByOwnerDAS(
   return nfts;
 }
 
-async function getNFTsByOwnerMetaplex(address: string, endpoint: string) {
+async function getNFTsByOwnerMetaplex(
+  address: string,
+  endpoint: string,
+): Promise<NFT[]> {
   const umi = createUmi(endpoint).use(mplTokenMetadata());
 
   // Fetch symbols and logos for tokens
