@@ -89,8 +89,8 @@ type TransactionData =
 export const columns: ColumnDef<TransactionData>[] = [
   {
     header: () => (
-      <div className="px-4 py-2">
-        <span className="text-sm font-medium">Type</span>
+      <div className="px-4 py-2 text-center">
+        <span className="justify-end text-sm font-medium">Type</span>
       </div>
     ),
     accessorKey: "type",
@@ -266,7 +266,7 @@ export const columns: ColumnDef<TransactionData>[] = [
   },
   {
     header: () => (
-      <div className="mr-20 px-4 py-2 text-center">
+      <div className="px-4 py-2 text-center">
         <span className="justify-end text-sm font-medium">Info</span>
       </div>
     ),
@@ -311,7 +311,7 @@ export const columns: ColumnDef<TransactionData>[] = [
         console.log("ACTIONS", actions);
       }
       return (
-        <div className="flex flex-col items-start gap-1 overflow-hidden px-4 py-2 md:ml-20">
+        <div className="flex flex-col items-center overflow-hidden py-2">
           {/* <div className="text-sm text-muted-foreground">
             {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
           </div> */}
@@ -322,7 +322,7 @@ export const columns: ColumnDef<TransactionData>[] = [
           )}
 
           {description && !txnFailed && (
-            <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
+            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
               {isXrayTransaction(transaction)
                 ? transactionBreakdown(transaction)
                 : "Transaction"}
