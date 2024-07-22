@@ -6,7 +6,7 @@ export function descriptionParser(txn: XrayTransaction): string {
   if (description.includes("multiple accounts")) {
     return "UNKNOWN";
   }
-  console.log(description);
+  // console.log(description);
 
   const swapMatch = description.match(
     /swapped ([\d.]+) (\w+) for ([\d.]+) (\w+)/,
