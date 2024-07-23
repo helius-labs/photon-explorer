@@ -1,7 +1,11 @@
+import { getBaseUrl } from "@/utils/common";
+
 import { tokenMetricsSchema } from "@/schemas/tokenMetrics";
 
+const apiBaseUrl = getBaseUrl();
+
 export async function getTokenMetrics(address: string) {
-  const response = await fetch(`http://localhost:3000/api/proxy/${address}`);
+  const response = await fetch(`${apiBaseUrl}/api/token-metrics/${address}`);
   if (!response.ok) {
     throw new Error(`Error fetching token metrics for address: ${address}`);
   }
