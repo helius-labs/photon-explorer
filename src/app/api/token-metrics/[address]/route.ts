@@ -1,3 +1,4 @@
+import { getBaseUrl } from "@/utils/common";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -5,17 +6,15 @@ export async function GET(
   { params }: { params: { address: string } },
 ) {
   const { address } = params;
+  const baseUrl = getBaseUrl();
 
   try {
-    const response = await fetch(
-      `https://catdetlist.jup.ag/api/metrics/${address}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const response = await fetch(`${baseUrl}/api/metrics/${address}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
 
     if (!response.ok) {
       return NextResponse.json(
