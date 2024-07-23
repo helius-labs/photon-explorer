@@ -9,17 +9,17 @@ import { CheckIcon, Copy, MoreVertical } from "lucide-react";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
-import { useGetTokenHolders } from "@/hooks/useGetTokenHolders";
 import { shortenLong } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCluster } from "@/providers/cluster-provider";
 import { formatNumericValue, formatCurrencyValue, calculateMarketCap } from "@/utils/numbers";
+import { useGetTokenMetrics } from "@/hooks/jupiterTokenMetrics";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -38,8 +38,10 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
     mint_authority: string;
     freeze_authority: string;
     token_program: string;
+    dailyVolume?: string;
+    holders?: string;
   }>({
-    tokenName: "NAME",
+    tokenName: "Token",
     tokenImageURI: null,
     tokenSymbol: "SYMBOL",
     supply: "",
@@ -49,41 +51,41 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
     freeze_authority: "",
     token_program: "",
   });
+
   const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
   const { endpoint } = useCluster() as { endpoint: string };
+
   const { data: tokenList, isLoading: tokenListLoading, isError: tokenListError } = useGetTokenListStrict();
   const { data: tokenDataFromAPI, isLoading: tokenDataLoading, isError: tokenDataError } = useGetTokensByMint(address.toBase58());
-  const { data: tokenHolders } = useGetTokenHolders(address.toBase58());
+  const { data: tokenMetricsData, isLoading: tokenMetricsLoading, isError: tokenMetricsError } = useGetTokenMetrics(address.toBase58());
 
-  const fallbackAddress = address.toBase58();
-
+  // Fetch CoinGecko ID
   useEffect(() => {
     const fetchCoingeckoId = async () => {
-      if (tokenDetails.tokenSymbol !== "") {
-        try {
-          const response = await fetch("https://api.coingecko.com/api/v3/coins/list");
-          if (!response.ok) {
-            throw new Error("Failed to fetch CoinGecko data");
-          }
-          const data = await response.json();
-          const token = data.find((token: any) => token.symbol.toLowerCase() === tokenDetails.tokenSymbol.toLowerCase());
-          if (token) {
-            setCoingeckoId(token.id);
-          }
-        } catch (error) {
-          console.error("Error fetching CoinGecko data:", error);
-        }
+      if (tokenDetails.tokenSymbol === "") return;
+
+      try {
+        const response = await fetch("https://api.coingecko.com/api/v3/coins/list");
+        if (!response.ok) throw new Error("Failed to fetch CoinGecko data");
+
+        const data = await response.json();
+        const token = data.find((token: any) => token.symbol.toLowerCase() === tokenDetails.tokenSymbol.toLowerCase());
+
+        if (token) setCoingeckoId(token.id);
+      } catch (error) {
+        console.error("Error fetching CoinGecko data:", error);
       }
     };
 
     fetchCoingeckoId();
   }, [tokenDetails.tokenSymbol]);
 
+  // Update token details based on API data
   useEffect(() => {
-    if (tokenListLoading || tokenDataLoading) return;
+    if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) return;
 
-    if (tokenListError || tokenDataError) {
+    if (tokenListError || tokenDataError || tokenMetricsError) {
       if (retryCount < 3) {
         setRetryCount(retryCount + 1);
         setTimeout(() => {
@@ -100,6 +102,8 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                 mint_authority: tokenDataFromAPI?.mint_authority || "",
                 freeze_authority: tokenDataFromAPI?.freeze_authority || "",
                 token_program: tokenDataFromAPI?.token_program || "",
+                dailyVolume: tokenMetricsData?.data?.dailyVolume ? formatCurrencyValue(tokenMetricsData.data.dailyVolume) : "",
+                holders: tokenMetricsData?.data?.holders ? tokenMetricsData.data.holders.toString() : "",
               });
             }
           }
@@ -118,11 +122,14 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
           mint_authority: tokenDataFromAPI?.mint_authority || "",
           freeze_authority: tokenDataFromAPI?.freeze_authority || "",
           token_program: tokenDataFromAPI?.token_program || "",
+          dailyVolume: tokenMetricsData?.data?.dailyVolume ? formatCurrencyValue(tokenMetricsData.data.dailyVolume) : "",
+          holders: tokenMetricsData?.data?.holders ? formatNumericValue(tokenMetricsData.data.holders).toString() : "",
         });
       }
     }
-  }, [tokenList, tokenDataFromAPI, tokenListLoading, tokenDataLoading, tokenListError, tokenDataError, retryCount, address]);
+  }, [tokenList, tokenDataFromAPI, tokenMetricsData, tokenListLoading, tokenDataLoading, tokenMetricsLoading, tokenListError, tokenDataError, tokenMetricsError, retryCount, address]);
 
+  // Reset copied status after a delay
   useEffect(() => {
     if (hasCopied) {
       const timer = setTimeout(() => {
@@ -154,7 +161,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
             ) : (
               <Avatar
                 size={80}
-                name={fallbackAddress}
+                name={address.toBase58()}
                 variant="marble"
                 colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
               />
@@ -227,18 +234,24 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                   <span className="text-3xl text-foreground">{tokenDetails.price}</span>
                 </div>
                 <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
-                  <span className="font-semibold text-muted-foreground">Holders:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">
-                    {tokenHolders !== undefined ? tokenHolders.toLocaleString() : "Loading..."}
-                  </span>
-                </div>
-                <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Supply:</span>
                   <span className="truncate md:whitespace-normal md:max-w-none max-w-[190px]">{tokenDetails.supply}</span>
                 </div>
                 <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Market Cap:</span>
                   <span className="truncate md:whitespace-normal md:max-w-none max-w-[190px]">{tokenDetails.marketCap}</span>
+                </div>
+                <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
+                  <span className="font-semibold text-muted-foreground">Holders:</span>
+                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">
+                    {tokenDetails.holders}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
+                  <span className="font-semibold text-muted-foreground">Daily Volume:</span>
+                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">
+                    {tokenDetails.dailyVolume}
+                  </span>
                 </div>
               </div>
               <div className="ml-4 self-start mt-2 md:mt-0 hidden md:block">
