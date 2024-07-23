@@ -120,7 +120,7 @@ function TransactionBalances(transaction: XrayTransaction, address: string) {
     return (
       <>
         {balanceChanges.map((change, index) => (
-          <div key={index} className="flex items-start text-start">
+          <div key={index} className="flex items-start py-1 text-start">
             <TokenBalance
               amount={change.change}
               mint={new PublicKey(change.mint)}
