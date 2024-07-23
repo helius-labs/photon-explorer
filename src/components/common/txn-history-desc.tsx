@@ -1,3 +1,4 @@
+import { AccountType, getAccountType } from "@/utils/account";
 import { PublicKey } from "@solana/web3.js";
 import { ArrowRightLeftIcon } from "lucide-react";
 import React from "react";
@@ -8,9 +9,30 @@ import {
 } from "../../utils/parser/types";
 import { TokenBalance } from "./token-balance";
 
-function transactionBreakdown(transaction: XrayTransaction) {
+function transactionBreakdown(transaction: XrayTransaction, address?: string) {
+  const isWallet = getAccountType(null, [], undefined) === AccountType.Wallet;
   switch (transaction.type) {
     case ParserTransactionTypes.TRANSFER:
+      let parsedIndex = 0;
+      //logic to ignore token account creation
+      if (
+        transaction?.actions.length > 1 &&
+        transaction?.actions[0]?.mint ==
+          "So11111111111111111111111111111111111111112"
+      ) {
+        parsedIndex = 1;
+      }
+      enum Relationship {
+        Sender = "sender",
+        Receiver = "receiver",
+        None = "none",
+      }
+      let relationship = Relationship.None;
+      if (address === transaction?.actions[parsedIndex]?.from) {
+        relationship = Relationship.Sender;
+      } else if (address === transaction?.actions[parsedIndex]?.to) {
+        relationship = Relationship.Receiver;
+      }
       if (transaction.description?.includes("to multiple accounts")) {
         return (
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -20,14 +42,21 @@ function transactionBreakdown(transaction: XrayTransaction) {
           </div>
         );
       }
+      const mintParam = transaction?.actions[parsedIndex]?.mint;
       return (
         <div style={{ display: "flex", alignItems: "center" }}>
-          <p style={{ margin: 0, marginRight: "8px" }}>Transferred</p>
-          {transaction?.actions[0]?.mint && (
+          <p style={{ margin: 0, marginRight: "8px" }}>
+            {relationship === Relationship.Sender
+              ? "Sent"
+              : relationship === Relationship.Receiver
+                ? "Received"
+                : "Transferred"}
+          </p>
+          {mintParam && (
             <TokenBalance
-              amount={transaction.actions[0].amount}
-              decimals={transaction.actions[0].decimals}
-              mint={new PublicKey(transaction.actions[0].mint)}
+              amount={transaction.actions[parsedIndex].amount}
+              decimals={transaction.actions[parsedIndex].decimals}
+              mint={new PublicKey(mintParam)}
               isReadable={true}
             />
           )}
