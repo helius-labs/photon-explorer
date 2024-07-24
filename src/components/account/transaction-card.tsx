@@ -188,7 +188,7 @@ export const getColumns = (
   },
   {
     header: () => (
-      <div className="px-4 py-2 text-center">
+      <div className="px-4 py-2 text-left">
         <span className="justify-end text-sm font-medium">Info</span>
       </div>
     ),
@@ -231,17 +231,17 @@ export const getColumns = (
         type = transaction.type;
       }
       return (
-        <div className="flex flex-col items-center overflow-hidden py-2">
+        <div className="flex flex-col items-start overflow-hidden py-2 text-left">
           {txnFailed ? (
-            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+            <div className="whitespace-normal break-words text-sm text-muted-foreground">
               {"Transaction failed"}
             </div>
           ) : !description ? (
-            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+            <div className="whitespace-normal break-words text-sm text-muted-foreground">
               {"Transaction could not be parsed"}
             </div>
           ) : (
-            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+            <div className="whitespace-normal break-words text-sm text-muted-foreground">
               {isXrayTransaction(transaction) &&
                 transactionBreakdown(transaction, address)}
             </div>
@@ -270,7 +270,7 @@ export const getColumns = (
                 </div>
               );
             } else {
-              return <div>no data</div>;
+              return <div className=" text-center">See signature for details</div>;
             }
           },
         },
@@ -278,7 +278,7 @@ export const getColumns = (
     : []),
   {
     header: () => (
-      <div className="px-4 py-2 text-center">
+      <div className="px-4 py-2 text-left">
         <span className="justify-end text-sm font-medium">Signature</span>
       </div>
     ),
@@ -413,8 +413,8 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-start gap-2">
-                <div className="grid gap-1 text-center">
+              <div className="flex flex-col items-start justify-start gap-2">
+                <div className="grid gap-1 text-left">
                   {description && (
                     <div className="whitespace-normal break-words text-sm text-muted-foreground">
                       {isXrayTransaction(transaction)
