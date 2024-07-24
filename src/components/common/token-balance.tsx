@@ -84,9 +84,9 @@ export function TokenBalance({
   const getAmountColor = () => {
     if (!showChanges || normalizedAmount === null) return "";
     return normalizedAmount > 0
-      ? "text-green-500"
+      ? "text-[#06D6A0] cursor-default"
       : normalizedAmount < 0
-        ? "text-red-500"
+        ? "text-[#EF476F] cursor-default"
         : "";
   };
 
