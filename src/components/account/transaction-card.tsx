@@ -92,6 +92,7 @@ export const getColumns = (
 
       //finding failed txn
       let txnFailed = false;
+
       // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
         err: any[];
@@ -140,6 +141,9 @@ export const getColumns = (
         default:
           typeIcon = <CircleChevronRightIcon className="h-6 w-6" />;
           break;
+        case ParserTransactionTypes.CNFT_TRANSFER:
+          typeIcon = <ArrowRight className="h-6 w-6" />;
+          break;
       }
       if (txnFailed) {
         typeIcon = <XCircle className="h-6 w-6" />;
@@ -167,76 +171,85 @@ export const getColumns = (
             <div className="text-sm text-muted-foreground">
               {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
             </div>
+            <>
+              {rootAccountDelta && (
+                <div className="flex items-center overflow-hidden truncate text-ellipsis">
+                  <span className="text-sm font-medium leading-none">
+                    Balance Change
+                  </span>
+                  <BalanceDelta delta={rootAccountDelta} isSol />
+                </div>
+              )}
+            </>
           </div>
         </div>
       );
     },
   },
-  {
-    header: () => (
-      <div className="px-4 py-2 text-center">
-        <span className="justify-end text-sm font-medium">Info</span>
-      </div>
-    ),
-    accessorKey: "Info",
-    cell: ({ getValue, row }) => {
-      const transaction = row.original;
-      let description;
-      let actions: any[] = [];
-      let rootAccountDelta: BigNumber | null = null;
-      let type = ParserTransactionTypes.UNKNOWN;
-      let time: number | undefined;
+  // {
+  //   header: () => (
+  //     <div className="px-4 py-2 text-center">
+  //       <span className="justify-end text-sm font-medium">Info</span>
+  //     </div>
+  //   ),
+  //   accessorKey: "Info",
+  //   cell: ({ getValue, row }) => {
+  //     const transaction = row.original;
+  //     let description;
+  //     let actions: any[] = [];
+  //     let rootAccountDelta: BigNumber | null = null;
+  //     let type = ParserTransactionTypes.UNKNOWN;
+  //     let time: number | undefined;
 
-      //finding failed txn
-      let txnFailed = false;
+  //     let txnFailed = false;
 
-      // Use type assertion to extend the transaction type with an err property
-      const transactionWithError = transaction as SignatureWithMetadata & {
-        err: any[];
-      };
+  //     // Use type assertion to extend the transaction type with an err property
+  //     const transactionWithError = transaction as SignatureWithMetadata & {
+  //       err: any[];
+  //     };
 
-      if (
-        isSignatureWithMetadata(transaction) &&
-        transactionWithError.err &&
-        transactionWithError.err !== null
-      ) {
-        txnFailed = true;
-      }
+  //     if (
+  //       isSignatureWithMetadata(transaction) &&
+  //       transactionWithError.err &&
+  //       transactionWithError.err !== null
+  //     ) {
+  //       txnFailed = true;
+  //     }
 
-      if (isParsedTransactionWithMeta(transaction)) {
-        description = transaction.meta?.logMessages?.join(" ") || "";
-        rootAccountDelta =
-          transaction.meta?.postBalances?.[0] !== undefined &&
-          transaction.meta?.preBalances?.[0] !== undefined
-            ? new BigNumber(transaction.meta.postBalances[0]).minus(
-                new BigNumber(transaction.meta.preBalances[0]),
-              )
-            : null;
-      } else if (isXrayTransaction(transaction)) {
-        description = descriptionParser(transaction || "");
-        actions = transaction.actions || [];
-        type = transaction.type;
-        // console.log("ACTIONS", actions);
-      }
-      return (
-        <div className="flex flex-col items-center overflow-hidden py-2">
-          {txnFailed && (
-            <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
-              {"Failed Transaction"}
-            </div>
-          )}
-
-          {description && !txnFailed && (
-            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
-              {isXrayTransaction(transaction)
-                ? transactionBreakdown(transaction, address)
-                : "Transaction"}
-            </div>
-          )}
-        </div>
-      );
-    },
-  },
+  //     if (isParsedTransactionWithMeta(transaction)) {
+  //       description = transaction.meta?.logMessages?.join(" ") || "";
+  //       rootAccountDelta =
+  //         transaction.meta?.postBalances?.[0] !== undefined &&
+  //         transaction.meta?.preBalances?.[0] !== undefined
+  //           ? new BigNumber(transaction.meta.postBalances[0]).minus(
+  //               new BigNumber(transaction.meta.preBalances[0]),
+  //             )
+  //           : null;
+  //     } else if (isXrayTransaction(transaction)) {
+  //       description = descriptionParser(transaction || "");
+  //       actions = transaction.actions || [];
+  //       type = transaction.type;
+  //     }
+  //     return (
+  //       <div className="flex flex-col items-center overflow-hidden py-2">
+  //         {txnFailed ? (
+  //           <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+  //             {"Transaction failed"}
+  //           </div>
+  //         ) : !description ? (
+  //           <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+  //             {"Transaction could not be parsed"}
+  //           </div>
+  //         ) : (
+  //           <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+  //             {isXrayTransaction(transaction) &&
+  //               transactionBreakdown(transaction, address)}
+  //           </div>
+  //         )}
+  //       </div>
+  //     );
+  //   },
+  // },
   //conditiona coloumn depending on if the page is for a wallet or not
   ...(isWallet
     ? [
@@ -273,7 +286,6 @@ export const getColumns = (
     cell: ({ getValue, row }) => {
       const transaction = row.original;
 
-      //finding failed txn
       let txnFailed = false;
       // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
@@ -356,6 +368,10 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                 typeIcon = <ArrowRight className="h-6 w-6" />;
                 typeText = "TRANSFER";
                 break;
+              case ParserTransactionTypes.CNFT_TRANSFER:
+                typeIcon = <ArrowRight className="h-6 w-6" />;
+                typeText = "CNFT TRANSFER";
+                break;
               case ParserTransactionTypes.CNFT_MINT:
                 typeIcon = <ImagePlusIcon className="h-6 w-6" />;
                 typeText = "CNFT MINT";
@@ -371,10 +387,12 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
             <div key={index} className="mb-3 border-b pb-3">
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CircleArrowDown strokeWidth={1} className="h-8 w-8" />
+                  <div className="flex h-8 w-8 items-center justify-center">
+                    {typeIcon}
+                  </div>
                   <div>
-                    <div className="font-base text-sm leading-none">
-                      Completed
+                    <div className="font-base text-lg font-bold">
+                      {typeText}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {time ? timeAgoWithFormat(Number(time), true) : ""}
@@ -395,17 +413,16 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-start gap-2">
-                <div className="flex h-8 w-8 items-center justify-center">
-                  {typeIcon}
-                </div>
-                <div className="grid gap-1 text-left">
-                  {typeText !== "UNKNOWN" && (
-                    <div className="text-lg font-bold">{typeText}</div>
+              <div className="flex flex-col items-center justify-start gap-2">
+                <div className="grid gap-1 text-center">
+                  {description && (
+                    <div className="whitespace-normal break-words text-sm text-muted-foreground">
+                      {isXrayTransaction(transaction)
+                        ? transactionBreakdown(transaction)
+                        : "Transaction"}
+                    </div>
                   )}
-                  {description ? (
-                    <></>
-                  ) : (
+                  {!description &&
                     "actions" in transaction &&
                     transaction.actions.map((action, index) => (
                       <div key={index}>
@@ -455,8 +472,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                           </div>
                         )}
                       </div>
-                    ))
-                  )}
+                    ))}
                   {rootAccountDelta && (
                     <div className="flex items-center">
                       <span className="text-sm font-medium leading-none">
