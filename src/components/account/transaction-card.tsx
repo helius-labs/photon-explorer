@@ -239,7 +239,8 @@ export const getColumns = (
             </div>
           ) : (
             <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
-              {transactionBreakdown(transaction, address)}
+              {isXrayTransaction(transaction) &&
+                transactionBreakdown(transaction, address)}
             </div>
           )}
         </div>
