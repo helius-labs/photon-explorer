@@ -141,6 +141,9 @@ export const getColumns = (
         default:
           typeIcon = <CircleChevronRightIcon className="h-6 w-6" />;
           break;
+        case ParserTransactionTypes.CNFT_TRANSFER:
+          typeIcon = <ArrowRight className="h-6 w-6" />;
+          break;
       }
       if (txnFailed) {
         typeIcon = <XCircle className="h-6 w-6" />;
@@ -364,6 +367,10 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
               case ParserTransactionTypes.TRANSFER:
                 typeIcon = <ArrowRight className="h-6 w-6" />;
                 typeText = "TRANSFER";
+                break;
+              case ParserTransactionTypes.CNFT_TRANSFER:
+                typeIcon = <ArrowRight className="h-6 w-6" />;
+                typeText = "CNFT TRANSFER";
                 break;
               case ParserTransactionTypes.CNFT_MINT:
                 typeIcon = <ImagePlusIcon className="h-6 w-6" />;

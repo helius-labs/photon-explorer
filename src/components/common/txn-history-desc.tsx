@@ -115,6 +115,48 @@ function transactionBreakdown(transaction: XrayTransaction, address?: string) {
           )}
         </div>
       );
+    case ParserTransactionTypes.CNFT_TRANSFER:
+      enum Relationship_CNFT {
+        Sender = "sender",
+        Receiver = "receiver",
+        None = "none",
+      }
+      let relationship_CNFT = Relationship_CNFT.None;
+      if (address === transaction?.actions[0]?.from) {
+        relationship_CNFT = Relationship_CNFT.Sender;
+      } else if (address === transaction?.actions[0]?.to) {
+        relationship_CNFT = Relationship_CNFT.Receiver;
+      }
+      if (transaction.description?.includes("to multiple accounts")) {
+        return (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <p style={{ margin: 0, marginRight: "8px" }}>
+              Transfer to multiple accounts.
+            </p>{" "}
+          </div>
+        );
+      }
+      const mintParam_cnft = transaction?.actions[0]?.mint;
+      return (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p style={{ margin: 0, marginRight: "8px" }}>
+            {relationship_CNFT === Relationship_CNFT.Sender
+              ? "Sent"
+              : relationship_CNFT === Relationship_CNFT.Receiver
+                ? "Received"
+                : "Transferred"}
+          </p>
+          {mintParam_cnft && (
+            <TokenBalance
+              amount={transaction.actions[0].amount}
+              decimals={transaction.actions[0].decimals}
+              mint={new PublicKey(mintParam_cnft)}
+              isReadable={true}
+              isNFT={true}
+            />
+          )}
+        </div>
+      );
     case ParserTransactionTypes.UNKNOWN:
       return (
         <div style={{ display: "flex", alignItems: "center" }}>
