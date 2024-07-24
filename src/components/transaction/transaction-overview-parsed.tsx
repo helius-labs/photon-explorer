@@ -60,68 +60,153 @@ export default function TransactionOverviewParsed({
 
   return (
     <div className="mx-[-1rem] md:mx-0">
-    <Card className="mx-auto w-full max-w-lg cursor-default p-3 md:p-6">
-      <CardHeader className="flex flex-col items-start justify-between md:flex-row md:items-center">
-        <div className="flex items-center space-x-3">
-          {type === ParserTransactionTypes.SWAP && (
-            <ArrowRightLeftIcon className="h-6 w-6" />
-          )}
-          {type === ParserTransactionTypes.TRANSFER && (
-            <ArrowRight className="h-6 w-6" />
-          )}
-          {type === ParserTransactionTypes.UNKNOWN && (
-            <CircleHelp className="h-6 w-6" />
-          )}
-          {type === ParserTransactionTypes.BURN && (
-            <Flame className="h-6 w-6" />
-          )}
-          {type === ParserTransactionTypes.CNFT_MINT && (
-            <ImagePlusIcon className="h-6 w-6" />
-          )}
-          {type === ParserTransactionTypes.TOKEN_MINT && (
-            <Printer className="h-6 w-6" />
-          )}
-          <CardTitle className="text-xl font-bold md:text-2xl">
-            {type}
-          </CardTitle>
-        </div>
+      <Card className="mx-auto w-full max-w-lg cursor-default p-3 md:p-6">
+        <CardHeader className="flex flex-col items-start justify-between md:flex-row md:items-center">
+          <div className="flex items-center space-x-3">
+            {type === ParserTransactionTypes.SWAP && (
+              <ArrowRightLeftIcon className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.TRANSFER && (
+              <ArrowRight className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.UNKNOWN && (
+              <CircleHelp className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.BURN && (
+              <Flame className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.CNFT_MINT && (
+              <ImagePlusIcon className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.TOKEN_MINT && (
+              <Printer className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.CNFT_TRANSFER && (
+              <ArrowRight className="h-6 w-6" />
+            )}
+            <CardTitle className="text-xl font-bold md:text-2xl">
+              {type}
+            </CardTitle>
+          </div>
 
-        <div className="mt-2 flex flex-col text-left md:mt-0 md:text-right">
-          <span>{timeAgoWithFormat(timestamp, true)}</span>
-          <span className="text-xs text-muted-foreground">
-            {dateFormat(timestamp)}
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Separator className="mb-4" />
-        <div className="space-y-4">
-          <span className="break-words text-sm">{renderedDescription}</span>
-        </div>
-        <Separator className="my-4" />
-      </CardContent>
+          <div className="mt-2 flex flex-col text-left md:mt-0 md:text-right">
+            <span>{timeAgoWithFormat(timestamp, true)}</span>
+            <span className="text-xs text-muted-foreground">
+              {dateFormat(timestamp)}
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Separator className="mb-4" />
+          <div className="space-y-4">
+            <span className="break-words text-sm">{renderedDescription}</span>
+          </div>
+          <Separator className="my-4" />
+        </CardContent>
 
-      <CardContent className="space-y-4">
-        <div className="flex flex-col items-start md:flex-row md:items-center">
-          <span className="w-full text-muted-foreground md:w-1/4">Account</span>
-          <span className="ml-2 w-full break-words md:w-3/4">
-            <Link
-              href={`/address/${account}`}
-              className="hover:underline"
-              title={account}
-            >
-              <Address pubkey={new PublicKey(account)} />
-            </Link>
-          </span>
-        </div>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col items-start md:flex-row md:items-center">
+            <span className="w-full text-muted-foreground md:w-1/4">
+              Account
+            </span>
+            <span className="ml-2 w-full break-words md:w-3/4">
+              <Link
+                href={`/address/${account}`}
+                className="hover:underline"
+                title={account}
+              >
+                <Address pubkey={new PublicKey(account)} />
+              </Link>
+            </span>
+          </div>
 
-        {actions.map((action, index) => (
-          <div key={index} className="space-y-4">
-            {action.actionType === ActionTypes.TRANSFER && (
-              <>
+          {actions.map((action, index) => (
+            <div key={index} className="space-y-4">
+              {action.actionType === ActionTypes.TRANSFER && (
+                <>
+                  <div className="flex flex-col items-start md:flex-row md:items-center">
+                    <span className="w-full text-muted-foreground md:w-1/4">
+                      Sent
+                    </span>
+                    <span className="ml-2 w-full break-words md:w-3/4">
+                      <Link
+                        href={`/address/${action.mint}`}
+                        className="hover:underline"
+                        title={action.mint}
+                      >
+                        <TokenBalance
+                          amount={action.amount}
+                          decimals={0}
+                          mint={new PublicKey(action.mint!)}
+                          isReadable={true}
+                        />
+                      </Link>
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-start md:flex-row md:items-center">
+                    <span className="w-full text-muted-foreground md:w-1/4">
+                      To
+                    </span>
+                    <span className="ml-2 w-full break-words md:w-3/4">
+                      {action.to ? (
+                        <Link
+                          href={`/address/${action.to}`}
+                          className="hover:underline"
+                          title={action.to}
+                        >
+                          <Address pubkey={new PublicKey(action.to)} />
+                        </Link>
+                      ) : (
+                        "Unknown Address"
+                      )}
+                    </span>
+                  </div>
+                </>
+              )}
+              {action.actionType === ActionTypes.SENT && (
                 <div className="flex flex-col items-start md:flex-row md:items-center">
                   <span className="w-full text-muted-foreground md:w-1/4">
                     Sent
+                  </span>
+                  <span className="ml-2 w-full break-words md:w-3/4">
+                    <Link
+                      href={`/address/${action.mint}`}
+                      className="hover:underline"
+                      title={action.mint}
+                    >
+                      <TokenBalance
+                        amount={action.amount}
+                        decimals={action.decimals}
+                        mint={new PublicKey(action.mint!)}
+                      />
+                    </Link>
+                  </span>
+                </div>
+              )}
+              {action.actionType === ActionTypes.RECEIVED && (
+                <div className="flex flex-col items-start md:flex-row md:items-center">
+                  <span className="w-full text-muted-foreground md:w-1/4">
+                    Received
+                  </span>
+                  <span className="ml-2 w-full break-words md:w-3/4">
+                    <Link
+                      href={`/address/${action.mint}`}
+                      className="hover:underline"
+                      title={action.mint}
+                    >
+                      <TokenBalance
+                        amount={action.amount}
+                        decimals={action.decimals}
+                        mint={new PublicKey(action.mint!)}
+                      />
+                    </Link>
+                  </span>
+                </div>
+              )}
+              {action.actionType === ActionTypes.BURNT && (
+                <div className="flex flex-col items-start md:flex-row md:items-center">
+                  <span className="w-full text-muted-foreground md:w-1/4">
+                    BURNT
                   </span>
                   <span className="ml-2 w-full break-words md:w-3/4">
                     <Link
@@ -138,146 +223,111 @@ export default function TransactionOverviewParsed({
                     </Link>
                   </span>
                 </div>
+              )}
+              {action.actionType === ActionTypes.MINT && (
                 <div className="flex flex-col items-start md:flex-row md:items-center">
                   <span className="w-full text-muted-foreground md:w-1/4">
-                    To
+                    MINT
                   </span>
                   <span className="ml-2 w-full break-words md:w-3/4">
-                    {action.to ? (
-                      <Link
-                        href={`/address/${action.to}`}
-                        className="hover:underline"
-                        title={action.to}
-                      >
-                        <Address pubkey={new PublicKey(action.to)} />
-                      </Link>
-                    ) : (
-                      "Unknown Address"
-                    )}
+                    <Link
+                      href={`/address/${action.mint}`}
+                      className="hover:underline"
+                      title={action.mint}
+                    >
+                      <TokenBalance
+                        amount={action.amount}
+                        decimals={0}
+                        mint={new PublicKey(action.mint!)}
+                        isReadable={true}
+                      />
+                    </Link>
                   </span>
                 </div>
-              </>
-            )}
-            {action.actionType === ActionTypes.SENT && (
-              <div className="flex flex-col items-start md:flex-row md:items-center">
-                <span className="w-full text-muted-foreground md:w-1/4">
-                  Sent
-                </span>
-                <span className="ml-2 w-full break-words md:w-3/4">
-                  <Link
-                    href={`/address/${action.mint}`}
-                    className="hover:underline"
-                    title={action.mint}
-                  >
-                    <TokenBalance
-                      amount={action.amount}
-                      decimals={action.decimals}
-                      mint={new PublicKey(action.mint!)}
-                    />
-                  </Link>
-                </span>
-              </div>
-            )}
-            {action.actionType === ActionTypes.RECEIVED && (
-              <div className="flex flex-col items-start md:flex-row md:items-center">
-                <span className="w-full text-muted-foreground md:w-1/4">
-                  Received
-                </span>
-                <span className="ml-2 w-full break-words md:w-3/4">
-                  <Link
-                    href={`/address/${action.mint}`}
-                    className="hover:underline"
-                    title={action.mint}
-                  >
-                    <TokenBalance
-                      amount={action.amount}
-                      decimals={action.decimals}
-                      mint={new PublicKey(action.mint!)}
-                    />
-                  </Link>
-                </span>
-              </div>
-            )}
-            {action.actionType === ActionTypes.BURNT && (
-              <div className="flex flex-col items-start md:flex-row md:items-center">
-                <span className="w-full text-muted-foreground md:w-1/4">
-                  BURNT
-                </span>
-                <span className="ml-2 w-full break-words md:w-3/4">
-                  <Link
-                    href={`/address/${action.mint}`}
-                    className="hover:underline"
-                    title={action.mint}
-                  >
-                    <TokenBalance
-                      amount={action.amount}
-                      decimals={0}
-                      mint={new PublicKey(action.mint!)}
-                      isReadable={true}
-                    />
-                  </Link>
-                </span>
-              </div>
-            )}
-            {action.actionType === ActionTypes.MINT && (
-              <div className="flex flex-col items-start md:flex-row md:items-center">
-                <span className="w-full text-muted-foreground md:w-1/4">
-                  MINT
-                </span>
-                <span className="ml-2 w-full break-words md:w-3/4">
-                  <Link
-                    href={`/address/${action.mint}`}
-                    className="hover:underline"
-                    title={action.mint}
-                  >
-                    <TokenBalance
-                      amount={action.amount}
-                      decimals={0}
-                      mint={new PublicKey(action.mint!)}
-                      isReadable={true}
-                    />
-                  </Link>
-                </span>
-              </div>
-            )}
-            {action.actionType === ActionTypes.CNFT_MINT && (
-              <div className="flex items-center">
-                <span className="w-1/4 text-muted-foreground">MINT</span>
-                <span className="ml-2 w-3/4">
-                  <Link
-                    href={`/address/${action.mint}`}
-                    className="hover:underline"
-                    title={action.mint}
-                  >
-                    <TokenBalance
-                      amount={action.amount}
-                      decimals={0}
-                      mint={new PublicKey(action.mint!)}
-                      isReadable={true}
-                    />
-                  </Link>
-                </span>
-              </div>
-            )}
+              )}
+              {action.actionType === ActionTypes.CNFT_MINT && (
+                <div className="flex items-center">
+                  <span className="w-1/4 text-muted-foreground">MINT</span>
+                  <span className="ml-2 w-3/4">
+                    <Link
+                      href={`/address/${action.mint}`}
+                      className="hover:underline"
+                      title={action.mint}
+                    >
+                      <TokenBalance
+                        amount={action.amount}
+                        decimals={0}
+                        mint={new PublicKey(action.mint!)}
+                        isReadable={true}
+                        isNFT={true}
+                      />
+                    </Link>
+                  </span>
+                </div>
+              )}
+              {action.actionType === ActionTypes.CNFT_TRANSFER && (
+                <>
+                  <div className="flex flex-col items-start md:flex-row md:items-center">
+                    <span className="w-full text-muted-foreground md:w-1/4">
+                      Sent
+                    </span>
+                    <span className="ml-2 w-full break-words md:w-3/4">
+                      <Link
+                        href={`/address/${action.mint}`}
+                        className="hover:underline"
+                        title={action.mint}
+                      >
+                        <TokenBalance
+                          amount={action.amount}
+                          decimals={0}
+                          mint={new PublicKey(action.mint!)}
+                          isReadable={true}
+                          isNFT={true}
+                        />
+                      </Link>
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-start md:flex-row md:items-center">
+                    <span className="w-full text-muted-foreground md:w-1/4">
+                      To
+                    </span>
+                    <span className="ml-2 w-full break-words md:w-3/4">
+                      {action.to ? (
+                        <Link
+                          href={`/address/${action.to}`}
+                          className="hover:underline"
+                          title={action.to}
+                        >
+                          <Address pubkey={new PublicKey(action.to)} />
+                        </Link>
+                      ) : (
+                        "Unknown Address"
+                      )}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+          <div className="flex flex-col items-start md:flex-row md:items-center">
+            <span className="w-full text-muted-foreground md:w-1/4">
+              Program
+            </span>
+            <span className="ml-2 w-full break-words md:w-3/4">{source}</span>
           </div>
-        ))}
-        <div className="flex flex-col items-start md:flex-row md:items-center">
-          <span className="w-full text-muted-foreground md:w-1/4">Program</span>
-          <span className="ml-2 w-full break-words md:w-3/4">{source}</span>
-        </div>
 
-        <Separator />
+          <Separator />
 
-        <div className="flex flex-col items-start md:flex-row md:items-center">
-          <span className="w-full text-muted-foreground md:w-1/4">
-            Signature
-          </span>
-          <div className="flex w-full items-center space-x-2 break-words md:w-3/4">
-            <Signature link={false} signature={signature} />
+          <div className="flex flex-col items-start md:flex-row md:items-center">
+            <span className="w-full text-muted-foreground md:w-1/4">
+              Signature
+            </span>
+            <div className="flex w-full items-center space-x-2 break-words md:w-3/4">
+              <Signature link={false} signature={signature} />
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
     </div>
   );
 }

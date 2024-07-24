@@ -5,3 +5,4 @@ export * from "./description";
 export * from "./burn";
 export * from "./tokenMint";
 export * from "./cnftMint";
+export * from "./cnftTransfer";

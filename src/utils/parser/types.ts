@@ -12,6 +12,7 @@ export enum ActionTypes {
   BURNT = "BURNT",
   MINT = "MINT",
   CNFT_MINT = "CNFT MINT",
+  CNFT_TRANSFER = "CNFT_TRANSFER",
 }
 
 export enum ParserTransactionTypes {
@@ -22,6 +23,7 @@ export enum ParserTransactionTypes {
   UNKNOWN = "UNKNOWN",
   TOKEN_MINT = "TOKEN MINT",
   CNFT_MINT = "CNFT MINT",
+  CNFT_TRANSFER = "CNFT TRANSFER",
 }
 
 export type XrayParser = (
@@ -74,7 +76,7 @@ export const XrayParsers = {
   //   BURN_NFT: parser.parseBurn,
   //   COMPRESSED_NFT_BURN: parser.parseCompressedNftBurn,
   COMPRESSED_NFT_MINT: parser.parseCNFTMint,
-  //   COMPRESSED_NFT_TRANSFER: parser.parseCompressedNftTransfer,
+  COMPRESSED_NFT_TRANSFER: parser.parseCompressedNftTransfer,
   EXECUTE_TRANSACTION: parser.parseTransfer,
   //   NFT_BID: parser.parseNftBid,
   //   NFT_BID_CANCELLED: parser.parseNftCancelBid,
