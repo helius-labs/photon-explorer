@@ -62,6 +62,7 @@ export default function TransactionAccountBalances({
   );
 
   return (
+    <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Account Balances</CardTitle>
@@ -85,5 +86,6 @@ export default function TransactionAccountBalances({
         </Table>
       </CardContent>
     </Card>
+    </div>
   );
 }

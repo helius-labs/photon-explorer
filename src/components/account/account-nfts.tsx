@@ -8,7 +8,7 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
+import { useParallelGetNFTsByOwner } from "@/hooks/useParallelGetNFTsByOwner";
 
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
@@ -33,23 +33,24 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const collectionFilter = searchParams.get("collection");
 
   const [showNonVerified, setShowNonVerified] = useState(false);
-  const [showCompressed] = useState(false);
+  const [showCompressed, setShowCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
 
-  const { data, isLoading, isError } = useGetNFTsByOwner(address);
+  const { data: nfts, isLoading, isError } = useParallelGetNFTsByOwner(address);
 
   useEffect(() => {
-    // Extract unique collection values from nftDataArray
-    const collectionSet = new Set<string>();
-    data?.forEach((nft) => {
-      if (nft.collectionName) {
-        collectionSet.add(nft.collectionName);
-      }
-    });
-    setCollections(Array.from(collectionSet));
-  }, [data]);
+    if (nfts) {
+      const collectionSet = new Set<string>();
+      nfts.forEach((nft) => {
+        if (nft.collectionName) {
+          collectionSet.add(nft.collectionName);
+        }
+      });
+      setCollections(Array.from(collectionSet));
+    }
+  }, [nfts]);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -57,7 +58,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
       params.set(name, value);
       return params.toString();
     },
-    [searchParams],
+    [searchParams]
   );
 
   const handleCollectionFilter = (collection: string) => {
@@ -66,14 +67,9 @@ const AccountNFTs = ({ address }: { address: string }) => {
   };
 
   const handleNoFilter = () => {
-    // Create a new instance of URLSearchParams
     const newSearchParams = new URLSearchParams(searchParams);
-    // Delete the 'collection' parameter
     newSearchParams.delete("collection");
-
-    // Navigate to the updated URL
-    const newURL = `${pathname}?${newSearchParams.toString()}`;
-    router.push(newURL);
+    router.push(`${pathname}?${newSearchParams.toString()}`);
   };
 
   const handleQuickViewClick = (nftData: NFT) => {
@@ -83,18 +79,17 @@ const AccountNFTs = ({ address }: { address: string }) => {
 
   const filteredNfts = useMemo(() => {
     return (
-      data?.filter((nft) => {
-        const matchesVerified = nft.verified || showNonVerified;
+      nfts?.filter((nft) => {
+        const matchesVerified = showNonVerified || nft.verified;
         const matchesCollection = collectionFilter
           ? nft.collectionName === collectionFilter
           : true;
-        const matchesCompressed = showCompressed
-          ? nft.compression?.compressed
-          : true;
+        const matchesCompressed =
+          !showCompressed || (nft.compression && nft.compression.compressed);
         return matchesVerified && matchesCollection && matchesCompressed;
       }) || []
     );
-  }, [data, showNonVerified, collectionFilter, showCompressed]);
+  }, [nfts, showNonVerified, collectionFilter, showCompressed]);
 
   const columns: ColumnDef<NFT>[] = [
     {
@@ -137,7 +132,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
 
   if (isError)
     return (
-      <Card className="col-span-12 mb-10 shadow">
+      <Card className="col-span-12 mb-10 shadow mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
           <div className="font-semibold text-secondary">
             Unable to fetch NFTs
@@ -157,7 +152,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
 
   return (
     <>
-      <Card className="col-span-12 mb-10 shadow">
+      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col gap-4 pb-4 pt-6">
           {isLoading ? (
             <div className="flex flex-col items-center">

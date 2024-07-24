@@ -66,7 +66,7 @@ export function TokenBalance({
   }
 
   const normalizedAmount = isNFT
-    ? null
+    ? amount
     : isReadable
       ? amount
       : normalizeTokenAmount(amount, token?.decimals || decimals);

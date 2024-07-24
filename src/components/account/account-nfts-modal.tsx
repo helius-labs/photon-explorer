@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogClose,
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import Link from "next/link";
@@ -60,17 +61,19 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm md:max-w-xl lg:max-w-3xl max-h-[70vh] overflow-auto">
-        <div className="bg-background rounded-lg shadow-lg w-full relative sm:p-8">
-          <Button
-            onClick={onClose}
-            variant="outline"
-            className="absolute top-4 right-4"
-          >
-            <X size={24} />
-          </Button>
+      <DialogContent className="z-50 rounded-md flex items-center justify-center p-6 sm:p-8 md:max-w-3xl lg:max-w-5xl">
+        <div className="bg-background rounded-lg shadow-lg w-full max-w-sm md:max-w-xl lg:max-w-4xl max-h-[50vh] overflow-auto relative p-6">
+          <DialogClose asChild>
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="absolute top-4 right-4"
+            >
+              <X size={24} />
+            </Button>
+          </DialogClose>
           <div className="flex flex-col items-center lg:flex-row lg:items-start w-full">
-            <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-8">
+            <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-8 w-full lg:w-auto">
               <Image
                 loader={cloudflareLoader}
                 src={tokenImage}
@@ -94,7 +97,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                   {truncatedDescription}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="h-full">
+              <ScrollArea className="max-h-[60vh] p-2 w-full">
                 {loadingDomains ? (
                   <div className="flex items-center justify-center h-full mt-2">
                     <Loading />
@@ -107,47 +110,47 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                     <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {ownerDomain && ownerDomain !== "N/A...N/A" && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Owner: </span>
+                          <span className="text-foreground font-semibold">Owner: </span>
                           {ownerDomain ? ownerDomain : shorten(nft.owner || "Unknown")}
                         </p>
                       )}
-                      {nft.mint.toBase58() && nft.mint.toBase58() !== "N/A...N/A" && (
+                      {nft.mint?.toBase58 && nft.mint.toBase58() !== "" && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Mint: </span>
-                          <Link href={`/address/${nft.mint.toBase58()}`} className="hover:underline text-muted-foreground">
+                          <span className="text-foreground font-semibold">Mint: </span>
+                          <Link href={`/address/${nft.mint.toBase58()}`} className="underline text-muted-foreground">
                             {shorten(nft.mint.toBase58() || "Unknown")}
                           </Link>
                         </p>
                       )}
-                      {nft.mintAuthority && nft.mintAuthority !== "N/A...N/A" && (
+                      {nft.mintAuthority && nft.mintAuthority !== "" && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Mint Authority: </span>
-                          {shorten(nft.mintAuthority || "N/A")}
+                          <span className="text-foreground font-semibold">Mint Authority: </span>
+                          {shorten(nft.mintAuthority || "")}
                         </p>
                       )}
-                      {nft.updateAuthority && nft.updateAuthority !== "N/A...N/A" && (
+                      {nft.updateAuthority && nft.updateAuthority !== "" && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Update Authority: </span>
+                          <span className="text-foreground font-semibold">Update Authority: </span>
                           {shorten(nft.updateAuthority)}
                         </p>
                       )}
-                      {nft.collection && nft.collection !== "N/A...N/A" && (
+                      {nft.collection && nft.collection !== "" && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Collection: </span>
+                          <span className="text-foreground font-semibold">Collection: </span>
                           <Link href={`/address/${nft.collection}`} className="hover:underline text-muted-foreground">
-                            {nft.collectionName}
+                            {nft.collectionName ? nft.collectionName : shorten(nft.collection)}
                           </Link>
                         </p>
                       )}
                       {royaltyPercentage > 0 && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Royalty: </span>
+                          <span className="text-foreground font-semibold">Royalty: </span>
                           {royaltyPercentage}%
                         </p>
                       )}
                       {nft.compression?.compressed && (
                         <p className="text-muted-foreground">
-                          <span className="font-semibold">Type: </span>
+                          <span className="text-foreground font-semibold">Type: </span>
                           Compressed NFT
                         </p>
                       )}
@@ -160,7 +163,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                         <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
                           {nft.creators.map((creator, index) => (
                             <p key={index} className="text-muted-foreground">
-                              <span className="font-semibold">{shorten(creator.address)}: </span>
+                              <span className="text-foreground font-semibold">{shorten(creator.address)}: </span>
                               {creator.share}% {creator.verified ? "(Verified)" : ""}
                             </p>
                           ))}
@@ -175,7 +178,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                         <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
                           {nft.attributes.map((attribute, index) => (
                             <p key={index} className="text-muted-foreground">
-                              <span className="font-semibold">{attribute.trait_type}: </span>
+                              <span className="text-foreground font-semibold">{attribute.trait_type}: </span>
                               {attribute.value}
                             </p>
                           ))}

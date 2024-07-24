@@ -32,6 +32,7 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
   }, [hasCopied]);
 
   return (
+    <div className="mx-[-1rem] md:mx-0">
     <Card className="w-full">
       <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
         <div className="relative flex items-center justify-center w-full md:w-auto">
@@ -99,6 +100,7 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
         </div>
       </CardHeader>
     </Card>
+    </div>
   );
 };
 

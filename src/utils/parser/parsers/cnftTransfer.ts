@@ -9,7 +9,7 @@ import {
   type XrayTransaction,
 } from "../types";
 
-export const parseCNFTMint = (
+export const parseCompressedNftTransfer = (
   transaction: EnrichedTransaction,
   address: string | undefined,
 ): XrayTransaction => {
@@ -30,7 +30,7 @@ export const parseCNFTMint = (
     return {
       signature,
       account: feePayer,
-      type: ParserTransactionTypes.CNFT_MINT,
+      type: ParserTransactionTypes.TRANSFER,
       source,
       timestamp,
       actions: [],
@@ -42,9 +42,9 @@ export const parseCNFTMint = (
 
   if (events.compressed !== null) {
     actions.push({
-      actionType: ActionTypes.CNFT_MINT,
-      from: events.compressed[0]?.metadata?.creators?.[0]?.address || "UNKNOWN",
-      to: events.compressed[0]?.newLeafOwner || "UNKNOWN",
+      actionType: ActionTypes.CNFT_TRANSFER,
+      from: events.compressed[0]?.oldLeafOwner || "UNKNOWN SOURCE",
+      to: events.compressed[0]?.newLeafOwner || "UNKNOWN DESTINATION",
       amount: 1,
       mint: events.compressed[0]?.assetId || "",
     });
@@ -53,7 +53,7 @@ export const parseCNFTMint = (
   return {
     signature,
     account: feePayer,
-    type: ParserTransactionTypes.CNFT_MINT,
+    type: ParserTransactionTypes.CNFT_TRANSFER,
     source,
     timestamp,
     actions: actions,

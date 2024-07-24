@@ -88,7 +88,7 @@ export default function AccountDomains({ address }: { address: string }) {
 
   if (loadingDomains) {
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
           <Loading className="h-12 w-12" />
           <LoadingBadge text="Loading Domains" />
@@ -99,7 +99,7 @@ export default function AccountDomains({ address }: { address: string }) {
 
   if (!userDomains || userDomains.length === 0) {
     return (
-      <Card className="col-span-12 mb-10">
+      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center p-6">
             <div className="text-lg text-muted-foreground">No Domains Found</div>
@@ -116,7 +116,7 @@ export default function AccountDomains({ address }: { address: string }) {
   }));
 
   return (
-    <Card className="col-span-12 mb-10">
+    <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
       <CardContent className="pt-6">
         <DataTable columns={columns} data={tableData} />
       </CardContent>

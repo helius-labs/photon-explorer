@@ -144,7 +144,8 @@ export default function AddressLayout({
         accountType === AccountType.Program ||
         accountType === AccountType.MetaplexNFT ||
         accountType === AccountType.NFToken ||
-        accountType === AccountType.CompressedNFT
+        accountType === AccountType.CompressedNFT ||
+        accountType === AccountType.Unknown // Added to handle unknown account types
       ) {
         router.replace(`${pathname}/history?cluster=${cluster}`);
       }

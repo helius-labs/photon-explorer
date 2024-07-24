@@ -8,6 +8,7 @@ export default function TransactionInstructionLogs({
   data: ParsedTransactionWithMeta;
 }) {
   return (
+    <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Program Instruction Logs</CardTitle>
@@ -23,5 +24,6 @@ export default function TransactionInstructionLogs({
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
