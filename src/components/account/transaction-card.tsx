@@ -58,27 +58,6 @@ function isSignatureWithMetadata(
 ): transaction is SignatureWithMetadata {
   return (transaction as SignatureWithMetadata) !== undefined;
 }
-// function transactionInfo(transaction: XrayTransaction) {
-//   let info = "";
-//   switch (transaction.type) {
-//     case ParserTransactionTypes.TRANSFER:
-//       return (
-//         <div style={{ display: "flex", alignItems: "center" }}>
-//           <p style={{ margin: 0, marginRight: "8px" }}>Transferred</p>
-//           {transaction?.actions[0]?.mint && (
-//             <TokenBalance
-//               amount={transaction.actions[0].amount}
-//               decimals={transaction.actions[0].decimals}
-//               mint={new PublicKey(transaction.actions[0].mint)}
-//               isReadable={true}
-//             />
-//           )}
-//         </div>
-//       );
-//     // Add other cases here as needed
-//   }
-//   return info;
-// }
 
 type TransactionData =
   | ConfirmedSignatureInfo
@@ -101,9 +80,9 @@ export const columns: ColumnDef<TransactionData>[] = [
       let rootAccountDelta: BigNumber | null = null;
       let type = ParserTransactionTypes.UNKNOWN;
       let time: number | undefined;
-      console.log("DATA: ");
-      //finding failed txn
+
       let txnFailed = false;
+
       // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
         err: any[];
@@ -179,63 +158,7 @@ export const columns: ColumnDef<TransactionData>[] = [
             <div className="text-sm text-muted-foreground">
               {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
             </div>
-
-            {/* {description && actions.length === 0 ? (
-              <div className="whitespace-normal break-words text-sm text-muted-foreground">
-                {type === 'SWAP' ? 'Swapped' : description}
-              </div>
-            ) : ( */}
             <>
-              {/* comment out section that provides description info */}
-              {/* {actions.map((action, index) => (
-                  <div key={index} className="truncate">
-                    {action.actionType === ActionTypes.TRANSFER &&
-                      action.mint &&
-                      action.to && (
-                        <div className="flex items-center overflow-hidden truncate text-ellipsis">
-                          <span className="text-sm font-medium leading-none">
-                            Transfer
-                          </span>
-                          <TokenBalance
-                            amount={action.amount}
-                            decimals={action.decimals}
-                            mint={new PublicKey(action.mint)}
-                          />
-                          <Address pubkey={new PublicKey(action.to)} />
-                        </div>
-                      )}
-                    {action.actionType === ActionTypes.SENT &&
-                      action.mint &&
-                      action.to && (
-                        <div className="flex items-center overflow-hidden truncate text-ellipsis">
-                          <span className="text-sm font-medium leading-none">
-                            Sent
-                          </span>
-                          <TokenBalance
-                            amount={action.amount}
-                            decimals={action.decimals}
-                            mint={new PublicKey(action.mint)}
-                          />
-                          <Address pubkey={new PublicKey(action.to)} />
-                        </div>
-                      )}
-                    {action.actionType === ActionTypes.RECEIVED &&
-                      action.mint &&
-                      action.from && (
-                        <div className="flex items-center overflow-hidden truncate text-ellipsis">
-                          <span className="text-sm font-medium leading-none">
-                            Received
-                          </span>
-                          <TokenBalance
-                            amount={action.amount}
-                            decimals={action.decimals}
-                            mint={new PublicKey(action.mint)}
-                          />
-                          <Address pubkey={new PublicKey(action.from)} />
-                        </div>
-                      )}
-                  </div>
-                ))} */}
               {rootAccountDelta && (
                 <div className="flex items-center overflow-hidden truncate text-ellipsis">
                   <span className="text-sm font-medium leading-none">
@@ -244,21 +167,7 @@ export const columns: ColumnDef<TransactionData>[] = [
                   <BalanceDelta delta={rootAccountDelta} isSol />
                 </div>
               )}
-              {/* {txnFailed ? (
-                  <div className="truncate text-sm text-muted-foreground">
-                    Failed Transaction
-                  </div>
-                ) : (
-                  type === ParserTransactionTypes.UNKNOWN &&
-                  !description &&
-                  actions.length === 0 && (
-                    <div className="truncate text-sm text-muted-foreground">
-                      UNKNOWN
-                    </div>
-                  )
-                )} */}
             </>
-            {/* )} */}
           </div>
         </div>
       );
@@ -279,7 +188,6 @@ export const columns: ColumnDef<TransactionData>[] = [
       let type = ParserTransactionTypes.UNKNOWN;
       let time: number | undefined;
 
-      //finding failed txn
       let txnFailed = false;
 
       // Use type assertion to extend the transaction type with an err property
@@ -308,44 +216,25 @@ export const columns: ColumnDef<TransactionData>[] = [
         description = descriptionParser(transaction || "");
         actions = transaction.actions || [];
         type = transaction.type;
-        // console.log("ACTIONS", actions);
       }
       return (
         <div className="flex flex-col items-center overflow-hidden py-2">
-          {/* <div className="text-sm text-muted-foreground">
-            {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
-          </div> */}
           {txnFailed && (
             <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
               {"Failed Transaction"}
             </div>
           )}
-
           {description && !txnFailed && (
             <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
               {isXrayTransaction(transaction)
                 ? transactionBreakdown(transaction)
                 : "Transaction"}
             </div>
-            // <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
-            //   {actions[0]?.actionType === "TRANSFER" ? (
-            //     // {actions[0]?.from === }
-            //     <TokenBalance
-            //       amount={actions[0]?.amount}
-            //       decimals={0}
-            //       mint={new PublicKey(actions[0]?.mint!)}
-            //       isReadable={true}
-            //     />
-            //   ) : (
-            //     "ffs"
-            //   )}
-            // </div>
           )}
         </div>
       );
     },
   },
-
   {
     header: () => (
       <div className="px-4 py-2 text-center">
@@ -356,7 +245,6 @@ export const columns: ColumnDef<TransactionData>[] = [
     cell: ({ getValue, row }) => {
       const transaction = row.original;
 
-      //finding failed txn
       let txnFailed = false;
       // Use type assertion to extend the transaction type with an err property
       const transactionWithError = transaction as SignatureWithMetadata & {
@@ -439,10 +327,12 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
             <div key={index} className="mb-3 border-b pb-3">
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CircleArrowDown strokeWidth={1} className="h-8 w-8" />
+                  <div className="flex h-8 w-8 items-center justify-center">
+                    {typeIcon}
+                  </div>
                   <div>
-                    <div className="font-base text-sm leading-none">
-                      Completed
+                    <div className="font-base text-lg font-bold">
+                      {typeText}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {time ? timeAgoWithFormat(Number(time), true) : ""}
@@ -463,17 +353,16 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-start gap-2">
-                <div className="flex h-8 w-8 items-center justify-center">
-                  {typeIcon}
-                </div>
-                <div className="grid gap-1 text-left">
-                  {typeText !== "UNKNOWN" && (
-                    <div className="text-lg font-bold">{typeText}</div>
+              <div className="flex flex-col items-center justify-start gap-2">
+                <div className="grid gap-1 text-center">
+                  {description && (
+                    <div className="whitespace-normal break-words text-sm text-muted-foreground">
+                      {isXrayTransaction(transaction)
+                        ? transactionBreakdown(transaction)
+                        : "Transaction"}
+                    </div>
                   )}
-                  {description ? (
-                    <></>
-                  ) : (
+                  {!description &&
                     "actions" in transaction &&
                     transaction.actions.map((action, index) => (
                       <div key={index}>
@@ -523,8 +412,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                           </div>
                         )}
                       </div>
-                    ))
-                  )}
+                    ))}
                   {rootAccountDelta && (
                     <div className="flex items-center">
                       <span className="text-sm font-medium leading-none">

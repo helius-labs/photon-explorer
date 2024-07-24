@@ -59,6 +59,7 @@ export default function TransactionOverviewParsed({
   const renderedDescription = description ? renderDescription(description) : "";
 
   return (
+    <div className="mx-[-1rem] md:mx-0">
     <Card className="mx-auto w-full max-w-lg cursor-default p-3 md:p-6">
       <CardHeader className="flex flex-col items-start justify-between md:flex-row md:items-center">
         <div className="flex items-center space-x-3">
@@ -277,5 +278,6 @@ export default function TransactionOverviewParsed({
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }

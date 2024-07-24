@@ -141,6 +141,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
 
   return (
     <TooltipProvider>
+      <div className="mx-[-1rem] md:mx-0">
       <Card className="w-full mb-8 p-6 space-y-4 md:space-y-6">
         <CardHeader className="relative flex flex-col md:flex-row items-start gap-4 md:gap-6">
           <div className="flex items-center justify-center w-full md:w-auto relative">
@@ -235,21 +236,21 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                 </div>
                 <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Supply:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[190px]">{tokenDetails.supply}</span>
+                  <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.supply}</span>
                 </div>
                 <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Market Cap:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[190px]">{tokenDetails.marketCap}</span>
+                  <span className="truncate md:whitespace-normal md:max-w-none ">{tokenDetails.marketCap}</span>
                 </div>
                 <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Holders:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">
+                  <span className="truncate md:whitespace-normal md:max-w-none">
                     {tokenDetails.holders}
                   </span>
                 </div>
                 <div className="flex flex-col items-center md:flex-row justify-center md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Daily Volume:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none max-w-[100px]">
+                  <span className="truncate md:whitespace-normal md:max-w-none">
                     {tokenDetails.dailyVolume}
                   </span>
                 </div>
@@ -296,6 +297,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
           </div>
         </CardHeader>
       </Card>
+      </div>
     </TooltipProvider>
   );
 };

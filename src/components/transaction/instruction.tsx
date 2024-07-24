@@ -26,6 +26,7 @@ export default function Instruction({
 }) {
   return (
     <>
+      <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
       <Card key={`instruction-${index}`} className="mb-6 w-full">
         <CardHeader>
           <CardTitle>
@@ -139,6 +140,7 @@ export default function Instruction({
             )}
         </CardContent>
       </Card>
+      </div>
     </>
   );
 }

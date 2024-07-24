@@ -184,6 +184,7 @@ export default function TransactionOverviewCompressed({
   }
 
   return (
+    <div className="mx-[-1rem] md:mx-0">
     <Card className="mx-auto w-full max-w-lg p-3">
       <CardHeader className="flex flex-col items-start justify-between space-y-3 md:flex-row md:items-center md:space-y-0">
         <div className="flex items-center space-x-3">
@@ -274,5 +275,6 @@ export default function TransactionOverviewCompressed({
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }
