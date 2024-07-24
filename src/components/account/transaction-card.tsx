@@ -229,16 +229,18 @@ export const getColumns = (
       }
       return (
         <div className="flex flex-col items-center overflow-hidden py-2">
-          {txnFailed && (
-            <div className="whitespace-normal break-words text-right text-sm text-muted-foreground">
-              {"Failed Transaction"}
-            </div>
-          )}
-          {description && !txnFailed && (
+          {txnFailed ? (
             <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
-              {isXrayTransaction(transaction)
-                ? transactionBreakdown(transaction, address)
-                : "Transaction"}
+              {"Transaction failed"}
+            </div>
+          ) : !description ? (
+            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+              {"Transaction could not be parsed"}
+            </div>
+          ) : (
+            <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
+              {isXrayTransaction(transaction) &&
+                transactionBreakdown(transaction, address)}
             </div>
           )}
         </div>

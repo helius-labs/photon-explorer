@@ -115,6 +115,14 @@ function transactionBreakdown(transaction: XrayTransaction, address?: string) {
           )}
         </div>
       );
+    case ParserTransactionTypes.UNKNOWN:
+      return (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p style={{ margin: 0, marginRight: "8px" }}>
+            Transaction could not be parsed.
+          </p>
+        </div>
+      );
   }
   return "Unknown transaction type";
 }
