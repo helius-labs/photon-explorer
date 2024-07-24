@@ -44,7 +44,7 @@ export const parseCNFTMint = (
     actions.push({
       actionType: ActionTypes.CNFT_MINT,
       from: events.compressed[0]?.metadata?.creators?.[0]?.address || "UNKNOWN",
-      to: "MINT",
+      to: events.compressed[0]?.newLeafOwner || "UNKNOWN",
       amount: 1,
       mint: events.compressed[0]?.assetId || "",
     });

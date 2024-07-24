@@ -20,8 +20,10 @@ import {
   ArrowRight,
   ArrowRightLeftIcon,
   CircleArrowDown,
+  CircleCheckBig,
   CircleChevronRightIcon,
   CircleHelp,
+  CopyIcon,
   Flame,
   ImagePlusIcon,
   XCircle,
@@ -64,6 +66,16 @@ function isSignatureWithMetadata(
 ): transaction is SignatureWithMetadata {
   return (transaction as SignatureWithMetadata) !== undefined;
 }
+const copyToClipboard = (text: string) => {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      console.log("Copied to clipboard");
+    })
+    .catch((err) => {
+      console.error("Failed to copy: ", err);
+    });
+};
 
 type TransactionData =
   | ConfirmedSignatureInfo
@@ -130,7 +142,7 @@ export const getColumns = (
           typeIcon = <ArrowRight className="h-6 w-6" />;
           break;
         case ParserTransactionTypes.UNKNOWN:
-          typeIcon = <CircleHelp className="h-6 w-6" />;
+          typeIcon = <CircleCheckBig className="h-6 w-6" />;
           break;
         case ParserTransactionTypes.CNFT_MINT:
           typeIcon = <ImagePlusIcon className="h-6 w-6" />;
@@ -166,7 +178,11 @@ export const getColumns = (
           </div>
           <div className="flex flex-col overflow-hidden">
             <div className="truncate text-lg font-bold">
-              {txnFailed ? "Failed Transaction" : type}
+              {txnFailed
+                ? "Failed Transaction"
+                : type === ParserTransactionTypes.UNKNOWN
+                  ? "Generic Transaction"
+                  : type}
             </div>
             <div className="text-sm text-muted-foreground">
               {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
@@ -186,96 +202,95 @@ export const getColumns = (
       );
     },
   },
-  {
-    header: () => (
-      <div className="px-4 py-2 text-left">
-        <span className="justify-end text-sm font-medium">Info</span>
-      </div>
-    ),
-    accessorKey: "Info",
-    cell: ({ getValue, row }) => {
-      const transaction = row.original;
-      let description;
-      let actions: any[] = [];
-      let rootAccountDelta: BigNumber | null = null;
-      let type = ParserTransactionTypes.UNKNOWN;
-      let time: number | undefined;
 
-      let txnFailed = false;
-
-      // Use type assertion to extend the transaction type with an err property
-      const transactionWithError = transaction as SignatureWithMetadata & {
-        err: any[];
-      };
-
-      if (
-        isSignatureWithMetadata(transaction) &&
-        transactionWithError.err &&
-        transactionWithError.err !== null
-      ) {
-        txnFailed = true;
-      }
-
-      if (isParsedTransactionWithMeta(transaction)) {
-        description = transaction.meta?.logMessages?.join(" ") || "";
-        rootAccountDelta =
-          transaction.meta?.postBalances?.[0] !== undefined &&
-          transaction.meta?.preBalances?.[0] !== undefined
-            ? new BigNumber(transaction.meta.postBalances[0]).minus(
-                new BigNumber(transaction.meta.preBalances[0]),
-              )
-            : null;
-      } else if (isXrayTransaction(transaction)) {
-        description = descriptionParser(transaction || "");
-        actions = transaction.actions || [];
-        type = transaction.type;
-      }
-      return (
-        <div className="flex flex-col items-start overflow-hidden py-2 text-left">
-          {txnFailed ? (
-            <div className="whitespace-normal break-words text-sm text-muted-foreground">
-              {"Transaction failed"}
-            </div>
-          ) : !description ? (
-            <div className="whitespace-normal break-words text-sm text-muted-foreground">
-              {"Transaction could not be parsed"}
-            </div>
-          ) : (
-            <div className="whitespace-normal break-words text-sm text-muted-foreground">
-              {isXrayTransaction(transaction) &&
-                transactionBreakdown(transaction, address)}
-            </div>
-          )}
-        </div>
-      );
-    },
-  },
   //conditiona coloumn depending on if the page is for a wallet or not
   ...(isWallet
     ? [
         {
           header: () => (
-            <div className="px-4 py-2 text-center">
+            <div className="px-4 py-2 text-start">
               <span className="text-sm font-medium">Balance Changes</span>
             </div>
           ),
           accessorKey: "Balance Changes",
           cell: ({ row }: { row: any }) => {
             const transaction = row.original;
-            // Cell rendering logic for the new column
-            if (isXrayTransaction(transaction)) {
-              return (
-                <div className="px-4 py-2 text-center">
-                  <div>{TransactionBalances(transaction, address)}</div>
-                </div>
-              );
-            } else {
-              return <div className=" text-center">See signature for details</div>;
-            }
+
+            return (
+              <div className="px-4 py-2 text-left">
+                <div>{TransactionBalances(transaction, address)} </div>
+              </div>
+            );
           },
         },
       ]
-    : []),
+    : [
+        {
+          header: () => (
+            <div className="ml-10 px-4 py-2 text-start">
+              <span className="text-sm font-medium">Info</span>
+            </div>
+          ),
+          accessorKey: "Info",
+          cell: ({ row }: { row: any }) => {
+            const transaction = row.original;
+            let description;
+            let actions: any[] = [];
+            let rootAccountDelta: BigNumber | null = null;
+            let type = ParserTransactionTypes.UNKNOWN;
+            let time: number | undefined;
+
+            let txnFailed = false;
+
+            // Use type assertion to extend the transaction type with an err property
+            const transactionWithError =
+              transaction as SignatureWithMetadata & {
+                err: any[];
+              };
+
+            if (
+              isSignatureWithMetadata(transaction) &&
+              transactionWithError.err &&
+              transactionWithError.err !== null
+            ) {
+              txnFailed = true;
+            }
+
+            if (isParsedTransactionWithMeta(transaction)) {
+              description = transaction.meta?.logMessages?.join(" ") || "";
+              rootAccountDelta =
+                transaction.meta?.postBalances?.[0] !== undefined &&
+                transaction.meta?.preBalances?.[0] !== undefined
+                  ? new BigNumber(transaction.meta.postBalances[0]).minus(
+                      new BigNumber(transaction.meta.preBalances[0]),
+                    )
+                  : null;
+            } else if (isXrayTransaction(transaction)) {
+              description = descriptionParser(transaction || "");
+              actions = transaction.actions || [];
+              type = transaction.type;
+            }
+            return (
+              <div className="flex flex-col items-start overflow-hidden py-2">
+                {txnFailed ? (
+                  <div className="whitespace-normal break-words text-sm text-muted-foreground">
+                    {"Transaction failed"}
+                  </div>
+                ) : !description ? (
+                  <div className="whitespace-normal break-words text-sm text-muted-foreground">
+                    {"Transaction could not be parsed"}
+                  </div>
+                ) : (
+                  <div className="whitespace-normal break-words text-sm text-muted-foreground">
+                    {isXrayTransaction(transaction) &&
+                      transactionBreakdown(transaction, address)}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+      ]),
   {
     header: () => (
       <div className="px-4 py-2 text-left">
@@ -303,8 +318,8 @@ export const getColumns = (
       return (
         <div className="flex flex-col items-center gap-1 overflow-hidden px-4 py-2">
           <div className="flex flex-col">
-            <div className="text-sm font-medium">
-              <Signature copy={false} signature={getValue() as string} />
+            <div className="flex items-center text-sm font-medium">
+              <Signature link={true} signature={getValue() as string} />
             </div>
           </div>
         </div>
