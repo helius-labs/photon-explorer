@@ -49,7 +49,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   if (signatures.isError || parsedTransactions.isError) {
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center p-6">
             <div className="text-lg text-muted-foreground">
@@ -66,7 +66,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   if (signatures.isLoading || parsedTransactions.isLoading) {
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
           <Loading className="h-12 w-12" />
           <LoadingBadge text="Loading History" />
@@ -100,7 +100,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const data: TransactionData[] = result;
 
   return (
-    <Card className="col-span-12 mb-10">
+    <Card className="col-span-12 mb-10 overflow-hidden mx-[-1rem] md:mx-0">
       <CardContent className="pt-6">
         {data.length > 0 ? (
           <TransactionCard data={data} />

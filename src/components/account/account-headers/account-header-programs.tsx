@@ -41,6 +41,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }
   }, [hasCopied]);
 
   return (
+    <div className="mx-[-1rem] md:mx-0">
     <Card className="w-full">
       <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
         <div className="flex items-center w-full md:w-auto relative justify-center md:justify-start">
@@ -126,6 +127,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }
         </div>
       </CardHeader>
     </Card>
+    </div>
   );
 };
 

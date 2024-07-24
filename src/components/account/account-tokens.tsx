@@ -46,8 +46,8 @@ const columns: ColumnDef<Token>[] = [
           <div className="ml-4">
             <Link href={`/address/${tokenMint}`} passHref>
               <span className="text-sm font-medium md:w-60">{tokenName}</span>
-            </Link>
             <div className="text-sm font-bold">{tokenSymbol}</div>
+            </Link>
           </div>
         </div>
       );
@@ -141,7 +141,7 @@ export default function AccountTokens({ address }: { address: string }) {
 
   if (isError)
     return (
-      <Card className="col-span-12 mb-10 shadow">
+      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
           <div className="font-semibold text-secondary">
             Unable to fetch account balances
@@ -161,7 +161,7 @@ export default function AccountTokens({ address }: { address: string }) {
 
   if (isLoading)
     return (
-      <Card className="col-span-12 mb-10 shadow">
+      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 py-6">
           <Loading className="h-12 w-12" />
           <LoadingBadge text="Loading Tokens" />
@@ -175,7 +175,7 @@ export default function AccountTokens({ address }: { address: string }) {
     }, 0) || 0;
 
   return (
-    <Card className="col-span-12 mb-10 shadow">
+    <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
       <CardContent className="flex flex-col gap-4 pb-6 pt-6">
         <div className="flex justify-start text-sm font-medium">
           Account Balance: {formatCurrencyValue(totalFungibleValue, 2)}

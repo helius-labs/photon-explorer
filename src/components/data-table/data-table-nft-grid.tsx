@@ -3,19 +3,13 @@
 import { NFT } from "@/types/nft";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  useReactTable,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable,
 } from "@tanstack/react-table";
-import * as React from "react";
-
+import React from "react";
 import { NFTGridItem } from "../common/nft-items";
 import { NFTGridPagination } from "./data-table-nft-grid-pagination";
 
@@ -30,34 +24,13 @@ export function NFTGridTable<TData, TValue>({
   data,
   onQuickView,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-
   const table = useReactTable({
     data,
     columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters,
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
     initialState: {
       pagination: {
         pageSize: 20,
@@ -65,10 +38,12 @@ export function NFTGridTable<TData, TValue>({
     },
   });
 
+  console.log("Table Rows:", table.getRowModel().rows); // Debug statement to check table rows
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {table.getRowModel().rows?.length ? (
+        {table.getRowModel().rows.length > 0 ? (
           table
             .getRowModel()
             .rows.map((row) => (

@@ -51,6 +51,7 @@ export default function TransactionTokenBalances({
   }
 
   return (
+    <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Token Balances</CardTitle>
@@ -82,6 +83,7 @@ export default function TransactionTokenBalances({
         </Table>
       </CardContent>
     </Card>
+    </div>
   );
 }
 

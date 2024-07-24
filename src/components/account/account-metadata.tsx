@@ -26,7 +26,8 @@ const MetadataViewer: React.FC<MetadataViewerProps> = ({ data }) => {
   };
 
   return (
-    <Card className="w-full mb-10 shadow-lg rounded-lg">
+    <div className="mx-[-1rem] md:mx-0">
+    <Card className="w-full mb-10 shadow-lg rounded-lg overflow-hidden">
       <CardContent className="flex flex-col gap-6 p-6 md:p-12">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -71,6 +72,7 @@ const MetadataViewer: React.FC<MetadataViewerProps> = ({ data }) => {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 };
 

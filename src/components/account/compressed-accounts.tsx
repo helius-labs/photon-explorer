@@ -64,7 +64,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
 
   if (isError)
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="pt-6 text-center">
           <div className="text-lg font-medium text-red-500">
             Failed to load Compressed Accounts
@@ -81,7 +81,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
 
   if (isLoading)
     return (
-      <Card className="col-span-12 mb-10 shadow">
+      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col gap-4 pb-6 pt-6">
           <Loading />
         </CardContent>
@@ -89,7 +89,7 @@ export default function CompressedAccounts({ address }: { address: string }) {
     );
 
   return (
-    <Card className="col-span-12 mb-10 shadow">
+    <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
       <CardContent className="flex flex-col gap-4 pb-6 pt-6">
         <DataTable data={data!} columns={columns} />
       </CardContent>

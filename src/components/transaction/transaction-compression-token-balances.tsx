@@ -87,6 +87,7 @@ export default function TransactionCompressionTokenBalances({
 
   if (!isError && !isLoading && rows.length > 0) {
     return (
+      <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Compression Token Balances</CardTitle>
@@ -104,6 +105,7 @@ export default function TransactionCompressionTokenBalances({
           </Table>
         </CardContent>
       </Card>
+      </div>
     );
   }
 }

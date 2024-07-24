@@ -5,9 +5,7 @@ import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import cloudflareLoader from "@/utils/imageLoader";
 import Image from "next/image";
-
 import { Skeleton } from "@/components/ui/skeleton";
-
 import { Button } from "../ui/button";
 
 interface NFTGridItemProps {

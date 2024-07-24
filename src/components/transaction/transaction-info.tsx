@@ -19,6 +19,7 @@ export default function TransactionInfo({
   const { data: signatureStatus } = useGetSignatureStatus(tx);
 
   return (
+    <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Transaction Metadata</CardTitle>
@@ -76,5 +77,6 @@ export default function TransactionInfo({
         </Table>
       </CardContent>
     </Card>
+    </div>
   );
 }

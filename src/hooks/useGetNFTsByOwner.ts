@@ -1,4 +1,5 @@
-import { useCluster } from "@/providers/cluster-provider";
+{
+  /*import { useCluster } from "@/providers/cluster-provider";
 import { DAS, Interface } from "@/types/helius-sdk";
 import { NFT } from "@/types/nft";
 import { Cluster } from "@/utils/cluster";
@@ -52,9 +53,10 @@ async function getNFTsByOwnerDAS(
       method: "getAssetsByOwner",
       params: {
         ownerAddress: address,
+        limit: 100,
         page,
         sortBy: {
-          sortBy: "created",
+          sortBy: "recent_action",
           sortDirection: "asc",
         },
         options: {
@@ -172,3 +174,5 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
 
   await Promise.all(nfts.map(fetchMetadata));
 };
+*/
+}

@@ -74,7 +74,7 @@ export default function CompressedTransactionsByHash({
   // TODO: Refactor jsx
   if (isError)
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="pt-6">
         <div className="flex flex-col items-center justify-center p-6">
             <div className="text-muted-foreground text-lg">Failed to load transaction.</div>
@@ -91,7 +91,7 @@ export default function CompressedTransactionsByHash({
     );
   if (isLoading)
     return (
-      <Card className="col-span-12">
+      <Card className="col-span-12 overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="pt-6">
           <Loading />
         </CardContent>

@@ -45,6 +45,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
 
   if (parsed.isError || transaction.isError || compressed.isError)
     return (
+      <div className="mx-[-1rem] md:mx-0">
       <Card className="mx-auto w-full max-w-lg">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center p-6">
@@ -57,10 +58,12 @@ export default function TransactionDetails({ tx }: { tx: string }) {
           </div>
         </CardContent>
       </Card>
+      </div>
     );
 
   if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
     return (
+      <div className="mx-[-1rem] md:mx-0">
       <Card className="mx-auto w-full max-w-lg">
         <CardContent className="pt-6">
           <div className="flex items-center justify-center h-10">
@@ -68,14 +71,17 @@ export default function TransactionDetails({ tx }: { tx: string }) {
           </div>
         </CardContent>
       </Card>
+      </div>
     );
 
   let transactionOverview = (
+    <div className="mx-[-1rem] md:mx-0">
     <Card className="mx-auto w-full max-w-lg">
       <CardContent className="pt-6">
         <div>Transaction not found</div>
       </CardContent>
     </Card>
+    </div>
   );
 
   if (
