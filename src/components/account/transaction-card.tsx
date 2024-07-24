@@ -1,3 +1,4 @@
+import { AccountType, getAccountType } from "@/utils/account";
 import { timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
@@ -5,6 +6,7 @@ import {
   XrayTransaction,
 } from "@/utils/parser";
 import { descriptionParser } from "@/utils/parser/parsers/description";
+import { addressLabel } from "@/utils/tx";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import {
   ConfirmedSignatureInfo,
@@ -25,6 +27,9 @@ import {
   XCircle,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+
+import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import Address from "@/components/common/address";
 import { BalanceDelta } from "@/components/common/balance-delta";
@@ -32,6 +37,7 @@ import Signature from "@/components/common/signature";
 import { TokenBalance } from "@/components/common/token-balance";
 import transactionBreakdown from "@/components/common/txn-history-desc";
 
+import TransactionBalances from "../common/txn-history-balance";
 import { DataTable } from "../data-table/data-table";
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
@@ -65,11 +71,14 @@ type TransactionData =
   | XrayTransaction
   | ParsedTransactionWithMeta;
 
-export const columns: ColumnDef<TransactionData>[] = [
+export const getColumns = (
+  address: string,
+  isWallet: boolean,
+): ColumnDef<TransactionData>[] => [
   {
     header: () => (
-      <div className="px-4 py-2 text-center">
-        <span className="justify-end text-sm font-medium">Type</span>
+      <div className="ml-10 px-4 py-2 text-start">
+        <span className="justify-center text-sm font-medium">Type</span>
       </div>
     ),
     accessorKey: "type",
@@ -81,6 +90,7 @@ export const columns: ColumnDef<TransactionData>[] = [
       let type = ParserTransactionTypes.UNKNOWN;
       let time: number | undefined;
 
+      //finding failed txn
       let txnFailed = false;
 
       // Use type assertion to extend the transaction type with an err property
@@ -227,7 +237,7 @@ export const columns: ColumnDef<TransactionData>[] = [
           {description && !txnFailed && (
             <div className="whitespace-normal break-words text-center text-sm text-muted-foreground">
               {isXrayTransaction(transaction)
-                ? transactionBreakdown(transaction)
+                ? transactionBreakdown(transaction, address)
                 : "Transaction"}
             </div>
           )}
@@ -235,6 +245,32 @@ export const columns: ColumnDef<TransactionData>[] = [
       );
     },
   },
+  //conditiona coloumn depending on if the page is for a wallet or not
+  ...(isWallet
+    ? [
+        {
+          header: () => (
+            <div className="px-4 py-2 text-center">
+              <span className="text-sm font-medium">Balance Changes</span>
+            </div>
+          ),
+          accessorKey: "Balance Changes",
+          cell: ({ row }: { row: any }) => {
+            const transaction = row.original;
+            // Cell rendering logic for the new column
+            if (isXrayTransaction(transaction)) {
+              return (
+                <div className="px-4 py-2 text-center">
+                  <div>{TransactionBalances(transaction, address)}</div>
+                </div>
+              );
+            } else {
+              return <div>no data</div>;
+            }
+          },
+        },
+      ]
+    : []),
   {
     header: () => (
       <div className="px-4 py-2 text-center">
@@ -273,10 +309,25 @@ export const columns: ColumnDef<TransactionData>[] = [
 ];
 
 export function TransactionCard({ data }: { data: TransactionData[] }) {
+  const pathname = usePathname();
+  const address = pathname.split("/")[2];
+
+  const signatures = useGetSignaturesForAddress(address, 1);
+  const accountInfo = useGetAccountInfo(address);
+  const accountType = useMemo(() => {
+    if (
+      accountInfo.data &&
+      accountInfo.data.value !== undefined &&
+      signatures.data !== undefined
+    ) {
+      return getAccountType(accountInfo.data.value, signatures.data);
+    }
+  }, [accountInfo.data, signatures.data]);
+  const isWallet = accountType === AccountType.Wallet;
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={getColumns(address, isWallet)} data={data} />
       </div>
       <div className="block md:hidden">
         {data.map((transaction, index) => {

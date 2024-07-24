@@ -15,12 +15,14 @@ export function TokenBalance({
   decimals = 9,
   isReadable = false,
   isNFT = false,
+  showChanges = false,
 }: {
   mint: PublicKey;
   amount: number;
   decimals?: number;
   isReadable?: boolean;
   isNFT?: boolean;
+  showChanges?: boolean;
 }) {
   const { data: tokenList } = useGetTokenListStrict();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
@@ -44,7 +46,6 @@ export function TokenBalance({
       </Avatar>
     );
   } else if (nftData?.data) {
-    // Handle displaying NFT data if available
     avatar = (
       <Avatar className="h-6 w-6">
         <AvatarImage src={nftData.data.image} alt={nftData.data.name} />
@@ -64,13 +65,15 @@ export function TokenBalance({
     );
   }
 
-  const displayedAmount = isNFT
+  const normalizedAmount = isNFT
     ? null
     : isReadable
       ? amount
-      : formatNumericValue(
-          normalizeTokenAmount(amount, token?.decimals || decimals),
-        );
+      : normalizeTokenAmount(amount, token?.decimals || decimals);
+
+  const displayedAmount =
+    normalizedAmount !== null ? formatNumericValue(normalizedAmount) : null;
+
   const symbol =
     isNFT && nftData?.data?.name
       ? nftData.data.name
@@ -78,11 +81,26 @@ export function TokenBalance({
         DASToken?.data?.symbol ||
         `${mint.toString().substring(0, 3)}...${mint.toString().substring(mint.toString().length - 3)}`;
 
+  const getAmountColor = () => {
+    if (!showChanges || normalizedAmount === null) return "";
+    return normalizedAmount > 0
+      ? "text-green-500"
+      : normalizedAmount < 0
+        ? "text-red-500"
+        : "";
+  };
+
+  const getDisplayedAmount = () => {
+    if (displayedAmount === null) return "";
+    if (!showChanges) return displayedAmount;
+    return normalizedAmount! > 0 ? `+${displayedAmount}` : displayedAmount;
+  };
+
   return (
     <div className="inline-flex items-center gap-2">
       {avatar}
-      <span>
-        {displayedAmount} {symbol}
+      <span className={getAmountColor()}>
+        {getDisplayedAmount()} {symbol}
       </span>
     </div>
   );
