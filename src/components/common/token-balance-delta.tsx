@@ -31,7 +31,7 @@ export function TokenBalanceDelta({
 
   if (delta.gt(0)) {
     return (
-      <div className="inline-flex items-center gap-2 text-green-400">
+      <div className="inline-flex items-center gap-2 text-[#06D6A0] cursor-default">
         {avatar}
         <span>
           +
@@ -44,7 +44,7 @@ export function TokenBalanceDelta({
     );
   } else if (delta.lt(0)) {
     return (
-      <div className="inline-flex items-center gap-2 text-red-400">
+      <div className="inline-flex items-center gap-2 text-[#EF476F] cursor-default">
         {avatar}
         <span>
           {new Intl.NumberFormat("en-US", { maximumFractionDigits: 7 }).format(

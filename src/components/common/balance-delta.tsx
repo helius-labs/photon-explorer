@@ -25,11 +25,11 @@ export function BalanceDelta({
 
   if (delta.gt(0)) {
     return (
-      <span className="text-green-400">+{isSol ? sols : delta.toString()}</span>
+      <span className="text-[#06D6A0] cursor-default">+{isSol ? sols : delta.toString()}</span>
     );
   } else if (delta.lt(0)) {
     return (
-      <span className="text-red-400">
+      <span className="text-[#EF476F] cursor-default">
         {isSol ? <>-{sols}</> : delta.toString()}
       </span>
     );

@@ -19,16 +19,16 @@ import BigNumber from "bignumber.js";
 import {
   ArrowRight,
   ArrowRightLeftIcon,
-  CircleArrowDown,
   CircleCheckBig,
   CircleChevronRightIcon,
   CircleHelp,
-  CopyIcon,
   Flame,
   ImagePlusIcon,
   XCircle,
+  SquareArrowOutUpRightIcon,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useMemo } from "react";
 
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
@@ -66,22 +66,25 @@ function isSignatureWithMetadata(
 ): transaction is SignatureWithMetadata {
   return (transaction as SignatureWithMetadata) !== undefined;
 }
-const copyToClipboard = (text: string) => {
-  navigator.clipboard
-    .writeText(text)
-    .then(() => {
-      console.log("Copied to clipboard");
-    })
-    .catch((err) => {
-      console.error("Failed to copy: ", err);
-    });
-};
 
 type TransactionData =
   | ConfirmedSignatureInfo
   | SignatureWithMetadata
   | XrayTransaction
   | ParsedTransactionWithMeta;
+
+function getSignature(transaction: TransactionData): string {
+  if (isSignatureWithMetadata(transaction)) {
+    return transaction.signature;
+  }
+  if (isConfirmedSignatureInfo(transaction)) {
+    return transaction.signature;
+  }
+  if (isParsedTransactionWithMeta(transaction)) {
+    return transaction.transaction.signatures[0];
+  }
+  return "";
+}
 
 export const getColumns = (
   address: string,
@@ -181,11 +184,17 @@ export const getColumns = (
               {txnFailed
                 ? "Failed Transaction"
                 : type === ParserTransactionTypes.UNKNOWN
-                  ? "Generic Transaction"
-                  : type}
+                ? "Generic Transaction"
+                : type}
             </div>
-            <div className="text-sm text-muted-foreground">
+            <div className="flex items-center text-sm text-muted-foreground">
               {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
+              <Link
+                href={`/tx/${getSignature(transaction)}`}
+                className="flex items-center ml-2 text-sm text-muted-foreground"
+              >
+                <SquareArrowOutUpRightIcon className="ml-1 h-4 w-4" />
+              </Link>
             </div>
             <>
               {rootAccountDelta && (
@@ -203,7 +212,7 @@ export const getColumns = (
     },
   },
 
-  //conditiona coloumn depending on if the page is for a wallet or not
+  //conditional column depending on if the page is for a wallet or not
   ...(isWallet
     ? [
         {
@@ -294,7 +303,7 @@ export const getColumns = (
   {
     header: () => (
       <div className="px-4 py-2 text-left">
-        <span className="justify-end text-sm font-medium">Signature</span>
+        <span className="text-sm font-medium">Signature</span>
       </div>
     ),
     accessorKey: "signature",
@@ -316,9 +325,9 @@ export const getColumns = (
       }
 
       return (
-        <div className="flex flex-col items-center gap-1 overflow-hidden px-4 py-2">
+        <div className="flex flex-col items-left gap-1 overflow-hidden px-4 py-2">
           <div className="flex flex-col">
-            <div className="flex items-center text-sm font-medium">
+            <div className="flex items-left text-sm font-medium">
               <Signature link={true} signature={getValue() as string} />
             </div>
           </div>
@@ -331,6 +340,7 @@ export const getColumns = (
 export function TransactionCard({ data }: { data: TransactionData[] }) {
   const pathname = usePathname();
   const address = pathname.split("/")[2];
+  const pageType = pathname.split("/")[1];
 
   const signatures = useGetSignaturesForAddress(address, 1);
   const accountInfo = useGetAccountInfo(address);
@@ -344,6 +354,8 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
     }
   }, [accountInfo.data, signatures.data]);
   const isWallet = accountType === AccountType.Wallet;
+  const isTokenOrNFTPage = pageType === "token" || pageType === "nft";
+
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
@@ -357,13 +369,13 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
           const time = isParsedTransaction
             ? transaction.blockTime
             : isXrayTrans
-              ? transaction.timestamp
-              : undefined;
+            ? transaction.timestamp
+            : undefined;
           const description = isParsedTransaction
             ? transaction.meta?.logMessages?.join(" ")
             : isXrayTrans
-              ? descriptionParser(transaction || "")
-              : undefined;
+            ? descriptionParser(transaction || "")
+            : undefined;
           const rootAccountDelta =
             isParsedTransaction && transaction.meta
               ? new BigNumber(transaction.meta.postBalances[0]).minus(
@@ -394,13 +406,14 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
               case ParserTransactionTypes.UNKNOWN:
               default:
                 typeIcon = <CircleHelp className="h-6 w-6" />;
+                typeText = "Generic Transaction";
                 break;
             }
           }
 
           return (
             <div key={index} className="mb-3 border-b pb-3">
-              <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center justify-between px-4 py-2">
                 <div className="flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center">
                     {typeIcon}
@@ -409,103 +422,31 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                     <div className="font-base text-lg font-bold">
                       {typeText}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {time ? timeAgoWithFormat(Number(time), true) : ""}
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
+                      <Link
+                        href={`/tx/${getSignature(transaction)}`}
+                        className="flex items-center ml-2 text-sm text-muted-foreground"
+                      >
+                        <SquareArrowOutUpRightIcon className="ml-1 h-4 w-4" />
+                      </Link>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col items-end">
-                  <div className="text-sm text-muted-foreground">
-                    Signature:
+                {!isTokenOrNFTPage && rootAccountDelta && (
+                  <div className="flex flex-col items-center">
+                    <span className="text-lg font-medium leading-none">
+                      Balance Change
+                    </span>
+                    <BalanceDelta delta={rootAccountDelta} isSol />
                   </div>
-                  <div className="font-base text-sm leading-none">
-                    <Signature
-                      copy={false}
-                      signature={
-                        "signature" in transaction ? transaction.signature : ""
-                      }
-                    />
-                  </div>
-                </div>
+                )}
               </div>
-              <div className="flex flex-col items-start justify-start gap-2">
-                <div className="grid gap-1 text-left">
-                  {description && (
-                    <div className="whitespace-normal break-words text-sm text-muted-foreground">
-                      {isXrayTransaction(transaction)
-                        ? transactionBreakdown(transaction)
-                        : "Transaction"}
-                    </div>
-                  )}
-                  {!description &&
-                    "actions" in transaction &&
-                    transaction.actions.map((action, index) => (
-                      <div key={index}>
-                        {action.actionType === ActionTypes.TRANSFER && (
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium leading-none">
-                              Transfer
-                            </span>
-                            <TokenBalance
-                              amount={action.amount}
-                              decimals={action.decimals}
-                              mint={new PublicKey(action.mint!)}
-                            />
-                            {action.to && (
-                              <Address pubkey={new PublicKey(action.to!)} />
-                            )}
-                          </div>
-                        )}
-                        {action.actionType === ActionTypes.SENT && (
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium leading-none">
-                              Sent
-                            </span>
-                            <TokenBalance
-                              amount={action.amount}
-                              decimals={action.decimals}
-                              mint={new PublicKey(action.mint!)}
-                            />
-                            {action.to && (
-                              <Address pubkey={new PublicKey(action.to!)} />
-                            )}
-                          </div>
-                        )}
-                        {action.actionType === ActionTypes.RECEIVED && (
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium leading-none">
-                              Received
-                            </span>
-                            <TokenBalance
-                              amount={action.amount}
-                              decimals={action.decimals}
-                              mint={new PublicKey(action.mint!)}
-                            />
-                            {action.from && (
-                              <Address pubkey={new PublicKey(action.from!)} />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  {rootAccountDelta && (
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium leading-none">
-                        Balance Change
-                      </span>
-                      <BalanceDelta delta={rootAccountDelta} isSol />
-                    </div>
-                  )}
-                  {!description &&
-                    !(
-                      "actions" in transaction && transaction.actions.length
-                    ) && (
-                      <div className="text-sm text-muted-foreground">
-                        UNKNOWN
-                      </div>
-                    )}
+              {!isTokenOrNFTPage && (
+                <div className="flex justify-center px-4 py-2 text-lg">
+                  <div>{TransactionBalances(transaction, address)}</div>
                 </div>
-              </div>
+              )}
             </div>
           );
         })}
