@@ -1,5 +1,10 @@
 import { AccountType, getAccountType } from "@/utils/account";
-import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
+import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
+import {
+  ConfirmedSignatureInfo,
+  ParsedTransactionWithMeta,
+  PublicKey,
+} from "@solana/web3.js";
 import { ArrowRightLeftIcon } from "lucide-react";
 import React from "react";
 
@@ -27,6 +32,24 @@ function isParsedTransactionWithMeta(
     "message" in data.transaction &&
     "accountKeys" in data.transaction.message
   );
+}
+function isXrayTransaction(transaction: any): transaction is XrayTransaction {
+  return (transaction as XrayTransaction).timestamp !== undefined;
+}
+
+function isConfirmedSignatureInfo(
+  transaction: any,
+): transaction is ConfirmedSignatureInfo {
+  return (
+    (transaction as ConfirmedSignatureInfo).signature !== undefined &&
+    !(transaction as SignatureWithMetadata)
+  );
+}
+
+function isSignatureWithMetadata(
+  transaction: any,
+): transaction is SignatureWithMetadata {
+  return (transaction as SignatureWithMetadata) !== undefined;
 }
 
 function calculateBalanceChanges(
@@ -111,8 +134,52 @@ function calculateBalanceChanges(
   return [...nativeBalanceChanges, ...tokenBalanceChanges];
 }
 
-function TransactionBalances(transaction: XrayTransaction, address: string) {
-  const txnData = useGetTransaction(transaction.signature);
+function TransactionBalances(transaction: any, address: string) {
+  let sig = "";
+  // Cell rendering logic for the new column
+  if (isXrayTransaction(transaction)) {
+    sig = transaction.signature;
+  } else if (isSignatureWithMetadata(transaction)) {
+    sig = transaction.signature;
+  } else if (isConfirmedSignatureInfo(transaction)) {
+    sig = transaction.signature;
+  } else if (isParsedTransactionWithMeta(transaction)) {
+    sig = transaction.transaction.signatures[0];
+  }
+  const txnData = useGetTransaction(sig);
+
+  if (
+    isXrayTransaction(transaction) &&
+    (transaction.type === ParserTransactionTypes.CNFT_MINT ||
+      transaction.type === ParserTransactionTypes.CNFT_TRANSFER)
+  ) {
+    return (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {transaction?.actions[0]?.to === address &&
+          transaction?.actions[0]?.mint && (
+            <TokenBalance
+              amount={1}
+              decimals={transaction.actions[0].decimals}
+              mint={new PublicKey(transaction.actions[0].mint)}
+              isReadable={false}
+              isNFT={true}
+              showChanges={true}
+            />
+          )}
+        {transaction?.actions[0]?.from === address &&
+          transaction?.actions[0]?.mint && (
+            <TokenBalance
+              amount={-1}
+              decimals={transaction.actions[0].decimals}
+              mint={new PublicKey(transaction.actions[0].mint)}
+              isReadable={false}
+              isNFT={true}
+              showChanges={true}
+            />
+          )}
+      </div>
+    );
+  }
 
   if (isParsedTransactionWithMeta(txnData.data)) {
     const balanceChanges = calculateBalanceChanges(txnData.data, address);
