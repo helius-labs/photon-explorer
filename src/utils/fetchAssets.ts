@@ -1,8 +1,13 @@
 import { Creator, Grouping, NFT } from "@/types/nft";
+import {
+  TokenStandard,
+  fetchAllDigitalAssetWithTokenByOwner,
+  mplTokenMetadata,
+} from "@metaplex-foundation/mpl-token-metadata";
+import { publicKey, unwrapOption } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
-
-// Ensure this import is correct
 
 // Convert BigInt to Uint8Array
 function bigIntToByteArray(bigInt: bigint): Uint8Array {
@@ -129,3 +134,67 @@ export async function fetchPartitionedAssets(
   console.log("Fetched partitioned assets:", results.flat()); // Debugging statement
   return results.flat();
 }
+
+async function getNFTsByOwnerMetaplex(
+  address: string,
+  endpoint: string,
+): Promise<NFT[]> {
+  const umi = createUmi(endpoint).use(mplTokenMetadata());
+
+  // Fetch symbols and logos for tokens
+  const assets = await fetchAllDigitalAssetWithTokenByOwner(
+    umi,
+    publicKey(address),
+    {
+      tokenStrategy: "getProgramAccounts",
+    },
+  );
+
+  const nfts: NFT[] = assets.flatMap((item) => {
+    const tokenStandard = unwrapOption(item.metadata.tokenStandard);
+
+    if (
+      tokenStandard &&
+      [
+        TokenStandard.NonFungible,
+        TokenStandard.NonFungibleEdition,
+        TokenStandard.ProgrammableNonFungible,
+        TokenStandard.ProgrammableNonFungibleEdition,
+      ].includes(tokenStandard)
+    ) {
+      return {
+        raw: item,
+        mint: new PublicKey(item.mint.publicKey),
+        name: item.metadata.name,
+        uri: item.metadata.uri,
+        verified: unwrapOption(item.metadata.creators)?.some(
+          (creator) => creator.verified,
+        ),
+      };
+    }
+    return [];
+  });
+
+  // Fetch metadata in parallel
+  await fetchNftMetadata(nfts);
+
+  return nfts;
+}
+
+const fetchNftMetadata = async (nfts: NFT[]) => {
+  const fetchMetadata = async (nft: NFT) => {
+    if (nft.raw.metadata.uri) {
+      try {
+        const response = await fetch(nft.raw.metadata.uri);
+        const externalMetadata = await response.json();
+        nft.image = externalMetadata.image;
+      } catch (error) {
+        console.error("Error fetching external metadata for NFT:", error);
+      }
+    }
+  };
+
+  await Promise.all(nfts.map(fetchMetadata));
+};
+
+export { fetchAssetsInRange, getNFTsByOwnerMetaplex };

@@ -64,7 +64,7 @@ async function getTokenByMintDAS(
     if (item && item.interface === Interface.FUNGIBLE_TOKEN) {
       return {
         raw: item,
-        pubkey: new PublicKey(item.id), // Using the mint address directly
+        pubkey: new PublicKey(item.id),
         name: item.content?.metadata?.name || "N/A",
         symbol: item.token_info?.symbol || "N/A",
         logoURI: item.content?.links?.image || undefined,
