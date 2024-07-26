@@ -15,7 +15,7 @@ interface NFTGridPaginationProps<TData> {
 export function NFTGridPagination<TData>({ table }: NFTGridPaginationProps<TData>) {
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="flex items-center space-x-6 lg:space-x-8">
+      <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
         <p className="text-sm font-medium">Rows per page</p>
         <Select
           value={`${table.getState().pagination.pageSize}`}
@@ -23,7 +23,7 @@ export function NFTGridPagination<TData>({ table }: NFTGridPaginationProps<TData
             table.setPageSize(Number(value));
           }}
         >
-          <SelectTrigger className="h-8 w-[70px]">
+          <SelectTrigger className="hidden md:flex h-8 w-[70px] px-2">
             <SelectValue placeholder={table.getState().pagination.pageSize} />
           </SelectTrigger>
           <SelectContent side="top">

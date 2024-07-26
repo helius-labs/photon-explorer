@@ -9,6 +9,7 @@ import {
   ParsedTransactionWithMeta,
 } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
@@ -34,17 +35,21 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster } = useCluster();
   const router = useRouter();
 
+  const memoizedAddress = useMemo(() => address, [address]);
+  const memoizedCluster = useMemo(() => cluster, [cluster]);
+
   // this is used to get all the signatures for an account
-  const signatures = useGetSignaturesForAddress(address, 500);
+  const signatures = useGetSignaturesForAddress(memoizedAddress, 500);
+
   // this then parses those transactions
   const parsedTransactions = useGetParsedTransactions(
-    //only parse the first 90 transactions
+    // only parse the first 90 transactions
     (signatures.data?.map((sig) => sig.signature) || []).slice(0, 90),
-    cluster === Cluster.MainnetBeta || cluster === Cluster.Devnet,
+    memoizedCluster === Cluster.MainnetBeta || memoizedCluster === Cluster.Devnet,
   );
 
   const handleReturn = () => {
-    router.push(`/?cluster=${cluster}`);
+    router.push(`/?cluster=${memoizedCluster}`);
   };
 
   if (signatures.isError || parsedTransactions.isError) {

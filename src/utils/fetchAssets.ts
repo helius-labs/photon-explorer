@@ -1,4 +1,4 @@
-import { NFT } from "@/types/nft";
+import { Creator, Grouping, NFT } from "@/types/nft";
 import { PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 
@@ -76,7 +76,7 @@ async function fetchAssetsInRange(
 
     const nfts: NFT[] = result.items.map((item: any) => {
       const collectionGrouping = item.grouping?.find(
-        (group) => group.group_key === "collection",
+        (group: Grouping) => group.group_key === "collection",
       );
       const royaltyPercentage = item.royalty?.basis_points
         ? item.royalty.basis_points / 100
@@ -98,7 +98,8 @@ async function fetchAssetsInRange(
         tokenStandard: item.content?.metadata?.token_standard || "",
         creators: item.creators || [],
         attributes: item.content?.metadata?.attributes || [],
-        verified: item.creators?.some((creator) => creator.verified) || false,
+        verified:
+          item.creators?.some((creator: Creator) => creator.verified) || false,
         value: item.token_info?.price_info?.price_per_token || 0,
         royaltyPercentage: royaltyPercentage,
         compression: item.compression || undefined,

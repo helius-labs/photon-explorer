@@ -108,10 +108,12 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                       Details
                     </h3>
                     <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {ownerDomain && ownerDomain !== "N/A...N/A" && (
+                      {ownerDomain && ownerDomain !== "" && (
                         <p className="text-muted-foreground">
                           <span className="text-foreground font-semibold">Owner: </span>
+                          <Link href={`/address/${nft.owner}`} className="underline text-muted-foreground">
                           {ownerDomain ? ownerDomain : shorten(nft.owner || "Unknown")}
+                          </Link>
                         </p>
                       )}
                       {nft.mint?.toBase58 && nft.mint.toBase58() !== "" && (
@@ -137,7 +139,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                       {nft.collection && nft.collection !== "" && (
                         <p className="text-muted-foreground">
                           <span className="text-foreground font-semibold">Collection: </span>
-                          <Link href={`/address/${nft.collection}`} className="hover:underline text-muted-foreground">
+                          <Link href={`/address/${nft.collection}`} className="underline text-muted-foreground">
                             {nft.collectionName ? nft.collectionName : shorten(nft.collection)}
                           </Link>
                         </p>
