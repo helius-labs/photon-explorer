@@ -298,7 +298,7 @@ export const getColumns = (
   {
     header: () => (
       <div className="px-4 py-2 text-left">
-        <span className="text-sm font-medium hidden md:block">Signature</span>
+        <span className="text-sm font-medium hidden md:block ">Signature</span>
       </div>
     ),
     accessorKey: "signature",
@@ -322,7 +322,7 @@ export const getColumns = (
       return (
         <div className="flex flex-col items-left gap-1 overflow-hidden px-4 py-2">
           <div className="flex flex-col">
-            <div className="flex items-left text-sm font-medium">
+            <div className="flex items-left text-sm font-medium underline">
               <Signature link={true} signature={getValue() as string} />
             </div>
           </div>
