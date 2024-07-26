@@ -39,7 +39,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
   // this is used to get all the signatures for an account
-  const signatures = useGetSignaturesForAddress(memoizedAddress, 500);
+  const signatures = useGetSignaturesForAddress(memoizedAddress, 300);
 
   // this then parses those transactions
   const parsedTransactions = useGetParsedTransactions(

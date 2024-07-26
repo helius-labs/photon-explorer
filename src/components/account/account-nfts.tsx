@@ -8,7 +8,7 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useParallelGetNFTsByOwner } from "@/hooks/useParallelGetNFTsByOwner";
+import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
@@ -38,7 +38,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
 
-  const { data: nfts, isLoading, isError } = useParallelGetNFTsByOwner(address);
+  const { data: nfts, isLoading, isError } = useGetNFTsByOwner(address);
 
   useEffect(() => {
     if (nfts) {
