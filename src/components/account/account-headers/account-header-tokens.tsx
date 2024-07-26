@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import Avatar from "boring-avatars";
 import cmcLogo from "@/../public/assets/cmcLogo.svg";
-import coinGeckoLogo from "@/../public/assets/coingeckoLogo.svg";
+import coinGeckoLogo from "@/../public/assets/coinGeckoLog.svg";
 import jupLogo from "@/../public/assets/jupLogo.png";
 import { useRouter } from "next/navigation";
 import { CheckIcon, Copy, MoreVertical } from "lucide-react";
