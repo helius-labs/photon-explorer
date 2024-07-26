@@ -1,10 +1,12 @@
 import { PublicKey } from "@solana/web3.js";
 import { BigNumber } from "bignumber.js";
 import React from "react";
+import Image from "next/image";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import cloudflareLoader from "@/utils/imageLoader";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 
 export function TokenBalanceDelta({
   mint,
@@ -16,23 +18,31 @@ export function TokenBalanceDelta({
   const { data: tokenList } = useGetTokenListStrict();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
 
-  let avatar = <></>;
+  let avatarSrc = "";
+  let avatarAlt = "";
   if (token) {
-    avatar = (
-      <Avatar className="h-6 w-6">
-        <AvatarImage src={token.logoURI} alt={token.name} />
-        <AvatarFallback>
-          {token.name.length > 1 ? token.name.slice(0, 1) : ""}
-          {token.name.length > 2 ? token.name.slice(-1) : ""}
-        </AvatarFallback>
-      </Avatar>
-    );
+    avatarSrc = token.logoURI || "";
+    avatarAlt = token.name || "";
   }
 
   if (delta.gt(0)) {
     return (
       <div className="inline-flex items-center gap-2 text-[#06D6A0] cursor-default">
-        {avatar}
+        {avatarSrc && (
+          <Image
+          loader={cloudflareLoader}
+          src={avatarSrc}
+          alt={avatarAlt}
+          width={24}
+          height={24}
+          loading="eager"
+          onError={(event: any) => {
+            event.target.id = "noLogoImg";
+            event.target.srcset = noLogoImg.src;
+          }}
+          className="h-6 w-6 rounded-full"
+          />
+        )}
         <span>
           +
           {new Intl.NumberFormat("en-US", { maximumFractionDigits: 7 }).format(
@@ -45,7 +55,21 @@ export function TokenBalanceDelta({
   } else if (delta.lt(0)) {
     return (
       <div className="inline-flex items-center gap-2 text-[#EF476F] cursor-default">
-        {avatar}
+        {avatarSrc && (
+          <Image
+          loader={cloudflareLoader}
+          src={avatarSrc}
+          alt={avatarAlt}
+          width={24}
+          height={24}
+          loading="eager"
+          onError={(event: any) => {
+            event.target.id = "noLogoImg";
+            event.target.srcset = noLogoImg.src;
+          }}
+          className="h-6 w-6 rounded-full"
+          />
+        )}
         <span>
           {new Intl.NumberFormat("en-US", { maximumFractionDigits: 7 }).format(
             delta.toNumber(),
@@ -58,7 +82,21 @@ export function TokenBalanceDelta({
 
   return (
     <div className="inline-flex items-center gap-2">
-      {avatar}
+      {avatarSrc && (
+        <Image
+        loader={cloudflareLoader}
+        src={avatarSrc}
+        alt={avatarAlt}
+        width={24}
+        height={24}
+        loading="eager"
+        onError={(event: any) => {
+          event.target.id = "noLogoImg";
+          event.target.srcset = noLogoImg.src;
+        }}
+        className="h-6 w-6 rounded-full"
+        />
+      )}
       <span>
         {0} {token && token.symbol ? token.symbol : "token(s)"}
       </span>

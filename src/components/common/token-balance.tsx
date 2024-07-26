@@ -2,12 +2,14 @@ import { normalizeTokenAmount } from "@/utils/common";
 import { formatNumericValue } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import React from "react";
+import Image from "next/image";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import cloudflareLoader from "@/utils/imageLoader";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
 
 export function TokenBalance({
   mint,
@@ -31,38 +33,19 @@ export function TokenBalance({
     !isNFT && token === undefined,
   );
 
-  // Always call the hook but pass isNFT to control fetching logic
   const nftData = useGetNFTsByMint(mint.toBase58(), isNFT);
 
-  let avatar = <></>;
+  let avatarSrc = "";
+  let avatarAlt = "";
   if (token) {
-    avatar = (
-      <Avatar className="h-6 w-6">
-        <AvatarImage src={token.logoURI} alt={token.name} />
-        <AvatarFallback>
-          {token.name.length > 1 ? token.name.slice(0, 1) : ""}
-          {token.name.length > 2 ? token.name.slice(-1) : ""}
-        </AvatarFallback>
-      </Avatar>
-    );
+    avatarSrc = token.logoURI || "";
+    avatarAlt = token.name || "";
   } else if (nftData?.data) {
-    avatar = (
-      <Avatar className="h-6 w-6">
-        <AvatarImage src={nftData.data.image} alt={nftData.data.name} />
-        <AvatarFallback>
-          {nftData?.data?.name?.slice(0, 2) ?? ""}
-        </AvatarFallback>
-      </Avatar>
-    );
+    avatarSrc = nftData.data.image || "";
+    avatarAlt = nftData.data.name || "";
   } else if (DASToken.data) {
-    avatar = (
-      <Avatar className="h-6 w-6">
-        <AvatarImage src={DASToken.data.logoURI} alt={DASToken.data.name} />
-        <AvatarFallback>
-          {DASToken?.data?.name?.slice(0, 2) ?? ""}
-        </AvatarFallback>
-      </Avatar>
-    );
+    avatarSrc = DASToken.data.logoURI || "";
+    avatarAlt = DASToken.data.name || "";
   }
 
   const normalizedAmount = isNFT
@@ -98,7 +81,21 @@ export function TokenBalance({
 
   return (
     <div className="inline-flex items-center gap-2">
-      {avatar}
+      {avatarSrc && (
+        <Image
+        loader={cloudflareLoader}
+        src={avatarSrc}
+        alt={avatarAlt}
+        width={24}
+        height={24}
+        loading="eager"
+        onError={(event: any) => {
+          event.target.id = "noLogoImg";
+          event.target.srcset = noLogoImg.src;
+        }}
+        className="h-6 w-6 rounded-full"
+        />
+      )}
       <span className={getAmountColor()}>
         {getDisplayedAmount()} {symbol}
       </span>

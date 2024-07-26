@@ -14,7 +14,7 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, useReactTable, getCoreRowModel, getPaginationRowModel } from "@tanstack/react-table";
 import BigNumber from "bignumber.js";
 import {
   ArrowRight,
@@ -41,6 +41,7 @@ import transactionBreakdown from "@/components/common/txn-history-desc";
 
 import TransactionBalances from "../common/txn-history-balance";
 import { DataTable } from "../data-table/data-table";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
@@ -145,7 +146,7 @@ export const getColumns = (
           typeIcon = <ArrowRight className="h-6 w-6" />;
           break;
         case ParserTransactionTypes.UNKNOWN:
-          typeIcon = <CircleCheckBig className="h-6 w-6" />;
+          typeIcon = txnFailed ? <XCircle className="h-6 w-6" /> : <CircleCheckBig className="h-6 w-6" />;
           break;
         case ParserTransactionTypes.CNFT_MINT:
           typeIcon = <ImagePlusIcon className="h-6 w-6" />;
@@ -189,12 +190,6 @@ export const getColumns = (
             </div>
             <div className="flex items-center text-sm text-muted-foreground">
               {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
-              <Link
-                href={`/tx/${getSignature(transaction)}`}
-                className="flex items-center ml-2 text-sm text-muted-foreground"
-              >
-                <SquareArrowOutUpRightIcon className="ml-1 h-4 w-4" />
-              </Link>
             </div>
             <>
               {rootAccountDelta && (
@@ -303,7 +298,7 @@ export const getColumns = (
   {
     header: () => (
       <div className="px-4 py-2 text-left">
-        <span className="text-sm font-medium">Signature</span>
+        <span className="text-sm font-medium hidden md:block">Signature</span>
       </div>
     ),
     accessorKey: "signature",
@@ -354,7 +349,20 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
     }
   }, [accountInfo.data, signatures.data]);
   const isWallet = accountType === AccountType.Wallet;
-  const isTokenOrNFTPage = pageType === "token" || pageType === "nft";
+
+  const columns = getColumns(address, isWallet);
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
+  });
 
   return (
     <>
@@ -362,15 +370,33 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
         <DataTable columns={getColumns(address, isWallet)} data={data} />
       </div>
       <div className="block md:hidden">
-        {data.map((transaction, index) => {
+        {table.getRowModel().rows.map((row) => {
+          const transaction = row.original;
           const isParsedTransaction = isParsedTransactionWithMeta(transaction);
           const isXrayTrans = isXrayTransaction(transaction);
 
-          const time = isParsedTransaction
-            ? transaction.blockTime
-            : isXrayTrans
-            ? transaction.timestamp
-            : undefined;
+          let type = ParserTransactionTypes.UNKNOWN;
+          let time: number | undefined;
+
+          let txnFailed = false;
+
+          const transactionWithError = transaction as SignatureWithMetadata & {
+            err: any[];
+          };
+
+          if (isSignatureWithMetadata(transaction) && transactionWithError.err && transactionWithError.err !== null) {
+            txnFailed = true;
+          }
+
+          if (isParsedTransactionWithMeta(transaction)) {
+            time = transaction.blockTime ?? undefined;
+          } else if (isXrayTrans) {
+            time = transaction.timestamp ?? undefined;
+            type = transaction.type;
+          } else if (isConfirmedSignatureInfo(transaction) || isSignatureWithMetadata(transaction)) {
+            time = transaction.blockTime ?? undefined;
+          }
+
           const description = isParsedTransaction
             ? transaction.meta?.logMessages?.join(" ")
             : isXrayTrans
@@ -384,35 +410,33 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
               : null;
 
           let typeIcon;
-          let typeText = "UNKNOWN";
-          if (isXrayTrans) {
-            switch (transaction.type) {
-              case ParserTransactionTypes.SWAP:
-                typeIcon = <ArrowRightLeftIcon className="h-6 w-6" />;
-                typeText = "SWAP";
-                break;
-              case ParserTransactionTypes.TRANSFER:
-                typeIcon = <ArrowRight className="h-6 w-6" />;
-                typeText = "TRANSFER";
-                break;
-              case ParserTransactionTypes.CNFT_TRANSFER:
-                typeIcon = <ArrowRight className="h-6 w-6" />;
-                typeText = "CNFT TRANSFER";
-                break;
-              case ParserTransactionTypes.CNFT_MINT:
-                typeIcon = <ImagePlusIcon className="h-6 w-6" />;
-                typeText = "CNFT MINT";
-                break;
-              case ParserTransactionTypes.UNKNOWN:
-              default:
-                typeIcon = <CircleHelp className="h-6 w-6" />;
-                typeText = "Generic Transaction";
-                break;
-            }
+          let typeText = "Generic Transaction";
+
+          switch (type) {
+            case ParserTransactionTypes.SWAP:
+              typeIcon = <ArrowRightLeftIcon className="h-6 w-6" />;
+              typeText = "SWAP";
+              break;
+            case ParserTransactionTypes.TRANSFER:
+              typeIcon = <ArrowRight className="h-6 w-6" />;
+              typeText = "TRANSFER";
+              break;
+            case ParserTransactionTypes.CNFT_TRANSFER:
+              typeIcon = <ArrowRight className="h-6 w-6" />;
+              typeText = "CNFT TRANSFER";
+              break;
+            case ParserTransactionTypes.CNFT_MINT:
+              typeIcon = <ImagePlusIcon className="h-6 w-6" />;
+              typeText = "CNFT MINT";
+              break;
+            default:
+              typeIcon = txnFailed ? <XCircle className="h-6 w-6" /> : <CircleCheckBig className="h-6 w-6" />;
+              typeText = txnFailed ? "Failed Transaction" : "Generic Transaction";
+              break;
           }
 
           return (
-            <div key={index} className="mb-3 border-b pb-3">
+            <div key={row.id} className="mb-3 border-b pb-3">
               <div className="flex items-center justify-between px-4 py-2">
                 <div className="flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center">
@@ -420,7 +444,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                   </div>
                   <div>
                     <div className="font-base text-lg font-bold">
-                      {typeText}
+                      {txnFailed ? "Failed Transaction" : typeText}
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       {time !== undefined ? timeAgoWithFormat(Number(time), true) : ""}
@@ -433,16 +457,21 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                     </div>
                   </div>
                 </div>
-                {!isTokenOrNFTPage && rootAccountDelta && (
+                {!isWallet && rootAccountDelta && (
                   <div className="flex flex-col items-center">
-                    <span className="text-lg font-medium leading-none">
-                      Balance Change
-                    </span>
+                    <span className="text-lg font-medium leading-none">Balance Change</span>
                     <BalanceDelta delta={rootAccountDelta} isSol />
                   </div>
                 )}
               </div>
-              {!isTokenOrNFTPage && (
+              {!isWallet && (
+                <div className="px-4 py-2 text-sm text-center text-muted-foreground">
+                  <div>
+                    {txnFailed ? "Transaction failed" : !description ? "Transaction could not be parsed" : isXrayTrans ? transactionBreakdown(transaction, address) : description}
+                  </div>
+                </div>
+              )}
+              {isWallet && (
                 <div className="flex justify-center px-4 py-2 text-lg">
                   <div>{TransactionBalances(transaction, address)}</div>
                 </div>
@@ -450,6 +479,9 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
             </div>
           );
         })}
+        <div className="flex justify-center mt-4">
+          <DataTablePagination table={table} />
+        </div>
       </div>
     </>
   );

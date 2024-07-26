@@ -39,7 +39,8 @@ export function lamportsToSol(lamports: number | bigint): number {
   return signMultiplier * parseFloat(solString);
 }
 
-export function shorten(string: string, chars = 4): string {
+export function shorten(string: string | undefined, chars = 4): string {
+  if (!string) return "";
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
 }
 
