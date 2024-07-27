@@ -173,3 +173,17 @@ export function fetchSolPrice(): Promise<number> {
     .then((response) => response.json())
     .then((data) => data.solana.usd);
 }
+
+export function getSignature(transaction: any): string {
+  if (transaction && typeof transaction === "object") {
+    if ("signature" in transaction) {
+      return transaction.signature;
+    } else if (
+      "transaction" in transaction &&
+      Array.isArray(transaction.transaction.signatures)
+    ) {
+      return transaction.transaction.signatures[0];
+    }
+  }
+  throw new Error("Unsupported transaction type");
+}

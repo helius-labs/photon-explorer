@@ -41,7 +41,7 @@ export function NetworkStatusDropdown() {
       enabled: cluster !== Cluster.Localnet,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      refetchInterval: 30000, // 30 seconds
+      refetchInterval: 60000, // 60 seconds
       refetchIntervalInBackground: true,
     });
 
@@ -50,7 +50,7 @@ export function NetworkStatusDropdown() {
       enabled: cluster === Cluster.MainnetBeta,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      refetchInterval: 30000, // 30 seconds
+      refetchInterval: 60000, // 60 seconds
       refetchIntervalInBackground: true,
     });
 

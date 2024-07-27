@@ -80,7 +80,7 @@ export function TokenBalance({
   };
 
   return (
-    <div className="inline-flex items-center gap-2">
+    <div className="inline-flex items-center gap-2 truncate max-w-[250px]">
       {avatarSrc && (
         <Image
         loader={cloudflareLoader}
@@ -89,10 +89,6 @@ export function TokenBalance({
         width={24}
         height={24}
         loading="eager"
-        onError={(event: any) => {
-          event.target.id = "noLogoImg";
-          event.target.srcset = noLogoImg.src;
-        }}
         className="h-6 w-6 rounded-full"
         />
       )}

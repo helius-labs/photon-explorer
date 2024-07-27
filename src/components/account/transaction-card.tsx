@@ -1,5 +1,5 @@
 import { AccountType, getAccountType } from "@/utils/account";
-import { timeAgoWithFormat } from "@/utils/common";
+import { getSignature, timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
   ParserTransactionTypes,
@@ -73,19 +73,6 @@ type TransactionData =
   | SignatureWithMetadata
   | XrayTransaction
   | ParsedTransactionWithMeta;
-
-function getSignature(transaction: TransactionData): string {
-  if (isSignatureWithMetadata(transaction)) {
-    return transaction.signature;
-  }
-  if (isConfirmedSignatureInfo(transaction)) {
-    return transaction.signature;
-  }
-  if (isParsedTransactionWithMeta(transaction)) {
-    return transaction.transaction.signatures[0];
-  }
-  return "";
-}
 
 export const getColumns = (
   address: string,

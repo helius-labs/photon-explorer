@@ -63,10 +63,6 @@ export function TokenBalanceDelta({
           width={24}
           height={24}
           loading="eager"
-          onError={(event: any) => {
-            event.target.id = "noLogoImg";
-            event.target.srcset = noLogoImg.src;
-          }}
           className="h-6 w-6 rounded-full"
           />
         )}
@@ -90,10 +86,6 @@ export function TokenBalanceDelta({
         width={24}
         height={24}
         loading="eager"
-        onError={(event: any) => {
-          event.target.id = "noLogoImg";
-          event.target.srcset = noLogoImg.src;
-        }}
         className="h-6 w-6 rounded-full"
         />
       )}
