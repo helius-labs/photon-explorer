@@ -47,6 +47,7 @@ interface SearchOptions {
   address?: string;
   symbol?: string;
   recentSearch?: boolean;
+  isVerified?: boolean;
 }
 
 interface GroupedOption {
@@ -363,6 +364,11 @@ const Option = ({ ...props }: OptionProps<SearchOptions, false>) => (
               ({props.data.symbol})
             </span>
           )}
+          {props.data.isVerified && (
+            <span className="ml-2 mb-0.5 inline-flex items-center px-2.5 py-0.8 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              Verified
+            </span>
+          )}
         </span>
         {props.data.address && (
           <span className="truncate text-xs text-muted-foreground">
@@ -502,9 +508,19 @@ async function buildTokenOptions(
   const matchedTokens = await searchTokens(search, cluster);
 
   if (matchedTokens.length > 0) {
+    // Prioritize tokens with a matching symbol first
+    const symbolMatches = matchedTokens.filter(token =>
+      token.symbol.toLowerCase() === search.toLowerCase()
+    );
+
+    // Tokens that match the search term but not the symbol
+    const otherMatches = matchedTokens.filter(token =>
+      token.symbol.toLowerCase() !== search.toLowerCase()
+    );
+
     return {
       label: "Tokens",
-      options: matchedTokens,
+      options: [...symbolMatches, ...otherMatches],
     };
   }
 }

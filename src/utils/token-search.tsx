@@ -35,7 +35,29 @@ type SearchElement = {
   icon: JSX.Element;
   address: string;
   symbol: string;
+  isVerified?: boolean;
 };
+
+const verifiedTokenCache: { [key: string]: boolean } = {};
+
+async function fetchVerifiedTokens(): Promise<Set<string>> {
+  if (Object.keys(verifiedTokenCache).length > 0) {
+    return new Set(Object.keys(verifiedTokenCache));
+  }
+
+  const response = await fetch(`https://tokens.jup.ag/tokens?tags=verified`);
+  if (response.status >= 400) {
+    console.error(new Error("Error fetching verified tokens"));
+    return new Set();
+  }
+
+  const verifiedTokens = (await response.json()) as TokenSearchApiResponseToken[];
+  verifiedTokens.forEach(token => {
+    verifiedTokenCache[token.address] = true;
+  });
+
+  return new Set(Object.keys(verifiedTokenCache));
+}
 
 export async function searchTokens(
   search: string,
@@ -46,6 +68,7 @@ export async function searchTokens(
   }
 
   // See https://github.com/solflare-wallet/utl-sdk/blob/master/src/types.ts#L5
+  // Determine chainId based on the cluster
   let chainId: number;
   if (cluster === Cluster.MainnetBeta) chainId = 101;
   else if (cluster === Cluster.Testnet) chainId = 102;
@@ -74,9 +97,12 @@ export async function searchTokens(
         search,
       });
     }
+    return [];
   }
 
   const { content } = (await apiResponse.json()) as TokenSearchApiResponse;
+
+  const verifiedTokenAddresses = await fetchVerifiedTokens();
 
   return content.map((token) => ({
     label: token.name,
@@ -84,6 +110,7 @@ export async function searchTokens(
     value: [token.name, token.symbol, token.address],
     address: token.address,
     symbol: token.symbol,
+    isVerified: verifiedTokenAddresses.has(token.address),
     icon: (
       <Image
         loader={cloudflareLoader}
