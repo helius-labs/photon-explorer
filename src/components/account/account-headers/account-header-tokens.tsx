@@ -19,7 +19,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCluster } from "@/providers/cluster-provider";
-import { formatCurrencyValue, formatSupply, formatNumericValue } from "@/utils/numbers";
+import { formatCurrencyValue, calculateMarketCap, formatSupply, formatNumericValue } from "@/utils/numbers";
 import { useGetTokenMetrics } from "@/hooks/jupiterTokenMetrics";
 
 interface AccountHeaderTokensProps {
@@ -33,7 +33,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
     tokenName: string;
     tokenImageURI: string | null;
     tokenSymbol: string;
-    supply: number;
+    supply: number | undefined;
     price: string;
     marketCap: string;
     mint_authority: string;
@@ -45,7 +45,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
     tokenName: "Token",
     tokenImageURI: null,
     tokenSymbol: "SYMBOL",
-    supply: 0,
+    supply: undefined,
     price: "",
     marketCap: "",
     mint_authority: "",
@@ -105,7 +105,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                 tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
                 tokenImageURI: tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
                 tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
-                supply: tokenDataFromAPI?.supply !== undefined ? tokenDataFromAPI.supply : 0,
+                supply: tokenDataFromAPI?.supply !== undefined ? tokenDataFromAPI.supply : undefined,
                 price: tokenDataFromAPI?.price !== undefined ? formatCurrencyValue(tokenDataFromAPI.price) : "",
                 marketCap: tokenMetricsData?.data?.marketCap ? formatCurrencyValue(tokenMetricsData?.data?.marketCap) : "",
                 mint_authority: tokenDataFromAPI?.mint_authority || "",
@@ -125,7 +125,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
           tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
           tokenImageURI: tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
           tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
-          supply: tokenDataFromAPI?.supply !== undefined ? tokenDataFromAPI.supply : 0,
+          supply: tokenDataFromAPI?.supply !== undefined ? tokenDataFromAPI.supply : undefined,
           price: tokenDataFromAPI?.price !== undefined ? formatCurrencyValue(tokenDataFromAPI.price) : "",
           marketCap: tokenMetricsData?.data?.marketCap ? formatCurrencyValue(tokenMetricsData?.data?.marketCap) : "",
           mint_authority: tokenDataFromAPI?.mint_authority || "",
@@ -261,15 +261,15 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                   <span className="font-semibold text-muted-foreground">Supply:</span>
                   <span className="truncate md:whitespace-normal md:max-w-none">{formatSupply(tokenDetails.supply, tokenDataFromAPI?.decimals || 0)}</span>
                 </div>
-                <div className="flex flex-col text-center md:flex-row justify-center md:justify-end text-sm space-x-2">
+                <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Market Cap:</span>
                   <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.marketCap}</span>
                 </div>
-                <div className="flex flex-col text-center md:flex-row justify-center md:justify-end text-sm space-x-2">
+                <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Holders:</span>
                   <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.holders}</span>
                 </div>
-                <div className="flex flex-col text-center md:flex-row justify-center md:justify-end text-sm space-x-2">
+                <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
                   <span className="font-semibold text-muted-foreground">Daily Volume:</span>
                   <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.dailyVolume}</span>
                 </div>

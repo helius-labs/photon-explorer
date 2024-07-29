@@ -213,14 +213,11 @@ export const formatLargeSize = (value: number | string): string => {
   return parseFloat((number / Math.pow(1000, i)).toFixed(2)) + suffixes[i];
 };
 
-// Utility function to format supply
-export function formatSupply(supply: number, decimals: number): string {
+export function formatSupply(
+  supply: number | undefined,
+  decimals: number,
+): string {
+  if (supply === undefined || supply === 0) return "";
   const actualSupply = new Decimal(supply).div(new Decimal(10).pow(decimals));
-  return Number(actualSupply.toFixed(2, Decimal.ROUND_FLOOR)).toLocaleString(
-    "en-US",
-    {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    },
-  );
+  return actualSupply.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
