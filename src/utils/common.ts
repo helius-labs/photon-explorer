@@ -1,3 +1,4 @@
+import { getTokenPrices } from "@/server/getTokenPrice";
 import { PublicKey } from "@solana/web3.js";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -166,12 +167,15 @@ export function dateFormat(unixTimestamp: number): string {
   });
 }
 
-export function fetchSolPrice(): Promise<number> {
-  return fetch(
-    "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
-  )
-    .then((response) => response.json())
-    .then((data) => data.solana.usd);
+export async function fetchSolPrice(): Promise<number> {
+  const ids = ["So11111111111111111111111111111111111111112"];
+  const tokenPrices = await getTokenPrices(ids);
+
+  if (tokenPrices && tokenPrices.data[ids[0]]) {
+    return tokenPrices.data[ids[0]].price;
+  } else {
+    throw new Error("Failed to fetch SOL price");
+  }
 }
 
 export function getSignature(transaction: any): string {
