@@ -61,7 +61,7 @@ async function fetchAssetsInRange(
         method: "getAssetsByOwner",
         params: {
           ownerAddress,
-          limit: 20,
+          limit: 100,
           after: current,
           before: endStr,
           sortBy: { sortBy: "id", sortDirection: "asc" },
