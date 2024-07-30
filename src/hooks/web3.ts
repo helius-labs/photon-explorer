@@ -47,6 +47,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
       });
     },
     enabled,
+    staleTime: 1000 * 60 * 60,
   });
 }
 
