@@ -6,28 +6,35 @@ export const formatNumericValue = (
   roundUp?: boolean,
 ): string => {
   if (!value && value !== 0) return "–";
-  const numberValue = Number(value);
+  const numberValue = new Decimal(value);
   let formattedValue;
   if (decimals !== undefined) {
     formattedValue = roundUp
       ? roundValue(numberValue, decimals, true)
       : roundValue(numberValue, decimals);
-  } else if (numberValue === 0) {
+  } else if (numberValue.equals(0)) {
     formattedValue = numberValue.toFixed(decimals || 0);
-  } else if (numberValue > -0.0000000001 && numberValue < 0.000000001) {
+  } else if (
+    numberValue.greaterThan(-0.0000000001) &&
+    numberValue.lessThan(0.000000001)
+  ) {
     formattedValue = numberValue.toExponential(3);
-  } else if (Math.abs(numberValue) >= 1000) {
+  } else if (numberValue.abs().greaterThanOrEqualTo(1000)) {
     formattedValue = roundUp
       ? roundValue(numberValue, 0, true)
       : roundValue(numberValue, 0);
-  } else if (Math.abs(numberValue) >= 0.1) {
+  } else if (numberValue.abs().greaterThanOrEqualTo(0.1)) {
     formattedValue = roundUp
       ? roundValue(numberValue, 3, true)
       : roundValue(numberValue, 3);
   } else {
     formattedValue = roundUp
-      ? roundValue(numberValue, countLeadingZeros(numberValue) + 3, true)
-      : roundValue(numberValue, countLeadingZeros(numberValue) + 3);
+      ? roundValue(
+          numberValue,
+          countLeadingZeros(numberValue.toNumber()) + 3,
+          true,
+        )
+      : roundValue(numberValue, countLeadingZeros(numberValue.toNumber()) + 3);
   }
   return formattedValue;
 };
@@ -36,9 +43,12 @@ export const formatCurrencyValue = (
   value: number | string | Decimal,
   decimals?: number,
 ): string => {
-  const numberValue = Number(value);
+  const numberValue = new Decimal(value);
   let formattedValue;
-  if (numberValue > -0.0000000001 && numberValue < 0.000000001) {
+  if (
+    numberValue.greaterThan(-0.0000000001) &&
+    numberValue.lessThan(0.000000001)
+  ) {
     formattedValue = "$0.00";
   } else if (decimals !== undefined) {
     formattedValue = Intl.NumberFormat("en", {
@@ -46,13 +56,13 @@ export const formatCurrencyValue = (
       maximumFractionDigits: decimals,
       style: "currency",
       currency: "USD",
-    }).format(numberValue);
-  } else if (Math.abs(numberValue) >= 1000) {
-    formattedValue = usdFormatter0.format(numberValue);
-  } else if (Math.abs(numberValue) >= 0.1) {
-    formattedValue = usdFormatter2.format(numberValue);
+    }).format(numberValue.toNumber());
+  } else if (numberValue.abs().greaterThanOrEqualTo(1000)) {
+    formattedValue = usdFormatter0.format(numberValue.toNumber());
+  } else if (numberValue.abs().greaterThanOrEqualTo(0.1)) {
+    formattedValue = usdFormatter2.format(numberValue.toNumber());
   } else {
-    formattedValue = usdFormatter3Sig.format(numberValue);
+    formattedValue = usdFormatter3Sig.format(numberValue.toNumber());
   }
 
   if (formattedValue === "-$0.00") return "$0.00";
@@ -127,8 +137,8 @@ export const floorToDecimalSignificance = (
   value: number | string | Decimal,
   maxSignificantDecimals: number,
 ): Decimal => {
-  const number = Number(value);
-  const log = Math.log10(Math.abs(number));
+  const number = new Decimal(value);
+  const log = Math.log10(Math.abs(number.toNumber()));
   const decimal = new Decimal(value);
   return decimal.toDecimalPlaces(
     Math.max(0, Math.floor(-log + maxSignificantDecimals - Number.EPSILON)),
@@ -158,7 +168,7 @@ const usdFormatter3Sig = Intl.NumberFormat("en", {
 
 export const countLeadingZeros = (x: number) => {
   const absoluteX = Math.abs(x);
-  if (absoluteX % 1 == 0) {
+  if (absoluteX % 1 === 0) {
     return 0;
   } else {
     return -1 - Math.floor(Math.log10(absoluteX % 1));
@@ -194,8 +204,6 @@ export function stringToNumber(s: string): number | undefined {
   return n;
 }
 
-//
-
 export const formatLargeSize = (value: number | string): string => {
   const number = Number(value);
   if (isNaN(number)) return value.toString();
@@ -204,3 +212,12 @@ export const formatLargeSize = (value: number | string): string => {
   const i = Math.floor(Math.log(number) / Math.log(1000));
   return parseFloat((number / Math.pow(1000, i)).toFixed(2)) + suffixes[i];
 };
+
+export function formatSupply(
+  supply: number | undefined,
+  decimals: number,
+): string {
+  if (supply === undefined || supply === 0) return "";
+  const actualSupply = new Decimal(supply).div(new Decimal(10).pow(decimals));
+  return actualSupply.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

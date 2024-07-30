@@ -86,12 +86,6 @@ async function getTokensByOwnerDAS(
         },
         options: {
           showFungible: true,
-          showUnverifiedCollections: false,
-          showCollectionMetadata: false,
-          showNativeBalance: false,
-          showInscription: false,
-          showGrandTotal: false,
-          showZeroBalance: false,
         },
       },
     }),

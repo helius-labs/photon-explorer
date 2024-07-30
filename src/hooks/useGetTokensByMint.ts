@@ -14,6 +14,15 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
+// Utility function to format supply
+export function formatSupply(supply: number, decimals: number): string {
+  const actualSupply = supply / Math.pow(10, decimals);
+  return actualSupply.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 export function useGetTokensByMint(mint: string, enabled: boolean = true) {
   const { cluster, endpoint } = useCluster();
 

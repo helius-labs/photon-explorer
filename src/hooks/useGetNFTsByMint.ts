@@ -57,6 +57,7 @@ async function getNFTByMintDAS(
             showUnverifiedCollections: true,
             showCollectionMetadata: true,
             showInscription: true,
+            showFungible: false,
           },
         },
       }),
