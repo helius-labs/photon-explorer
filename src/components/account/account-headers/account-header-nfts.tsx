@@ -20,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCluster } from "@/providers/cluster-provider";
 import { NFT } from "@/types/nft";
+import { Cluster } from "@/utils/cluster";
 
 interface AccountHeaderNFTsProps {
   address: PublicKey;
@@ -29,7 +30,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
   const [hasCopied, setHasCopied] = useState(false);
   const router = useRouter();
   const { data: nftData } = useGetNFTsByMint(address.toBase58(), true) as { data?: NFT };
-  const { endpoint } = useCluster();
+  const { cluster, endpoint } = useCluster();
 
   const displayName = nftData?.name;
   const displayImage = nftData?.image;
@@ -54,6 +55,8 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
       return () => clearTimeout(timer);
     }
   }, [hasCopied]);
+
+  const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
 
   return (
     <TooltipProvider>
@@ -83,25 +86,27 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
                   colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
                 />
               )}
-              <div className="absolute top-2 right-2 md:hidden transform translate-x-1/2 -translate-y-1/2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline" className="h-8 w-8">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
-                      }}
-                    >
-                      Compressed Accounts
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              {isLocalOrTestNet && (
+                <div className="absolute top-2 right-2 md:hidden transform translate-x-1/2 -translate-y-1/2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="outline" className="h-8 w-8">
+                        <MoreVertical className="h-3.5 w-3.5" />
+                        <span className="sr-only">More</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                        }}
+                      >
+                        Compressed Accounts
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
             </div>
             <div className="flex flex-col w-full">
               <div className="flex flex-col md:flex-row md:items-start justify-between w-full">
@@ -150,25 +155,27 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({ address }) => {
                     </TooltipProvider>
                   </div>
                 </div>
-                <div className="ml-auto self-start mt-2 md:mt-0 hidden md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="outline" className="h-8 w-8">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                        <span className="sr-only">More</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
-                        }}
-                      >
-                        Compressed Accounts
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {isLocalOrTestNet && (
+                  <div className="ml-auto self-start mt-2 md:mt-0 hidden md:block">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="outline" className="h-8 w-8">
+                          <MoreVertical className="h-3.5 w-3.5" />
+                          <span className="sr-only">More</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                          }}
+                        >
+                          Compressed Accounts
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
               </div>
               {nftData && (
                 <>

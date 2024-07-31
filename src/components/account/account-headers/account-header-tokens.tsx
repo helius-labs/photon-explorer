@@ -21,6 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useCluster } from "@/providers/cluster-provider";
 import { formatCurrencyValue, calculateMarketCap, formatSupply, formatNumericValue } from "@/utils/numbers";
 import { useGetTokenMetrics } from "@/hooks/jupiterTokenMetrics";
+import { Cluster } from "@/utils/cluster";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -55,7 +56,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
 
   const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
-  const { endpoint } = useCluster() as { endpoint: string };
+  const { cluster, endpoint } = useCluster();
 
   const { data: tokenList, isLoading: tokenListLoading, isError: tokenListError } = useGetTokenListStrict();
   const { data: tokenDataFromAPI, isLoading: tokenDataLoading, isError: tokenDataError } = useGetTokensByMint(address.toBase58());
@@ -147,6 +148,8 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
       return () => clearTimeout(timer);
     }
   }, [hasCopied]);
+
+  const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
 
   return (
     <TooltipProvider>
@@ -253,29 +256,52 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                 </div>
               </div>
               <div className="flex flex-col items-center md:items-end md:flex-grow-0 md:flex-shrink-0 mt-4 md:mt-0">
-              <div className="flex items-center justify-center md:justify-end">
-                <span className="text-3xl text-foreground">{tokenDetails.price}</span>
+                <div className="flex items-center justify-center md:justify-end">
+                  <span className="text-3xl text-foreground">{tokenDetails.price}</span>
+                </div>
+                <div className="flex flex-col items-center md:items-end md:space-y-2 mt-4 md:mt-6 space-y-2">
+                  <div className="flex flex-col text-center md:flex-row justify-center md:justify-end text-sm space-x-2">
+                    <span className="font-semibold text-muted-foreground">Supply:</span>
+                    <span className="truncate md:whitespace-normal md:max-w-none">{formatSupply(tokenDetails.supply, tokenDataFromAPI?.decimals || 0)}</span>
+                  </div>
+                  <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
+                    <span className="font-semibold text-muted-foreground">Market Cap:</span>
+                    <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.marketCap}</span>
+                  </div>
+                  <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
+                    <span className="font-semibold text-muted-foreground">Holders:</span>
+                    <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.holders}</span>
+                  </div>
+                  <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
+                    <span className="font-semibold text-muted-foreground">Daily Volume:</span>
+                    <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.dailyVolume}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-col items-center md:items-end md:space-y-2 mt-4 md:mt-6 space-y-2">
-                <div className="flex flex-col text-center md:flex-row justify-center md:justify-end text-sm space-x-2">
-                  <span className="font-semibold text-muted-foreground">Supply:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none">{formatSupply(tokenDetails.supply, tokenDataFromAPI?.decimals || 0)}</span>
+              {isLocalOrTestNet && (
+                <div className="ml-4 self-start mt-2 md:mt-0 hidden md:block">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="outline" className="h-8 w-8">
+                        <MoreVertical className="h-3.5 w-3.5" />
+                        <span className="sr-only">More</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                        }}
+                      >
+                        Compressed Accounts
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
-                  <span className="font-semibold text-muted-foreground">Market Cap:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.marketCap}</span>
-                </div>
-                <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
-                  <span className="font-semibold text-muted-foreground">Holders:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.holders}</span>
-                </div>
-                <div className="flex flex-col text-center md:flex-row justifycenter md:justify-end text-sm space-x-2">
-                  <span className="font-semibold text-muted-foreground">Daily Volume:</span>
-                  <span className="truncate md:whitespace-normal md:max-w-none">{tokenDetails.dailyVolume}</span>
-                </div>
-                </div>
-              </div>
-              <div className="ml-4 self-start mt-2 md:mt-0 hidden md:block">
+              )}
+            </div>
+            {isLocalOrTestNet && (
+              <div className="absolute top-4 right-4 md:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="outline" className="h-8 w-8">
@@ -294,26 +320,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </div>
-            <div className="absolute top-4 right-4 md:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="outline" className="h-8 w-8">
-                    <MoreVertical className="h-3.5 w-3.5" />
-                    <span className="sr-only">More</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => {
-                      router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
-                    }}
-                  >
-                    Compressed Accounts
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            )}
           </CardHeader>
         </Card>
       </div>

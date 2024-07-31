@@ -1,3 +1,5 @@
+"use client";
+
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
 import { fetchSolPrice, lamportsToSolString } from "@/utils/common";
@@ -23,6 +25,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { Cluster } from "@/utils/cluster";
+
 interface AccountHeaderWalletsProps {
   address: PublicKey;
   solPrice: number | null;
@@ -39,7 +43,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
     solPrice,
   );
   const router = useRouter();
-  const { endpoint } = useCluster();
+  const { cluster, endpoint } = useCluster();
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     address.toBase58(),
   );
@@ -71,6 +75,8 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
     }
   }, [hasCopied]);
 
+  const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
+
   return (
     <div className="mx-[-1rem] md:mx-0">
       <Card className="w-full">
@@ -83,27 +89,29 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                 variant="marble"
                 colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
               />
-              <div className="absolute right-0 md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline" className="h-8 w-8">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        router.push(
-                          `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
-                        );
-                      }}
-                    >
-                      Compressed Accounts
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              {isLocalOrTestNet && (
+                <div className="absolute right-0 md:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="outline" className="h-8 w-8">
+                        <MoreVertical className="h-3.5 w-3.5" />
+                        <span className="sr-only">More</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          router.push(
+                            `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
+                          );
+                        }}
+                      >
+                        Compressed Accounts
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex w-full flex-col items-center md:flex-row md:items-center md:justify-between mt-4 md:mt-0">
@@ -175,27 +183,29 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
               </div>
             </div>
           </div>
-          <div className="hidden md:block ml-auto mt-4 md:mt-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="outline" className="h-8 w-8">
-                  <MoreVertical className="h-3.5 w-3.5" />
-                  <span className="sr-only">More</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => {
-                    router.push(
-                      `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
-                    );
-                  }}
-                >
-                  Compressed Accounts
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          {isLocalOrTestNet && (
+            <div className="hidden md:block ml-auto mt-4 md:mt-0">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="outline" className="h-8 w-8">
+                    <MoreVertical className="h-3.5 w-3.5" />
+                    <span className="sr-only">More</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      router.push(
+                        `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
+                      );
+                    }}
+                  >
+                    Compressed Accounts
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </CardHeader>
       </Card>
     </div>
