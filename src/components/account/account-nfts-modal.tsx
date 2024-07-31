@@ -67,8 +67,8 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="z-50 rounded-lg p-6 sm:p-8 w-full max-w-5xl max-h-[80vh] overflow-y-auto">
-        <div className="relative w-full h-full">
+      <DialogContent className="z-50 rounded-lg p-6 sm:p-8 w-full max-w-5xl max-h-[80vh] overflow-y-auto lg:max-h-[80vh] lg:overflow-hidden">
+        <div className="relative w-full h-full lg:max-h-[80vh] lg:overflow-hidden">
           <DialogClose asChild>
             <Button
               onClick={onClose}
@@ -94,7 +94,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 }}
               />
             </div>
-            <div className="flex-grow h-full w-full lg:overflow-auto lg:flex-grow-0">
+            <div className="flex-grow h-full w-full lg:overflow-hidden lg:flex-grow-0">
               <DialogHeader>
                 <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground mb-4">
                   {nft.name || "Unknown NFT"}
@@ -112,7 +112,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                   {truncatedDescription}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="lg:h-full lg:max-h-[50vh] overflow-y-auto p-4 md:mt-2 w-full bg-background shadow-inner">
+              <ScrollArea className="lg:h-full lg:max-h-[50vh] lg:overflow-y-auto lg:p-4 md:mt-2 w-full bg-background shadow-inner">
                 {loadingDomains ? (
                   <div className="flex items-center justify-center h-full mt-2">
                     <Loading />
@@ -194,14 +194,14 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                         <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-4">
                           Attributes
                         </h3>
-                        <ScrollArea className="lg:h-full lg:max-h-[50vh] overflow-y-auto p-4 md:mt-2 w-full bg-background shadow-inner">
+                        <ScrollArea className="max-h-[300px] overflow-y-auto">
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {nft.attributes.map((attribute, index) => (
                               <div key={index} className="flex items-center text-xs cursor-default">
                                 <Badge variant="secondary" className="mr-2 truncate">
-                                  {attribute.trait_type && attribute.trait_type.length > 22 ? `${attribute.trait_type.substring(0, 17)}...` : attribute.trait_type}
+                                  {attribute.trait_type && attribute.trait_type.length > 20 ? `${attribute.trait_type.substring(0, 17)}...` : attribute.trait_type}
                                 </Badge>
-                                {attribute.value && truncateValue(attribute.value, 60)}
+                                {attribute.value && truncateValue(attribute.value, 20)}
                               </div>
                             ))}
                           </div>
