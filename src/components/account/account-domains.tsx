@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
+
+import snsLogo from "@/../public/assets/snsLogo.png";
+import ansLogo from "@/../public/assets/ansLogo.jpg";
 import { useCluster } from "@/providers/cluster-provider";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,9 +17,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Copy, CheckIcon } from "lucide-react";
 import { shortenLong } from "@/utils/common";
-import Image from "next/image";
-import snsLogo from "@/../public/assets/snsLogo.png";
-import ansLogo from "@/../public/assets/ansLogo.jpg";
 
 const DomainAddressCell = ({ value }: { value: string | undefined }) => {
   const [hasCopied, setHasCopied] = useState(false);
@@ -70,16 +71,16 @@ const DomainAddressCell = ({ value }: { value: string | undefined }) => {
 const columns: ColumnDef<any>[] = [
   {
     accessorKey: "domain",
-    header: () => <div className="text-left pl-4" style={{ minWidth: '155px' }}>Domain Name</div>,
+    header: () => <div className="pl-4 text-foreground" style={{ minWidth: '160px' }}>Domain Name</div>,
     cell: ({ row }) => (
-      <div className="text-left truncate pl-4" style={{ minWidth: '155px' }}>
+      <div className="truncate pl-4" style={{ minWidth: '160px' }}>
         {row.original.domain}
       </div>
     ),
   },
   {
     accessorKey: "address",
-    header: "Domain Address",
+    header: () => <div className="text-foreground">Domain Address</div>,
     cell: ({ row }) => (
       <div className="text-left truncate">
         <DomainAddressCell value={row.original.address} />
@@ -88,7 +89,7 @@ const columns: ColumnDef<any>[] = [
   },
   {
     accessorKey: "type",
-    header: "Type",
+    header: () => <div className="text-foreground">Type</div>,
     cell: ({ row }) => (
       <div className="text-left truncate flex items-center">
         {row.original.type === "sns-domain" ? (
