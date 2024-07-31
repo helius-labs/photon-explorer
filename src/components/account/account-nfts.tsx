@@ -1,20 +1,20 @@
 "use client";
 
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
+import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
 import { NFT } from "@/types/nft";
 import { formatCurrencyValue } from "@/utils/numbers";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
+import { CircleHelp } from "lucide-react";
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -25,6 +25,8 @@ import {
 import Loading from "@/components/common/loading";
 import LoadingBadge from "@/components/common/loading-badge";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
@@ -32,7 +34,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const searchParams = useSearchParams();
   const collectionFilter = searchParams.get("collection");
 
-  const [showNonVerified, setShowNonVerified] = useState(false);
+  const [showMetaplexVerified, setShowMetaplexVerified] = useState(false);
   const [showCompressed, setShowCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,7 +82,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const filteredNfts = useMemo(() => {
     return (
       nfts?.filter((nft) => {
-        const matchesVerified = showNonVerified || nft.verified;
+        const matchesVerified = showMetaplexVerified ? nft.verified : true;
         const matchesCollection = collectionFilter
           ? nft.collectionName === collectionFilter
           : true;
@@ -89,7 +91,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
         return matchesVerified && matchesCollection && matchesCompressed;
       }) || []
     );
-  }, [nfts, showNonVerified, collectionFilter, showCompressed]);
+  }, [nfts, showMetaplexVerified, collectionFilter, showCompressed]);
 
   const columns: ColumnDef<NFT>[] = [
     {
@@ -165,7 +167,37 @@ const AccountNFTs = ({ address }: { address: string }) => {
                 <div className="flex flex-col font-medium sm:flex-row sm:space-x-4">
                   <span>Total NFTs: {filteredNfts.length}</span>
                 </div>
-                <div className="mt-2 flex items-center space-x-4 sm:mt-0">
+                <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:items-center sm:space-x-4 sm:mt-0">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div className="flex items-center space-x-2 cursor-pointer">
+                        <Badge className="flex items-center space-x-2 mt-3 md:mt-0" variant="verified">
+                          Verified
+                          <Image
+                            src={metaplexLogo}
+                            alt="Metaplex Logo"
+                            width={16}
+                            height={16}
+                            className="rounded-full ml-2"
+                          />
+                          <CircleHelp className="w-4 h-4 ml-1 cursor-pointer" />
+                          <Switch
+                            checked={showMetaplexVerified}
+                            onCheckedChange={() =>
+                              setShowMetaplexVerified((prev) => !prev)
+                            }
+                            className="ml-2"
+                            checkedClassName="bg-purple-600 opacity-90"
+                            uncheckedClassName="bg-gray-400"
+                            style={{ transform: "scale(0.85)" }}
+                          />
+                        </Badge>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      Filter your response by Metaplex Verified NFTs
+                    </PopoverContent>
+                  </Popover>
                   <Select
                     value={collectionFilter || "all"}
                     onValueChange={(value) =>
@@ -186,17 +218,6 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <div className="flex items-center space-x-2">
-                    <Label className="ml-4 text-xs sm:text-sm">
-                      {showNonVerified ? "Spam ON" : "Spam OFF"}
-                    </Label>
-                    <Switch
-                      checked={showNonVerified}
-                      onCheckedChange={() =>
-                        setShowNonVerified((prev) => !prev)
-                      }
-                    />
-                  </div>
                 </div>
               </div>
               {filteredNfts.length > 0 ? (
