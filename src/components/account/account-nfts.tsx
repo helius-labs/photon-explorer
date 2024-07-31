@@ -168,8 +168,6 @@ const AccountNFTs = ({ address }: { address: string }) => {
                   <span>Total NFTs: {filteredNfts.length}</span>
                 </div>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:items-center sm:space-x-4 sm:mt-0">
-                  <Popover>
-                    <PopoverTrigger asChild>
                       <div className="flex items-center space-x-2 cursor-pointer">
                         <Badge className="flex items-center space-x-2 mt-3 md:mt-0" variant="verified">
                           Verified
@@ -180,7 +178,14 @@ const AccountNFTs = ({ address }: { address: string }) => {
                             height={16}
                             className="rounded-full ml-2"
                           />
+                          <Popover>
+                          <PopoverTrigger asChild>
                           <CircleHelp className="w-4 h-4 ml-1 cursor-pointer" />
+                          </PopoverTrigger>
+                            <PopoverContent>
+                              Filter your response by Metaplex Verified NFTs
+                            </PopoverContent>
+                          </Popover>
                           <Switch
                             checked={showMetaplexVerified}
                             onCheckedChange={() =>
@@ -193,11 +198,6 @@ const AccountNFTs = ({ address }: { address: string }) => {
                           />
                         </Badge>
                       </div>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      Filter your response by Metaplex Verified NFTs
-                    </PopoverContent>
-                  </Popover>
                   <Select
                     value={collectionFilter || "all"}
                     onValueChange={(value) =>
