@@ -21,6 +21,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Loading from "@/components/common/loading";
 import { useCluster } from "@/providers/cluster-provider";
 import { NFT } from "@/types/nft";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface AccountNFTsModalProps {
   nft: NFT | null;
@@ -59,10 +61,14 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
 
   const truncatedDescription = truncateDescription(nft.description || "No description available", 245);
 
+  const truncateValue = (value: string, length: number) => {
+    return value.length > length ? value.substring(0, length) + '...' : value;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="z-50 rounded-md flex items-center justify-center p-6 sm:p-8 md:max-w-3xl lg:max-w-5xl">
-        <div className="bg-background rounded-lg shadow-lg w-full max-w-sm md:max-w-xl lg:max-w-4xl max-h-[50vh] overflow-auto relative p-6">
+      <DialogContent className="z-50 rounded-lg p-6 sm:p-8 w-full max-w-5xl max-h-[80vh] overflow-y-auto lg:max-h-[80vh] lg:overflow-hidden">
+        <div className="relative w-full h-full lg:max-h-[80vh] lg:overflow-hidden">
           <DialogClose asChild>
             <Button
               onClick={onClose}
@@ -72,7 +78,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
               <X size={24} />
             </Button>
           </DialogClose>
-          <div className="flex flex-col items-center lg:flex-row lg:items-start w-full">
+          <div className="flex flex-col lg:flex-row lg:items-start w-full h-full">
             <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-8 w-full lg:w-auto">
               <Image
                 loader={cloudflareLoader}
@@ -88,103 +94,118 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                 }}
               />
             </div>
-            <div className="flex-grow h-full w-full">
+            <div className="flex-grow h-full w-full lg:overflow-hidden lg:flex-grow-0">
               <DialogHeader>
-                <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-4">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground mb-4">
                   {nft.name || "Unknown NFT"}
+                  <div className="space-x-2 mt-2 md:mt-0 md:ml-2">
+                    <Badge variant="success">NFT</Badge>
+                    {nft?.verified && (
+                      <Badge variant="outline">Verified</Badge>
+                    )}
+                    {nft.compression?.compressed && (
+                      <Badge variant="outline">Compressed</Badge>
+                    )}
+                  </div>
                 </DialogTitle>
-                <DialogDescription className="text-muted-foreground text-center lg:text-left mb-2 sm:mb-4">
+                <DialogDescription className="text-muted-foreground text-center lg:text-left mb-4 max-w-lg">
                   {truncatedDescription}
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="max-h-[60vh] p-2 w-full">
+              <ScrollArea className="lg:h-full lg:max-h-[50vh] lg:overflow-y-auto lg:p-4 md:mt-2 w-full bg-background shadow-inner">
                 {loadingDomains ? (
                   <div className="flex items-center justify-center h-full mt-2">
                     <Loading />
                   </div>
                 ) : (
-                  <div className="space-y-4 sm:space-y-6 mt-2">
-                    <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                  <div className="space-y-6 mt-2">
+                    <h3 className="flex text-lg sm:text-xl font-semibold text-foreground">
                       Details
-                    </h3>
-                    <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {ownerDomain && ownerDomain !== "" && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Owner: </span>
+                        <span className="ml-4 flex items-center text-xs">
+                          <Badge variant="outline" className="mr-2">Owner</Badge>
                           <Link href={`/address/${nft.owner}`} className="underline text-muted-foreground">
-                          {ownerDomain ? ownerDomain : shorten(nft.owner || "Unknown")}
+                            {ownerDomain ? ownerDomain : shorten(nft.owner || "Unknown")}
                           </Link>
-                        </p>
+                        </span>
                       )}
-                      {nft.mint?.toBase58 && nft.mint.toBase58() !== "" && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Mint: </span>
-                          <Link href={`/address/${nft.mint.toBase58()}`} className="underline text-muted-foreground">
-                            {shorten(nft.mint.toBase58() || "Unknown")}
-                          </Link>
-                        </p>
-                      )}
-                      {nft.mintAuthority && nft.mintAuthority !== "" && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Mint Authority: </span>
-                          {shorten(nft.mintAuthority || "")}
-                        </p>
-                      )}
-                      {nft.updateAuthority && nft.updateAuthority !== "" && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Update Authority: </span>
-                          {shorten(nft.updateAuthority)}
-                        </p>
-                      )}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
                       {nft.collection && nft.collection !== "" && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Collection: </span>
+                        <div className="flex items-center truncate">
+                          <Badge variant="secondary" className="mr-2">Collection</Badge>
                           <Link href={`/address/${nft.collection}`} className="underline text-muted-foreground">
                             {nft.collectionName ? nft.collectionName : shorten(nft.collection)}
                           </Link>
-                        </p>
+                        </div>
                       )}
-                      {royaltyPercentage > 0 && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Royalty: </span>
-                          {royaltyPercentage}%
-                        </p>
+                      {nft.mint?.toBase58 && nft.mint.toBase58() !== "" && (
+                        <div className="flex items-center">
+                          <Badge variant="secondary" className="mr-2">Mint</Badge>
+                          <Link href={`/address/${nft.mint.toBase58()}`} className="underline text-muted-foreground">
+                            {shorten(nft.mint.toBase58() || "Unknown")}
+                          </Link>
+                        </div>
                       )}
                       {nft.compression?.compressed && (
-                        <p className="text-muted-foreground">
-                          <span className="text-foreground font-semibold">Type: </span>
+                        <div className="flex items-center">
+                          <Badge variant="secondary" className="mr-2">Type</Badge>
                           Compressed NFT
-                        </p>
+                        </div>
+                      )}
+                      {royaltyPercentage > 0 && (
+                        <div className="flex items-center cursor-default">
+                          <Badge variant="secondary" className="mr-2">Royalty</Badge>
+                          {royaltyPercentage}%
+                        </div>
+                      )}
+                      {nft.mintAuthority && nft.mintAuthority !== "" && (
+                        <div className="flex items-center cursor-default">
+                          <Badge variant="secondary" className="mr-2 truncate">Mint Authority</Badge>
+                          {shorten(nft.mintAuthority || "")}
+                        </div>
+                      )}
+                      {nft.updateAuthority && nft.updateAuthority !== "" && (
+                        <div className="flex items-center cursor-default">
+                          <Badge variant="secondary" className="mr-2 truncate">Update Authority</Badge>
+                          {shorten(nft.updateAuthority)}
+                        </div>
                       )}
                     </div>
+                    <Separator className="my-4" />
                     {nft.creators && nft.creators.length > 0 && (
                       <>
-                        <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-2 sm:mt-4">
+                        <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-4">
                           Token Creators
                         </h3>
-                        <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                           {nft.creators.map((creator, index) => (
-                            <p key={index} className="text-muted-foreground">
-                              <span className="text-foreground font-semibold">{shorten(creator.address)}: </span>
-                              {creator.share}% {creator.verified ? "(Verified)" : ""}
-                            </p>
+                            <div key={index} className="flex items-center truncate text-xs cursor-default">
+                              <Badge variant="secondary" className="mr-2">Creator</Badge>
+                              {shorten(creator.address)}: {creator.share}% {creator.verified ? "(Verified)" : ""}
+                            </div>
                           ))}
                         </div>
+                        <Separator className="my-4" />
                       </>
                     )}
                     {nft.attributes && nft.attributes.length > 0 && (
                       <>
-                        <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-2 sm:mt-4">
+                        <h3 className="text-lg sm:text-xl font-semibold text-foreground mt-4">
                           Attributes
                         </h3>
-                        <div className="grid grid-cols-1 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                          {nft.attributes.map((attribute, index) => (
-                            <p key={index} className="text-muted-foreground">
-                              <span className="text-foreground font-semibold">{attribute.trait_type}: </span>
-                              {attribute.value}
-                            </p>
-                          ))}
-                        </div>
+                        <ScrollArea className="max-h-[300px] overflow-y-auto">
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {nft.attributes.map((attribute, index) => (
+                              <div key={index} className="flex items-center text-xs cursor-default">
+                                <Badge variant="secondary" className="mr-2 truncate">
+                                  {attribute.trait_type && attribute.trait_type.length > 20 ? `${attribute.trait_type.substring(0, 17)}...` : attribute.trait_type}
+                                </Badge>
+                                {attribute.value && truncateValue(attribute.value, 20)}
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
                       </>
                     )}
                   </div>
