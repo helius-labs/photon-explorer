@@ -312,7 +312,7 @@ export const getColumns = (
                     </div>
                   ) : !description ? (
                     <div className="whitespace-normal break-words text-sm text-muted-foreground">
-                      {"Transaction could not be parsed"}
+                      {""}
                     </div>
                   ) : (
                     <div className="whitespace-normal break-words text-sm text-muted-foreground">
