@@ -121,16 +121,16 @@ export function timeAgoWithFormat(
     timeAgo = `${diffInSeconds} seconds ago`;
   } else if (diffInSeconds < 3600) {
     const minutes = Math.floor(diffInSeconds / 60);
-    timeAgo = `${minutes} minutes ago`;
+    timeAgo = minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
   } else if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
-    timeAgo = `${hours} hours ago`;
+    timeAgo = hours === 1 ? "1 hour ago" : `${hours} hours ago`;
   } else if (diffInSeconds < 2592000) {
     const days = Math.floor(diffInSeconds / 86400);
     timeAgo = days === 1 ? "1 day ago" : `${days} days ago`;
   } else {
     const months = Math.floor(diffInSeconds / 2592000);
-    timeAgo = `${months} months ago`;
+    timeAgo = months === 1 ? "1 month ago" : `${months} months ago`;
   }
 
   // Format date like "April 15, 2024 17:14:03 UTC"
