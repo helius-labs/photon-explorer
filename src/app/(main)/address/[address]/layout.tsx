@@ -16,9 +16,10 @@ import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
-import Loading from "@/components/common/loading";
+import LottieLoader from "@/components/common/lottie-loading";
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 
 export default function AddressLayout({
   children,
@@ -202,7 +203,7 @@ export default function AddressLayout({
   ) {
     return (
       <div className="mt-20 flex justify-center">
-        <Loading className="h-32 w-32" />
+        <LottieLoader animationData={loadingBarAnimation} className="h-32 w-32 opacity-80" />
       </div>
     );
   }
