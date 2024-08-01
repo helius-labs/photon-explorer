@@ -11,19 +11,22 @@ export enum ActionTypes {
   RECEIVED = "RECEIVED",
   BURNT = "BURNT",
   MINT = "MINT",
-  CNFT_MINT = "CNFT MINT",
+  CNFT_MINT = "CNFT_MINT",
   CNFT_TRANSFER = "CNFT_TRANSFER",
+  NFT_SALE = "NFT_SALE",
+  PAID = "PAID",
 }
 
 export enum ParserTransactionTypes {
-  TRANSFER = "TRANSFER",
-  SWAP = "SWAP",
-  BURN = "BURN",
-  MINT = "MINT",
-  UNKNOWN = "UNKNOWN",
-  TOKEN_MINT = "TOKEN MINT",
-  CNFT_MINT = "CNFT MINT",
-  CNFT_TRANSFER = "CNFT TRANSFER",
+  TRANSFER = "Transfer",
+  SWAP = "Swap",
+  BURN = "Burn",
+  MINT = "Mint",
+  UNKNOWN = "Unknown",
+  TOKEN_MINT = "Token Mint",
+  CNFT_MINT = "cNFT Mint",
+  CNFT_TRANSFER = "cNFT Transfer",
+  NFT_SALE = "NFT Sale",
 }
 
 export type XrayParser = (
@@ -84,7 +87,7 @@ export const XrayParsers = {
   //   NFT_GLOBAL_BID: parser.parseNftGlobalBid,
   //   NFT_LISTING: parser.parseNftList,
   //   NFT_MINT: parser.parseNftMint,
-  //   NFT_SALE: parser.parseNftSale,
+  NFT_SALE: parser.parseNftSale,
   SWAP: parser.parseSwap,
   TOKEN_MINT: parser.parseTokenMint,
   TRANSFER: parser.parseTransfer,

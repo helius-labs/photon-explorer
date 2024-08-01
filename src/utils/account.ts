@@ -15,6 +15,8 @@ export enum AccountType {
   MetaplexNFT = "MetaplexNFT",
   NFToken = "NFToken", // NFToken: https://nftoken.so/docs/overview
   CompressedNFT = "CompressedNFT",
+  Token2022 = "Token2022",
+  Token2022NFT = "Token2022NFT",
 }
 
 const SYSTEM_PROGRAM = "11111111111111111111111111111111";
@@ -34,7 +36,7 @@ export function getAccountType(
   if (signatures && signatures.length === 0 && accountInfo === null) {
     return AccountType.NotFound;
   }
-
+  console.log("ACCOUNT INFO: ", accountInfo);
   if (accountInfo && accountInfo.data && "parsed" in accountInfo.data) {
     switch (accountInfo.data.program) {
       case "bpf-upgradeable-loader":
@@ -46,7 +48,6 @@ export function getAccountType(
       case "address-lookup-table":
         return AccountType.Program;
       case "spl-token":
-      case "spl-token-2022":
         if (
           accountInfo.data.parsed.type === "mint" &&
           accountInfo.data.parsed.info.decimals === 0 &&
@@ -56,6 +57,17 @@ export function getAccountType(
         }
         if (accountInfo.data.parsed.type === "mint") {
           return AccountType.Token;
+        }
+      case "spl-token-2022":
+        if (
+          accountInfo.data.parsed.type === "mint" &&
+          accountInfo.data.parsed.info.decimals === 0 &&
+          parseInt(accountInfo.data.parsed.info.supply) === 1
+        ) {
+          return AccountType.Token2022NFT;
+        }
+        if (accountInfo.data.parsed.type === "mint") {
+          return AccountType.Token2022;
         }
     }
   }

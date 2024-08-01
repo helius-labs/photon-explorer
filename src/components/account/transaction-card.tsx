@@ -26,6 +26,7 @@ import {
   ArrowRightLeftIcon,
   CircleCheckBig,
   CircleChevronRightIcon,
+  CircleDollarSignIcon,
   CircleHelp,
   Flame,
   ImagePlusIcon,
@@ -170,6 +171,9 @@ export const getColumns = (
         case ParserTransactionTypes.CNFT_TRANSFER:
           typeIcon = <ArrowRight className="h-6 w-6" />;
           break;
+        case ParserTransactionTypes.NFT_SALE:
+          typeIcon = <CircleDollarSignIcon className="h-6 w-6" />;
+          break;
       }
       if (txnFailed) {
         typeIcon = <XCircle className="h-6 w-6" />;
@@ -199,9 +203,16 @@ export const getColumns = (
                     ? "Generic Transaction"
                     : type}
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
+              <div
+                className="flex items-center text-sm text-muted-foreground"
+                title={
+                  time !== undefined
+                    ? timeAgoWithFormat(Number(time), false, true)
+                    : ""
+                }
+              >
                 {time !== undefined
-                  ? timeAgoWithFormat(Number(time), true)
+                  ? timeAgoWithFormat(Number(time), true, false)
                   : ""}
               </div>
               <>
@@ -345,7 +356,11 @@ export const getColumns = (
           <div className="items-left flex flex-col gap-1 overflow-hidden px-4 py-2">
             <div className="flex flex-col">
               <div className="items-left flex text-sm font-medium underline">
-                <Signature link={true} signature={getValue() as string} />
+                <Signature
+                  link={true}
+                  copy={false}
+                  signature={getValue() as string}
+                />
               </div>
             </div>
           </div>
