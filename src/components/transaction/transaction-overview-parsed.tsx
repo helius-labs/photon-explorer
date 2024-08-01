@@ -14,6 +14,7 @@ import BigNumber from "bignumber.js";
 import {
   ArrowRight,
   ArrowRightLeftIcon,
+  CircleDollarSignIcon,
   CircleHelp,
   Flame,
   ImagePlusIcon,
@@ -83,6 +84,9 @@ export default function TransactionOverviewParsed({
             )}
             {type === ParserTransactionTypes.CNFT_TRANSFER && (
               <ArrowRight className="h-6 w-6" />
+            )}
+            {type === ParserTransactionTypes.NFT_SALE && (
+              <CircleDollarSignIcon className="h-6 w-6" />
             )}
             <CardTitle className="text-xl font-bold md:text-2xl">
               {type}
@@ -306,6 +310,66 @@ export default function TransactionOverviewParsed({
                     </span>
                   </div>
                 </>
+              )}
+              {action.actionType === ActionTypes.NFT_SALE && (
+                <>
+                  <div className="flex flex-col items-start md:flex-row md:items-center">
+                    <span className="w-full text-muted-foreground md:w-1/4">
+                      Seller
+                    </span>
+                    <span className="ml-2 w-full break-words md:w-3/4">
+                      {action.from ? (
+                        <Link
+                          href={`/address/${action.from}`}
+                          className="hover:underline"
+                          title={action.from}
+                        >
+                          <Address pubkey={new PublicKey(action.from)} />
+                        </Link>
+                      ) : (
+                        "Unknown Address"
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-start md:flex-row md:items-center">
+                    <span className="w-full text-muted-foreground md:w-1/4">
+                      NFT
+                    </span>
+                    <span className="ml-2 w-full break-words md:w-3/4">
+                      <Link
+                        href={`/address/${action.mint}`}
+                        className="hover:underline"
+                        title={action.mint}
+                      >
+                        <TokenBalance
+                          amount={action.amount}
+                          decimals={0}
+                          mint={new PublicKey(action.mint!)}
+                          isReadable={true}
+                          isNFT={true}
+                        />
+                      </Link>
+                    </span>
+                  </div>
+                </>
+              )}
+              {action.actionType === ActionTypes.PAID && (
+                <div className="flex items-center">
+                  <span className="w-1/4 text-muted-foreground">Price</span>
+                  <span className="ml-2 w-3/4">
+                    <Link
+                      href={`/address/${action.mint}`}
+                      className="hover:underline"
+                      title={action.mint}
+                    >
+                      <TokenBalance
+                        amount={action.amount}
+                        decimals={9}
+                        mint={new PublicKey(action.mint!)}
+                      />
+                    </Link>
+                  </span>
+                </div>
               )}
             </div>
           ))}
