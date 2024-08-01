@@ -109,6 +109,7 @@ export function isSolanaAccountAddress(address: string): boolean {
 export function timeAgoWithFormat(
   unixTimestamp: number,
   onlyTimeAgo: boolean = false,
+  shortDate: boolean = false,
 ): string {
   // Convert Unix timestamp from seconds to milliseconds
   const date = new Date(unixTimestamp * 1000);
@@ -135,19 +136,21 @@ export function timeAgoWithFormat(
 
   // Format date like "April 15, 2024 17:14:03 UTC"
   const formattedDate = date.toLocaleString("en-US", {
-    month: "long",
     day: "numeric",
+    month: "short",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
     timeZoneName: "short",
     timeZone: "UTC",
   });
 
   if (onlyTimeAgo) {
     return timeAgo;
+  } else if (shortDate) {
+    return `${formattedDate}`;
   } else {
-    return `${timeAgo} (${formattedDate}`;
+    return `${timeAgo} (${formattedDate})`;
   }
 }
 

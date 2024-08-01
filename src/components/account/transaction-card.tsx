@@ -203,9 +203,16 @@ export const getColumns = (
                     ? "Generic Transaction"
                     : type}
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
+              <div
+                className="flex items-center text-sm text-muted-foreground"
+                title={
+                  time !== undefined
+                    ? timeAgoWithFormat(Number(time), false, true)
+                    : ""
+                }
+              >
                 {time !== undefined
-                  ? timeAgoWithFormat(Number(time), true)
+                  ? timeAgoWithFormat(Number(time), true, false)
                   : ""}
               </div>
               <>
