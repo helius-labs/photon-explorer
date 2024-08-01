@@ -26,6 +26,7 @@ import {
   ArrowRightLeftIcon,
   CircleCheckBig,
   CircleChevronRightIcon,
+  CircleDollarSignIcon,
   CircleHelp,
   Flame,
   ImagePlusIcon,
@@ -169,6 +170,9 @@ export const getColumns = (
           break;
         case ParserTransactionTypes.CNFT_TRANSFER:
           typeIcon = <ArrowRight className="h-6 w-6" />;
+          break;
+        case ParserTransactionTypes.NFT_SALE:
+          typeIcon = <CircleDollarSignIcon className="h-6 w-6" />;
           break;
       }
       if (txnFailed) {
