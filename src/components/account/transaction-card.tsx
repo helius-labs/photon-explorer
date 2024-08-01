@@ -345,7 +345,11 @@ export const getColumns = (
           <div className="items-left flex flex-col gap-1 overflow-hidden px-4 py-2">
             <div className="flex flex-col">
               <div className="items-left flex text-sm font-medium underline">
-                <Signature link={true} signature={getValue() as string} />
+                <Signature
+                  link={true}
+                  copy={false}
+                  signature={getValue() as string}
+                />
               </div>
             </div>
           </div>

@@ -16,14 +16,14 @@ export enum ActionTypes {
 }
 
 export enum ParserTransactionTypes {
-  TRANSFER = "TRANSFER",
-  SWAP = "SWAP",
-  BURN = "BURN",
-  MINT = "MINT",
-  UNKNOWN = "UNKNOWN",
-  TOKEN_MINT = "TOKEN MINT",
-  CNFT_MINT = "CNFT MINT",
-  CNFT_TRANSFER = "CNFT TRANSFER",
+  TRANSFER = "Transfer",
+  SWAP = "Swap",
+  BURN = "Burn",
+  MINT = "Mint",
+  UNKNOWN = "Unknown",
+  TOKEN_MINT = "Token Mint",
+  CNFT_MINT = "cNFT Mint",
+  CNFT_TRANSFER = "cNFT Transfer",
 }
 
 export type XrayParser = (
