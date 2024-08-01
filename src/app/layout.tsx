@@ -20,17 +20,11 @@ export const metadata: Metadata = {
       rel: "icon",
       type: "image/png",
       sizes: "32x32",
-      url: "/favicon/favicon-32x32.png",
-    },
-    {
-      rel: "icon",
-      type: "image/png",
-      sizes: "512x512",
-      url: "/favicon/favicon-512x512.png",
+      url: "/favicon/xray-icon.png",
     },
     {
       rel: "apple-touch-icon",
-      url: "/favicon/favicon-512x512.png",
+      url: "/favicon/xray-icon.png",
     },
   ],
 };

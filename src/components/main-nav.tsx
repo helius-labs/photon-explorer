@@ -9,6 +9,8 @@ import LogoBlack from "/public/assets/logo-text-black.svg";
 import LogoWhite from "/public/assets/logo-text-white.svg";
 import LogoIconBlack from "/public/assets/logoBlack.svg";
 import LogoIconWhite from "/public/assets/logoWhite.svg";
+import xrayIcon from "/public/assets/xrayIcon.svg";
+import xrayLogo from "/public/assets/xrayLogo.svg";
 
 export function MainNav({
   className,
@@ -30,7 +32,7 @@ export function MainNav({
           width={0}
           height={0}
           priority
-          src={LogoBlack}
+          src={xrayLogo}
         />
         <Image
           className="hidden h-6 w-full md:dark:block"
@@ -38,24 +40,24 @@ export function MainNav({
           width={0}
           height={0}
           priority
-          src={LogoWhite}
+          src={xrayLogo}
         />
         {/* Mobile logos */}
         <Image
-          className="block h-10 w-full dark:hidden md:hidden"
+          className="block h-8 w-full dark:hidden md:hidden"
           alt="XRAY logo"
           width={0}
           height={0}
           priority
-          src={LogoIconWhite}
+          src={xrayIcon}
         />
         <Image
-          className="hidden h-10 w-full dark:block md:hidden md:dark:hidden"
+          className="hidden h-8 w-full dark:block md:hidden md:dark:hidden"
           alt="XRAY logo"
           width={0}
           height={0}
           priority
-          src={LogoIconBlack}
+          src={xrayIcon}
         />
       </Link>
     </nav>
