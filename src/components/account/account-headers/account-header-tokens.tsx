@@ -1,5 +1,7 @@
+import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import cmcLogo from "@/../public/assets/cmcLogo.svg";
 import coinGeckoLogo from "@/../public/assets/coinGeckoLogo.svg";
+import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import jupLogo from "@/../public/assets/jupLogo.png";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { useCluster } from "@/providers/cluster-provider";
@@ -271,20 +273,36 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
               <div className="max-w-xs flex-grow text-center md:text-left">
                 <CardTitle className="text-3xl font-medium leading-none">
                   <div className="flex flex-col items-center md:flex-row md:justify-start">
-                    <span className="max-w-full md:min-w-[200px]">
-                      {tokenDetails.tokenName !== "" ? (
-                        tokenDetails.tokenName.slice(0, 35) +
-                        (tokenDetails.tokenName.length > 35 ? "..." : "")
-                      ) : (
-                        <Address pubkey={address} short />
-                      )}
-                    </span>
+                    {tokenDetails.tokenName.length <= 12 ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="max-w-full">
+                          {tokenDetails.tokenName || (
+                            <Address pubkey={address} short />
+                          )}
+                        </span>
+                        {tokenDetails.tokenName !== "" && (
+                          <div className="mt-1 text-3xl text-muted-foreground">
+                            ({tokenDetails.tokenSymbol})
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="max-w-full md:min-w-[200px]">
+                        {tokenDetails.tokenName !== "" ? (
+                          tokenDetails.tokenName.slice(0, 35) +
+                          (tokenDetails.tokenName.length > 35 ? "..." : "")
+                        ) : (
+                          <Address pubkey={address} short />
+                        )}
+                      </span>
+                    )}
                   </div>
-                  {tokenDetails.tokenName !== "" && (
-                    <div className="mt-1 text-3xl text-muted-foreground">
-                      ({tokenDetails.tokenSymbol})
-                    </div>
-                  )}
+                  {tokenDetails.tokenName.length > 12 &&
+                    tokenDetails.tokenName !== "" && (
+                      <div className="mt-1 text-3xl text-muted-foreground">
+                        ({tokenDetails.tokenSymbol})
+                      </div>
+                    )}
                   <div className="mt-4 flex flex-shrink-0 flex-row items-center justify-center md:mt-0 md:inline-block md:flex-col md:items-start">
                     <Badge variant="success">{type}</Badge>
                     {isVerifiedByJupiter && (
@@ -320,32 +338,34 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                   <span>{shortenLong(address.toBase58())}</span>
                 </div>
                 <div className="mt-4 flex justify-center space-x-4 md:justify-start">
-                  {coingeckoId && (
-                    <a
-                      href={`https://www.coingecko.com/en/coins/${coingeckoId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={coinGeckoLogo}
-                        alt="Coin Gecko Logo"
-                        width={28}
-                        height={28}
-                        className="rounded-full"
-                      />
-                    </a>
-                  )}
                   <a
-                    href={`https://coinmarketcap.com/currencies/${tokenDetails.tokenName.replace(/\s+/g, "-").toLowerCase()}`}
+                    href={`https://birdeye.so/token/${address}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    title="Birdeye"
                   >
                     <Image
-                      src={cmcLogo}
-                      alt="Coin Market Cap Logo"
-                      width={28}
-                      height={28}
-                      className="rounded-full bg-white"
+                      src={birdeyeIcon.src}
+                      alt="Birdeye"
+                      width={22}
+                      height={22}
+                      loading="eager"
+                      className="rounded-full"
+                    />
+                  </a>
+                  <a
+                    href={`https://dexscreener.com/solana/${address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Dex Screener"
+                  >
+                    <Image
+                      src={dexscreenerIcon.src}
+                      alt="Dexscreener"
+                      width={22}
+                      height={22}
+                      loading="eager"
+                      className="rounded-full"
                     />
                   </a>
                 </div>
@@ -368,30 +388,38 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                       )}
                     </span>
                   </div>
-                  <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <span className="font-semibold text-muted-foreground">
-                      Market Cap:
-                    </span>
-                    <span className="truncate md:max-w-none md:whitespace-normal">
-                      {tokenDetails.marketCap}
-                    </span>
-                  </div>
-                  <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <span className="font-semibold text-muted-foreground">
-                      Holders:
-                    </span>
-                    <span className="truncate md:max-w-none md:whitespace-normal">
-                      {tokenDetails.holders}
-                    </span>
-                  </div>
-                  <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <span className="font-semibold text-muted-foreground">
-                      Daily Volume:
-                    </span>
-                    <span className="truncate md:max-w-none md:whitespace-normal">
-                      {tokenDetails.dailyVolume}
-                    </span>
-                  </div>
+                  {tokenDetails.marketCap && tokenDetails.marketCap !== "" && (
+                    <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
+                      <span className="font-semibold text-muted-foreground">
+                        Market Cap:
+                      </span>
+                      <span className="truncate md:max-w-none md:whitespace-normal">
+                        {tokenDetails.marketCap}
+                      </span>
+                    </div>
+                  )}
+
+                  {tokenDetails.holders && tokenDetails.holders !== "" && (
+                    <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
+                      <span className="font-semibold text-muted-foreground">
+                        Holders:
+                      </span>
+                      <span className="truncate md:max-w-none md:whitespace-normal">
+                        {tokenDetails.holders}
+                      </span>
+                    </div>
+                  )}
+                  {tokenDetails.dailyVolume &&
+                    tokenDetails.dailyVolume !== "" && (
+                      <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
+                        <span className="font-semibold text-muted-foreground">
+                          Daily Volume:
+                        </span>
+                        <span className="truncate md:max-w-none md:whitespace-normal">
+                          {tokenDetails.dailyVolume}
+                        </span>
+                      </div>
+                    )}
                 </div>
               </div>
               {isLocalOrTestNet && (

@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Primary color #E84125 */
-
 @layer base {
   :root {
     --background: 200 5% 95%;
@@ -34,13 +32,13 @@
   }
 
   .dark {
-    --background: 225 5.88% 13.33%;
+    --background: 0 0% 0%;
     --foreground: 0 0% 93.33%;
     --muted: 0 0% 9.8%;
     --muted-foreground: 0 0% 70.59%;
-    --popover: 225 4% 19.61%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 93.33%;
-    --card: 0 0% 9.8%;
+    --card: 0 0% 0%;
     --card-foreground: 0 0% 93.33%;
     --border: 0 0% 22.75%;
     --input: 0 0% 29.23%;
