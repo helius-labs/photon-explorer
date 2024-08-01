@@ -184,11 +184,24 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({ address }) =>
               <div className="text-center md:text-left flex-grow max-w-xs">
                 <CardTitle className="text-3xl font-medium leading-none">
                   <div className="flex flex-col items-center md:flex-row md:justify-start">
-                    <span className="max-w-full md:min-w-[200px]">
-                      {tokenDetails.tokenName !== "" ? tokenDetails.tokenName.slice(0, 35) + (tokenDetails.tokenName.length > 35 ? '...' : '') : <Address pubkey={address} short />}
-                    </span>
+                    {tokenDetails.tokenName.length <= 12 ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="max-w-full">
+                          {tokenDetails.tokenName || <Address pubkey={address} short />}
+                        </span>
+                        {tokenDetails.tokenName !== "" && (
+                          <div className="text-3xl text-muted-foreground mt-1">
+                            ({tokenDetails.tokenSymbol})
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="max-w-full md:min-w-[200px]">
+                        {tokenDetails.tokenName !== "" ? tokenDetails.tokenName.slice(0, 35) + (tokenDetails.tokenName.length > 35 ? '...' : '') : <Address pubkey={address} short />}
+                      </span>
+                    )}
                   </div>
-                  {tokenDetails.tokenName !== "" && (
+                  {tokenDetails.tokenName.length > 12 && tokenDetails.tokenName !== "" && (
                     <div className="text-3xl text-muted-foreground mt-1">
                       ({tokenDetails.tokenSymbol})
                     </div>
