@@ -48,7 +48,16 @@ export function getAccountType(
       case "address-lookup-table":
         return AccountType.Program;
       case "spl-token":
-        return AccountType.Token;
+        if (
+          accountInfo.data.parsed.type === "mint" &&
+          accountInfo.data.parsed.info.decimals === 0 &&
+          parseInt(accountInfo.data.parsed.info.supply) === 1
+        ) {
+          return AccountType.MetaplexNFT;
+        }
+        if (accountInfo.data.parsed.type === "mint") {
+          return AccountType.Token;
+        }
       case "spl-token-2022":
         if (
           accountInfo.data.parsed.type === "mint" &&
