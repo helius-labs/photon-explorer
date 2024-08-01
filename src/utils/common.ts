@@ -127,7 +127,7 @@ export function timeAgoWithFormat(
     timeAgo = `${hours} hours ago`;
   } else if (diffInSeconds < 2592000) {
     const days = Math.floor(diffInSeconds / 86400);
-    timeAgo = `${days} days ago`;
+    timeAgo = days === 1 ? "1 day ago" : `${days} days ago`;
   } else {
     const months = Math.floor(diffInSeconds / 2592000);
     timeAgo = `${months} months ago`;
