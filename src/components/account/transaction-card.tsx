@@ -131,6 +131,7 @@ export const getColumns = (
 
       if (isParsedTransactionWithMeta(transaction)) {
         description = transaction.meta?.logMessages?.join(" ") || "";
+
         rootAccountDelta =
           transaction.meta?.postBalances?.[0] !== undefined &&
           transaction.meta?.preBalances?.[0] !== undefined
