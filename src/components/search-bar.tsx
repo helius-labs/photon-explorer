@@ -205,17 +205,18 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
     focus: "rounded-t-lg bg-popover",
     nonFocus: "rounded-lg",
   };
+
   const placeholderStyles =
     "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis";
   const selectInputStyles = "text-sm font-medium text-muted-foreground";
   const valueContainerStyles = "px-1 cursor-text";
   const singleValueStyles = "leading-7 ml-1";
   const menuStyles =
-    "pl-1 rounded-b-lg border border-t-0 border-input bg-popover overflow-hidden";
+    "rounded-b-lg border border-t-0 border-input bg-popover overflow-hidden w-full";
   const groupHeadingStyles =
     "ml-2 mt-2 mb-1 text-muted-foreground text-xs font-medium";
   const optionStyles = {
-    base: "hover:cursor-pointer px-3 py-2 rounded-full text-sm",
+    base: "hover:cursor-pointer px-3 py-2 text-sm w-full",
     focus: "bg-accent",
     selected: "",
   };

@@ -9,7 +9,9 @@ export default function AddressLayout({ children }: LayoutProps) {
   return (
     <>
       <Header />
-      <main className="container flex-1 space-y-4 p-8 pt-8">{children}</main>
+      <main className="container flex-1 space-y-4 p-8 pt-8">
+        {children}
+        </main>
       <Footer />
     </>
   );
