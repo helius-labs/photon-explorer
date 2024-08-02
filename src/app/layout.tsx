@@ -37,12 +37,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body
         className={cn(
-          "min-h-screen bg-background antialiased",
+          "min-h-screen bg-background antialiased flex flex-col",
           fontface.className,
         )}
       >
@@ -58,7 +59,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           >
             <Suspense>
               <ClusterProvider>
-                <div className="flex min-h-screen flex-col">{children}</div>
+                <div className="flex min-h-screen flex-col w-full">{children}</div>
               </ClusterProvider>
             </Suspense>
           </ThemeProvider>
