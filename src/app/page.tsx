@@ -18,7 +18,7 @@ export default async function Home() {
   return (
     <>
       <div>
-        <div className="flex h-16 items-center px-4 md:px-8">
+        <div className="flex h-16 items-center justify-between px-4 md:px-8">
           <MainNav />
           <div className="ml-auto flex items-center space-x-2 md:space-x-4">
             <ThemeToggle />
@@ -26,9 +26,11 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      <div className="grid grow px-4 pt-20 md:pt-40">
+      <div className="grow px-4 pt-20 md:pt-40">
         <div className="flex flex-col items-center space-y-6 md:space-y-10">
-          <Image src={xrayLogo} alt="XRAY Logo" width={300} height={100} />
+          <div className="w-48 h-14 sm:w-48 sm:h-14 md:w-72 md:h-16 lg:w-96 lg:h-24">
+            <Image src={xrayLogo} alt="XRAY Logo" layout="responsive" />
+          </div>
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
             <SearchBar autoFocus={false} />
           </div>
