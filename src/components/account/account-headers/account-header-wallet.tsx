@@ -2,11 +2,9 @@
 
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
-import { fetchSolPrice, lamportsToSolString } from "@/utils/common";
-import { formatCurrencyValue, formatNumericValue } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, CheckIcon, Copy } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -26,22 +24,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Cluster } from "@/utils/cluster";
+import { lamportsToSolString, shorten } from "@/utils/common";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Link from "next/link";
 
 interface AccountHeaderWalletsProps {
   address: PublicKey;
-  solPrice: number | null;
   accountInfo: any;
 }
 
 const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
   address,
-  solPrice,
   accountInfo,
 }) => {
   const [hasCopied, setHasCopied] = useState(false);
-  const [currentSolPrice, setCurrentSolPrice] = useState<number | null>(
-    solPrice,
-  );
   const router = useRouter();
   const { cluster, endpoint } = useCluster();
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
@@ -52,19 +53,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
     endpoint,
   );
 
-  const solBalance = accountInfo?.lamports
-    ? parseFloat(lamportsToSolString(accountInfo.lamports, 2))
-    : 0;
-  const solBalanceUSD = currentSolPrice
-    ? formatCurrencyValue(solBalance * currentSolPrice, 2)
-    : null;
   const fallbackAddress = address.toBase58();
-
-  useEffect(() => {
-    if (!solPrice) {
-      fetchSolPrice().then((price) => setCurrentSolPrice(price));
-    }
-  }, [solPrice]);
 
   useEffect(() => {
     if (hasCopied) {
@@ -77,6 +66,11 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
 
   const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
 
+  const shortenedAddress = shorten(fallbackAddress, 4);
+
+  // Find the most popular domain
+  const mainDomain = userDomains && userDomains.length > 0 ? userDomains[0] : null;
+
   return (
     <div className="mx-[-1rem] md:mx-0">
       <Card className="w-full">
@@ -86,7 +80,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
               <Avatar
                 size={80}
                 name={fallbackAddress}
-                variant="marble"
+                variant="pixel"
                 colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
               />
               {isLocalOrTestNet && (
@@ -117,27 +111,31 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
           <div className="flex w-full flex-col items-center md:flex-row md:items-center md:justify-between mt-4 md:mt-0">
             <div className="text-center text-3xl font-medium leading-none md:text-left">
               <div className="flex items-center justify-center gap-2 md:justify-start">
-                <Address pubkey={address} short />
+                <Address pubkey={address} short showCopyButton={false} />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="ml-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
+                        onClick={() => {
+                          navigator.clipboard.writeText(fallbackAddress);
+                          setHasCopied(true);
+                        }}
+                      >
+                        <span className="sr-only">Copy</span>
+                        {hasCopied ? <CheckIcon /> : <Copy />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">Copy address</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="mt-2 flex items-center justify-center md:justify-start">
                 <Badge variant="success">Wallet</Badge>
               </div>
               <div className="mt-4 flex flex-col items-center gap-2 text-lg text-muted-foreground md:mt-2 md:items-start">
-                <div className="flex items-center">
-                  <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                    <Image
-                      src={solLogo}
-                      alt="SOL logo"
-                      loading="eager"
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                  <span>{`${formatNumericValue(solBalance)} SOL`}</span>
-                  {solBalanceUSD && (
-                    <span className="ml-4 text-sm text-muted-foreground opacity-80">
-                      {solBalanceUSD} USD
-                    </span>
-                  )}
-                </div>
                 {compressedBalance && compressedBalance.value && (
                   <div className="flex items-center">
                     <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
@@ -156,31 +154,30 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                   </div>
                 )}
               </div>
-              <div className="ml-auto mt-2 flex flex-wrap gap-2 justify-center md:mt-2 md:justify-start">
-                {!loadingDomains &&
-                  userDomains &&
-                  userDomains.length > 0 &&
-                  userDomains.slice(0, 3).map((domain: any, index: number) => (
-                    <Badge key={index} variant="outline">
-                      {domain.type === "sns-domain"
-                        ? domain.name
-                        : domain.domain}
-                    </Badge>
-                  ))}
-                {loadingDomains && (
-                  <div className="flex gap-2">
-                    <Badge variant="outline" className="invisible">
-                      Loading
-                    </Badge>
-                    <Badge variant="outline" className="invisible">
-                      Loading
-                    </Badge>
-                    <Badge variant="outline" className="invisible">
-                      Loading
-                    </Badge>
-                  </div>
-                )}
-              </div>
+            </div>
+            <div className="ml-auto flex flex-wrap gap-2 justify-center md:justify-start">
+              {!loadingDomains && mainDomain && (
+                <Link href={`/address/${address.toBase58()}/domains`}>
+                  <Badge variant="outline">
+                    @ {mainDomain.type === "sns-domain"
+                      ? mainDomain.name
+                      : mainDomain.domain}
+                  </Badge>
+                </Link>
+              )}
+              {loadingDomains && (
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="invisible">
+                    Loading
+                  </Badge>
+                  <Badge variant="outline" className="invisible">
+                    Loading
+                  </Badge>
+                  <Badge variant="outline" className="invisible">
+                    Loading
+                  </Badge>
+                </div>
+              )}
             </div>
           </div>
           {isLocalOrTestNet && (

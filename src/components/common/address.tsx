@@ -2,7 +2,6 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 import { shorten } from "@/utils/common";
-import { displayAddress } from "@/utils/tx";
 import { PublicKey } from "@solana/web3.js";
 import { CheckIcon, Copy } from "lucide-react";
 import * as React from "react";
@@ -20,19 +19,21 @@ interface AddressProps {
   pubkey: PublicKey;
   short?: boolean;
   link?: boolean;
+  showCopyButton?: boolean; // New prop to control the copy button visibility
 }
 
 export default function Address({
   pubkey,
   short = true,
   link = true,
+  showCopyButton = true, // Default to true to keep current behavior
 }: AddressProps) {
   const address = pubkey.toBase58();
   const { cluster } = useCluster();
 
   const [hasCopied, setHasCopied] = React.useState(false);
 
-  const display = displayAddress(address, cluster);
+  const display = address;
 
   let addressLabel = display;
   if (short && display === address) {
@@ -40,31 +41,36 @@ export default function Address({
   }
 
   React.useEffect(() => {
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+    if (hasCopied) {
+      const timer = setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
   }, [hasCopied]);
 
   return (
     <TooltipProvider>
       <div className="inline-flex items-baseline align-baseline">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
-              onClick={() => {
-                navigator.clipboard.writeText(address);
-                setHasCopied(true);
-              }}
-            >
-              <span className="sr-only">Copy</span>
-              {hasCopied ? <CheckIcon /> : <Copy />}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Copy address</TooltipContent>
-        </Tooltip>
+        {showCopyButton && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                  setHasCopied(true);
+                }}
+              >
+                <span className="sr-only">Copy</span>
+                {hasCopied ? <CheckIcon /> : <Copy />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Copy address</TooltipContent>
+          </Tooltip>
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
             {link ? (
