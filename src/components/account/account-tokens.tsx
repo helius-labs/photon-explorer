@@ -237,7 +237,7 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
           <CardContent className="text-3xl flex items-center md:-ml-4">
             <span>{`${formatNumericValue(solBalanceInSol)} SOL`}</span>
             {solBalanceUSD && (
-              <span className="text-sm text-muted-foreground opacity-80 ml-2">
+              <span className="text-sm mt-2 text-muted-foreground opacity-80 ml-2">
                 {solBalanceUSD} USD
               </span>
             )}

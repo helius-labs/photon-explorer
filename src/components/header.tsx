@@ -10,7 +10,7 @@ export function Header() {
         <div className="flex-shrink-0">
           <MainNav />
         </div>
-        <div className="flex-grow flex justify-center ml-4">
+        <div className="flex-grow flex justify-center ml-4 md:ml-14">
           <div className="w-full max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[500px] xl:max-w-[600px]">
             <SearchBar autoFocus={false} />
           </div>
