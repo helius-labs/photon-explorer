@@ -32,9 +32,11 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
 }) => {
   const { data: nftData } = useGetNFTsByMint(address.toBase58(), true);
 
+  const nft = nftData || null;
+
   const renderAccountHeader = () => {
-    if (nftData?.compression?.compressed) {
-      return <AccountHeaderNFTs address={address} />;
+    if (nft?.compression?.compressed) {
+      return <AccountHeaderNFTs address={address} nft={nft} />;
     }
     switch (accountType) {
       case AccountType.Token:
@@ -42,13 +44,13 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
       case AccountType.Token2022:
         return <AccountHeaderTokens address={address} type="Token2022" />;
       case AccountType.Token2022NFT:
-        return <AccountHeaderNFTs address={address} type="Token2022" />;
+        return <AccountHeaderNFTs address={address} type="Token2022" nft={nft} />;
       case AccountType.MetaplexNFT:
-        return <AccountHeaderNFTs address={address} />;
+        return <AccountHeaderNFTs address={address} nft={nft} />;
       case AccountType.NFToken:
-        return <AccountHeaderNFTs address={address} />;
+        return <AccountHeaderNFTs address={address} nft={nft} />;
       case AccountType.CompressedNFT:
-        return <AccountHeaderNFTs address={address} />;
+        return <AccountHeaderNFTs address={address} nft={nft} />;
       case AccountType.Wallet:
         return (
           <AccountHeaderWallets

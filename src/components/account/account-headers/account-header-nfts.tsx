@@ -14,8 +14,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
-
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,26 +39,27 @@ import {
 interface AccountHeaderNFTsProps {
   address: PublicKey;
   type?: string;
+  nft: NFT | null;
 }
 
 const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
   address,
   type = "NFT",
+  nft,
 }) => {
   const [hasCopied, setHasCopied] = useState(false);
   const router = useRouter();
-  const { data: nftData } = useGetNFTsByMint(address.toBase58(), true) as {
-    data?: NFT;
-  };
   const { cluster, endpoint } = useCluster();
 
-  const displayName = nftData?.name;
-  const displayImage = nftData?.image;
+  useEffect(() => {
+    console.log("NFT Data in AccountHeaderNFTs:", nft);
+  }, [nft]);
+
+  const displayName = nft?.name || "Unnamed NFT";
+  const displayImage = nft?.content?.links?.image || nft?.image || noLogoImg.src;
   const fallbackAddress = address.toBase58();
 
-  const royaltyPercentage = nftData?.raw?.royalty?.basis_points
-    ? nftData.raw.royalty.basis_points / 100
-    : 0;
+  const royaltyPercentage = nft?.royalty?.basis_points ? nft.royalty.basis_points / 100 : 0;
 
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
@@ -94,7 +93,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                 <Image
                   loader={cloudflareLoader}
                   src={displayImage}
-                  alt={displayName || "Asset"}
+                  alt={displayName}
                   width={180}
                   height={180}
                   loading="eager"
@@ -152,13 +151,13 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                       </span>
                       <div className="mt-2 flex space-x-2 md:ml-2 md:mt-0">
                         <Badge variant="success">NFT</Badge>
-                        {type == "Token2022" && (
+                        {type === "Token2022" && (
                           <Badge variant="success">Token2022</Badge>
                         )}
-                        {nftData?.verified && (
+                        {nft?.creators?.some(creator => creator.verified) && (
                           <Badge variant="outline">Verified</Badge>
                         )}
-                        {nftData?.compression?.compressed && (
+                        {nft?.compression?.compressed && (
                           <Badge variant="outline">Compressed</Badge>
                         )}
                       </div>
@@ -220,29 +219,31 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                   </div>
                 )}
               </div>
-              {nftData && (
+              {nft && (
                 <>
                   <div className="md:text-md mt-2 max-w-md text-center text-sm text-foreground md:text-left">
                     <span>
-                      {truncateDescription(nftData.description || "N/A", 150)}
+                      {truncateDescription(nft.description || "N/A", 150)}
                     </span>
                   </div>
                   <div className="mt-4 flex justify-center space-x-4 md:justify-start">
+                    {nft.content?.links && (
+                      <a
+                        href={nft.content?.links.animation || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Image
+                          src={tensorLogo}
+                          alt="Animation"
+                          width={28}
+                          height={28}
+                          className="rounded-full"
+                        />
+                      </a>
+                    )}
                     <a
-                      href={`https://www.tensor.trade/item/${address.toBase58()}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={tensorLogo}
-                        alt="Tensor"
-                        width={28}
-                        height={28}
-                        className="rounded-full"
-                      />
-                    </a>
-                    <a
-                      href={`https://magiceden.io/item-details/${address.toBase58()}`}
+                      href={nft.content?.links?.external_url || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -259,48 +260,48 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
               )}
             </div>
           </CardHeader>
-          {nftData && (
+          {nft && (
             <CardContent className="space-y-4 md:space-y-6">
               <div className="text-md grid grid-cols-1 gap-4 text-center text-muted-foreground sm:grid-cols-2 md:text-left lg:grid-cols-3">
-                {nftData.collection && (
+                {nft.collection && (
                   <div>
                     <span className="font-semibold text-foreground">
                       Collection:{" "}
                     </span>
-                    {nftData.collectionName ? (
+                    {nft.collectionName ? (
                       <Link
-                        href={`/address/${nftData.collection}`}
+                        href={`/address/${nft.collection}`}
                         className="text-muted-foreground hover:underline"
                       >
-                        {nftData.collectionName}
+                        {nft.collectionName}
                       </Link>
                     ) : (
-                      shorten(nftData.collection)
+                      shorten(nft.collection)
                     )}
                   </div>
                 )}
-                {nftData.mintAuthority && (
+                {nft.mintAuthority && (
                   <div>
                     <span className="font-semibold text-foreground">
                       Mint Authority:{" "}
                     </span>
-                    {shorten(nftData.mintAuthority)}
+                    {shorten(nft.mintAuthority)}
                   </div>
                 )}
-                {nftData.owner && (
+                {nft.owner && (
                   <div>
                     <span className="font-semibold text-foreground">
                       Owner:{" "}
                     </span>
                     <Link
-                      href={`/address/${nftData.owner}`}
+                      href={`/address/${nft.owner}`}
                       className="hover:underline"
                     >
-                      {shorten(nftData.owner)}
+                      {shorten(nft.owner)}
                     </Link>
                   </div>
                 )}
-                {nftData.creators && nftData.creators.length > 0 && (
+                {nft.creators && nft.creators.length > 0 && (
                   <div>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -311,7 +312,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                       </PopoverTrigger>
                       <PopoverContent>
                         <div className="p-2 text-sm">
-                          {nftData.creators.map((creator, index) => (
+                          {nft.creators.map((creator, index) => (
                             <p key={index} className="text-muted-foreground">
                               <span className="font-semibold">
                                 {shorten(creator.address)}:{" "}
@@ -325,7 +326,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                     </Popover>
                   </div>
                 )}
-                {nftData.attributes && nftData.attributes.length > 0 && (
+                {nft.attributes && nft.attributes.length > 0 && (
                   <div>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -336,7 +337,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                       </PopoverTrigger>
                       <PopoverContent>
                         <div className="p-2 text-sm">
-                          {nftData.attributes.map((attribute, index) => (
+                          {nft.attributes.map((attribute, index) => (
                             <p key={index} className="text-muted-foreground">
                               <span className="font-semibold">
                                 {attribute.trait_type}:{" "}
