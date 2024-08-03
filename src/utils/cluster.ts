@@ -53,7 +53,7 @@ export function clusterName(cluster: Cluster): string {
 export function clusterUrl(cluster: Cluster, customUrl: string): string {
   switch (cluster) {
     case Cluster.MainnetBeta:
-      return process.env.MAINNET!;
+      return process.env.NEXT_PUBLIC_MAINNET!;
     case Cluster.Devnet:
       return process.env.NEXT_PUBLIC_DEVNET!;
     case Cluster.Testnet:
