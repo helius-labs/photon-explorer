@@ -23,12 +23,14 @@ export function useGetTokensByOwner(address: string, enabled: boolean = true) {
     queryFn: async () => {
       let tokens: Token[] = [];
 
+      const publicKey = new PublicKey(address);
+
       if ([Cluster.MainnetBeta, Cluster.Devnet].includes(cluster)) {
         // Use Helius DAS API for Mainnet and Devnet
-        tokens = await getTokensByOwnerDAS(address, 1, endpoint);
+        tokens = await getTokensByOwnerDAS(publicKey.toBase58(), 1, endpoint);
       } else {
         // Use Metaplex for custom, localnet and testnet
-        tokens = await getTokensByOwnerMetaplex(address, endpoint);
+        tokens = await getTokensByOwnerMetaplex(publicKey.toBase58(), endpoint);
       }
 
       // Compressed tokens are not supported on mainnet and devnet
@@ -37,7 +39,7 @@ export function useGetTokensByOwner(address: string, enabled: boolean = true) {
         [Cluster.Custom, Cluster.Localnet, Cluster.Testnet].includes(cluster)
       ) {
         const compressed = await getTokensByOwnerCompressed(
-          address,
+          publicKey.toBase58(),
           endpoint,
           compressionEndpoint,
         );

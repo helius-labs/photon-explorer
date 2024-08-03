@@ -3,7 +3,6 @@
 import { cn } from "@/utils/common";
 import { usePathname } from "next/navigation";
 import React from "react";
-
 import Link from "@/components/ui/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
@@ -34,10 +33,10 @@ export function TabNav({ tabs, className, ...props }: Props) {
               href={tab.href}
               key={tab.href}
               className={cn(
-                "flex h-7 items-center justify-center whitespace-nowrap rounded-full px-4 text-center text-sm transition-colors hover:text-primary",
+                "flex h-7 items-center justify-center whitespace-nowrap rounded-full px-4 text-center text-sm transition-colors",
                 pathname === tab.href
-                  ? "bg-muted font-medium text-primary"
-                  : "text-muted-foreground",
+                  ? "bg-primary dark:bg-muted font-medium text-background dark:text-primary"
+                  : "text-muted-foreground dark:text-muted-foreground hover:text-primary dark:hover:text-primary",
               )}
             >
               {tab.name}
