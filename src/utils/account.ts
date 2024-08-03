@@ -36,7 +36,7 @@ export function getAccountType(
   if (signatures && signatures.length === 0 && accountInfo === null) {
     return AccountType.NotFound;
   }
-  console.log("ACCOUNT INFO: ", accountInfo);
+  // console.log("ACCOUNT INFO: ", accountInfo);
   if (accountInfo && accountInfo.data && "parsed" in accountInfo.data) {
     switch (accountInfo.data.program) {
       case "bpf-upgradeable-loader":

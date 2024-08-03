@@ -157,6 +157,44 @@ function transactionBreakdown(transaction: XrayTransaction, address?: string) {
           )}
         </div>
       );
+    case ParserTransactionTypes.TOKEN_MINT:
+      return (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p style={{ margin: 0, marginRight: "8px" }}>Minted</p>
+          {transaction?.actions[0]?.mint && (
+            <TokenBalance
+              amount={transaction.actions[0].amount}
+              decimals={0}
+              mint={new PublicKey(transaction.actions[0].mint)}
+              isReadable={true}
+              isNFT={true}
+            />
+          )}
+        </div>
+      );
+    case ParserTransactionTypes.NFT_SALE:
+      return (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {/* <p style={{ margin: 0, marginRight: "8px" }}>Swapped </p> */}
+          {transaction?.actions[1]?.mint && (
+            <TokenBalance
+              amount={transaction.actions[1].amount}
+              decimals={transaction.actions[1].decimals}
+              mint={new PublicKey(transaction?.actions[1]?.mint)}
+              isReadable={false}
+            />
+          )}
+          <ArrowRightLeftIcon className="mx-3 h-6 w-6" />
+          {transaction?.actions[0]?.mint && (
+            <TokenBalance
+              amount={transaction.actions[0].amount}
+              decimals={transaction.actions[0].decimals}
+              mint={new PublicKey(transaction?.actions[0]?.mint)}
+              isReadable={true}
+            />
+          )}
+        </div>
+      );
     case ParserTransactionTypes.UNKNOWN:
       return (
         <div style={{ display: "flex", alignItems: "center" }}>

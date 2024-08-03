@@ -131,6 +131,7 @@ export const getColumns = (
 
       if (isParsedTransactionWithMeta(transaction)) {
         description = transaction.meta?.logMessages?.join(" ") || "";
+
         rootAccountDelta =
           transaction.meta?.postBalances?.[0] !== undefined &&
           transaction.meta?.preBalances?.[0] !== undefined
@@ -312,7 +313,7 @@ export const getColumns = (
                     </div>
                   ) : !description ? (
                     <div className="whitespace-normal break-words text-sm text-muted-foreground">
-                      {"Transaction could not be parsed"}
+                      {""}
                     </div>
                   ) : (
                     <div className="whitespace-normal break-words text-sm text-muted-foreground">

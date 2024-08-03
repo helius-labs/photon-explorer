@@ -115,7 +115,7 @@ async function fetchAssetsInRange(
     current = result.items[result.items.length - 1].id;
   }
 
-  console.log("Fetched assets in range:", totalItems);
+  //console.log("Fetched assets in range:", totalItems);
   return totalItems;
 }
 
