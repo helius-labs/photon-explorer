@@ -24,6 +24,30 @@ import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 
+const formatPriceWithSupSub = (price: string) => {
+  const [integerPart, decimalPart] = price.split(".");
+  if (!decimalPart) {
+    return <>{integerPart}</>;
+  }
+
+  const firstNonZeroIndex = decimalPart.search(/[^0]/);
+
+  // Apply superscript only if leading zeros are more than 3
+  if (firstNonZeroIndex > 3) {
+    const leadingZerosCount = firstNonZeroIndex;
+    const significantDigits = decimalPart.substring(firstNonZeroIndex);
+    return (
+      <>
+        {integerPart}.
+        0<sup>{leadingZerosCount}</sup>
+        {significantDigits}
+      </>
+    );
+  }
+
+  return <>{price}</>;
+};
+
 const columns: ColumnDef<Token>[] = [
   {
     header: "",
@@ -92,18 +116,19 @@ const columns: ColumnDef<Token>[] = [
     header: "Price",
     accessorKey: "price",
     cell: ({ row }) => {
+      const price = formatNumericValue(row.original.price, 10);
       return (
         <div className="w-28">
           {row.original.price
-            ? formatCurrencyValue(row.original.price, 2)
+            ? formatPriceWithSupSub(price)
             : "N/A"}
         </div>
       );
     },
   },
   {
-    header: "Actions",
-    accessorKey: "actions",
+    header: "Charts",
+    accessorKey: "charts",
     cell: ({ row }) => {
       const tokenMint = row.original.mint.toBase58();
       return (
@@ -143,7 +168,7 @@ const columns: ColumnDef<Token>[] = [
 ];
 
 interface AccountTokensProps {
-  address: string;  // Change the address type to string
+  address: string;
   solPrice: number | null;
   accountInfo: any;
 }
@@ -156,7 +181,7 @@ async function fetchSolBalance(publicKey: PublicKey, endpoint: string) {
 
 export default function AccountTokens({ address, solPrice, accountInfo }: AccountTokensProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const publicKey = new PublicKey(address); // Convert address to PublicKey here
+  const publicKey = new PublicKey(address);
   const { data, isLoading, isError } = useGetTokensByOwner(publicKey.toBase58());
   const { cluster, endpoint } = useCluster();
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(publicKey.toBase58());
@@ -171,7 +196,6 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
   }, [solPrice]);
 
   useEffect(() => {
-    // Fetch the SOL balance
     fetchSolBalance(publicKey, endpoint).then((balance) => setSolBalance(balance));
   }, [publicKey, endpoint]);
 
