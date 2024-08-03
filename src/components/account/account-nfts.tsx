@@ -22,8 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Loading from "@/components/common/loading";
-import LoadingBadge from "@/components/common/loading-badge";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -158,8 +158,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
         <CardContent className="flex flex-col gap-4 pb-4 pt-6">
           {isLoading ? (
             <div className="flex flex-col items-center">
-              <Loading className="h-12 w-12" />
-              <LoadingBadge text="Loading NFTs" />
+          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
             </div>
           ) : (
             <>

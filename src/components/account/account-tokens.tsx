@@ -15,8 +15,8 @@ import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { Card, CardContent } from "@/components/ui/card";
-import Loading from "@/components/common/loading";
-import LoadingBadge from "@/components/common/loading-badge";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 
 const columns: ColumnDef<Token>[] = [
   {
@@ -163,8 +163,7 @@ export default function AccountTokens({ address }: { address: string }) {
     return (
       <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 py-6">
-          <Loading className="h-12 w-12" />
-          <LoadingBadge text="Loading Tokens" />
+        <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
         </CardContent>
       </Card>
     );

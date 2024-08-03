@@ -9,8 +9,8 @@ import ansLogo from "@/../public/assets/ansLogo.jpg";
 import { useCluster } from "@/providers/cluster-provider";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Card, CardContent } from "@/components/ui/card";
-import Loading from "@/components/common/loading";
-import LoadingBadge from "@/components/common/loading-badge";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { DataTable } from "@/components/data-table/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -222,8 +222,7 @@ export default function AccountDomains({ address }: { address: string }) {
     return (
       <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 py-6">
-          <Loading className="h-12 w-12" />
-          <LoadingBadge text="Loading Domains" />
+        <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
         </CardContent>
       </Card>
     );

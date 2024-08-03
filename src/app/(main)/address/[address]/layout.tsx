@@ -17,9 +17,9 @@ import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 import AccountHeader from "@/components/account/account-header";
 import { ErrorCard } from "@/components/common/error-card";
 import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { CompressionHeader } from "@/components/compression/compression-header";
 import { Tab, TabNav } from "@/components/tab-nav";
-import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 
 export default function AddressLayout({
   children,
@@ -73,36 +73,22 @@ export default function AddressLayout({
   const tabs: Tab[] = useMemo(() => {
     const newTabs: Tab[] = [];
 
-    if (
-      accountType === AccountType.Wallet ||
-      accountType === AccountType.Closed
+    if (accountType === AccountType.Wallet || accountType === AccountType.Closed) {
+      // Add the default tabs in the new order for wallet accounts
+      newTabs.push({ name: "Tokens", href: `/address/${address}/tokens` });
+      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
+      newTabs.push({ name: "NFTs", href: `/address/${address}/nfts` });
+      newTabs.push({ name: "Domains", href: `/address/${address}/domains` });
+    } else if (
+      accountType === AccountType.Token ||
+      accountType === AccountType.Program ||
+      accountType === AccountType.MetaplexNFT ||
+      accountType === AccountType.NFToken ||
+      accountType === AccountType.CompressedNFT
     ) {
-      newTabs.push({
-        name: "Tokens",
-        href: `/address/${address}/tokens`,
-      });
-
-      newTabs.push({
-        name: "NFTs",
-        href: `/address/${address}/nfts`,
-      });
-
-      newTabs.push({
-        name: "Domains",
-        href: `/address/${address}/domains`,
-      });
-    }
-
-    if (compressedAccount.data) {
-      newTabs.push({
-        name: "History",
-        href: `/address/${address}/history-compressed`,
-      });
-    } else {
-      newTabs.push({
-        name: "History",
-        href: `/address/${address}/history`,
-      });
+      // Add tabs specific to Token, Program, NFT, or Compressed NFT accounts
+      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
+      newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
     }
 
     // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"
@@ -113,33 +99,18 @@ export default function AddressLayout({
       });
     }
 
-    // Ensure Metadata tab is added for tokens, NFTs, programs, and compressed NFTs
-    if (
-      accountType === AccountType.Token ||
-      accountType === AccountType.Program ||
-      accountType === AccountType.MetaplexNFT ||
-      accountType === AccountType.NFToken ||
-      accountType === AccountType.CompressedNFT
-    ) {
-      newTabs.push({
-        name: "Metadata",
-        href: `/address/${address}/metadata`,
-      });
-    }
-
     return newTabs;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountType, compressedAccount.data, nftData, address, pathname]);
+  }, [accountType, address, pathname]);
 
   // Route to the correct tab based on the account type
   useEffect(() => {
+    // Only redirect to "tokens" tab if the current path is exactly the wallet address path
     if (pathname === `/address/${address}`) {
-      // Change the URL state to the appropriate tab based on the account type
       if (
         accountType === AccountType.Wallet ||
         accountType === AccountType.Closed
       ) {
-        router.replace(`${pathname}/tokens?cluster=${cluster}`);
+        router.replace(`/address/${address}/tokens?cluster=${cluster}`);
       } else if (
         accountType === AccountType.Token ||
         accountType === AccountType.Program ||
@@ -148,26 +119,10 @@ export default function AddressLayout({
         accountType === AccountType.CompressedNFT ||
         accountType === AccountType.Unknown // Added to handle unknown account types
       ) {
-        router.replace(`${pathname}/history?cluster=${cluster}`);
+        router.replace(`/address/${address}/history?cluster=${cluster}`);
       }
     }
   }, [accountType, address, cluster, pathname, router]);
-
-  // Route to the correct tab based on the compressed account data
-  useEffect(() => {
-    if (pathname === `/address/${address}`) {
-      if (compressedAccount.data) {
-        router.replace(`${pathname}/history-compressed?cluster=${cluster}`);
-      }
-    }
-  }, [
-    compressedAccount.data,
-    compressedSignatures.data,
-    address,
-    cluster,
-    pathname,
-    router,
-  ]);
 
   // Check if the address is valid
   if (!isSolanaAccountAddress(address)) {
