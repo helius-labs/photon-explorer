@@ -119,7 +119,7 @@ export default function AddressLayout({
         accountType === AccountType.CompressedNFT ||
         accountType === AccountType.Unknown // Added to handle unknown account types
       ) {
-        router.replace(`/address/${address}/history?cluster=${cluster}`);
+        router.replace(`/address/${address}/tokens?cluster=${cluster}`);
       }
     }
   }, [accountType, address, cluster, pathname, router]);
