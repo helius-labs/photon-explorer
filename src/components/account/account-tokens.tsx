@@ -119,7 +119,7 @@ const columns: ColumnDef<Token>[] = [
       const price = formatNumericValue(row.original.price, 10);
       return (
         <div className="w-28">
-          {row.original.price
+          ${row.original.price
             ? formatPriceWithSupSub(price)
             : "N/A"}
         </div>
