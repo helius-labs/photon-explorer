@@ -19,17 +19,16 @@ interface AddressProps {
   pubkey: PublicKey;
   short?: boolean;
   link?: boolean;
-  showCopyButton?: boolean; // New prop to control the copy button visibility
+  showCopyButton?: boolean;
 }
 
 export default function Address({
   pubkey,
   short = true,
   link = true,
-  showCopyButton = true, // Default to true to keep current behavior
+  showCopyButton = true,
 }: AddressProps) {
   const address = pubkey.toBase58();
-  const { cluster } = useCluster();
 
   const [hasCopied, setHasCopied] = React.useState(false);
 
