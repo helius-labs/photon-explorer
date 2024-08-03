@@ -57,14 +57,12 @@ async function getNFTByMintDAS(
             showUnverifiedCollections: true,
             showCollectionMetadata: true,
             showInscription: true,
-            showFungible: false,
           },
         },
       }),
     });
 
     const data: { result: DAS.GetAssetResponse } = await response.json();
-
     const item = data.result;
 
     if (!item) {
@@ -79,6 +77,7 @@ async function getNFTByMintDAS(
         Interface.PROGRAMMABLENFT,
         Interface.LEGACYNFT,
         Interface.V1PRINT,
+        Interface.CUSTOM,
       ].includes(item.interface)
     ) {
       const collectionGrouping = item.grouping?.find(
@@ -163,6 +162,8 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
         const response = await fetch(nft.raw.metadata.uri);
         const externalMetadata = await response.json();
         nft.image = externalMetadata.image;
+        nft.description = externalMetadata.description;
+        nft.attributes = externalMetadata.attributes;
       } catch (error) {
         console.error("Error fetching external metadata for NFT:", error);
       }
