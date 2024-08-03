@@ -305,7 +305,6 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
           ...baseStyles,
           paddingTop: "4px",
           paddingBottom: "4px",
-          display: "flex",
         }),
         menuList: (baseStyles, state) => ({
           ...baseStyles,
