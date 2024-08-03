@@ -1,6 +1,4 @@
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
-import cmcLogo from "@/../public/assets/cmcLogo.svg";
-import coinGeckoLogo from "@/../public/assets/coinGeckoLogo.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import jupLogo from "@/../public/assets/jupLogo.png";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
@@ -47,7 +45,6 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
   type = "Token",
 }) => {
   const [hasCopied, setHasCopied] = useState(false);
-  const [coingeckoId, setCoingeckoId] = useState<string | null>(null);
   const [tokenDetails, setTokenDetails] = useState<{
     tokenName: string;
     tokenImageURI: string | null;
@@ -99,33 +96,6 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     }
     return false;
   }, [tokenList, address]);
-
-  // Fetch CoinGecko ID
-  useEffect(() => {
-    const fetchCoingeckoId = async () => {
-      if (tokenDetails.tokenSymbol === "") return;
-
-      try {
-        const response = await fetch(
-          "https://api.coingecko.com/api/v3/coins/list",
-        );
-        if (!response.ok) throw new Error("Failed to fetch CoinGecko data");
-
-        const data = await response.json();
-        const token = data.find(
-          (token: any) =>
-            token.symbol.toLowerCase() ===
-            tokenDetails.tokenSymbol.toLowerCase(),
-        );
-
-        if (token) setCoingeckoId(token.id);
-      } catch (error) {
-        console.error("Error fetching CoinGecko data:", error);
-      }
-    };
-
-    fetchCoingeckoId();
-  }, [tokenDetails.tokenSymbol]);
 
   // Update token details based on API data
   useEffect(() => {

@@ -15,8 +15,8 @@ import { useGetParsedTransactions } from "@/hooks/parser";
 import { useGetSignaturesForAddress } from "@/hooks/web3";
 
 import { TransactionCard } from "@/components/account/transaction-card";
-import Loading from "@/components/common/loading";
-import LoadingBadge from "@/components/common/loading-badge";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Button } from "../ui/button";
@@ -74,8 +74,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
-          <Loading className="h-12 w-12" />
-          <LoadingBadge text="Loading History" />
+          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
         </CardContent>
       </Card>
     );
