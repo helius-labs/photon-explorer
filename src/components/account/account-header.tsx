@@ -56,11 +56,10 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
           <AccountHeaderWallets
             address={address}
             accountInfo={accountInfo}
-            solPrice={null}
           />
         );
       case AccountType.Program:
-        return <AccountHeaderPrograms address={address} />;
+        return <AccountHeaderPrograms address={address} accountInfo={accountInfo} />;
       case AccountType.Unknown:
       default:
         return <AccountHeaderUnknown address={address} />;

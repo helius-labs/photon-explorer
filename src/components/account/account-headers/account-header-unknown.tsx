@@ -42,7 +42,7 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
             <Avatar
               size={80}
               name={fallbackAddress}
-              variant="marble"
+              variant="pixel"
               colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
             />
             {isLocalOrTestNet && (
@@ -71,7 +71,7 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
             <div className="text-2xl font-medium leading-none md:text-left">
               <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
                 <Address pubkey={address} short />
-                <Badge className="md:hidden" variant="success">Unknown</Badge>
+                <Badge variant="success">Unknown</Badge>
               </div>
               <div className="mt-2 flex flex-wrap justify-center gap-2 md:ml-auto md:justify-start">
                 {!loadingDomains && userDomains && userDomains.length > 0 && (

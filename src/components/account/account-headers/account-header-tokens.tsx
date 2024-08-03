@@ -228,7 +228,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                 <Avatar
                   size={80}
                   name={address.toBase58()}
-                  variant="marble"
+                  variant="pixel"
                   colors={[
                     "#D31900",
                     "#E84125",

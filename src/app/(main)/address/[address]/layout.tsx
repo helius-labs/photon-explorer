@@ -73,20 +73,18 @@ export default function AddressLayout({
   const tabs: Tab[] = useMemo(() => {
     const newTabs: Tab[] = [];
 
-    if (accountType === AccountType.Wallet || accountType === AccountType.Closed) {
+    if (accountType === AccountType.Wallet) {
       // Add the default tabs in the new order for wallet accounts
       newTabs.push({ name: "Tokens", href: `/address/${address}/tokens` });
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
       newTabs.push({ name: "NFTs", href: `/address/${address}/nfts` });
       newTabs.push({ name: "Domains", href: `/address/${address}/domains` });
-    } else if (
-      accountType === AccountType.Token ||
-      accountType === AccountType.Program ||
-      accountType === AccountType.MetaplexNFT ||
-      accountType === AccountType.NFToken ||
-      accountType === AccountType.CompressedNFT
-    ) {
-      // Add tabs specific to Token, Program, NFT, or Compressed NFT accounts
+    } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
+      // Add tabs specific to Program accounts
+      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
+      newTabs.push({ name: "Anchor IDL", href: `/address/${address}/anchor-idl` });
+    } else if (accountType === AccountType.Token || accountType === AccountType.MetaplexNFT || accountType === AccountType.NFToken || accountType === AccountType.Token2022) {
+      // Add tabs specific to Token and NFT accounts
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
       newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
     }
@@ -106,20 +104,12 @@ export default function AddressLayout({
   useEffect(() => {
     // Only redirect to "tokens" tab if the current path is exactly the wallet address path
     if (pathname === `/address/${address}`) {
-      if (
-        accountType === AccountType.Wallet ||
-        accountType === AccountType.Closed
-      ) {
+      if (accountType === AccountType.Wallet) {
         router.replace(`/address/${address}/tokens?cluster=${cluster}`);
-      } else if (
-        accountType === AccountType.Token ||
-        accountType === AccountType.Program ||
-        accountType === AccountType.MetaplexNFT ||
-        accountType === AccountType.NFToken ||
-        accountType === AccountType.CompressedNFT ||
-        accountType === AccountType.Unknown // Added to handle unknown account types
-      ) {
-        router.replace(`/address/${address}/tokens?cluster=${cluster}`);
+      } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
+        router.replace(`/address/${address}/history?cluster=${cluster}`);
+      } else if (accountType === AccountType.Token || accountType === AccountType.MetaplexNFT || accountType === AccountType.NFToken || accountType === AccountType.Token2022) {
+        router.replace(`/address/${address}/history?cluster=${cluster}`);
       }
     }
   }, [accountType, address, cluster, pathname, router]);
@@ -174,6 +164,7 @@ export default function AddressLayout({
             accountInfo={accountInfo.data.value}
             signatures={signatures.data}
             accountType={accountType}
+            isClosed={accountType === AccountType.Closed}
           />
           <TabNav tabs={tabs} />
           {children}

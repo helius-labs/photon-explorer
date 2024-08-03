@@ -36,7 +36,7 @@ export function getAccountType(
   if (signatures && signatures.length === 0 && accountInfo === null) {
     return AccountType.NotFound;
   }
-  // console.log("ACCOUNT INFO: ", accountInfo);
+
   if (accountInfo && accountInfo.data && "parsed" in accountInfo.data) {
     switch (accountInfo.data.program) {
       case "bpf-upgradeable-loader":
@@ -51,7 +51,8 @@ export function getAccountType(
         if (
           accountInfo.data.parsed.type === "mint" &&
           accountInfo.data.parsed.info.decimals === 0 &&
-          parseInt(accountInfo.data.parsed.info.supply) === 1
+          parseInt(accountInfo.data.parsed.info.supply) === 1 &&
+          accountInfo.data.parsed.info.freezeAuthority !== null // Ensure it's an NFT with a freeze authority
         ) {
           return AccountType.MetaplexNFT;
         }
@@ -62,7 +63,8 @@ export function getAccountType(
         if (
           accountInfo.data.parsed.type === "mint" &&
           accountInfo.data.parsed.info.decimals === 0 &&
-          parseInt(accountInfo.data.parsed.info.supply) === 1
+          parseInt(accountInfo.data.parsed.info.supply) === 1 &&
+          accountInfo.data.parsed.info.freezeAuthority !== null // Ensure it's an NFT with a freeze authority
         ) {
           return AccountType.Token2022NFT;
         }
@@ -75,10 +77,14 @@ export function getAccountType(
   // If there is no parsed data, check if the account is a program or wallet
   if (accountInfo && accountInfo.executable) {
     return AccountType.Program;
-  } else if (accountInfo && accountInfo.owner.toBase58() === SYSTEM_PROGRAM) {
-    return AccountType.Wallet;
-  } else if (accountInfo && accountInfo.owner.toBase58() === NFTOKEN_ADDRESS) {
-    return AccountType.NFToken;
+  } else if (accountInfo) {
+    const owner = accountInfo.owner.toBase58();
+    if (owner === SYSTEM_PROGRAM) {
+      return AccountType.Wallet;
+    }
+    if (owner === NFTOKEN_ADDRESS) {
+      return AccountType.NFToken;
+    }
   }
 
   if (nftData?.compression?.compressed) {

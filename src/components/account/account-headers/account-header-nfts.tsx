@@ -107,7 +107,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                 <Avatar
                   size={180}
                   name={fallbackAddress}
-                  variant="marble"
+                  variant="pixel"
                   colors={[
                     "#D31900",
                     "#E84125",

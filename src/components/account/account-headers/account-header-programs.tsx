@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { PublicKey } from "@solana/web3.js";
+import React, { useState, useEffect } from "react";
+import { PublicKey, AccountInfo, ParsedAccountData } from "@solana/web3.js";
 import Avatar from "boring-avatars";
 import { useRouter } from "next/navigation";
 import { CheckIcon, Copy, MoreVertical } from "lucide-react";
@@ -16,20 +16,34 @@ import {
 } from "@/components/ui/tooltip";
 import { Card, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { PROGRAM_INFO_BY_ID } from "@/utils/programs";
+import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
 import { Cluster } from "@/utils/cluster";
 
 interface AccountHeaderProgramsProps {
   address: PublicKey;
+  accountInfo: AccountInfo<Buffer | ParsedAccountData> | null;
+  isClosed?: boolean;
 }
 
-const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }) => {
+const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
+  address,
+  accountInfo,
+  isClosed,
+}) => {
   const [hasCopied, setHasCopied] = useState(false);
   const router = useRouter();
   const { cluster, endpoint } = useCluster();
   const programId = address.toBase58();
   const programInfo = PROGRAM_INFO_BY_ID[programId];
-  const displayName = programInfo ? programInfo.name : "Unknown Program";
+  const specialInfo = SPECIAL_IDS[programId];
+  const sysvarInfo = SYSVAR_IDS[programId];
+  const displayName = programInfo
+    ? programInfo.name
+    : specialInfo
+    ? specialInfo
+    : sysvarInfo
+    ? sysvarInfo
+    : "Unknown Account";
   const fallbackAddress = address.toBase58();
 
   useEffect(() => {
@@ -43,15 +57,40 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }
 
   const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
 
+  const renderParsedData = () => {
+    if (accountInfo && "parsed" in accountInfo.data) {
+      const { parsed } = accountInfo.data;
+      if (parsed.type === "fees") {
+        return (
+          <div>
+            <div>
+              <strong>Lamports per Signature:</strong> {parsed.info.feeCalculator.lamportsPerSignature}
+            </div>
+          </div>
+        );
+      } else if (parsed.type === "rewards") {
+        return (
+          <div>
+            <div>
+              <strong>Validator Point Value:</strong> {parsed.info.validatorPointValue}
+            </div>
+          </div>
+        );
+      }
+      // Handle other parsed types if needed
+    }
+    return null;
+  };
+
   return (
     <div className="mx-[-1rem] md:mx-0">
-      <Card className="w-full">
+      <Card className="w-full mb-8">
         <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
           <div className="flex items-center w-full md:w-auto relative justify-center md:justify-start">
             <Avatar
               size={80}
               name={fallbackAddress}
-              variant="marble"
+              variant="pixel"
               colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
             />
             {isLocalOrTestNet && (
@@ -80,7 +119,9 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address }
             <div className="text-2xl font-medium leading-none md:text-left">
               <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
                 {displayName || <Address pubkey={address} short />}
-                <Badge className="md:hidden" variant="success">Program</Badge>
+                <Badge variant={isClosed ? "outline" : "success"}>
+                  {isClosed ? "Closed" : "Program"}
+                </Badge>
               </div>
               <div className="text-sm text-muted-foreground mt-2 md:mt-1">
                 <TooltipProvider>
