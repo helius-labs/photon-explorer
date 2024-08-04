@@ -49,15 +49,10 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import TransactionBalances from "../common/txn-history-balance";
 import { DataTable } from "../data-table/data-table";
 
-type EnhancedTransactionData = TransactionData & {
-  transactionDetails?: ParsedTransactionWithMeta | null;
-};
 interface TransactionCardProps {
-  data: EnhancedTransactionData[];
+  data: TransactionData[];
   pagination: { pageIndex: number; pageSize: number };
   onPageChange: (newPageIndex: number) => void;
-  address: string;
-  accountType: AccountType;
 }
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
@@ -261,11 +256,7 @@ export const getColumns = (
             return (
               <Link href={`/tx/${signature}`}>
                 <div className="px-4 py-2 text-left">
-                  <TransactionBalances
-                    transaction={transaction}
-                    address={address}
-                    transactionDetails={transaction.transactionDetails}
-                  />
+                  <div>{TransactionBalances(transaction, address)} </div>
                 </div>
               </Link>
             );
@@ -390,32 +381,35 @@ export function TransactionCard({
   data,
   pagination,
   onPageChange,
-  address,
-  accountType,
 }: TransactionCardProps) {
+  const pathname = usePathname();
+  const address = pathname.split("/")[2];
+  const pageType = pathname.split("/")[1];
+
+  const signatures = useGetSignaturesForAddress(address, 1);
+  const accountInfo = useGetAccountInfo(address);
+  const accountType = useMemo(() => {
+    if (
+      accountInfo.data &&
+      accountInfo.data.value !== undefined &&
+      signatures.data !== undefined
+    ) {
+      return getAccountType(accountInfo.data.value, signatures.data);
+    }
+  }, [accountInfo.data, signatures.data]);
   const isWallet = accountType === AccountType.Wallet;
 
-  const columns = useMemo(
-    () => getColumns(address, isWallet),
-    [address, isWallet],
-  );
+  const columns = getColumns(address, isWallet);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    pageCount: -1, // This tells the table that we're doing manual pagination
-    state: {
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
       pagination: {
-        pageIndex: pagination.pageIndex,
-        pageSize: pagination.pageSize,
+        pageSize: 10,
       },
-    },
-    onPaginationChange: (updater) => {
-      const newPagination =
-        typeof updater === "function" ? updater(pagination) : updater;
-      onPageChange(newPagination.pageIndex);
     },
   });
 
@@ -557,10 +551,7 @@ export function TransactionCard({
               )}
               {isWallet && (
                 <div className="flex justify-center px-4 py-2 text-lg">
-                  <TransactionBalances
-                    transaction={transaction}
-                    address={address}
-                  />
+                  <div>{TransactionBalances(transaction, address)}</div>
                 </div>
               )}
             </div>

@@ -21,13 +21,6 @@ interface BalanceChange {
   change: number;
   decimals: number;
 }
-
-interface TransactionBalancesProps {
-  transaction: any;
-  address: string;
-  transactionDetails?: ParsedTransactionWithMeta;
-}
-
 function isParsedTransactionWithMeta(
   data: any,
 ): data is ParsedTransactionWithMeta {
@@ -142,11 +135,20 @@ function calculateBalanceChanges(
   return [...nativeBalanceChanges, ...tokenBalanceChanges];
 }
 
-function TransactionBalances({
-  transaction,
-  address,
-  transactionDetails,
-}: TransactionBalancesProps) {
+function TransactionBalances(transaction: any, address: string) {
+  let sig = "";
+  // Cell rendering logic for the new column
+  if (isXrayTransaction(transaction)) {
+    sig = transaction.signature;
+  } else if (isSignatureWithMetadata(transaction)) {
+    sig = transaction.signature;
+  } else if (isConfirmedSignatureInfo(transaction)) {
+    sig = transaction.signature;
+  } else if (isParsedTransactionWithMeta(transaction)) {
+    sig = transaction.transaction.signatures[0];
+  }
+  const txnData = useGetTransaction(sig);
+
   if (
     isXrayTransaction(transaction) &&
     (transaction.type === ParserTransactionTypes.CNFT_MINT ||
@@ -180,8 +182,8 @@ function TransactionBalances({
     );
   }
 
-  if (transactionDetails && isParsedTransactionWithMeta(transactionDetails)) {
-    const balanceChanges = calculateBalanceChanges(transactionDetails, address);
+  if (isParsedTransactionWithMeta(txnData.data)) {
+    const balanceChanges = calculateBalanceChanges(txnData.data, address);
 
     return (
       <>
@@ -198,9 +200,8 @@ function TransactionBalances({
         ))}
       </>
     );
+  } else {
   }
-
-  return null;
 }
 
 export default TransactionBalances;
