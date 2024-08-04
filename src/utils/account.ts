@@ -1,9 +1,12 @@
 import { NFT } from "@/types/nft";
+import { SYSVAR_IDS } from "@/utils/programs";
 import {
   AccountInfo,
   ConfirmedSignatureInfo,
   ParsedAccountData,
 } from "@solana/web3.js";
+
+// Import SYSVAR_IDS
 
 export enum AccountType {
   Wallet = "Wallet",
@@ -29,7 +32,7 @@ export function getAccountType(
 ): AccountType {
   // Check if the account has been closed
   if (signatures && signatures.length > 0 && accountInfo === null) {
-    return AccountType.Closed;
+    return AccountType.Program;
   }
 
   // Check if the account has never been submitted to the blockchain
@@ -89,6 +92,11 @@ export function getAccountType(
 
   if (nftData?.compression?.compressed) {
     return AccountType.CompressedNFT;
+  }
+
+  // Check for known sysvar program addresses
+  if (accountInfo && SYSVAR_IDS[accountInfo.owner.toBase58()]) {
+    return AccountType.Program;
   }
 
   return AccountType.Unknown;

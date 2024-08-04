@@ -11,7 +11,6 @@ import {
   useGetCompressedAccount,
   useGetCompressionSignaturesForAccount,
 } from "@/hooks/compression";
-import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import AccountHeader from "@/components/account/account-header";
@@ -44,13 +43,6 @@ export default function AddressLayout({
   // Fetch account info can be null if the address is not used or the account has been closed
   const compressedAccount = useGetCompressedAccount(address);
 
-  // Fetch NFT data to check if it's a compressed NFT
-  const {
-    data: nftData,
-    isLoading: nftLoading,
-    isError: nftError,
-  } = useGetNFTsByMint(address);
-
   const accountType = useMemo(() => {
     if (
       accountInfo.data &&
@@ -60,14 +52,10 @@ export default function AddressLayout({
       return getAccountType(
         accountInfo.data.value,
         signatures.data,
-        nftData || undefined,
       );
     }
-    if (nftData?.compression?.compressed) {
-      return AccountType.CompressedNFT;
-    }
     return AccountType.Unknown;
-  }, [accountInfo.data, signatures.data, nftData]);
+  }, [accountInfo.data, signatures.data]);
 
   // Create better logic for the tabs based on the account type
   const tabs: Tab[] = useMemo(() => {
@@ -82,7 +70,6 @@ export default function AddressLayout({
     } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
       // Add tabs specific to Program accounts
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
-      newTabs.push({ name: "Anchor IDL", href: `/address/${address}/anchor-idl` });
     } else if (accountType === AccountType.Token || accountType === AccountType.MetaplexNFT || accountType === AccountType.NFToken || accountType === AccountType.Token2022) {
       // Add tabs specific to Token and NFT accounts
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
@@ -123,8 +110,7 @@ export default function AddressLayout({
     signatures.isError ||
     accountInfo.isError ||
     compressedAccount.isError ||
-    compressedSignatures.isError ||
-    nftError
+    compressedSignatures.isError
   ) {
     return (
       <ErrorCard
@@ -132,8 +118,7 @@ export default function AddressLayout({
           signatures.error?.message ||
           accountInfo.error?.message ||
           compressedAccount.error?.message ||
-          compressedSignatures.error?.message ||
-          nftError
+          compressedSignatures.error?.message
         }`}
       />
     );
@@ -143,8 +128,7 @@ export default function AddressLayout({
     signatures.isLoading ||
     accountInfo.isLoading ||
     compressedAccount.isLoading ||
-    compressedSignatures.isLoading ||
-    nftLoading
+    compressedSignatures.isLoading 
   ) {
     return (
       <div className="mt-20 flex justify-center">
@@ -194,4 +178,6 @@ export default function AddressLayout({
       )}
     </>
   );
+
+  return <ErrorCard text="Address not found on chain" />;
 }

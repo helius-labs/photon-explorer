@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
 import { Cluster } from "@/utils/cluster";
@@ -62,16 +62,16 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
       const { parsed } = accountInfo.data;
       if (parsed.type === "fees") {
         return (
-          <div>
-            <div>
+          <div className="flex flex-col items-center md:items-end md:ml-auto">
+            <div className="flex flex-col text-sm text-muted-foreground">
               <strong>Lamports per Signature:</strong> {parsed.info.feeCalculator.lamportsPerSignature}
             </div>
           </div>
         );
       } else if (parsed.type === "rewards") {
         return (
-          <div>
-            <div>
+          <div className="flex flex-col items-center md:items-end md:ml-auto">
+            <div className="flex flex-col text-sm text-muted-foreground">
               <strong>Validator Point Value:</strong> {parsed.info.validatorPointValue}
             </div>
           </div>
@@ -84,8 +84,8 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
 
   return (
     <div className="mx-[-1rem] md:mx-0">
-      <Card className="w-full mb-8">
-        <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
+      <Card className="w-full mb-8 space-y-4 p-6 md:space-y-6">
+        <CardHeader className="relative flex flex-col items-start gap-4 md:flex-row md:gap-6">
           <div className="flex items-center w-full md:w-auto relative justify-center md:justify-start">
             <Avatar
               size={80}
@@ -151,6 +151,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
                 </TooltipProvider>
               </div>
             </div>
+            {renderParsedData()}
           </div>
           {isLocalOrTestNet && (
             <div className="hidden md:flex ml-auto self-start font-medium mt-4 md:mt-0">
