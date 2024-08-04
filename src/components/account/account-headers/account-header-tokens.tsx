@@ -218,34 +218,22 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
             <div className="flex w-full flex-col md:flex-row md:justify-between">
               <div className="max-w-xs flex-grow text-center md:text-left">
                 <CardTitle className="text-3xl font-medium leading-none">
-                  <div className="flex flex-col items-center md:items-start">
-                    {tokenDetails.tokenName.length <= 28 ? (
-                      <div className="flex items-center">
-                        <span className="max-w-full">
-                          {tokenDetails.tokenName || (
-                            <Address pubkey={address} short />
-                          )}
-                        </span>
-                        {tokenDetails.tokenName !== "" && (
-                          <div className="ml-2 text-3xl text-muted-foreground">
-                            ({tokenDetails.tokenSymbol})
-                          </div>
+                  <div className="flex flex-col items-center md:flex-row md:justify-start">
+                    <div className="flex flex-col items-center md:flex-row md:items-center">
+                      <span className="max-w-full">
+                        {tokenDetails.tokenName || (
+                          <Address pubkey={address} short />
                         )}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center md:items-start">
-                        <span className="max-w-full">
-                          {tokenDetails.tokenName || (
-                            <Address pubkey={address} short />
-                          )}
+                        <span className={`ml-2 text-3xl text-muted-foreground hidden md:inline ${tokenDetails.tokenName.length > 25 ? "md:hidden" : ""}`}>
+                          ({tokenDetails.tokenSymbol})
                         </span>
-                        {tokenDetails.tokenName !== "" && (
-                          <div className="mt-1 text-3xl text-muted-foreground">
-                            ({tokenDetails.tokenSymbol})
-                          </div>
-                        )}
-                      </div>
-                    )}
+                      </span>
+                      {tokenDetails.tokenName !== "" && (
+                        <div className={`mt-1 text-3xl text-muted-foreground ${tokenDetails.tokenName.length <= 25 ? "md:hidden" : "md:block"}`}>
+                          ({tokenDetails.tokenSymbol})
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="mt-4 flex flex-shrink-0 flex-row items-center justify-center md:mt-0 md:inline-block md:flex-col md:items-start">
                     <Badge variant="success">{type}</Badge>

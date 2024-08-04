@@ -58,10 +58,6 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
     isLoading: nftDataLoading,
   } = useGetNFTsByMint(address.toBase58(), true);
 
-  useEffect(() => {
-    console.log("NFT Data in AccountHeaderNFTs:", nft);
-  }, [nft]);
-
   const displayName = nft?.name || "";
   const displayImage = nft?.content?.links?.image || nft?.image || noLogoImg.src;
   const fallbackAddress = address.toBase58();

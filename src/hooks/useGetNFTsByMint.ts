@@ -29,7 +29,6 @@ export function useGetNFTsByMint(mint: string, enabled: boolean = true) {
 
         return nft;
       } catch (error) {
-        console.error("Error fetching NFT data:", error);
         throw error;
       }
     },
@@ -64,11 +63,6 @@ async function getNFTByMintDAS(
 
     const data: { result: DAS.GetAssetResponse } = await response.json();
     const item = data.result;
-
-    if (!item) {
-      console.error("No item found in the result:", data.result);
-      return null;
-    }
 
     if (
       [
@@ -112,7 +106,6 @@ async function getNFTByMintDAS(
 
     return null;
   } catch (error) {
-    console.error("Error fetching NFT data from DAS:", error);
     return null;
   }
 }
@@ -164,9 +157,7 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
         nft.image = externalMetadata.image;
         nft.description = externalMetadata.description;
         nft.attributes = externalMetadata.attributes;
-      } catch (error) {
-        console.error("Error fetching external metadata for NFT:", error);
-      }
+      } catch (error) {}
     }
   };
 

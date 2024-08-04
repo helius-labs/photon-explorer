@@ -88,9 +88,7 @@ async function getTokenByMintDAS(
         token_program: item.token_info?.token_program || "N/A",
       };
     }
-  } catch (error) {
-    console.error("Error fetching token data from DAS API:", error);
-  }
+  } catch (error) {}
   return null;
 }
 

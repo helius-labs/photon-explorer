@@ -115,7 +115,6 @@ async function fetchAssetsInRange(
     current = result.items[result.items.length - 1].id;
   }
 
-  //console.log("Fetched assets in range:", totalItems);
   return totalItems;
 }
 
@@ -131,7 +130,6 @@ export async function fetchPartitionedAssets(
   );
 
   const results = await Promise.all(promises);
-  console.log("Fetched partitioned assets:", results.flat()); // Debugging statement
   return results.flat();
 }
 
@@ -188,9 +186,7 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
         const response = await fetch(nft.raw.metadata.uri);
         const externalMetadata = await response.json();
         nft.image = externalMetadata.image;
-      } catch (error) {
-        console.error("Error fetching external metadata for NFT:", error);
-      }
+      } catch (error) {}
     }
   };
 
