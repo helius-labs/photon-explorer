@@ -1,9 +1,12 @@
 import { NFT } from "@/types/nft";
+import { SYSVAR_IDS } from "@/utils/programs";
 import {
   AccountInfo,
   ConfirmedSignatureInfo,
   ParsedAccountData,
 } from "@solana/web3.js";
+
+// Import SYSVAR_IDS
 
 export enum AccountType {
   Wallet = "Wallet",
@@ -29,14 +32,14 @@ export function getAccountType(
 ): AccountType {
   // Check if the account has been closed
   if (signatures && signatures.length > 0 && accountInfo === null) {
-    return AccountType.Closed;
+    return AccountType.Program;
   }
 
   // Check if the account has never been submitted to the blockchain
   if (signatures && signatures.length === 0 && accountInfo === null) {
     return AccountType.NotFound;
   }
-  // console.log("ACCOUNT INFO: ", accountInfo);
+
   if (accountInfo && accountInfo.data && "parsed" in accountInfo.data) {
     switch (accountInfo.data.program) {
       case "bpf-upgradeable-loader":
@@ -51,7 +54,8 @@ export function getAccountType(
         if (
           accountInfo.data.parsed.type === "mint" &&
           accountInfo.data.parsed.info.decimals === 0 &&
-          parseInt(accountInfo.data.parsed.info.supply) === 1
+          parseInt(accountInfo.data.parsed.info.supply) === 1 &&
+          accountInfo.data.parsed.info.freezeAuthority !== null // Ensure it's an NFT with a freeze authority
         ) {
           return AccountType.MetaplexNFT;
         }
@@ -62,7 +66,8 @@ export function getAccountType(
         if (
           accountInfo.data.parsed.type === "mint" &&
           accountInfo.data.parsed.info.decimals === 0 &&
-          parseInt(accountInfo.data.parsed.info.supply) === 1
+          parseInt(accountInfo.data.parsed.info.supply) === 1 &&
+          accountInfo.data.parsed.info.freezeAuthority !== null // Ensure it's an NFT with a freeze authority
         ) {
           return AccountType.Token2022NFT;
         }
@@ -75,14 +80,23 @@ export function getAccountType(
   // If there is no parsed data, check if the account is a program or wallet
   if (accountInfo && accountInfo.executable) {
     return AccountType.Program;
-  } else if (accountInfo && accountInfo.owner.toBase58() === SYSTEM_PROGRAM) {
-    return AccountType.Wallet;
-  } else if (accountInfo && accountInfo.owner.toBase58() === NFTOKEN_ADDRESS) {
-    return AccountType.NFToken;
+  } else if (accountInfo) {
+    const owner = accountInfo.owner.toBase58();
+    if (owner === SYSTEM_PROGRAM) {
+      return AccountType.Wallet;
+    }
+    if (owner === NFTOKEN_ADDRESS) {
+      return AccountType.NFToken;
+    }
   }
 
   if (nftData?.compression?.compressed) {
     return AccountType.CompressedNFT;
+  }
+
+  // Check for known sysvar program addresses
+  if (accountInfo && SYSVAR_IDS[accountInfo.owner.toBase58()]) {
+    return AccountType.Program;
   }
 
   return AccountType.Unknown;

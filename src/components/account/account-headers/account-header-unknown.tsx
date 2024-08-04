@@ -11,6 +11,8 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Cluster } from "@/utils/cluster";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 
 interface AccountHeaderUnknownProps {
   address: PublicKey;
@@ -34,6 +36,16 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
 
   const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
 
+  if (loadingDomains) {
+    return (
+      <div className="mx-[-1rem] md:mx-0">
+        <Card className="w-full flex items-center justify-center h-32">
+          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20 opacity-80" />
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-[-1rem] md:mx-0">
       <Card className="w-full">
@@ -42,7 +54,7 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
             <Avatar
               size={80}
               name={fallbackAddress}
-              variant="marble"
+              variant="pixel"
               colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
             />
             {isLocalOrTestNet && (
@@ -71,7 +83,7 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
             <div className="text-2xl font-medium leading-none md:text-left">
               <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
                 <Address pubkey={address} short />
-                <Badge className="md:hidden" variant="success">Unknown</Badge>
+                <Badge variant="success">Unknown</Badge>
               </div>
               <div className="mt-2 flex flex-wrap justify-center gap-2 md:ml-auto md:justify-start">
                 {!loadingDomains && userDomains && userDomains.length > 0 && (

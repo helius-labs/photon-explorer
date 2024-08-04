@@ -29,7 +29,6 @@ export function useGetNFTsByMint(mint: string, enabled: boolean = true) {
 
         return nft;
       } catch (error) {
-        console.error("Error fetching NFT data:", error);
         throw error;
       }
     },
@@ -65,11 +64,6 @@ async function getNFTByMintDAS(
     const data: { result: DAS.GetAssetResponse } = await response.json();
     const item = data.result;
 
-    if (!item) {
-      console.error("No item found in the result:", data.result);
-      return null;
-    }
-
     if (
       [
         Interface.V1NFT,
@@ -90,7 +84,7 @@ async function getNFTByMintDAS(
       const nft: NFT = {
         raw: item,
         mint: new PublicKey(item.id),
-        name: item.content?.metadata?.name || "Unnamed NFT",
+        name: item.content?.metadata?.name || "",
         image: item.content?.links?.image || "",
         description: item.content?.metadata?.description || "",
         owner: item.ownership?.owner || "",
@@ -112,7 +106,6 @@ async function getNFTByMintDAS(
 
     return null;
   } catch (error) {
-    console.error("Error fetching NFT data from DAS:", error);
     return null;
   }
 }
@@ -142,7 +135,7 @@ async function getNFTByMintMetaplex(
   const nft: NFT = {
     raw: item,
     mint: new PublicKey(item.mint.publicKey),
-    name: item.metadata.name || "Unnamed NFT",
+    name: item.metadata.name || "",
     image: item.metadata.uri || "",
     verified:
       unwrapOption(item.metadata.creators)?.some(
@@ -164,9 +157,7 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
         nft.image = externalMetadata.image;
         nft.description = externalMetadata.description;
         nft.attributes = externalMetadata.attributes;
-      } catch (error) {
-        console.error("Error fetching external metadata for NFT:", error);
-      }
+      } catch (error) {}
     }
   };
 

@@ -37,9 +37,7 @@ export function NFTGridTable<TData, TValue>({
       },
     },
   });
-
-  console.log("Table Rows:", table.getRowModel().rows); // Debug statement to check table rows
-
+  
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

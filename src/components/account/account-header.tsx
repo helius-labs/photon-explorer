@@ -44,11 +44,8 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
       case AccountType.Token2022:
         return <AccountHeaderTokens address={address} type="Token2022" />;
       case AccountType.Token2022NFT:
-        return <AccountHeaderNFTs address={address} type="Token2022" nft={nft} />;
       case AccountType.MetaplexNFT:
-        return <AccountHeaderNFTs address={address} nft={nft} />;
       case AccountType.NFToken:
-        return <AccountHeaderNFTs address={address} nft={nft} />;
       case AccountType.CompressedNFT:
         return <AccountHeaderNFTs address={address} nft={nft} />;
       case AccountType.Wallet:
@@ -56,11 +53,10 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
           <AccountHeaderWallets
             address={address}
             accountInfo={accountInfo}
-            solPrice={null}
           />
         );
       case AccountType.Program:
-        return <AccountHeaderPrograms address={address} />;
+        return <AccountHeaderPrograms address={address} accountInfo={accountInfo} />;
       case AccountType.Unknown:
       default:
         return <AccountHeaderUnknown address={address} />;

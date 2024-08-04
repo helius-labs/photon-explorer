@@ -7,11 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
-import {
-  useGetCompressedAccount,
-  useGetCompressionSignaturesForAccount,
-} from "@/hooks/compression";
-import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
+import { useGetCompressedAccount, useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import AccountHeader from "@/components/account/account-header";
@@ -44,13 +40,6 @@ export default function AddressLayout({
   // Fetch account info can be null if the address is not used or the account has been closed
   const compressedAccount = useGetCompressedAccount(address);
 
-  // Fetch NFT data to check if it's a compressed NFT
-  const {
-    data: nftData,
-    isLoading: nftLoading,
-    isError: nftError,
-  } = useGetNFTsByMint(address);
-
   const accountType = useMemo(() => {
     if (
       accountInfo.data &&
@@ -60,33 +49,33 @@ export default function AddressLayout({
       return getAccountType(
         accountInfo.data.value,
         signatures.data,
-        nftData || undefined,
       );
     }
-    if (nftData?.compression?.compressed) {
-      return AccountType.CompressedNFT;
-    }
     return AccountType.Unknown;
-  }, [accountInfo.data, signatures.data, nftData]);
+  }, [accountInfo.data, signatures.data]);
 
   // Create better logic for the tabs based on the account type
   const tabs: Tab[] = useMemo(() => {
     const newTabs: Tab[] = [];
 
-    if (accountType === AccountType.Wallet || accountType === AccountType.Closed) {
+    if (accountType === AccountType.Wallet) {
       // Add the default tabs in the new order for wallet accounts
       newTabs.push({ name: "Tokens", href: `/address/${address}/tokens` });
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
       newTabs.push({ name: "NFTs", href: `/address/${address}/nfts` });
       newTabs.push({ name: "Domains", href: `/address/${address}/domains` });
+    } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
+      // Add tabs specific to Program accounts
+      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
     } else if (
       accountType === AccountType.Token ||
-      accountType === AccountType.Program ||
       accountType === AccountType.MetaplexNFT ||
       accountType === AccountType.NFToken ||
-      accountType === AccountType.CompressedNFT
+      accountType === AccountType.Token2022 ||
+      accountType === AccountType.CompressedNFT ||
+      accountType === AccountType.NotFound 
+
     ) {
-      // Add tabs specific to Token, Program, NFT, or Compressed NFT accounts
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
       newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
     }
@@ -106,20 +95,19 @@ export default function AddressLayout({
   useEffect(() => {
     // Only redirect to "tokens" tab if the current path is exactly the wallet address path
     if (pathname === `/address/${address}`) {
-      if (
-        accountType === AccountType.Wallet ||
-        accountType === AccountType.Closed
-      ) {
+      if (accountType === AccountType.Wallet) {
         router.replace(`/address/${address}/tokens?cluster=${cluster}`);
+      } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
+        router.replace(`/address/${address}/history?cluster=${cluster}`);
       } else if (
         accountType === AccountType.Token ||
-        accountType === AccountType.Program ||
         accountType === AccountType.MetaplexNFT ||
         accountType === AccountType.NFToken ||
+        accountType === AccountType.Token2022 ||
         accountType === AccountType.CompressedNFT ||
-        accountType === AccountType.Unknown // Added to handle unknown account types
+        accountType === AccountType.NotFound
       ) {
-        router.replace(`/address/${address}/tokens?cluster=${cluster}`);
+        router.replace(`/address/${address}/history?cluster=${cluster}`);
       }
     }
   }, [accountType, address, cluster, pathname, router]);
@@ -133,8 +121,7 @@ export default function AddressLayout({
     signatures.isError ||
     accountInfo.isError ||
     compressedAccount.isError ||
-    compressedSignatures.isError ||
-    nftError
+    compressedSignatures.isError
   ) {
     return (
       <ErrorCard
@@ -142,8 +129,7 @@ export default function AddressLayout({
           signatures.error?.message ||
           accountInfo.error?.message ||
           compressedAccount.error?.message ||
-          compressedSignatures.error?.message ||
-          nftError
+          compressedSignatures.error?.message
         }`}
       />
     );
@@ -153,8 +139,7 @@ export default function AddressLayout({
     signatures.isLoading ||
     accountInfo.isLoading ||
     compressedAccount.isLoading ||
-    compressedSignatures.isLoading ||
-    nftLoading
+    compressedSignatures.isLoading 
   ) {
     return (
       <div className="mt-20 flex justify-center">
@@ -163,44 +148,27 @@ export default function AddressLayout({
     );
   }
 
-  return (
-    <>
-      {signatures.data &&
-      signatures.data.length > 0 &&
-      accountInfo.data !== undefined ? (
-        <>
-          <AccountHeader
-            address={new PublicKey(address)}
-            accountInfo={accountInfo.data.value}
-            signatures={signatures.data}
-            accountType={accountType}
-          />
-          <TabNav tabs={tabs} />
-          {children}
-        </>
-      ) : nftData?.compression?.compressed ? (
-        <>
-          <AccountHeader
-            address={new PublicKey(address)}
-            accountInfo={null}
-            signatures={signatures.data || []}
-            accountType={AccountType.CompressedNFT}
-          />
-          <TabNav tabs={tabs} />
-          {children}
-        </>
-      ) : compressedAccount.data ? (
-        <>
+  // Check for minimal data rendering
+  if (accountInfo.data || signatures.data || compressedAccount.data) {
+    return (
+      <>
+        <AccountHeader
+          address={new PublicKey(address)}
+          accountInfo={accountInfo.data?.value || null}
+          signatures={signatures.data || []}
+          accountType={accountType}
+        />
+        {compressedAccount.data && (
           <CompressionHeader
             address={new PublicKey(address)}
             compressedAccount={compressedAccount.data}
           />
-          <TabNav tabs={tabs} />
-          {children}
-        </>
-      ) : (
-        <ErrorCard text="Address not found on chain" />
-      )}
-    </>
-  );
+        )}
+        <TabNav tabs={tabs} />
+        {children}
+      </>
+    );
+  }
+
+  return <ErrorCard text="Address not found on chain" />;
 }

@@ -91,7 +91,7 @@ async function fetchAssetsInRange(
         id: item.id,
         raw: item,
         mint: new PublicKey(item.id),
-        name: item.content?.metadata?.name || "Unnamed NFT",
+        name: item.content?.metadata?.name || "",
         image: item.content?.links?.image || "",
         description: item.content?.metadata?.description || "",
         owner: item.ownership?.owner || "",
@@ -115,7 +115,6 @@ async function fetchAssetsInRange(
     current = result.items[result.items.length - 1].id;
   }
 
-  //console.log("Fetched assets in range:", totalItems);
   return totalItems;
 }
 
@@ -131,7 +130,6 @@ export async function fetchPartitionedAssets(
   );
 
   const results = await Promise.all(promises);
-  console.log("Fetched partitioned assets:", results.flat()); // Debugging statement
   return results.flat();
 }
 
@@ -188,9 +186,7 @@ const fetchNftMetadata = async (nfts: NFT[]) => {
         const response = await fetch(nft.raw.metadata.uri);
         const externalMetadata = await response.json();
         nft.image = externalMetadata.image;
-      } catch (error) {
-        console.error("Error fetching external metadata for NFT:", error);
-      }
+      } catch (error) {}
     }
   };
 
