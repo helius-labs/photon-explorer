@@ -49,6 +49,17 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import TransactionBalances from "../common/txn-history-balance";
 import { DataTable } from "../data-table/data-table";
 
+type EnhancedTransactionData = TransactionData & {
+  transactionDetails?: ParsedTransactionWithMeta | null;
+};
+interface TransactionCardProps {
+  data: EnhancedTransactionData[];
+  pagination: { pageIndex: number; pageSize: number };
+  onPageChange: (newPageIndex: number) => void;
+  address: string;
+  accountType: AccountType;
+}
+
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
 }
@@ -250,7 +261,11 @@ export const getColumns = (
             return (
               <Link href={`/tx/${signature}`}>
                 <div className="px-4 py-2 text-left">
-                  <div>{TransactionBalances(transaction, address)} </div>
+                  <TransactionBalances
+                    transaction={transaction}
+                    address={address}
+                    transactionDetails={transaction.transactionDetails}
+                  />
                 </div>
               </Link>
             );
@@ -371,42 +386,49 @@ export const getColumns = (
   },
 ];
 
-export function TransactionCard({ data }: { data: TransactionData[] }) {
-  const pathname = usePathname();
-  const address = pathname.split("/")[2];
-  const pageType = pathname.split("/")[1];
-
-  const signatures = useGetSignaturesForAddress(address, 1);
-  const accountInfo = useGetAccountInfo(address);
-  const accountType = useMemo(() => {
-    if (
-      accountInfo.data &&
-      accountInfo.data.value !== undefined &&
-      signatures.data !== undefined
-    ) {
-      return getAccountType(accountInfo.data.value, signatures.data);
-    }
-  }, [accountInfo.data, signatures.data]);
+export function TransactionCard({
+  data,
+  pagination,
+  onPageChange,
+  address,
+  accountType,
+}: TransactionCardProps) {
   const isWallet = accountType === AccountType.Wallet;
 
-  const columns = getColumns(address, isWallet);
+  const columns = useMemo(
+    () => getColumns(address, isWallet),
+    [address, isWallet],
+  );
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
+    manualPagination: true,
+    pageCount: -1, // This tells the table that we're doing manual pagination
+    state: {
       pagination: {
-        pageSize: 10,
+        pageIndex: pagination.pageIndex,
+        pageSize: pagination.pageSize,
       },
+    },
+    onPaginationChange: (updater) => {
+      const newPagination =
+        typeof updater === "function" ? updater(pagination) : updater;
+      onPageChange(newPagination.pageIndex);
     },
   });
 
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
-        <DataTable columns={getColumns(address, isWallet)} data={data} />
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination={pagination}
+          onPageChange={onPageChange}
+          manualPagination={true}
+        />
       </div>
       <div className="block md:hidden">
         {table.getRowModel().rows.map((row) => {
@@ -535,14 +557,21 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
               )}
               {isWallet && (
                 <div className="flex justify-center px-4 py-2 text-lg">
-                  <div>{TransactionBalances(transaction, address)}</div>
+                  <TransactionBalances
+                    transaction={transaction}
+                    address={address}
+                  />
                 </div>
               )}
             </div>
           );
         })}
         <div className="mt-4 flex justify-center">
-          <DataTablePagination table={table} />
+          <DataTablePagination
+            table={table}
+            onPageChange={onPageChange}
+            manualPagination={true}
+          />
         </div>
       </div>
     </>
