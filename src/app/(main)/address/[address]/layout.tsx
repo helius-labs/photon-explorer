@@ -137,47 +137,27 @@ export default function AddressLayout({
     );
   }
 
-  return (
-    <>
-      {signatures.data &&
-      signatures.data.length > 0 &&
-      accountInfo.data !== undefined ? (
-        <>
-          <AccountHeader
-            address={new PublicKey(address)}
-            accountInfo={accountInfo.data.value}
-            signatures={signatures.data}
-            accountType={accountType}
-            isClosed={accountType === AccountType.Closed}
-          />
-          <TabNav tabs={tabs} />
-          {children}
-        </>
-      ) : nftData?.compression?.compressed ? (
-        <>
-          <AccountHeader
-            address={new PublicKey(address)}
-            accountInfo={null}
-            signatures={signatures.data || []}
-            accountType={AccountType.CompressedNFT}
-          />
-          <TabNav tabs={tabs} />
-          {children}
-        </>
-      ) : compressedAccount.data ? (
-        <>
+  // Check for minimal data rendering
+  if (accountInfo.data || signatures.data || compressedAccount.data) {
+    return (
+      <>
+        <AccountHeader
+          address={new PublicKey(address)}
+          accountInfo={accountInfo.data?.value || null}
+          signatures={signatures.data || []}
+          accountType={accountType}
+        />
+        {compressedAccount.data && (
           <CompressionHeader
             address={new PublicKey(address)}
             compressedAccount={compressedAccount.data}
           />
-          <TabNav tabs={tabs} />
-          {children}
-        </>
-      ) : (
-        <ErrorCard text="Address not found on chain" />
-      )}
-    </>
-  );
+        )}
+        <TabNav tabs={tabs} />
+        {children}
+      </>
+    );
+  }
 
   return <ErrorCard text="Address not found on chain" />;
 }
