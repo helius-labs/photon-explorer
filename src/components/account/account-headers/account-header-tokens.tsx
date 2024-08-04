@@ -34,6 +34,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -58,9 +60,9 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     dailyVolume?: string;
     holders?: string;
   }>({
-    tokenName: "Token",
+    tokenName: "",
     tokenImageURI: null,
-    tokenSymbol: "SYMBOL",
+    tokenSymbol: "",
     supply: undefined,
     price: "",
     marketCap: "",
@@ -69,7 +71,6 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     token_program: "",
   });
 
-  const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
   const { cluster, endpoint } = useCluster();
 
@@ -101,77 +102,40 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
   useEffect(() => {
     if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) return;
 
-    if (tokenListError || tokenDataError || tokenMetricsError) {
-      if (retryCount < 3) {
-        setRetryCount(retryCount + 1);
-        setTimeout(() => {
-          if (tokenList) {
-            const tokenFromList = tokenList.find(
-              (token) => token.address === address.toBase58(),
-            );
-            if (tokenFromList || tokenDataFromAPI) {
-              setTokenDetails({
-                tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
-                tokenImageURI:
-                  tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
-                tokenSymbol:
-                  tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
-                supply:
-                  tokenDataFromAPI?.supply !== undefined
-                    ? tokenDataFromAPI.supply
-                    : undefined,
-                price:
-                  tokenDataFromAPI?.price !== undefined
-                    ? formatCurrencyValue(tokenDataFromAPI.price)
-                    : "",
-                marketCap: tokenMetricsData?.data?.marketCap
-                  ? formatCurrencyValue(tokenMetricsData?.data?.marketCap)
-                  : "",
-                mint_authority: tokenDataFromAPI?.mint_authority || "",
-                freeze_authority: tokenDataFromAPI?.freeze_authority || "",
-                token_program: tokenDataFromAPI?.token_program || "",
-                dailyVolume: tokenMetricsData?.data?.dailyVolume
-                  ? formatCurrencyValue(tokenMetricsData.data.dailyVolume)
-                  : "",
-                holders: tokenMetricsData?.data?.holders
-                  ? formatNumericValue(tokenMetricsData.data.holders).toString()
-                  : "",
-              });
-            }
-          }
-        }, 2000);
-      }
-    } else if (tokenList) {
-      const tokenFromList = tokenList.find(
-        (token) => token.address === address.toBase58(),
-      );
-      if (tokenFromList || tokenDataFromAPI) {
-        setTokenDetails({
-          tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
-          tokenImageURI:
-            tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
-          tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
-          supply:
-            tokenDataFromAPI?.supply !== undefined
-              ? tokenDataFromAPI.supply
-              : undefined,
-          price:
-            tokenDataFromAPI?.price !== undefined
-              ? formatCurrencyValue(tokenDataFromAPI.price)
+    if (!tokenListError && !tokenDataError && !tokenMetricsError) {
+      if (tokenList) {
+        const tokenFromList = tokenList.find(
+          (token) => token.address === address.toBase58(),
+        );
+        if (tokenFromList || tokenDataFromAPI) {
+          setTokenDetails({
+            tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
+            tokenImageURI:
+              tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
+            tokenSymbol:
+              tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
+            supply:
+              tokenDataFromAPI?.supply !== undefined
+                ? tokenDataFromAPI.supply
+                : undefined,
+            price:
+              tokenDataFromAPI?.price !== undefined
+                ? formatCurrencyValue(tokenDataFromAPI.price)
+                : "",
+            marketCap: tokenMetricsData?.data?.marketCap
+              ? formatCurrencyValue(tokenMetricsData?.data?.marketCap)
               : "",
-          marketCap: tokenMetricsData?.data?.marketCap
-            ? formatCurrencyValue(tokenMetricsData?.data?.marketCap)
-            : "",
-          mint_authority: tokenDataFromAPI?.mint_authority || "",
-          freeze_authority: tokenDataFromAPI?.freeze_authority || "",
-          token_program: tokenDataFromAPI?.token_program || "",
-          dailyVolume: tokenMetricsData?.data?.dailyVolume
-            ? formatCurrencyValue(tokenMetricsData.data.dailyVolume)
-            : "",
-          holders: tokenMetricsData?.data?.holders
-            ? formatNumericValue(tokenMetricsData.data.holders).toString()
-            : "",
-        });
+            mint_authority: tokenDataFromAPI?.mint_authority || "",
+            freeze_authority: tokenDataFromAPI?.freeze_authority || "",
+            token_program: tokenDataFromAPI?.token_program || "",
+            dailyVolume: tokenMetricsData?.data?.dailyVolume
+              ? formatCurrencyValue(tokenMetricsData.data.dailyVolume)
+              : "",
+            holders: tokenMetricsData?.data?.holders
+              ? formatNumericValue(tokenMetricsData.data.holders).toString()
+              : "",
+          });
+        }
       }
     }
   }, [
@@ -184,7 +148,6 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     tokenListError,
     tokenDataError,
     tokenMetricsError,
-    retryCount,
     address,
   ]);
 
@@ -203,6 +166,19 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     Cluster.Testnet,
     Cluster.Custom,
   ].includes(cluster);
+
+  if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) {
+    return (
+      <div className="mx-[-1rem] md:mx-0">
+        <Card className="relative mb-8 w-full space-y-4 p-6 md:space-y-6 flex items-center justify-center">
+          <LottieLoader
+            animationData={loadingBarAnimation}
+            className="h-32 w-32 opacity-80"
+          />
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -242,9 +218,22 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
             <div className="flex w-full flex-col md:flex-row md:justify-between">
               <div className="max-w-xs flex-grow text-center md:text-left">
                 <CardTitle className="text-3xl font-medium leading-none">
-                  <div className="flex flex-col items-center md:flex-row md:justify-start">
-                    {tokenDetails.tokenName.length <= 12 ? (
-                      <div className="flex items-center space-x-2">
+                  <div className="flex flex-col items-center md:items-start">
+                    {tokenDetails.tokenName.length <= 28 ? (
+                      <div className="flex items-center">
+                        <span className="max-w-full">
+                          {tokenDetails.tokenName || (
+                            <Address pubkey={address} short />
+                          )}
+                        </span>
+                        {tokenDetails.tokenName !== "" && (
+                          <div className="ml-2 text-3xl text-muted-foreground">
+                            ({tokenDetails.tokenSymbol})
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center md:items-start">
                         <span className="max-w-full">
                           {tokenDetails.tokenName || (
                             <Address pubkey={address} short />
@@ -256,23 +245,8 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                           </div>
                         )}
                       </div>
-                    ) : (
-                      <span className="max-w-full md:min-w-[200px]">
-                        {tokenDetails.tokenName !== "" ? (
-                          tokenDetails.tokenName.slice(0, 35) +
-                          (tokenDetails.tokenName.length > 35 ? "..." : "")
-                        ) : (
-                          <Address pubkey={address} short />
-                        )}
-                      </span>
                     )}
                   </div>
-                  {tokenDetails.tokenName.length > 12 &&
-                    tokenDetails.tokenName !== "" && (
-                      <div className="mt-1 text-3xl text-muted-foreground">
-                        ({tokenDetails.tokenSymbol})
-                      </div>
-                    )}
                   <div className="mt-4 flex flex-shrink-0 flex-row items-center justify-center md:mt-0 md:inline-block md:flex-col md:items-start">
                     <Badge variant="success">{type}</Badge>
                     {isVerifiedByJupiter && (

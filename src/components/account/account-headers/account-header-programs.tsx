@@ -64,7 +64,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
         return (
           <div className="flex flex-col items-center md:items-end md:ml-auto">
             <div className="flex flex-col text-sm text-muted-foreground">
-              <strong>Lamports per Signature:</strong> {parsed.info.feeCalculator.lamportsPerSignature}
+              <strong>Lamports per Signature</strong> {parsed.info.feeCalculator.lamportsPerSignature}
             </div>
           </div>
         );
@@ -72,7 +72,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
         return (
           <div className="flex flex-col items-center md:items-end md:ml-auto">
             <div className="flex flex-col text-sm text-muted-foreground">
-              <strong>Validator Point Value:</strong> {parsed.info.validatorPointValue}
+              <strong>Validator Point Value</strong> {parsed.info.validatorPointValue}
             </div>
           </div>
         );

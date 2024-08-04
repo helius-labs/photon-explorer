@@ -7,10 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
-import {
-  useGetCompressedAccount,
-  useGetCompressionSignaturesForAccount,
-} from "@/hooks/compression";
+import { useGetCompressedAccount, useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
 import AccountHeader from "@/components/account/account-header";
@@ -70,8 +67,15 @@ export default function AddressLayout({
     } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
       // Add tabs specific to Program accounts
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
-    } else if (accountType === AccountType.Token || accountType === AccountType.MetaplexNFT || accountType === AccountType.NFToken || accountType === AccountType.Token2022) {
-      // Add tabs specific to Token and NFT accounts
+    } else if (
+      accountType === AccountType.Token ||
+      accountType === AccountType.MetaplexNFT ||
+      accountType === AccountType.NFToken ||
+      accountType === AccountType.Token2022 ||
+      accountType === AccountType.CompressedNFT ||
+      accountType === AccountType.NotFound 
+
+    ) {
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
       newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
     }
@@ -95,7 +99,14 @@ export default function AddressLayout({
         router.replace(`/address/${address}/tokens?cluster=${cluster}`);
       } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
         router.replace(`/address/${address}/history?cluster=${cluster}`);
-      } else if (accountType === AccountType.Token || accountType === AccountType.MetaplexNFT || accountType === AccountType.NFToken || accountType === AccountType.Token2022) {
+      } else if (
+        accountType === AccountType.Token ||
+        accountType === AccountType.MetaplexNFT ||
+        accountType === AccountType.NFToken ||
+        accountType === AccountType.Token2022 ||
+        accountType === AccountType.CompressedNFT ||
+        accountType === AccountType.NotFound
+      ) {
         router.replace(`/address/${address}/history?cluster=${cluster}`);
       }
     }

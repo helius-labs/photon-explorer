@@ -11,6 +11,8 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Cluster } from "@/utils/cluster";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 
 interface AccountHeaderUnknownProps {
   address: PublicKey;
@@ -33,6 +35,16 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
   }, [hasCopied]);
 
   const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
+
+  if (loadingDomains) {
+    return (
+      <div className="mx-[-1rem] md:mx-0">
+        <Card className="w-full flex items-center justify-center h-32">
+          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20 opacity-80" />
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-[-1rem] md:mx-0">

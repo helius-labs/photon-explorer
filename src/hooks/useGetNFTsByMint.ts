@@ -90,7 +90,7 @@ async function getNFTByMintDAS(
       const nft: NFT = {
         raw: item,
         mint: new PublicKey(item.id),
-        name: item.content?.metadata?.name || "Unnamed NFT",
+        name: item.content?.metadata?.name || "",
         image: item.content?.links?.image || "",
         description: item.content?.metadata?.description || "",
         owner: item.ownership?.owner || "",
@@ -142,7 +142,7 @@ async function getNFTByMintMetaplex(
   const nft: NFT = {
     raw: item,
     mint: new PublicKey(item.mint.publicKey),
-    name: item.metadata.name || "Unnamed NFT",
+    name: item.metadata.name || "",
     image: item.metadata.uri || "",
     verified:
       unwrapOption(item.metadata.creators)?.some(

@@ -91,7 +91,7 @@ async function fetchAssetsInRange(
         id: item.id,
         raw: item,
         mint: new PublicKey(item.id),
-        name: item.content?.metadata?.name || "Unnamed NFT",
+        name: item.content?.metadata?.name || "",
         image: item.content?.links?.image || "",
         description: item.content?.metadata?.description || "",
         owner: item.ownership?.owner || "",

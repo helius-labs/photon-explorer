@@ -435,6 +435,7 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
 export const SPECIAL_IDS: { [key: string]: string } = {
   "1nc1nerator11111111111111111111111111111111": "Incinerator",
   Sysvar1111111111111111111111111111111111111: "SYSVAR",
+  he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk: "Helius Validator",
 };
 
 export const SYSVAR_IDS: { [key: string]: string } = {

@@ -35,6 +35,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
+import LottieLoader from "@/components/common/lottie-loading";
+import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 
 interface AccountHeaderNFTsProps {
   address: PublicKey;
@@ -51,11 +54,15 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
   const router = useRouter();
   const { cluster, endpoint } = useCluster();
 
+  const {
+    isLoading: nftDataLoading,
+  } = useGetNFTsByMint(address.toBase58(), true);
+
   useEffect(() => {
     console.log("NFT Data in AccountHeaderNFTs:", nft);
   }, [nft]);
 
-  const displayName = nft?.name || "Unnamed NFT";
+  const displayName = nft?.name || "";
   const displayImage = nft?.content?.links?.image || nft?.image || noLogoImg.src;
   const fallbackAddress = address.toBase58();
 
@@ -82,6 +89,19 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
     Cluster.Testnet,
     Cluster.Custom,
   ].includes(cluster);
+
+  if (nftDataLoading) {
+    return (
+      <div className="mx-[-1rem] md:mx-0">
+        <Card className="relative mb-8 w-full space-y-4 p-6 md:space-y-6 flex items-center justify-center">
+          <LottieLoader
+            animationData={loadingBarAnimation}
+            className="h-32 w-32 opacity-80"
+          />
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
