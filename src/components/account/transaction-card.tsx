@@ -49,6 +49,12 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import TransactionBalances from "../common/txn-history-balance";
 import { DataTable } from "../data-table/data-table";
 
+interface TransactionCardProps {
+  data: TransactionData[];
+  pagination: { pageIndex: number; pageSize: number };
+  onPageChange: (newPageIndex: number) => void;
+}
+
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
 }
@@ -371,7 +377,11 @@ export const getColumns = (
   },
 ];
 
-export function TransactionCard({ data }: { data: TransactionData[] }) {
+export function TransactionCard({
+  data,
+  pagination,
+  onPageChange,
+}: TransactionCardProps) {
   const pathname = usePathname();
   const address = pathname.split("/")[2];
   const pageType = pathname.split("/")[1];
@@ -406,7 +416,13 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
-        <DataTable columns={getColumns(address, isWallet)} data={data} />
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination={pagination}
+          onPageChange={onPageChange}
+          manualPagination={true}
+        />
       </div>
       <div className="block md:hidden">
         {table.getRowModel().rows.map((row) => {
@@ -542,7 +558,11 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
           );
         })}
         <div className="mt-4 flex justify-center">
-          <DataTablePagination table={table} />
+          <DataTablePagination
+            table={table}
+            onPageChange={onPageChange}
+            manualPagination={true}
+          />
         </div>
       </div>
     </>
