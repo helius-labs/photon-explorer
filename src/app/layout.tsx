@@ -2,6 +2,7 @@ import { ClusterProvider } from "@/providers/cluster-provider";
 import { ReactQueryClientProvider } from "@/providers/query-client-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { cn } from "@/utils/common";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Inter as Fontface } from "next/font/google";
 import { Suspense } from "react";
@@ -43,7 +44,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body
         className={cn(
-          "min-h-screen bg-background antialiased flex flex-col",
+          "flex min-h-screen flex-col bg-background antialiased",
           fontface.className,
         )}
       >
@@ -59,11 +60,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
           >
             <Suspense>
               <ClusterProvider>
-                <div className="flex min-h-screen flex-col w-full">{children}</div>
+                <div className="flex min-h-screen w-full flex-col">
+                  {children}
+                </div>
               </ClusterProvider>
             </Suspense>
           </ThemeProvider>
         </ReactQueryClientProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
