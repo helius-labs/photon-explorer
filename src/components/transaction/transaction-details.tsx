@@ -19,9 +19,10 @@ import TransactionOverviewParsed from "@/components/transaction/transaction-over
 import TransactionTokenBalances from "@/components/transaction/transaction-token-balances";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import Loading from "@/components/common/loading";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "../ui/button";
+import LottieLoader from "../common/lottie-loading";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   // Default RPC transaction data
@@ -46,41 +47,37 @@ export default function TransactionDetails({ tx }: { tx: string }) {
   if (parsed.isError || transaction.isError || compressed.isError)
     return (
       <div className="mx-[-1rem] md:mx-0">
-      <Card className="mx-auto w-full max-w-lg">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center p-6">
-            <div className="text-lg text-muted-foreground">
-              Failed to load transaction.
+        <Card className="mx-auto w-full max-w-lg">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center justify-center p-6">
+              <div className="text-lg text-muted-foreground">
+                Failed to load transaction.
+              </div>
+              <Button variant="outline" className="mt-4" onClick={handleReturn}>
+                Return
+              </Button>
             </div>
-            <Button variant="outline" className="mt-4" onClick={handleReturn}>
-              Return
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       </div>
     );
 
-  if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
-    return (
-      <div className="mx-[-1rem] md:mx-0">
-      <Card className="mx-auto w-full max-w-lg">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center h-10">
-            <Loading className="h-10 w-10" />
-          </div>
-        </CardContent>
-      </Card>
-      </div>
-    );
+    if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
+      return (
+        <div className="mx-[-1rem] md:mx-0">
+          <Card className="mx-auto max-w-lg flex items-center justify-center h-64">
+            <LottieLoader animationData={loadingBarAnimation} className="h-24 w-24 opacity-80" />
+          </Card>
+        </div>
+      );
 
   let transactionOverview = (
     <div className="mx-[-1rem] md:mx-0">
-    <Card className="mx-auto w-full max-w-lg">
-      <CardContent className="pt-6">
-        <div>Transaction not found</div>
-      </CardContent>
-    </Card>
+      <Card className="mx-auto w-full max-w-lg">
+        <CardContent className="pt-6">
+          <div>Transaction not found</div>
+        </CardContent>
+      </Card>
     </div>
   );
 
@@ -114,7 +111,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
       {transactionOverview}
       {transaction.data && (
         <div className="mx-auto mb-6 mt-4 flex w-full max-w-lg">
-          <Badge className="mr-2" variant="outline">
+          <Badge className="mr-2 cursor-pointer" variant="outline" onClick={toggleDetails}>
             Advanced Details
           </Badge>
           <Switch checked={showDetails} onCheckedChange={toggleDetails} />

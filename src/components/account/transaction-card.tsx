@@ -47,7 +47,7 @@ import transactionBreakdown from "@/components/common/txn-history-desc";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 
 import TransactionBalances from "../common/txn-history-balance";
-import { DataTable } from "../data-table/data-table";
+import { DataTableHistory } from "../data-table/data-table-history";
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
@@ -406,7 +406,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
-        <DataTable columns={getColumns(address, isWallet)} data={data} />
+        <DataTableHistory columns={getColumns(address, isWallet)} data={data} />
       </div>
       <div className="block md:hidden">
         {table.getRowModel().rows.map((row) => {
