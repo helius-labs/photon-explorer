@@ -5,6 +5,8 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
+import { Loader2 } from "lucide-react";
+import React from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -12,20 +14,38 @@ interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   onPageChange?: (newPageIndex: number) => void;
   manualPagination?: boolean;
+  loadedPages?: Set<number>;
 }
 
 export function DataTablePagination<TData>({
   table,
   onPageChange,
   manualPagination = false,
+  loadedPages,
 }: DataTablePaginationProps<TData>) {
   const handlePageChange = (newPageIndex: number) => {
+    if (loadedPages && !loadedPages.has(newPageIndex)) {
+      return; // Prevent navigation to unloaded pages
+    }
     if (manualPagination && onPageChange) {
       onPageChange(newPageIndex);
     } else {
       table.setPageIndex(newPageIndex);
     }
   };
+
+  const isPageLoaded = (pageIndex: number) => {
+    return !loadedPages || loadedPages.has(pageIndex);
+  };
+
+  const getLastLoadedPage = () => {
+    if (!loadedPages) return table.getPageCount() - 1;
+    return Math.max(...Array.from(loadedPages));
+  };
+
+  const currentPageIndex = table.getState().pagination.pageIndex;
+  const lastLoadedPage = getLastLoadedPage();
+  const isNextPageLoading = !isPageLoaded(currentPageIndex + 1);
 
   return (
     <div className="flex items-center justify-between px-4 pt-2">
@@ -36,7 +56,7 @@ export function DataTablePagination<TData>({
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
             onClick={() => handlePageChange(0)}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || !isPageLoaded(0)}
           >
             <span className="sr-only">Go to first page</span>
             <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -44,37 +64,43 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() =>
-              handlePageChange(table.getState().pagination.pageIndex - 1)
+            onClick={() => handlePageChange(currentPageIndex - 1)}
+            disabled={
+              !table.getCanPreviousPage() || !isPageLoaded(currentPageIndex - 1)
             }
-            disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
           <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1}
+            Page {currentPageIndex + 1}
           </div>
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() =>
-              handlePageChange(table.getState().pagination.pageIndex + 1)
-            }
-            disabled={!table.getCanNextPage()}
+            onClick={() => handlePageChange(currentPageIndex + 1)}
+            disabled={!table.getCanNextPage() || isNextPageLoading}
           >
-            <span className="sr-only">Go to next page</span>
-            <ChevronRightIcon className="h-4 w-4" />
+            <span className="sr-only">
+              {isNextPageLoading ? "Loading next page" : "Go to next page"}
+            </span>
+            {isNextPageLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ChevronRightIcon className="h-4 w-4" />
+            )}
           </Button>
-          <Button
-            variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => handlePageChange(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Go to last page</span>
-            <DoubleArrowRightIcon className="h-4 w-4" />
-          </Button>
+          {!isNextPageLoading && (
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => handlePageChange(lastLoadedPage)}
+              disabled={currentPageIndex >= lastLoadedPage}
+            >
+              <span className="sr-only">Go to last loaded page</span>
+              <DoubleArrowRightIcon className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

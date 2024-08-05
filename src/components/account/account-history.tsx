@@ -73,6 +73,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     },
     [memoizedAddress, endpoint, lastSignature],
   );
+  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
 
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
@@ -98,7 +99,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           memoizedCluster,
         );
       }
-
+      setLoadedPages((prevLoadedPages) =>
+        new Set(prevLoadedPages).add(pageIndex),
+      );
       // Combine signatures and parsed transactions
       return pageSignatures.map((signature, index) => {
         if (parsedTransactions && parsedTransactions[index]) {
@@ -199,6 +202,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             data={data}
             pagination={pagination}
             onPageChange={handlePageChange}
+            loadedPages={loadedPages}
           />
         ) : (
           <div className="text-center text-muted-foreground">

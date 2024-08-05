@@ -28,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   };
   onPageChange?: (newPageIndex: number) => void;
   manualPagination?: boolean;
+  loadedPages?: Set<number>;
 }
 
 export function DataTable<TData, TValue>({
@@ -36,6 +37,7 @@ export function DataTable<TData, TValue>({
   pagination,
   onPageChange,
   manualPagination = false,
+  loadedPages,
 }: DataTableProps<TData, TValue>) {
   const [paginationState, setPaginationState] = React.useState({
     pageIndex: 0,
@@ -125,6 +127,7 @@ export function DataTable<TData, TValue>({
               table={table}
               onPageChange={manualPagination ? onPageChange : undefined}
               manualPagination={manualPagination}
+              loadedPages={loadedPages}
             />
           </div>
         </div>
