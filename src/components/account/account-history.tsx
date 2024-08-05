@@ -15,7 +15,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-// You'll need to create this utility function
 import { TransactionCard } from "@/components/account/transaction-card";
 import LottieLoader from "@/components/common/lottie-loading";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,12 +44,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     undefined,
   );
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
 
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
   const fetchSignatures = useCallback(
-    async (limit: number = 50) => {
+    async (limit: number = 20) => {
       try {
         const newSignatures = await getSignaturesForAddress(
           memoizedAddress,
@@ -73,7 +73,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     },
     [memoizedAddress, endpoint, lastSignature],
   );
-  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
 
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
@@ -81,8 +80,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       const endIndex = startIndex + pageSize;
 
       // If we're close to the end of our current signatures, fetch more
-      if (endIndex + pageSize * 3 > allSignatures.length) {
-        await fetchSignatures(pageSize * 4); // Fetch 4 pages worth of signatures
+      if (endIndex + pageSize > allSignatures.length) {
+        await fetchSignatures(pageSize * 2); // Fetch 2 pages worth of signatures
       }
 
       const pageSignatures = allSignatures
@@ -102,7 +101,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       setLoadedPages((prevLoadedPages) =>
         new Set(prevLoadedPages).add(pageIndex),
       );
-      // Combine signatures and parsed transactions
+
       return pageSignatures.map((signature, index) => {
         if (parsedTransactions && parsedTransactions[index]) {
           return parsedTransactions[index];
@@ -117,7 +116,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   // Fetch initial data
   useEffect(() => {
     const fetchInitialData = async () => {
-      await fetchSignatures(pagination.pageSize * 4); // Fetch 4 pages worth of signatures initially
+      await fetchSignatures(pagination.pageSize * 2); // Fetch 2 pages worth of signatures initially
       setIsInitialDataLoaded(true);
     };
     fetchInitialData();
@@ -128,10 +127,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     queryFn: () => fetchTransactions(pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
     staleTime: Infinity,
-    enabled: isInitialDataLoaded, // Only enable the query once initial data is loaded
+    enabled: isInitialDataLoaded,
   });
 
-  // Prefetch next three pages
+  // Prefetch next page
   React.useEffect(() => {
     if (data) {
       const prefetchPage = async (pageIndex: number) => {
@@ -142,10 +141,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         });
       };
 
-      // Prefetch next 3 pages
-      for (let i = 1; i <= 3; i++) {
-        prefetchPage(pagination.pageIndex + i);
-      }
+      // Prefetch only the next page
+      prefetchPage(pagination.pageIndex + 1);
     }
   }, [
     data,

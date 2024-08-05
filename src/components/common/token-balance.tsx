@@ -1,9 +1,11 @@
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
+import { useCluster } from "@/providers/cluster-provider";
 import { normalizeTokenAmount } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import { formatNumericValue } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
@@ -17,6 +19,7 @@ export function TokenBalance({
   isReadable = false,
   isNFT = false,
   showChanges = false,
+  isLink = false,
 }: {
   mint: PublicKey;
   amount: number;
@@ -24,15 +27,16 @@ export function TokenBalance({
   isReadable?: boolean;
   isNFT?: boolean;
   showChanges?: boolean;
+  isLink?: boolean;
 }) {
   const { data: tokenList } = useGetTokenListStrict();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
-  const DASToken = useGetTokensByMint(
-    mint.toString(),
-    !isNFT && token === undefined,
-  );
 
-  const nftData = useGetNFTsByMint(mint.toBase58());
+  const shouldFetchDASToken = !isNFT && token === undefined;
+  const DASToken = useGetTokensByMint(mint.toString(), shouldFetchDASToken);
+
+  const shouldFetchNFT = isNFT && !token;
+  const nftData = useGetNFTsByMint(mint.toBase58(), shouldFetchNFT);
 
   let avatarSrc = "";
   let avatarAlt = "";
@@ -77,7 +81,10 @@ export function TokenBalance({
     return normalizedAmount! > 0 ? `+${displayedAmount}` : displayedAmount;
   };
 
-  return (
+  const { cluster } = useCluster();
+  const url = `/address/${mint}?cluster=${cluster}`;
+
+  const content = (
     <div className="inline-flex items-center gap-2">
       {avatarSrc && (
         <Image
@@ -99,4 +106,14 @@ export function TokenBalance({
       </span>
     </div>
   );
+
+  if (isLink) {
+    return (
+      <Link href={url} className="hover:underline">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }

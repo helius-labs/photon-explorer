@@ -33,6 +33,8 @@ export function useGetNFTsByMint(mint: string, enabled: boolean = true) {
       }
     },
     enabled,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 }
 
