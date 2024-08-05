@@ -46,6 +46,7 @@
     "@tanstack/react-query-devtools": "^5.49.2",
     "@tanstack/react-table": "^8.19.2",
     "@uidotdev/usehooks": "^2.4.1",
+    "@vercel/speed-insights": "^1.0.12",
     "bignumber.js": "^9.1.2",
     "boring-avatars": "^1.10.2",
     "bs58": "^6.0.0",
