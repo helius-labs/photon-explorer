@@ -37,6 +37,9 @@ import {
 } from "react-select";
 import AsyncSelect from "react-select/async";
 
+import { TokenList } from "@/schemas/tokenList";
+
+import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface SearchOptions {
@@ -47,7 +50,7 @@ interface SearchOptions {
   address?: string;
   symbol?: string;
   recentSearch?: boolean;
-  isVerified?: boolean;
+  verified?: boolean;
 }
 
 interface GroupedOption {
@@ -72,6 +75,8 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   const [search, setSearch] = React.useState("");
   const router = useRouter();
   const { cluster } = useCluster();
+  const { data: verifiedTokens } = useGetTokenListVerified();
+
   const searchParams = useSearchParams();
   const [isClient, setIsClient] = React.useState(false);
   const [recentSearches, setRecentSearches] = useLocalStorage<SearchOptions[]>(
@@ -141,7 +146,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
     const localOptions = buildOptions(search, cluster);
     let tokenOptions;
     try {
-      tokenOptions = await buildTokenOptions(search, cluster);
+      tokenOptions = await buildTokenOptions(search, cluster, verifiedTokens!);
     } catch (e) {
       console.error(
         `Failed to build token options for search: ${e instanceof Error ? e.message : e}`,
@@ -364,8 +369,8 @@ const Option = ({ ...props }: OptionProps<SearchOptions, false>) => (
               ({props.data.symbol})
             </span>
           )}
-          {props.data.isVerified && (
-            <span className="ml-2 mb-0.5 inline-flex items-center px-2.5 py-0.8 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          {props.data.verified && (
+            <span className="py-0.8 mb-0.5 ml-2 inline-flex items-center rounded-full bg-green-100 px-2.5 text-xs font-medium text-green-800">
               Verified
             </span>
           )}
@@ -504,18 +509,19 @@ function buildSpecialOptions(search: string) {
 async function buildTokenOptions(
   search: string,
   cluster: Cluster,
+  verifiedTokens: TokenList,
 ): Promise<GroupedOption | undefined> {
-  const matchedTokens = await searchTokens(search, cluster);
+  const matchedTokens = await searchTokens(search, cluster, verifiedTokens);
 
   if (matchedTokens.length > 0) {
     // Prioritize tokens with a matching symbol first
-    const symbolMatches = matchedTokens.filter(token =>
-      token.symbol.toLowerCase() === search.toLowerCase()
+    const symbolMatches = matchedTokens.filter(
+      (token) => token.symbol.toLowerCase() === search.toLowerCase(),
     );
 
     // Tokens that match the search term but not the symbol
-    const otherMatches = matchedTokens.filter(token =>
-      token.symbol.toLowerCase() !== search.toLowerCase()
+    const otherMatches = matchedTokens.filter(
+      (token) => token.symbol.toLowerCase() !== search.toLowerCase(),
     );
 
     return {

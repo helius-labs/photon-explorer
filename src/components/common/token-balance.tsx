@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 
@@ -29,7 +29,7 @@ export function TokenBalance({
   showChanges?: boolean;
   isLink?: boolean;
 }) {
-  const { data: tokenList } = useGetTokenListStrict();
+  const { data: tokenList } = useGetTokenListVerified();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
 
   const shouldFetchDASToken = !isNFT && token === undefined;

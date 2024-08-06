@@ -1,5 +1,4 @@
-import { Connection, PublicKey } from "@solana/web3.js";
-import { ConfirmedSignatureInfo } from "@solana/web3.js";
+import { ConfirmedSignatureInfo, Connection, PublicKey } from "@solana/web3.js";
 
 export async function getSignaturesForAddress(
   address: string,

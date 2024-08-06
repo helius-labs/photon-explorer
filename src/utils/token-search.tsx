@@ -9,6 +9,8 @@ import noImg from "@/../public/assets/noLogoImg.svg";
 import cloudflareLoader from "@/utils/imageLoader";
 import Image from "next/image";
 
+import { TokenList } from "@/schemas/tokenList";
+
 import { Cluster } from "./cluster";
 
 type TokenSearchApiResponseToken = {
@@ -35,33 +37,13 @@ type SearchElement = {
   icon: JSX.Element;
   address: string;
   symbol: string;
-  isVerified?: boolean;
+  verfied?: boolean;
 };
-
-const verifiedTokenCache: { [key: string]: boolean } = {};
-
-async function fetchVerifiedTokens(): Promise<Set<string>> {
-  if (Object.keys(verifiedTokenCache).length > 0) {
-    return new Set(Object.keys(verifiedTokenCache));
-  }
-
-  const response = await fetch(`https://tokens.jup.ag/tokens?tags=verified`);
-  if (response.status >= 400) {
-    console.error(new Error("Error fetching verified tokens"));
-    return new Set();
-  }
-
-  const verifiedTokens = (await response.json()) as TokenSearchApiResponseToken[];
-  verifiedTokens.forEach(token => {
-    verifiedTokenCache[token.address] = true;
-  });
-
-  return new Set(Object.keys(verifiedTokenCache));
-}
 
 export async function searchTokens(
   search: string,
   cluster: Cluster,
+  verifiedTokens: TokenList,
 ): Promise<SearchElement[]> {
   if (process.env.NEXT_PUBLIC_DISABLE_TOKEN_SEARCH || !search) {
     return [];
@@ -102,15 +84,15 @@ export async function searchTokens(
 
   const { content } = (await apiResponse.json()) as TokenSearchApiResponse;
 
-  const verifiedTokenAddresses = await fetchVerifiedTokens();
-
   return content.map((token) => ({
     label: token.name,
     pathname: "/address/" + token.address,
     value: [token.name, token.symbol, token.address],
     address: token.address,
     symbol: token.symbol,
-    isVerified: verifiedTokenAddresses.has(token.address),
+    verified: verifiedTokens.some(
+      (verifiedToken) => verifiedToken.address === token.address,
+    ),
     icon: (
       <Image
         loader={cloudflareLoader}

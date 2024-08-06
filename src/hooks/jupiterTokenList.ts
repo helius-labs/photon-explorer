@@ -1,21 +1,19 @@
 "use client";
 
-import { getTokenListAll, getTokenListStrict } from "@/server/getTokenList";
 import { useQuery } from "@tanstack/react-query";
 
-export function useGetTokenListAll(enabled: boolean = true) {
-  return useQuery({
-    queryKey: ["getTokenListAll"],
-    queryFn: getTokenListAll,
-    enabled,
-    staleTime: 1000 * 60 * 60, // 1 hour
-  });
-}
+import { tokenListSchema } from "@/schemas/tokenList";
 
-export function useGetTokenListStrict(enabled: boolean = true) {
+export function useGetTokenListVerified(enabled: boolean = true) {
   return useQuery({
-    queryKey: ["getTokenListStrict"],
-    queryFn: getTokenListStrict,
+    queryKey: ["getTokenListVerified"],
+    queryFn: async () => {
+      const response = await fetch("/api/jupiter-tokens-verified");
+
+      const data = await response.json();
+
+      return tokenListSchema.parse(data);
+    },
     enabled,
     staleTime: 1000 * 60 * 60, // 1 hour
   });

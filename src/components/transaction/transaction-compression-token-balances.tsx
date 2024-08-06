@@ -3,10 +3,8 @@ import { PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 
 import { useGetTransactionWithCompressionInfo } from "@/hooks/compression";
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
 
 import Address from "@/components/common/address";
-import { TokenBalance } from "@/components/common/token-balance";
 import { TokenBalanceDelta } from "@/components/common/token-balance-delta";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -87,24 +85,24 @@ export default function TransactionCompressionTokenBalances({
 
   if (!isError && !isLoading && rows.length > 0) {
     return (
-      <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Compression Token Balances</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Address</TableHead>
-                <TableHead>Token</TableHead>
-                <TableHead>Change</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>{rows}</TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <div className="mx-[-1rem] overflow-x-auto md:mx-0">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Compression Token Balances</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Token</TableHead>
+                  <TableHead>Change</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>{rows}</TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
     );
   }
