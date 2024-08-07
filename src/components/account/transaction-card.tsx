@@ -1,4 +1,6 @@
+import { useCluster } from "@/providers/cluster-provider";
 import { AccountType, getAccountType } from "@/utils/account";
+import { Cluster } from "@/utils/cluster";
 import { timeAgoWithFormat } from "@/utils/common";
 import {
   ActionTypes,
@@ -49,6 +51,13 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import TransactionBalances from "../common/txn-history-balance";
 import { DataTable } from "../data-table/data-table";
 
+interface TransactionCardProps {
+  data: TransactionData[];
+  pagination: { pageIndex: number; pageSize: number };
+  onPageChange: (newPageIndex: number) => void;
+  loadedPages: Set<number>;
+}
+
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
 }
@@ -96,6 +105,7 @@ function getSignature(transaction: TransactionData): string {
 export const getColumns = (
   address: string,
   isWallet: boolean,
+  cluster: Cluster,
 ): ColumnDef<TransactionData>[] => [
   {
     header: () => (
@@ -191,7 +201,7 @@ export const getColumns = (
       }
 
       return (
-        <Link href={`/tx/${signature}`}>
+        <Link href={`/tx/${signature}?cluster=${cluster}`}>
           <div className="flex items-center gap-2 px-4 py-2">
             <div className="flex h-8 w-8 items-center justify-center">
               {typeIcon}
@@ -248,7 +258,7 @@ export const getColumns = (
             let signature = getSignature(transaction);
 
             return (
-              <Link href={`/tx/${signature}`}>
+              <Link href={`/tx/${signature}?cluster=${cluster}`}>
                 <div className="px-4 py-2 text-left">
                   <div>{TransactionBalances(transaction, address)} </div>
                 </div>
@@ -305,7 +315,7 @@ export const getColumns = (
               type = transaction.type;
             }
             return (
-              <Link href={`/tx/${signature}`}>
+              <Link href={`/tx/${signature}?cluster=${cluster}`}>
                 <div className="flex flex-col items-start overflow-hidden py-2">
                   {txnFailed ? (
                     <div className="whitespace-normal break-words text-sm text-muted-foreground">
@@ -353,7 +363,7 @@ export const getColumns = (
       }
 
       return (
-        <Link href={`/tx/${signature}`}>
+        <Link href={`/tx/${signature}?cluster=${cluster}`}>
           <div className="items-left flex flex-col gap-1 overflow-hidden px-4 py-2">
             <div className="flex flex-col">
               <div className="items-left flex text-sm font-medium underline">
@@ -371,10 +381,16 @@ export const getColumns = (
   },
 ];
 
-export function TransactionCard({ data }: { data: TransactionData[] }) {
+export function TransactionCard({
+  data,
+  pagination,
+  onPageChange,
+  loadedPages,
+}: TransactionCardProps) {
   const pathname = usePathname();
   const address = pathname.split("/")[2];
   const pageType = pathname.split("/")[1];
+  const { cluster } = useCluster();
 
   const signatures = useGetSignaturesForAddress(address, 1);
   const accountInfo = useGetAccountInfo(address);
@@ -389,7 +405,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
   }, [accountInfo.data, signatures.data]);
   const isWallet = accountType === AccountType.Wallet;
 
-  const columns = getColumns(address, isWallet);
+  const columns = getColumns(address, isWallet, cluster);
 
   const table = useReactTable({
     data,
@@ -406,7 +422,14 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
   return (
     <>
       <div className="hidden overflow-x-auto md:block">
-        <DataTable columns={getColumns(address, isWallet)} data={data} />
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination={pagination}
+          onPageChange={onPageChange}
+          manualPagination={true}
+          loadedPages={loadedPages}
+        />
       </div>
       <div className="block md:hidden">
         {table.getRowModel().rows.map((row) => {
@@ -503,7 +526,7 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
                         ? timeAgoWithFormat(Number(time), true)
                         : ""}
                       <Link
-                        href={`/tx/${getSignature(transaction)}`}
+                        href={`/tx/${getSignature(transaction)}?cluster=${cluster}`}
                         className="ml-2 flex items-center text-sm text-muted-foreground"
                       >
                         <SquareArrowOutUpRightIcon className="ml-1 h-4 w-4" />
@@ -542,7 +565,12 @@ export function TransactionCard({ data }: { data: TransactionData[] }) {
           );
         })}
         <div className="mt-4 flex justify-center">
-          <DataTablePagination table={table} />
+          <DataTablePagination
+            table={table}
+            onPageChange={onPageChange}
+            manualPagination={true}
+            loadedPages={loadedPages}
+          />
         </div>
       </div>
     </>

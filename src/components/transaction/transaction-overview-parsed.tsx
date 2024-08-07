@@ -133,18 +133,13 @@ export default function TransactionOverviewParsed({
                       Sent
                     </span>
                     <span className="ml-2 w-full break-words md:w-3/4">
-                      <Link
-                        href={`/address/${action.mint}`}
-                        className="hover:underline"
-                        title={action.mint}
-                      >
-                        <TokenBalance
-                          amount={action.amount}
-                          decimals={0}
-                          mint={new PublicKey(action.mint!)}
-                          isReadable={true}
-                        />
-                      </Link>
+                      <TokenBalance
+                        amount={action.amount}
+                        decimals={0}
+                        mint={new PublicKey(action.mint!)}
+                        isReadable={true}
+                        isLink={true}
+                      />
                     </span>
                   </div>
                   <div className="flex flex-col items-start md:flex-row md:items-center">

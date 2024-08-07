@@ -40,6 +40,8 @@ export function useGetTokensByMint(mint: string, enabled: boolean = true) {
       return token;
     },
     enabled,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 }
 

@@ -1,22 +1,22 @@
 "use client";
 
+import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import { useCluster } from "@/providers/cluster-provider";
+import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
+import { getSignaturesForAddress } from "@/utils/fetchTxnSigs";
 import { XrayTransaction } from "@/utils/parser";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import {
   ConfirmedSignatureInfo,
   ParsedTransactionWithMeta,
 } from "@solana/web3.js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
-
-import { useGetParsedTransactions } from "@/hooks/parser";
-import { useGetSignaturesForAddress } from "@/hooks/web3";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { TransactionCard } from "@/components/account/transaction-card";
 import LottieLoader from "@/components/common/lottie-loading";
-import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Button } from "../ui/button";
@@ -32,28 +32,136 @@ interface AccountHistoryProps {
 }
 
 export default function AccountHistory({ address }: AccountHistoryProps) {
-  const { cluster } = useCluster();
+  const { cluster, endpoint } = useCluster();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const [allSignatures, setAllSignatures] = useState<ConfirmedSignatureInfo[]>(
+    [],
+  );
+  const [lastSignature, setLastSignature] = useState<string | undefined>(
+    undefined,
+  );
+  const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
+  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
 
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
-  // this is used to get all the signatures for an account
-  const signatures = useGetSignaturesForAddress(memoizedAddress, 200);
-
-  // this then parses those transactions
-  const parsedTransactions = useGetParsedTransactions(
-    // only parse the first 90 transactions
-    (signatures.data?.map((sig) => sig.signature) || []).slice(0, 50),
-    memoizedCluster === Cluster.MainnetBeta ||
-      memoizedCluster === Cluster.Devnet,
+  const fetchSignatures = useCallback(
+    async (limit: number = 20) => {
+      try {
+        const newSignatures = await getSignaturesForAddress(
+          memoizedAddress,
+          limit,
+          endpoint,
+          lastSignature,
+        );
+        setAllSignatures((prevSignatures) => [
+          ...prevSignatures,
+          ...newSignatures,
+        ]);
+        if (newSignatures.length > 0) {
+          setLastSignature(newSignatures[newSignatures.length - 1].signature);
+        }
+        return newSignatures;
+      } catch (error) {
+        console.error("Error fetching signatures:", error);
+        throw error;
+      }
+    },
+    [memoizedAddress, endpoint, lastSignature],
   );
+
+  const fetchTransactions = useCallback(
+    async (pageIndex: number, pageSize: number) => {
+      const startIndex = pageIndex * pageSize;
+      const endIndex = startIndex + pageSize;
+
+      // If we're close to the end of our current signatures, fetch more
+      if (endIndex + pageSize > allSignatures.length) {
+        await fetchSignatures(pageSize * 2); // Fetch 2 pages worth of signatures
+      }
+
+      const pageSignatures = allSignatures
+        .slice(startIndex, endIndex)
+        .map((sig) => sig.signature);
+
+      let parsedTransactions = null;
+      if (
+        memoizedCluster === Cluster.MainnetBeta ||
+        memoizedCluster === Cluster.Devnet
+      ) {
+        parsedTransactions = await getParsedTransactions(
+          pageSignatures,
+          memoizedCluster,
+        );
+      }
+      setLoadedPages((prevLoadedPages) =>
+        new Set(prevLoadedPages).add(pageIndex),
+      );
+
+      return pageSignatures.map((signature, index) => {
+        if (parsedTransactions && parsedTransactions[index]) {
+          return parsedTransactions[index];
+        } else {
+          return allSignatures[startIndex + index];
+        }
+      });
+    },
+    [allSignatures, memoizedCluster, fetchSignatures],
+  );
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await fetchSignatures(pagination.pageSize * 2); // Fetch 2 pages worth of signatures initially
+      setIsInitialDataLoaded(true);
+    };
+    fetchInitialData();
+  }, [fetchSignatures, pagination.pageSize]);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["transactions", memoizedAddress, pagination.pageIndex],
+    queryFn: () => fetchTransactions(pagination.pageIndex, pagination.pageSize),
+    placeholderData: (previousData) => previousData,
+    staleTime: Infinity,
+    enabled: isInitialDataLoaded,
+  });
+
+  // Prefetch next page
+  React.useEffect(() => {
+    if (data) {
+      const prefetchPage = async (pageIndex: number) => {
+        await queryClient.prefetchQuery({
+          queryKey: ["transactions", memoizedAddress, pageIndex],
+          queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
+          staleTime: Infinity,
+        });
+      };
+
+      // Prefetch only the next page
+      prefetchPage(pagination.pageIndex + 1);
+    }
+  }, [
+    data,
+    pagination.pageIndex,
+    pagination.pageSize,
+    queryClient,
+    fetchTransactions,
+    memoizedAddress,
+  ]);
+
+  const handlePageChange = (newPageIndex: number) => {
+    setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
+  };
 
   const handleReturn = () => {
     router.push(`/?cluster=${memoizedCluster}`);
   };
 
-  if (signatures.isError || parsedTransactions.isError) {
+  if (isError) {
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
         <CardContent className="pt-6">
@@ -70,45 +178,29 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     );
   }
 
-  if (signatures.isLoading || parsedTransactions.isLoading) {
+  if (isLoading || !isInitialDataLoaded) {
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
-          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
+          <LottieLoader
+            animationData={loadingBarAnimation}
+            className="h-20 w-20"
+          />
         </CardContent>
       </Card>
     );
   }
 
-  // this is the flow to add transactions to the table. If a txn is parsed, add it to the table, otherwise add the signature
-  let result: TransactionData[] = [];
-  let parsedIndex = 0;
-  let signatureIndex = 0;
-
-  while (signatureIndex < (signatures.data ?? []).length) {
-    if (
-      parsedTransactions.data &&
-      parsedTransactions.data[parsedIndex] &&
-      parsedTransactions.data[parsedIndex].signature ===
-        (signatures.data ?? [])[signatureIndex]?.signature
-    ) {
-      result.push(parsedTransactions.data[parsedIndex]);
-      parsedIndex++;
-    } else {
-      if (signatures.data) {
-        result.push(signatures.data[signatureIndex]);
-      }
-    }
-    signatureIndex++;
-  }
-
-  const data: TransactionData[] = result;
-
   return (
     <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">
       <CardContent className="pt-6">
-        {data.length > 0 ? (
-          <TransactionCard data={data} />
+        {data && data.length > 0 ? (
+          <TransactionCard
+            data={data}
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            loadedPages={loadedPages}
+          />
         ) : (
           <div className="text-center text-muted-foreground">
             No transaction history found for this address.

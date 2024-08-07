@@ -201,7 +201,6 @@ function TransactionBalances(transaction: any, address: string) {
       </>
     );
   } else {
-    console.error("Invalid transaction data");
   }
 }
 

@@ -1,3 +1,4 @@
+import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import jupLogo from "@/../public/assets/jupLogo.png";
@@ -19,11 +20,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
+import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import { useGetTokenMetrics } from "@/hooks/jupiterTokenMetrics";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 
 import Address from "@/components/common/address";
+import LottieLoader from "@/components/common/lottie-loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,8 +36,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import LottieLoader from "@/components/common/lottie-loading";
-import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -78,7 +78,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     data: tokenList,
     isLoading: tokenListLoading,
     isError: tokenListError,
-  } = useGetTokenListStrict();
+  } = useGetTokenListVerified();
   const {
     data: tokenDataFromAPI,
     isLoading: tokenDataLoading,
@@ -170,7 +170,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
   if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) {
     return (
       <div className="mx-[-1rem] md:mx-0">
-        <Card className="relative mb-8 w-full space-y-4 p-6 md:space-y-6 flex items-center justify-center">
+        <Card className="relative mb-8 flex w-full items-center justify-center space-y-4 p-6 md:space-y-6">
           <LottieLoader
             animationData={loadingBarAnimation}
             className="h-32 w-32 opacity-80"
@@ -224,12 +224,16 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                         {tokenDetails.tokenName || (
                           <Address pubkey={address} short />
                         )}
-                        <span className={`ml-2 text-3xl text-muted-foreground hidden md:inline ${tokenDetails.tokenName.length > 25 ? "md:hidden" : ""}`}>
+                        <span
+                          className={`ml-2 hidden text-3xl text-muted-foreground md:inline ${tokenDetails.tokenName.length > 25 ? "md:hidden" : ""}`}
+                        >
                           ({tokenDetails.tokenSymbol})
                         </span>
                       </span>
                       {tokenDetails.tokenName !== "" && (
-                        <div className={`mt-1 text-3xl text-muted-foreground ${tokenDetails.tokenName.length <= 25 ? "md:hidden" : "md:block"}`}>
+                        <div
+                          className={`mt-1 text-3xl text-muted-foreground ${tokenDetails.tokenName.length <= 25 ? "md:hidden" : "md:block"}`}
+                        >
                           ({tokenDetails.tokenSymbol})
                         </div>
                       )}

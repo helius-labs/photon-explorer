@@ -1,12 +1,11 @@
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
+import cloudflareLoader from "@/utils/imageLoader";
 import { PublicKey } from "@solana/web3.js";
 import { BigNumber } from "bignumber.js";
-import React from "react";
 import Image from "next/image";
+import React from "react";
 
-import { useGetTokenListStrict } from "@/hooks/jupiterTokenList";
-
-import cloudflareLoader from "@/utils/imageLoader";
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
+import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 
 export function TokenBalanceDelta({
   mint,
@@ -15,7 +14,7 @@ export function TokenBalanceDelta({
   mint: PublicKey;
   delta: BigNumber;
 }) {
-  const { data: tokenList } = useGetTokenListStrict();
+  const { data: tokenList } = useGetTokenListVerified();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
 
   let avatarSrc = "";
@@ -27,20 +26,20 @@ export function TokenBalanceDelta({
 
   if (delta.gt(0)) {
     return (
-      <div className="inline-flex items-center gap-2 text-[#06D6A0] cursor-default">
+      <div className="inline-flex cursor-default items-center gap-2 text-[#06D6A0]">
         {avatarSrc && (
           <Image
-          loader={cloudflareLoader}
-          src={avatarSrc}
-          alt={avatarAlt}
-          width={24}
-          height={24}
-          loading="eager"
-          onError={(event: any) => {
-            event.target.id = "noLogoImg";
-            event.target.srcset = noLogoImg.src;
-          }}
-          className="h-6 w-6 rounded-full"
+            loader={cloudflareLoader}
+            src={avatarSrc}
+            alt={avatarAlt}
+            width={24}
+            height={24}
+            loading="eager"
+            onError={(event: any) => {
+              event.target.id = "noLogoImg";
+              event.target.srcset = noLogoImg.src;
+            }}
+            className="h-6 w-6 rounded-full"
           />
         )}
         <span>
@@ -54,16 +53,16 @@ export function TokenBalanceDelta({
     );
   } else if (delta.lt(0)) {
     return (
-      <div className="inline-flex items-center gap-2 text-[#EF476F] cursor-default">
+      <div className="inline-flex cursor-default items-center gap-2 text-[#EF476F]">
         {avatarSrc && (
           <Image
-          loader={cloudflareLoader}
-          src={avatarSrc}
-          alt={avatarAlt}
-          width={24}
-          height={24}
-          loading="eager"
-          className="h-6 w-6 rounded-full"
+            loader={cloudflareLoader}
+            src={avatarSrc}
+            alt={avatarAlt}
+            width={24}
+            height={24}
+            loading="eager"
+            className="h-6 w-6 rounded-full"
           />
         )}
         <span>
@@ -80,13 +79,13 @@ export function TokenBalanceDelta({
     <div className="inline-flex items-center gap-2">
       {avatarSrc && (
         <Image
-        loader={cloudflareLoader}
-        src={avatarSrc}
-        alt={avatarAlt}
-        width={24}
-        height={24}
-        loading="eager"
-        className="h-6 w-6 rounded-full"
+          loader={cloudflareLoader}
+          src={avatarSrc}
+          alt={avatarAlt}
+          width={24}
+          height={24}
+          loading="eager"
+          className="h-6 w-6 rounded-full"
         />
       )}
       <span>

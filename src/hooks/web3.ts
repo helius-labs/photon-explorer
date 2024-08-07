@@ -104,16 +104,18 @@ export function useGetSignaturesForAddress(
   address: string,
   limit: number = 10,
   enabled: boolean = true,
+  before?: string,
 ) {
   const { endpoint } = useCluster();
 
   return useQuery({
-    queryKey: [endpoint, "getSignaturesForAddress", address, limit],
+    queryKey: [endpoint, "getSignaturesForAddress", address, limit, before],
     queryFn: async () => {
       const connection = new Connection(endpoint, "confirmed");
 
       return await connection.getSignaturesForAddress(new PublicKey(address), {
         limit,
+        before,
       });
     },
     enabled,

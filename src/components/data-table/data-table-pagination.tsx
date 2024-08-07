@@ -5,58 +5,58 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
+import { Loader2 } from "lucide-react";
+import React from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
+  onPageChange?: (newPageIndex: number) => void;
+  manualPagination?: boolean;
+  loadedPages?: Set<number>;
 }
 
 export function DataTablePagination<TData>({
   table,
+  onPageChange,
+  manualPagination = false,
+  loadedPages,
 }: DataTablePaginationProps<TData>) {
+  const handlePageChange = (newPageIndex: number) => {
+    if (loadedPages && !loadedPages.has(newPageIndex)) {
+      return; // Prevent navigation to unloaded pages
+    }
+    if (manualPagination && onPageChange) {
+      onPageChange(newPageIndex);
+    } else {
+      table.setPageIndex(newPageIndex);
+    }
+  };
+
+  const isPageLoaded = (pageIndex: number) => {
+    return !loadedPages || loadedPages.has(pageIndex);
+  };
+
+  const getLastLoadedPage = () => {
+    if (!loadedPages) return table.getPageCount() - 1;
+    return Math.max(...Array.from(loadedPages));
+  };
+
+  const currentPageIndex = table.getState().pagination.pageIndex;
+  const lastLoadedPage = getLastLoadedPage();
+  const isNextPageLoading = !isPageLoaded(currentPageIndex + 1);
+
   return (
     <div className="flex items-center justify-between px-4 pt-2">
       <div className="flex-1"></div>
       <div className="flex items-center space-x-2 lg:space-x-8">
-        {/* Remove row selection options */}
-        {/* <div className="hidden md:block md:flex md:items-center md:space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
-          <Select
-            value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div> */}
-        {/* <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
-        </div> */}
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => handlePageChange(0)}
+            disabled={!table.getCanPreviousPage() || !isPageLoaded(0)}
           >
             <span className="sr-only">Go to first page</span>
             <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -64,35 +64,43 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => handlePageChange(currentPageIndex - 1)}
+            disabled={
+              !table.getCanPreviousPage() || !isPageLoaded(currentPageIndex - 1)
+            }
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
           <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1}
-            {/* of{" "}
-            {table.getPageCount()} */}
+            Page {currentPageIndex + 1}
           </div>
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => handlePageChange(currentPageIndex + 1)}
+            disabled={!table.getCanNextPage() || isNextPageLoading}
           >
-            <span className="sr-only">Go to next page</span>
-            <ChevronRightIcon className="h-4 w-4" />
+            <span className="sr-only">
+              {isNextPageLoading ? "Loading next page" : "Go to next page"}
+            </span>
+            {isNextPageLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ChevronRightIcon className="h-4 w-4" />
+            )}
           </Button>
-          <Button
-            variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Go to last page</span>
-            <DoubleArrowRightIcon className="h-4 w-4" />
-          </Button>
+          {!isNextPageLoading && (
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => handlePageChange(lastLoadedPage)}
+              disabled={currentPageIndex >= lastLoadedPage}
+            >
+              <span className="sr-only">Go to last loaded page</span>
+              <DoubleArrowRightIcon className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
