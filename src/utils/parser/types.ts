@@ -51,6 +51,26 @@ export interface XrayTransaction {
   source: Source;
   actions: TransactionAction[];
   description?: string;
+  fee?: number;
+  feePayer?: string;
+  slot?: number;
+  tokenTransfers: XrayTokenTransfer[];
+  nativeTransfers: XrayNativeTransfer[];
+}
+export interface XrayTokenTransfer {
+  fromTokenAccount: string;
+  toTokenAccount: string;
+  fromUserAccount: string;
+  toUserAccount: string;
+  tokenAmount: number;
+  mint: string;
+  tokenStandard: string;
+}
+
+export interface XrayNativeTransfer {
+  fromUserAccount: string;
+  toUserAccount: string;
+  amount: number;
 }
 
 export interface XrayAccount {
@@ -72,6 +92,8 @@ export const unknownXrayTransaction: XrayTransaction = {
   source: Source.SYSTEM_PROGRAM,
   timestamp: 0,
   type: ParserTransactionTypes.UNKNOWN,
+  tokenTransfers: [],
+  nativeTransfers: [],
 };
 
 export const XrayParsers = {
