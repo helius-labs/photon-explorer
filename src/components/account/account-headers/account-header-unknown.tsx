@@ -11,8 +11,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Cluster } from "@/utils/cluster";
-import LottieLoader from "@/components/common/lottie-loading";
-import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountHeaderUnknownProps {
   address: PublicKey;
@@ -39,8 +38,30 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
   if (loadingDomains) {
     return (
       <div className="mx-[-1rem] md:mx-0">
-        <Card className="w-full flex items-center justify-center h-32">
-          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20 opacity-80" />
+        <Card className="w-full p-4 md:p-6">
+          <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
+            <Skeleton className="h-20 w-20 rounded-lg" />
+            <div className="flex w-full flex-col md:flex-row md:justify-between">
+              <div className="max-w-xs flex-grow text-center md:text-left">
+                <div className="text-3xl font-medium leading-none flex flex-col items-center md:flex-row md:justify-start">
+                  <Skeleton className="h-8 w-44 mb-2" />
+                </div>
+                <div className="flex justify-center space-x-4 md:justify-start">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="ml-2 h-6 w-20" />
+                </div>
+                <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
+                  <Skeleton className="h-4 w-36" />
+                </div>
+              </div>
+              <div className="mt-4 flex flex-col items-center md:mt-0 md:flex-shrink-0 md:flex-grow-0 md:items-end">
+                <Skeleton className="h-7 w-44 mb-4" />
+                <div className="mt-4 flex flex-col items-center space-y-2 md:mt-6 md:items-end md:space-y-2">
+                  <Skeleton className="h-5 w-24" />
+                </div>
+              </div>
+            </div>
+          </CardHeader>
         </Card>
       </div>
     );

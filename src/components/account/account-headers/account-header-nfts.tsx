@@ -36,8 +36,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
-import LottieLoader from "@/components/common/lottie-loading";
-import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountHeaderNFTsProps {
   address: PublicKey;
@@ -54,15 +53,18 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
   const router = useRouter();
   const { cluster, endpoint } = useCluster();
 
-  const {
-    isLoading: nftDataLoading,
-  } = useGetNFTsByMint(address.toBase58(), true);
+  const { isLoading: nftDataLoading } = useGetNFTsByMint(
+    address.toBase58(),
+    true
+  );
 
   const displayName = nft?.name || "";
   const displayImage = nft?.content?.links?.image || nft?.image || noLogoImg.src;
   const fallbackAddress = address.toBase58();
 
-  const royaltyPercentage = nft?.royalty?.basis_points ? nft.royalty.basis_points / 100 : 0;
+  const royaltyPercentage = nft?.royalty?.basis_points
+    ? nft.royalty.basis_points / 100
+    : 0;
 
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length > maxLength) {
@@ -89,11 +91,46 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
   if (nftDataLoading) {
     return (
       <div className="mx-[-1rem] md:mx-0">
-        <Card className="relative mb-8 w-full space-y-4 p-6 md:space-y-6 flex items-center justify-center">
-          <LottieLoader
-            animationData={loadingBarAnimation}
-            className="h-32 w-32 opacity-80"
-          />
+        <Card className="mb-8 w-full space-y-4 p-6 md:space-y-6">
+          <CardHeader className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
+            <div className="relative flex-shrink-0">
+              <Skeleton className="h-44 w-44 rounded-lg" />
+            </div>
+            <div className="flex w-full flex-col">
+              <div className="flex w-full flex-col justify-between md:flex-row md:items-start">
+                <div className="max-w-sm flex-grow text-center md:text-left">
+                  <CardTitle className="text-3xl font-medium leading-none">
+                    <div className="flex flex-col items-center md:flex-row md:justify-start">
+                      <Skeleton className="h-8 w-48 mb-2" />
+                      <div className="mt-2 flex space-x-2 md:ml-2 md:mt-0">
+                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-20" />
+                      </div>
+                    </div>
+                  </CardTitle>
+                  <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                </div>
+              </div>
+              <div className="md:text-md mt-2 max-w-md text-center text-sm text-foreground md:text-left">
+                <Skeleton className="h-6 w-full mb-2" />
+                <div className="mt-4 flex justify-center space-x-4 md:justify-start">
+                  <Skeleton className="h-6 w-6 rounded-full" />
+                  <Skeleton className="h-6 w-6 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 md:space-y-6">
+            <div className="text-md grid grid-cols-1 gap-4 text-center text-muted-foreground sm:grid-cols-2 md:text-left lg:grid-cols-3">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+            </div>
+          </CardContent>
         </Card>
       </div>
     );
