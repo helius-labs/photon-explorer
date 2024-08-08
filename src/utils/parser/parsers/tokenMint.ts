@@ -6,6 +6,8 @@ import {
   ParserTransactionTypes,
   SOL,
   type TransactionAction,
+  XrayNativeTransfer,
+  XrayTokenTransfer,
   type XrayTransaction,
 } from "../types";
 
@@ -34,6 +36,8 @@ export const parseTokenMint = (
       timestamp,
       actions: [],
       description,
+      tokenTransfers: [],
+      nativeTransfers: [],
     };
   }
 
@@ -57,5 +61,7 @@ export const parseTokenMint = (
     timestamp,
     actions: actions,
     description,
+    tokenTransfers: tokenTransfers as XrayTokenTransfer[],
+    nativeTransfers: nativeTransfers as XrayNativeTransfer[],
   };
 };
