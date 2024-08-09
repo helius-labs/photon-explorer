@@ -74,8 +74,6 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
               <Skeleton className="h-6 w-full" />
               <Skeleton className="h-6 w-full" />
               <Skeleton className="h-6 w-full" />
-              <Skeleton className="h-6 w-full" />
-              <Skeleton className="h-6 w-full" />
             </div>
           </CardContent>
         </Card>

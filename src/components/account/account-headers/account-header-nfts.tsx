@@ -127,8 +127,6 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
               <Skeleton className="h-6 w-full" />
               <Skeleton className="h-6 w-full" />
               <Skeleton className="h-6 w-full" />
-              <Skeleton className="h-6 w-full" />
-              <Skeleton className="h-6 w-full" />
             </div>
           </CardContent>
         </Card>
