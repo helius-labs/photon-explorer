@@ -7,7 +7,7 @@ import { useCluster } from "@/providers/cluster-provider";
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
 import { Cluster } from "@/utils/cluster";
@@ -38,30 +38,46 @@ const AccountHeaderUnknown: React.FC<AccountHeaderUnknownProps> = ({ address }) 
   if (loadingDomains) {
     return (
       <div className="mx-[-1rem] md:mx-0">
-        <Card className="w-full p-4 md:p-6">
-          <CardHeader className="flex flex-col items-center gap-4 md:flex-row">
-            <Skeleton className="h-20 w-20 rounded-lg" />
-            <div className="flex w-full flex-col md:flex-row md:justify-between">
-              <div className="max-w-xs flex-grow text-center md:text-left">
-                <div className="text-3xl font-medium leading-none flex flex-col items-center md:flex-row md:justify-start">
-                  <Skeleton className="h-8 w-44 mb-2" />
-                </div>
-                <div className="flex justify-center space-x-4 md:justify-start">
-                  <Skeleton className="h-6 w-20" />
-                  <Skeleton className="ml-2 h-6 w-20" />
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
-                  <Skeleton className="h-4 w-36" />
+        <Card className="mb-8 w-full space-y-4 p-6 md:space-y-6">
+          <CardHeader className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
+            <div className="relative flex-shrink-0">
+              <Skeleton className="h-44 w-44 rounded-lg" />
+            </div>
+            <div className="flex w-full flex-col">
+              <div className="flex w-full flex-col justify-between md:flex-row md:items-start">
+                <div className="max-w-sm flex-grow text-center md:text-left">
+                  <CardTitle className="text-3xl font-medium leading-none">
+                    <div className="flex flex-col items-center md:flex-row md:justify-start">
+                      <Skeleton className="h-8 w-48 mb-2" />
+                      <div className="mt-2 flex space-x-2 md:ml-2 md:mt-0">
+                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-6 w-20" />
+                      </div>
+                    </div>
+                  </CardTitle>
+                  <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
+                    <Skeleton className="h-4 w-36" />
+                  </div>
                 </div>
               </div>
-              <div className="mt-4 flex flex-col items-center md:mt-0 md:flex-shrink-0 md:flex-grow-0 md:items-end">
-                <Skeleton className="h-7 w-44 mb-4" />
-                <div className="mt-4 flex flex-col items-center space-y-2 md:mt-6 md:items-end md:space-y-2">
-                  <Skeleton className="h-5 w-24" />
+              <div className="md:text-md mt-2 max-w-md text-center text-sm text-foreground md:text-left">
+                <Skeleton className="h-6 w-full mb-2" />
+                <div className="mt-4 flex justify-center space-x-4 md:justify-start">
+                  <Skeleton className="h-6 w-6 rounded-full" />
+                  <Skeleton className="h-6 w-6 rounded-full" />
                 </div>
               </div>
             </div>
           </CardHeader>
+          <CardContent className="space-y-4 md:space-y-6">
+            <div className="text-md grid grid-cols-1 gap-4 text-center text-muted-foreground sm:grid-cols-2 md:text-left lg:grid-cols-3">
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+            </div>
+          </CardContent>
         </Card>
       </div>
     );

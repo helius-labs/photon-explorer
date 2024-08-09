@@ -2,7 +2,7 @@
 
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
-import { fetchSolPrice, lamportsToSolString } from "@/utils/common";
+import { lamportsToSolString } from "@/utils/common";
 import { formatCurrencyValue, formatLargeSize, formatNumericValue } from "@/utils/numbers";
 import { Token } from "@/types/token";
 import { normalizeTokenAmount } from "@/utils/common";
@@ -10,7 +10,6 @@ import cloudflareLoader from "@/utils/imageLoader";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { DataTable } from "@/components/data-table/data-table";
@@ -18,11 +17,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LottieLoader from "@/components/common/lottie-loading";
 import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { DollarSign } from "lucide-react";
-import { PublicKey, Connection } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { Cluster } from "@/utils/cluster";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
+import { useGetBalance, useGetSolPrice } from "@/hooks/web3";
 
 const formatPriceWithSupSub = (price: string) => {
   const [integerPart, decimalPart] = price.split(".");
@@ -173,34 +173,19 @@ interface AccountTokensProps {
   accountInfo: any;
 }
 
-async function fetchSolBalance(publicKey: PublicKey, endpoint: string) {
-  const connection = new Connection(endpoint);
-  const balance = await connection.getBalance(publicKey);
-  return balance;
-}
-
 export default function AccountTokens({ address, solPrice, accountInfo }: AccountTokensProps) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const publicKey = new PublicKey(address);
   const { data, isLoading, isError } = useGetTokensByOwner(publicKey.toBase58());
   const { cluster, endpoint } = useCluster();
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(publicKey.toBase58());
+  const { data: solBalanceData } = useGetBalance(address);
 
-  const [currentSolPrice, setCurrentSolPrice] = useState<number | null>(solPrice);
-  const [solBalance, setSolBalance] = useState<number>(0);
 
-  useEffect(() => {
-    if (!solPrice) {
-      fetchSolPrice().then((price) => setCurrentSolPrice(price));
-    }
-  }, [solPrice]);
+  // Use the hook to get the SOL price
+  const { data: currentSolPrice, isLoading: isSolPriceLoading } = useGetSolPrice();
 
-  useEffect(() => {
-    fetchSolBalance(publicKey, endpoint).then((balance) => setSolBalance(balance));
-  }, [publicKey, endpoint]);
-
-  const solBalanceInSol = parseFloat(lamportsToSolString(solBalance, 2));
-
+  // Calculate SOL balance in SOL and USD
+  const solBalanceInSol = solBalanceData ? parseFloat(lamportsToSolString(solBalanceData, 2)) : 0;
   const solBalanceUSD = currentSolPrice
     ? formatCurrencyValue(solBalanceInSol * currentSolPrice, 2)
     : null;
@@ -211,7 +196,7 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
     Cluster.Custom,
   ].includes(cluster);
 
-  if (isError)
+  if (isError) {
     return (
       <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
@@ -230,8 +215,9 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
         </CardContent>
       </Card>
     );
+  }
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 py-6">
@@ -239,6 +225,7 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
         </CardContent>
       </Card>
     );
+  }
 
   const totalFungibleValue =
     data?.reduce((accumulator, token) => {
