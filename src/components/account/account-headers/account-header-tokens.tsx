@@ -371,34 +371,32 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                   )}
 
                   {tokenDetails.holders && tokenDetails.holders !== "" && (
-                    <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                      <span className="font-semibold text-muted-foreground">
+                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
+                      <span className="flex items-center font-semibold text-muted-foreground">
                         Holders
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="ml-1 md:ml-2">
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent>
+                            <p className="text-sm text-center">On-chain token holders</p>
+                          </PopoverContent>
+                        </Popover>
                       </span>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="ml-2">
-                            <Info className="h-4 w-4 text-muted-foreground" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <p className="text-sm text-center">On-chain token holders</p>
-                        </PopoverContent>
-                      </Popover>
                       <span className="truncate md:max-w-none md:whitespace-normal">
                         {tokenDetails.holders}
                       </span>
                     </div>
                   )}
-                  {tokenDetails.dailyVolume &&
-                    tokenDetails.dailyVolume !== "" && (
-                      <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                        <span className="font-semibold text-muted-foreground">
-                          Daily Volume
-                        </span>
+                  {tokenDetails.dailyVolume && tokenDetails.dailyVolume !== "" && (
+                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
+                      <span className="flex items-center font-semibold text-muted-foreground">
+                        Daily Volume
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className="ml-2">
+                            <button className="ml-1 md:ml-2">
                               <Info className="h-4 w-4 text-muted-foreground" />
                             </button>
                           </PopoverTrigger>
@@ -406,11 +404,12 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                             <p className="text-sm text-center">24hr Solana DEX Volume</p>
                           </PopoverContent>
                         </Popover>
-                        <span className="truncate md:max-w-none md:whitespace-normal">
-                          {tokenDetails.dailyVolume}
-                        </span>
-                      </div>
-                    )}
+                      </span>
+                      <span className="truncate md:max-w-none md:whitespace-normal">
+                        {tokenDetails.dailyVolume}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
               {isLocalOrTestNet && (
