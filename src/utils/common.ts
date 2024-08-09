@@ -170,17 +170,6 @@ export function dateFormat(unixTimestamp: number): string {
   });
 }
 
-export async function fetchSolPrice(): Promise<number> {
-  const ids = ["So11111111111111111111111111111111111111112"];
-  const tokenPrices = await getTokenPrices(ids);
-
-  if (tokenPrices && tokenPrices.data[ids[0]]) {
-    return tokenPrices.data[ids[0]].price;
-  } else {
-    throw new Error("Failed to fetch SOL price");
-  }
-}
-
 export function getSignature(transaction: any): string {
   if (transaction && typeof transaction === "object") {
     if ("signature" in transaction) {

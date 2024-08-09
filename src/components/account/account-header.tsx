@@ -30,13 +30,21 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
   signatures,
   accountType,
 }) => {
-  const { data: nftData } = useGetNFTsByMint(address.toBase58(), true);
+  // Fetch NFT data if it's possible that this is an NFT or compressed NFT
+  const shouldFetchNFT = 
+    accountType === AccountType.Token2022NFT ||
+    accountType === AccountType.MetaplexNFT ||
+    accountType === AccountType.NFToken ||
+    accountType === AccountType.NotFound ||
+    accountType === AccountType.CompressedNFT;
 
-  const nft = nftData || null;
+  const { data: nftData } = useGetNFTsByMint(address.toBase58(), shouldFetchNFT);
+
+  const isCompressedNFT = nftData?.compression?.compressed;
 
   const renderAccountHeader = () => {
-    if (nft?.compression?.compressed) {
-      return <AccountHeaderNFTs address={address} nft={nft} />;
+    if (shouldFetchNFT && isCompressedNFT) {
+      return <AccountHeaderNFTs address={address} nft={nftData || null} />;
     }
     switch (accountType) {
       case AccountType.Token:
@@ -47,7 +55,7 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
       case AccountType.MetaplexNFT:
       case AccountType.NFToken:
       case AccountType.CompressedNFT:
-        return <AccountHeaderNFTs address={address} nft={nft} />;
+        return <AccountHeaderNFTs address={address} nft={nftData || null} />;
       case AccountType.Wallet:
         return (
           <AccountHeaderWallets
