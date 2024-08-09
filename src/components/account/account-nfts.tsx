@@ -1,32 +1,25 @@
 "use client";
 
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
-import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
-import { NFT } from "@/types/nft";
-import { formatCurrencyValue } from "@/utils/numbers";
-import { ColumnDef } from "@tanstack/react-table";
-import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { CircleHelp } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
-
-import AccountNFTsModal from "@/components/account/account-nfts-modal";
-import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
-import { Button } from "@/components/ui/button";
+import { NFT } from "@/types/nft";
+import { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import LottieLoader from "@/components/common/lottie-loading";
-import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
-import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import LottieLoader from "@/components/common/lottie-loading";
+import AccountNFTsModal from "@/components/account/account-nfts-modal";
+import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
+import Image from 'next/image';
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
+import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
+import { CircleHelp } from "lucide-react";
+import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
+import { Switch } from '../ui/switch';
+import { formatCurrencyValue } from '@/utils/numbers';
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
@@ -35,7 +28,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const collectionFilter = searchParams.get("collection");
 
   const [showMetaplexVerified, setShowMetaplexVerified] = useState(false);
-  const [showCompressed, setShowCompressed] = useState(false);
+  const [showCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
@@ -54,30 +47,28 @@ const AccountNFTs = ({ address }: { address: string }) => {
     }
   }, [nfts]);
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set(name, value);
-      return params.toString();
-    },
-    [searchParams]
-  );
-
-  const handleCollectionFilter = (collection: string) => {
-    const queryString = createQueryString("collection", collection);
-    router.push(`${pathname}?${queryString}`);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const createQueryString = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set(name, value);
+    return params.toString();
   };
 
-  const handleNoFilter = () => {
+  const handleCollectionFilter = useCallback((collection: string) => {
+    const queryString = createQueryString("collection", collection);
+    router.push(`${pathname}?${queryString}`);
+  }, [createQueryString, pathname, router]);
+
+  const handleNoFilter = useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete("collection");
     router.push(`${pathname}?${newSearchParams.toString()}`);
-  };
+  }, [pathname, router, searchParams]);
 
-  const handleQuickViewClick = (nftData: NFT) => {
+  const handleQuickViewClick = useCallback((nftData: NFT) => {
     setSelectedNft(nftData);
     setIsModalOpen(true);
-  };
+  }, []);
 
   const filteredNfts = useMemo(() => {
     return (
@@ -93,7 +84,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
     );
   }, [nfts, showMetaplexVerified, collectionFilter, showCompressed]);
 
-  const columns: ColumnDef<NFT>[] = [
+  const columns: ColumnDef<NFT>[] = useMemo(() => [
     {
       header: "Image",
       accessorKey: "image",
@@ -130,7 +121,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
         return price ? formatCurrencyValue(price) : "N/A";
       },
     },
-  ];
+  ], [handleQuickViewClick]);
 
   if (isError)
     return (
@@ -158,7 +149,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
         <CardContent className="flex flex-col gap-4 pb-4 pt-6">
           {isLoading ? (
             <div className="flex flex-col items-center">
-          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
+              <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
             </div>
           ) : (
             <>
@@ -167,36 +158,36 @@ const AccountNFTs = ({ address }: { address: string }) => {
                   <span>Total NFTs: {filteredNfts.length}</span>
                 </div>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:items-center sm:space-x-4 sm:mt-0">
-                      <div className="flex items-center space-x-2 cursor-pointer">
-                        <Badge className="flex items-center space-x-2 mt-3 md:mt-0" variant="verified">
-                          Verified
-                          <Image
-                            src={metaplexLogo}
-                            alt="Metaplex Logo"
-                            width={16}
-                            height={16}
-                            className="rounded-full ml-2"
-                          />
-                          <Popover>
-                          <PopoverTrigger asChild>
+                  <div className="flex items-center space-x-2 cursor-pointer">
+                    <Badge className="flex items-center space-x-2 mt-3 md:mt-0" variant="verified">
+                      Verified
+                      <Image
+                        src={metaplexLogo}
+                        alt="Metaplex Logo"
+                        width={16}
+                        height={16}
+                        className="rounded-full ml-2"
+                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <CircleHelp className="w-4 h-4 ml-1 cursor-pointer" />
-                          </PopoverTrigger>
-                            <PopoverContent>
-                              Filter your response by Metaplex Verified NFTs
-                            </PopoverContent>
-                          </Popover>
-                          <Switch
-                            checked={showMetaplexVerified}
-                            onCheckedChange={() =>
-                              setShowMetaplexVerified((prev) => !prev)
-                            }
-                            className="ml-2"
-                            checkedClassName="bg-purple-600 opacity-90"
-                            uncheckedClassName="bg-gray-400"
-                            style={{ transform: "scale(0.85)" }}
-                          />
-                        </Badge>
-                      </div>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          Filter your response by Metaplex Verified NFTs
+                        </PopoverContent>
+                      </Popover>
+                      <Switch
+                        checked={showMetaplexVerified}
+                        onCheckedChange={() =>
+                          setShowMetaplexVerified((prev) => !prev)
+                        }
+                        className="ml-2"
+                        checkedClassName="bg-purple-600 opacity-90"
+                        uncheckedClassName="bg-gray-400"
+                        style={{ transform: "scale(0.85)" }}
+                      />
+                    </Badge>
+                  </div>
                   <Select
                     value={collectionFilter || "all"}
                     onValueChange={(value) =>

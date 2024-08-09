@@ -6,8 +6,6 @@ import {
   ParsedAccountData,
 } from "@solana/web3.js";
 
-// Import SYSVAR_IDS
-
 export enum AccountType {
   Wallet = "Wallet",
   Token = "Token",
@@ -40,6 +38,12 @@ export function getAccountType(
     return AccountType.NotFound;
   }
 
+  // Prioritize checking for compressed NFTs
+  if (nftData?.compression?.compressed) {
+    return AccountType.CompressedNFT;
+  }
+
+  // Check parsed account data to determine account type
   if (accountInfo && accountInfo.data && "parsed" in accountInfo.data) {
     switch (accountInfo.data.program) {
       case "bpf-upgradeable-loader":
@@ -88,10 +92,6 @@ export function getAccountType(
     if (owner === NFTOKEN_ADDRESS) {
       return AccountType.NFToken;
     }
-  }
-
-  if (nftData?.compression?.compressed) {
-    return AccountType.CompressedNFT;
   }
 
   // Check for known sysvar program addresses

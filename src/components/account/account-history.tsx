@@ -1,6 +1,5 @@
 "use client";
 
-import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import { useCluster } from "@/providers/cluster-provider";
 import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
@@ -16,9 +15,8 @@ import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { TransactionCard } from "@/components/account/transaction-card";
-import LottieLoader from "@/components/common/lottie-loading";
 import { Card, CardContent } from "@/components/ui/card";
-
+import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 
 type TransactionData =
@@ -50,7 +48,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
   const fetchSignatures = useCallback(
-    async (limit: number = 20) => {
+    async (limit: number = 200) => {
       try {
         const newSignatures = await getSignaturesForAddress(
           memoizedAddress,
@@ -80,8 +78,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       const endIndex = startIndex + pageSize;
 
       // If we're close to the end of our current signatures, fetch more
-      if (endIndex + pageSize > allSignatures.length) {
-        await fetchSignatures(pageSize * 2); // Fetch 2 pages worth of signatures
+      if (endIndex + pageSize * 2 > allSignatures.length) {
+        await fetchSignatures(200); // Fetch  signatures
       }
 
       const pageSignatures = allSignatures
@@ -116,7 +114,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   // Fetch initial data
   useEffect(() => {
     const fetchInitialData = async () => {
-      await fetchSignatures(pagination.pageSize * 2); // Fetch 2 pages worth of signatures initially
+      await fetchSignatures(200); // Fetch 2 pages worth of signatures initially
       setIsInitialDataLoaded(true);
     };
     fetchInitialData();
@@ -141,8 +139,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         });
       };
 
-      // Prefetch only the next page
+      // Prefetch pages
       prefetchPage(pagination.pageIndex + 1);
+      prefetchPage(pagination.pageIndex + 2);
     }
   }, [
     data,
@@ -179,17 +178,59 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   }
 
   if (isLoading || !isInitialDataLoaded) {
+    const skeletonRows = Array.from({ length: pagination.pageSize }, (_, i) => (
+      <div key={i}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between p-6">
+          <div className="flex items-center space-x-2 mb-4 md:mb-0"> 
+            <Skeleton className="h-7 w-7 rounded-[8px]" /> 
+            <div className="flex flex-col space-y-2"> 
+              <Skeleton className="h-5 w-32" /> {/* Title Skeleton */}
+              <Skeleton className="h-3 w-24" /> {/* Timestamp Skeleton */}
+            </div>
+          </div>
+          <div className="flex flex-1 justify-between items-center">
+            <Skeleton className="h-4 w-44 mx-auto" /> {/* Centered Info Skeleton */}
+            <Skeleton className="hidden md:flex h-4 w-24" /> {/* Signature Skeleton */}
+          </div>
+        </div>
+        {i < pagination.pageSize - 1 && (
+          <div className="border-t border-bg-popover" />
+        )}
+      </div>
+    ));
+  
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
-        <CardContent className="flex flex-col items-center gap-4 pt-6">
-          <LottieLoader
-            animationData={loadingBarAnimation}
-            className="h-20 w-20"
-          />
+        <CardContent className="pt-4">
+          <div className="hidden md:flex items-center p-6 border-b">
+            <div className="flex-1 flex justify-start">
+              <Skeleton className="md:ml-6 h-3 w-16" /> {/* Type Header */}
+            </div>
+            <div className="flex-1 flex justify-center">
+              <Skeleton className="h-3 w-16" /> {/* Centered Info Header */}
+            </div>
+            <div className="flex-1 flex justify-center">
+              <Skeleton className="h-3 w-32" /> {/* Signature Header */}
+            </div>
+          </div>
+          {/* Data Row Skeletons */}
+          <div className="flex flex-col space-y-4">
+            {skeletonRows}
+          </div>
+          {/* Pagination Skeleton */}
+          <div className="flex justify-center items-center mt-2">
+            <div className="flex space-x-4">
+              <Skeleton className="h-7 w-7 rounded-full" /> {/* Left Arrow */}
+              <Skeleton className="h-7 w-16" /> {/* Page Number */}
+              <Skeleton className="h-7 w-7 rounded-full" /> {/* Right Arrow */}
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
   }
+  
+  
 
   return (
     <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">

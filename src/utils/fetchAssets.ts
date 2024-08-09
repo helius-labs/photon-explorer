@@ -61,7 +61,7 @@ async function fetchAssetsInRange(
         method: "getAssetsByOwner",
         params: {
           ownerAddress,
-          limit: 200,
+          limit: 100,
           after: current,
           before: endStr,
           sortBy: { sortBy: "id", sortDirection: "asc" },
@@ -75,7 +75,7 @@ async function fetchAssetsInRange(
 
     const { result } = await response.json();
 
-    if (result.items.length === 0) {
+    if (!result || !result.items || result.items.length === 0) {
       break;
     }
 
@@ -112,7 +112,14 @@ async function fetchAssetsInRange(
     });
 
     totalItems = totalItems.concat(nfts);
-    current = result.items[result.items.length - 1].id;
+
+    // Update current with the ID of the last item in the current batch
+    const lastItemId = result.items[result.items.length - 1].id;
+    if (lastItemId === current) {
+      // Avoid infinite loop if the API returns the same item repeatedly
+      break;
+    }
+    current = lastItemId;
   }
 
   return totalItems;
