@@ -6,6 +6,7 @@ import Script from "next/script";
 import TradingViewWidget from "../trading-view/tv-chart-container";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 import { Card } from "../ui/card";
+import { usePythDataFeed } from "@/hooks/usePythDataFeed";
 
 interface TradingChartProps {
   address: string;
@@ -23,13 +24,16 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
     !!address
   );
 
+    // Use the custom hook to check for the Pyth data feed
+    const { hasPythDataFeed } = usePythDataFeed(address);
+
   // Handle loading state
   if (isLoading) {
-    return <div>Loading...</div>;
+    return;
   }
 
   // Handle errors in fetching token data
-  if (isError || !tokenData || !tokenData.symbol) {
+  if (isError || !tokenData || !tokenData.symbol || !hasPythDataFeed) {
     return <div>Error loading token data</div>;
   }
 

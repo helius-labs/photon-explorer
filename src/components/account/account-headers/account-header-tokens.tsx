@@ -8,7 +8,6 @@ import { Cluster } from "@/utils/cluster";
 import { shortenLong } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import {
-  calculateMarketCap,
   formatCurrencyValue,
   formatNumericValue,
   formatSupply,
@@ -23,6 +22,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import { useGetTokenMetrics } from "@/hooks/jupiterTokenMetrics";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
+import { usePythDataFeed } from "@/hooks/usePythDataFeed";
 
 import Address from "@/components/common/address";
 import LottieLoader from "@/components/common/lottie-loading";
@@ -36,15 +36,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Tab } from "@/components/tab-nav";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
   type?: string;
+  onTabsUpdate: (tabs: Tab[]) => void;
 }
 
 const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
   address,
   type = "Token",
+  onTabsUpdate,
 }) => {
   const [hasCopied, setHasCopied] = useState(false);
   const [tokenDetails, setTokenDetails] = useState<{
@@ -89,6 +92,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     isLoading: tokenMetricsLoading,
     isError: tokenMetricsError,
   } = useGetTokenMetrics(address.toBase58());
+  const { hasPythDataFeed } = usePythDataFeed(address.toBase58());
 
   // Check if the token is verified by Jupiter
   const isVerifiedByJupiter = useMemo(() => {
@@ -150,6 +154,21 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     tokenMetricsError,
     address,
   ]);
+
+  // Update the tabs
+  useEffect(() => {
+    const tabs: Tab[] = [
+      { name: "Transactions", href: `/address/${address}/history` },
+      { name: "Metadata", href: `/address/${address}/metadata` },
+    ];
+
+    // Conditionally add the "Charts" tab
+    if (hasPythDataFeed) {
+      tabs.push({ name: "Charts", href: `/address/${address}/charts` });
+    }
+
+    onTabsUpdate(tabs);
+  }, [address, onTabsUpdate, hasPythDataFeed]);
 
   // Reset copied status after a delay
   useEffect(() => {

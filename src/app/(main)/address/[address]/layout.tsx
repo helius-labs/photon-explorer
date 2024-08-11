@@ -4,8 +4,8 @@ import { useCluster } from "@/providers/cluster-provider";
 import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import { useGetCompressedAccount, useGetCompressionSignaturesForAccount } from "@/hooks/compression";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
@@ -27,6 +27,9 @@ export default function AddressLayout({
   const router = useRouter();
   const { cluster } = useCluster();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [tabs, setTabs] = useState<Tab[]>([]);
 
   // Fetch 1 signature to check if the address has been used
   const signatures = useGetSignaturesForAddress(address, 1);
@@ -54,61 +57,23 @@ export default function AddressLayout({
     return AccountType.Unknown;
   }, [accountInfo.data, signatures.data]);
 
-  // Create better logic for the tabs based on the account type
-  const tabs: Tab[] = useMemo(() => {
-    const newTabs: Tab[] = [];
-
-    if (accountType === AccountType.Wallet) {
-      // Add the default tabs in the new order for wallet accounts
-      newTabs.push({ name: "Tokens", href: `/address/${address}/tokens` });
-      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
-      newTabs.push({ name: "NFTs", href: `/address/${address}/nfts` });
-      newTabs.push({ name: "Domains", href: `/address/${address}/domains` });
-    } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
-      // Add tabs specific to Program accounts
-      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
-    } else if (
-      accountType === AccountType.Token ||
-      accountType === AccountType.MetaplexNFT ||
-      accountType === AccountType.NFToken ||
-      accountType === AccountType.Token2022 ||
-      accountType === AccountType.CompressedNFT ||
-      accountType === AccountType.NotFound 
-    ) {
-      newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
-      newTabs.push({ name: "Charts", href: `/address/${address}/charts` });
-      newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
-    }
-
-    // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"
-    if (pathname.includes("compressed-accounts")) {
-      newTabs.push({
-        name: "Compressed Accounts",
-        href: `/address/${address}/compressed-accounts`,
-      });
-    }
-
-    return newTabs;
-  }, [accountType, address, pathname]);
-
-  // Route to the correct tab based on the account type
-  useEffect(() => {
-    // Only redirect to "tokens" tab if the current path is exactly the wallet address path
-    if (pathname === `/address/${address}`) {
-      if (accountType === AccountType.Wallet) {
-        router.replace(`/address/${address}/tokens?cluster=${cluster}`);
-      } else if (accountType === AccountType.Program || accountType === AccountType.Closed) {
-        router.replace(`/address/${address}/history?cluster=${cluster}`);
-      } else if (
-        accountType === AccountType.Token ||
-        accountType === AccountType.MetaplexNFT ||
-        accountType === AccountType.NFToken ||
-        accountType === AccountType.Token2022 ||
-        accountType === AccountType.CompressedNFT ||
-        accountType === AccountType.NotFound
-      ) {
-        router.replace(`/address/${address}/history?cluster=${cluster}`);
+  const handleTabsUpdate = (updatedTabs: Tab[]) => {
+    setTabs((prevTabs) => {
+      const isDifferent = JSON.stringify(prevTabs) !== JSON.stringify(updatedTabs);
+      if (isDifferent) {
+        return updatedTabs;
       }
+      return prevTabs;
+    });
+  };
+
+  // Default to "Transactions" tab if only the address is provided (no specific tab in the URL)
+  useEffect(() => {
+    const currentPath = pathname;
+    const hasTabInUrl = currentPath !== `/address/${address}`;
+    
+    if (!hasTabInUrl && accountType === AccountType.Token) {
+      router.replace(`/address/${address}/history?cluster=${cluster}`);
     }
   }, [accountType, address, cluster, pathname, router]);
 
@@ -157,6 +122,7 @@ export default function AddressLayout({
           accountInfo={accountInfo.data?.value || null}
           signatures={signatures.data || []}
           accountType={accountType}
+          onTabsUpdate={handleTabsUpdate}
         />
         {compressedAccount.data && (
           <CompressionHeader

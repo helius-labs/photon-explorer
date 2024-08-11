@@ -16,12 +16,14 @@ import AccountHeaderPrograms from "@/components/account/account-headers/account-
 import AccountHeaderTokens from "@/components/account/account-headers/account-header-tokens";
 import AccountHeaderUnknown from "@/components/account/account-headers/account-header-unknown";
 import AccountHeaderWallets from "@/components/account/account-headers/account-header-wallet";
+import { Tab } from "../tab-nav";
 
 interface AccountHeaderProps {
   address: PublicKey;
   accountInfo: AccountInfo<Buffer | ParsedAccountData> | null;
   signatures: ConfirmedSignatureInfo[];
   accountType: AccountType;
+  onTabsUpdate: (updatedTabs: Tab[]) => void; // Include this in the props
 }
 
 const AccountHeader: React.FC<AccountHeaderProps> = ({
@@ -29,6 +31,7 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
   accountInfo,
   signatures,
   accountType,
+  onTabsUpdate,
 }) => {
   const { data: nftData } = useGetNFTsByMint(address.toBase58(), true);
 
@@ -40,9 +43,9 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
     }
     switch (accountType) {
       case AccountType.Token:
-        return <AccountHeaderTokens address={address} />;
+        return <AccountHeaderTokens address={address} onTabsUpdate={onTabsUpdate} />;
       case AccountType.Token2022:
-        return <AccountHeaderTokens address={address} type="Token2022" />;
+        return <AccountHeaderTokens address={address} type="Token2022" onTabsUpdate={onTabsUpdate} />;
       case AccountType.Token2022NFT:
       case AccountType.MetaplexNFT:
       case AccountType.NFToken:
@@ -67,3 +70,4 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
 };
 
 export default AccountHeader;
+

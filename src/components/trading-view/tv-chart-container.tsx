@@ -12,6 +12,7 @@ interface TradingViewWidgetProps {
 declare global {
   interface Window {
     tvScriptLoadingPromise?: Promise<void>;
+    Datafeeds?: any;
   }
 }
 
@@ -37,12 +38,17 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     }
 
     window.tvScriptLoadingPromise.then(() => {
-      if (chartContainerRef.current) {
+      if (window.Datafeeds && chartContainerRef.current) {
         const validSymbol = `${symbol}USD`;
         const widgetOptions: ChartingLibraryWidgetOptions = {
-          symbol: `${validSymbol}`,
-          datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(
+          symbol: validSymbol,
+          datafeed: new window.Datafeeds.UDFCompatibleDatafeed(
             "https://benchmarks.pyth.network/v1/shims/tradingview",
+            undefined,
+            {
+              maxResponseLength: 1000,
+              expectedOrder: "latestFirst",
+            }
           ),
           interval: resolution as ResolutionString,
           container: chartContainerRef.current,
@@ -73,10 +79,10 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
           autosize: true,
           loading_screen: {
             foregroundColor: "#ffffff",
-            },
+          },
           theme: theme === 'dark' ? 'dark' : 'light',
           overrides: {
-            'paneProperties.background': '#ffffff',
+            'paneProperties.background': theme === 'dark' ? '#131722' : '#ffffff',
             'symbolWatermarkProperties.transparency': 90,
             'paneProperties.legendProperties.showStudyTitles': true,
             'paneProperties.legendProperties.showSeriesTitle': true,
@@ -86,7 +92,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
             'mainSeriesProperties.candleStyle.borderColor': '#4EDF87',
             'mainSeriesProperties.candleStyle.wickUpColor': '#06D6A0',
             'mainSeriesProperties.candleStyle.wickDownColor': '#EF476F',
-          },          
+          },
           studies_overrides: {},
           custom_css_url: '/styles/tradingview.css',
           custom_formatters: {
@@ -95,7 +101,6 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
             dateFormatter: createDateFormatter(),
           },
         };
-        
 
         widgetRef.current = new widget(widgetOptions);
 
