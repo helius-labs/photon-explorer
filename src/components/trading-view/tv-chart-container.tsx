@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { widget, ChartingLibraryWidgetOptions, ResolutionString } from '@/../public/charting_library';
 import styles from './index.module.css';
 import { useTheme } from 'next-themes';
+import { COLORS } from '@/../public/styles/colors'
 
 interface TradingViewWidgetProps {
   address: string;
@@ -23,6 +24,18 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const widgetRef = useRef<any>(null);
   const { theme } = useTheme();
+
+  function getChartStyleOverrides(theme: any) {
+    return {
+      'paneProperties.background': theme === 'dark' ? COLORS.dark.background : COLORS.light.background,
+      'scalesProperties.textColor': theme === 'dark' ? COLORS.dark.textColor : COLORS.light.textColor,
+      'mainSeriesProperties.candleStyle.upColor': theme === 'dark' ? COLORS.dark.upColor : COLORS.light.upColor,
+      'mainSeriesProperties.candleStyle.downColor': theme === 'dark' ? COLORS.dark.downColor : COLORS.light.downColor,
+      'mainSeriesProperties.candleStyle.borderColor': theme === 'dark' ? COLORS.dark.borderColor : COLORS.light.borderColor,
+      'mainSeriesProperties.candleStyle.wickUpColor': theme === 'dark' ? COLORS.dark.wickUpColor : COLORS.light.wickUpColor,
+      'mainSeriesProperties.candleStyle.wickDownColor': theme === 'dark' ? COLORS.dark.wickDownColor : COLORS.light.wickDownColor,
+    };
+  }
 
   useEffect(() => {
     if (!window.tvScriptLoadingPromise) {
@@ -81,18 +94,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
             foregroundColor: "#ffffff",
           },
           theme: theme === 'dark' ? 'dark' : 'light',
-          overrides: {
-            'paneProperties.background': theme === 'dark' ? '#131722' : '#ffffff',
-            'symbolWatermarkProperties.transparency': 90,
-            'paneProperties.legendProperties.showStudyTitles': true,
-            'paneProperties.legendProperties.showSeriesTitle': true,
-            'paneProperties.legendProperties.showLegend': true,
-            'mainSeriesProperties.candleStyle.upColor': '#06D6A0',
-            'mainSeriesProperties.candleStyle.downColor': '#EF476F',
-            'mainSeriesProperties.candleStyle.borderColor': '#4EDF87',
-            'mainSeriesProperties.candleStyle.wickUpColor': '#06D6A0',
-            'mainSeriesProperties.candleStyle.wickDownColor': '#EF476F',
-          },
+          overrides: getChartStyleOverrides(theme),
           studies_overrides: {},
           custom_css_url: '/styles/tradingview.css',
           custom_formatters: {

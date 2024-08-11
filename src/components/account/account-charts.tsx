@@ -34,7 +34,7 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
 
   // Handle errors in fetching token data
   if (isError || !tokenData || !tokenData.symbol || !hasPythDataFeed) {
-    return <div>Error loading token data</div>;
+    return;
   }
 
   // Extract the symbol from the token data
@@ -59,7 +59,7 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
         defer
       />
       {isScriptReady && (
-        <Card className="h-full flex flex-col p-1 sm:p-2 rounded-[16px] border dark:bg-[#012732]">
+        <Card className="h-full flex flex-col p-1 sm:p-2 rounded-[16px] border bg-background">
           <TradingViewWidget address={address} resolution="15" symbol={symbol} />
         </Card>
       )}
