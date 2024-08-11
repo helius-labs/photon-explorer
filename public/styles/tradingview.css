@@ -1,0 +1,47 @@
+:root:not(.theme-dark) {
+  --black: hsl(var(--background));
+  --primary: hsl(var(--primary));
+  --bkg-light: rgba(255, 255, 255, 0.1);
+  --bkg-dark: rgba(0, 0, 0, 0.1);
+  --bkg-darker: rgba(0, 0, 0, 0.2);
+  --bkg-darkest: rgba(0, 0, 0, 0.4);
+  --text: hsl(var(--foreground));
+
+  --tv-color-platform-background: transparent;
+  --tv-color-pane-background: hsl(var(--background));
+  --tv-color-pane-background-secondary: hsl(var(--muted));
+  --tv-color-toolbar-button-text: hsl(var(--foreground));
+  --tv-color-toolbar-button-background-hover: hsl(var(--bkg-light)); 
+  --tv-color-toolbar-button-background-secondary-hover: hsl(var(--bkg-darker));
+  --tv-color-toolbar-button-background-expanded: hsl(var(--bkg-darkest));
+  --tv-color-toolbar-button-text-hover: hsl(var(--primary));
+  --tv-color-toolbar-button-text-active: hsl(var(--primary));
+  --tv-color-toolbar-button-text-active-hover: hsl(var(--primary));
+  --tv-color-item-active-text: hsl(var(--foreground));
+  --tv-color-toolbar-toggle-button-background-active: hsl(var(--primary));
+  --tv-color-toolbar-toggle-button-background-active-hover: hsl(var(--primary));
+};
+
+.theme-dark:root {
+  --black: hsl(var(--background));
+  --primary: hsl(var(--primary));
+  --bkg-light: rgba(255, 255, 255, 0.1);
+  --bkg-dark: rgba(0, 0, 0, 0.1);
+  --bkg-darker: rgba(0, 0, 0, 0.2);
+  --bkg-darkest: rgba(0, 0, 0, 0.4);
+  --text: hsl(var(--foreground));
+
+  --tv-color-platform-background: transparent;
+  --tv-color-pane-background: hsl(var(--background));
+  --tv-color-pane-background-secondary: hsl(var(--muted));
+  --tv-color-toolbar-button-text: hsl(var(--foreground));
+  --tv-color-toolbar-button-background-hover: hsl(var(--bkg-light)); 
+  --tv-color-toolbar-button-background-secondary-hover: hsl(var(--bkg-darker));
+  --tv-color-toolbar-button-background-expanded: hsl(var(--bkg-darkest));
+  --tv-color-toolbar-button-text-hover: hsl(var(--primary));
+  --tv-color-toolbar-button-text-active: hsl(var(--primary));
+  --tv-color-toolbar-button-text-active-hover: hsl(var(--primary));
+  --tv-color-item-active-text: hsl(var(--foreground));
+  --tv-color-toolbar-toggle-button-background-active: hsl(var(--primary));
+  --tv-color-toolbar-toggle-button-background-active-hover: hsl(var(--primary));
+};

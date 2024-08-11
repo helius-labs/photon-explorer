@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { PublicKey } from "@solana/web3.js";
+import Script from "next/script";
 import TradingViewWidget from "../trading-view/tv-chart-container";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 import { Card } from "../ui/card";
@@ -11,11 +12,12 @@ interface TradingChartProps {
 }
 
 const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
+  const [isScriptReady, setIsScriptReady] = useState(false);
 
-  // Even if the address might be invalid, we still call the hook unconditionally
+  // Create a PublicKey object from the address
   const publicKey = address ? new PublicKey(address) : null;
 
-  // Call the hook, enabled only if a valid address is provided
+  // Fetch token data based on the mint address
   const { data: tokenData, isLoading, isError } = useGetTokensByMint(
     publicKey?.toBase58() || "",
     !!address
@@ -23,19 +25,41 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
 
   // Handle loading state
   if (isLoading) {
-    return;
+    return <div>Loading...</div>;
   }
 
   // Handle errors in fetching token data
-  if (isError || !tokenData) {
+  if (isError || !tokenData || !tokenData.symbol) {
     return <div>Error loading token data</div>;
   }
 
+  // Extract the symbol from the token data
+  const symbol = tokenData.symbol || "SOL"; // Fallback to 'SOL' if symbol is not available
+
   return (
-    <Card className="h-full flex flex-col p-1 sm:p-2 rounded-[16px] border">
-      {/* Pass the resolved symbol to the TradingViewWidget */}
-      <TradingViewWidget resolution="15" symbol={tokenData.symbol || ""} />
-    </Card>
+    <>
+      <Script
+        src="/charting_library/charting_library.standalone.js"
+        strategy="lazyOnload"
+        onReady={() => {
+          setIsScriptReady(true);
+        }}
+        defer
+      />
+      <Script
+        src="/datafeeds/udf/dist/bundle.js"
+        strategy="lazyOnload"
+        onReady={() => {
+          setIsScriptReady(true);
+        }}
+        defer
+      />
+      {isScriptReady && (
+        <Card className="h-full flex flex-col p-1 sm:p-2 rounded-[16px] border dark:bg-[#012732]">
+          <TradingViewWidget address={address} resolution="15" symbol={symbol} />
+        </Card>
+      )}
+    </>
   );
 };
 

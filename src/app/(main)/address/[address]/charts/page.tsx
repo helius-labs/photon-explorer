@@ -1,19 +1,27 @@
-import { shorten } from "@/utils/common";
 import AccountCharts from "@/components/account/account-charts";
+import { shorten } from "@/utils/common";
 
 type Props = Readonly<{
   params: {
     address: string;
+    symbol?: string;
   };
 }>;
 
+// Dynamic metadata
 export async function generateMetadata({ params }: Props) {
   return {
-    title: `Address ${shorten(params.address)} - Metadata | XRAY`,
-    description: `JSON metadata for the address ${params.address}`,
+    title: `${shorten(params.address)} - Charts | XRAY`,
+    description: `Charts for ${params.symbol}`,
   };
 }
 
 export default function Page({ params }: Props) {
-  return <AccountCharts address={params.address} />;
+  const { address } = params;
+
+  return (
+    <div>
+      <AccountCharts address={address} />
+    </div>
+  );
 }
