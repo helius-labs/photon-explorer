@@ -1,5 +1,5 @@
 import { shorten } from "@/utils/common";
-import TradingChart from "@/components/account/account-charts";
+import AccountCharts from "@/components/account/account-charts";
 
 type Props = Readonly<{
   params: {
@@ -15,5 +15,5 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default function Page({ params }: Props) {
-  return <TradingChart address={params.address} />;
+  return <AccountCharts address={params.address} />;
 }

@@ -76,7 +76,7 @@ export default function AddressLayout({
       accountType === AccountType.NotFound 
     ) {
       newTabs.push({ name: "Transactions", href: `/address/${address}/history` });
-      newTabs.push({ name: "Charts", href: `/address/${address}/charts` }); // Add the Charts tab here
+      newTabs.push({ name: "Charts", href: `/address/${address}/charts` });
       newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
     }
 

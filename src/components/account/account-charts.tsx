@@ -1,78 +1,42 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
-import Script from "next/script";
-import { ChartingLibraryWidgetOptions, ResolutionString } from "../../../public/charting_library/charting_library";
+import React from "react";
+import { PublicKey } from "@solana/web3.js";
+import TradingViewWidget from "../trading-view/tv-chart-container";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
-import { Token } from "@/types/token";
-
-const defaultWidgetProps: Partial<ChartingLibraryWidgetOptions> = {
-  interval: "15" as ResolutionString,
-  library_path: "/charting_library/",
-  locale: "en",
-  charts_storage_url: "https://saveload.tradingview.com",
-  charts_storage_api_version: "1.1",
-  client_id: "tradingview.com",
-  user_id: "public_user_id",
-  fullscreen: false,
-  autosize: true,
-  custom_css_url: '/tradingview.css',
-};
-
-const TVChartContainer = dynamic(
-  () => import("../../components/trading-view/tv-chart-container").then((mod) => mod.TVChartContainer),
-  { ssr: false }
-);
+import { Card } from "../ui/card";
 
 interface TradingChartProps {
   address: string;
 }
 
-const TradingChart: React.FC<TradingChartProps> = ({ address }) => {
-  const [isScriptReady, setIsScriptReady] = useState(false);
-  const [token, setToken] = useState<Token | null>(null);
-  const { data: tokenData, isLoading, isError } = useGetTokensByMint(address);
+const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
 
-  useEffect(() => {
-    if (!isLoading && !isError && tokenData) {
-      setToken(tokenData);
-    }
-  }, [isLoading, isError, tokenData]);
+  // Even if the address might be invalid, we still call the hook unconditionally
+  const publicKey = address ? new PublicKey(address) : null;
 
+  // Call the hook, enabled only if a valid address is provided
+  const { data: tokenData, isLoading, isError } = useGetTokensByMint(
+    publicKey?.toBase58() || "",
+    !!address
+  );
+
+  // Handle loading state
   if (isLoading) {
-    return <div>Loading...</div>;
+    return;
   }
 
-  if (isError || !token) {
+  // Handle errors in fetching token data
+  if (isError || !tokenData) {
     return <div>Error loading token data</div>;
   }
 
   return (
-    <>
-      <Script
-        src="/datafeeds/udf/dist/bundle.js"
-        strategy="lazyOnload"
-        onReady={() => {
-          setIsScriptReady(true);
-        }}
-      />
-      {isScriptReady && (
-        <div className="h-full flex flex-col p-1 sm:p-2 cardShadowBor rounded-b-[16px] border-l border-r border-b dark:bg-[#012732]">
-          <TVChartContainer
-            token={token}
-            locale="en"
-            charts_storage_url="https://saveload.tradingview.com"
-            charts_storage_api_version="1.1"
-            client_id="tradingview.com"
-            user_id="public_user_id"
-            fullscreen={false}
-            autosize={true}
-          />
-        </div>
-      )}
-    </>
+    <Card className="h-full flex flex-col p-1 sm:p-2 rounded-[16px] border">
+      {/* Pass the resolved symbol to the TradingViewWidget */}
+      <TradingViewWidget resolution="15" symbol={tokenData.symbol || ""} />
+    </Card>
   );
 };
 
-export default TradingChart;
+export default AccountCharts;
