@@ -35,7 +35,7 @@ export function TokenBalance({
   showPrice?: boolean;
   timestamp?: number;
 }) {
-  console.log("ShowPrice: ", showPrice, "timestamp: ", timestamp);
+  // console.log("ShowPrice: ", showPrice, "timestamp: ", timestamp);
   const { data: tokenList } = useGetTokenListVerified();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
 

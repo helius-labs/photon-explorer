@@ -139,6 +139,8 @@ export default function TransactionOverviewParsed({
                         mint={new PublicKey(action.mint!)}
                         isReadable={true}
                         isLink={true}
+                        // showPrice={true}
+                        // timestamp={timestamp}
                       />
                     </span>
                   </div>
@@ -177,6 +179,8 @@ export default function TransactionOverviewParsed({
                         amount={action.amount}
                         decimals={action.decimals}
                         mint={new PublicKey(action.mint!)}
+                        // showPrice={true}
+                        // timestamp={timestamp}
                       />
                     </Link>
                   </span>
@@ -197,6 +201,7 @@ export default function TransactionOverviewParsed({
                         amount={action.amount}
                         decimals={action.decimals}
                         mint={new PublicKey(action.mint!)}
+                        showPrice={true}
                       />
                     </Link>
                   </span>
