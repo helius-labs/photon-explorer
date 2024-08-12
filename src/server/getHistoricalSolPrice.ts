@@ -12,7 +12,7 @@ interface BirdeyeApiResponse {
 export async function getHistoricalSolPrice(
   currentTimestamp: number,
 ): Promise<number> {
-  const BirdeyeAPI = "6cb3e24d2ca349169357645825fc3b62";
+  const BirdeyeAPI = process.env.BIRDEYE_API_KEY || "";
   const SOL_ADDRESS = "So11111111111111111111111111111111111111112";
 
   const fromTimestamp = currentTimestamp - 30;
