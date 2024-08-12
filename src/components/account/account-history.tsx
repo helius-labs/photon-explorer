@@ -1,6 +1,5 @@
 "use client";
 
-import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import { useCluster } from "@/providers/cluster-provider";
 import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
@@ -16,9 +15,8 @@ import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { TransactionCard } from "@/components/account/transaction-card";
-import LottieLoader from "@/components/common/lottie-loading";
 import { Card, CardContent } from "@/components/ui/card";
-
+import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 
 type TransactionData =
@@ -180,17 +178,63 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   }
 
   if (isLoading || !isInitialDataLoaded) {
+    const skeletonRows = Array.from({ length: pagination.pageSize }, (_, i) => (
+      <div key={i}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-3">
+          {/* Type Section Skeleton */}
+          <div className="flex flex-1 items-center space-x-2 mb-4 md:mb-0">
+            <Skeleton className="h-7 w-7 rounded-[8px]" />
+            <div className="flex flex-col space-y-2">
+              <Skeleton className="h-5 w-32" /> {/* Title Skeleton */}
+              <Skeleton className="h-3 w-24" /> {/* Timestamp Skeleton */}
+            </div>
+          </div>
+          {/* Balance Changes Section Skeleton with Circle */}
+          <div className="flex flex-1 items-center justify-center space-x-2">
+            <Skeleton className="h-6 w-6 rounded-full" /> {/* Circle Skeleton */}
+            <Skeleton className="h-4 w-36 md:w-28" /> {/* Info Text Skeleton */}
+          </div>
+          {/* Signature Section Skeleton */}
+          <div className="flex flex-1 items-center justify-center">
+            <Skeleton className="h-4 w-32 md:w-24" /> {/* Signature Skeleton */}
+          </div>
+        </div>
+        {i < pagination.pageSize - 1 && (
+          <div className="border-t border-bg-popover" />
+        )}
+      </div>
+    ));
+  
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
-        <CardContent className="flex flex-col items-center gap-4 pt-6">
-          <LottieLoader
-            animationData={loadingBarAnimation}
-            className="h-20 w-20"
-          />
+        <CardContent className="pt-4">
+          <div className="hidden md:flex items-center p-6 border-b">
+            <div className="flex-1 flex justify-start">
+              <Skeleton className="md:ml-6 h-4 w-16" /> {/* Type Header */}
+            </div>
+            <div className="flex-1 flex justify-center">
+              <Skeleton className="h-4 w-32" /> {/* Centered Info Header */}
+            </div>
+            <div className="flex-1 flex justify-center">
+              <Skeleton className="h-4 w-24" /> {/* Signature Header */}
+            </div>
+          </div>
+          {/* Data Row Skeletons */}
+          <div className="flex flex-col space-y-4">
+            {skeletonRows}
+          </div>
+          {/* Pagination Skeleton */}
+          <div className="flex justify-center items-center mt-2">
+            <div className="flex space-x-4">
+              <Skeleton className="h-7 w-7 rounded-full" /> {/* Left Arrow */}
+              <Skeleton className="h-7 w-16" /> {/* Page Number */}
+              <Skeleton className="h-7 w-7 rounded-full" /> {/* Right Arrow */}
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
-  }
+  };
 
   return (
     <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">

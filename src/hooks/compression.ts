@@ -188,7 +188,14 @@ export function useGetTransactionWithCompressionInfo(
       signature,
     ],
     queryFn: async () => {
-      if (cluster === Cluster.Localnet || cluster === Cluster.Testnet) {
+      if (
+        [
+          Cluster.Custom,
+          Cluster.Localnet,
+          Cluster.Testnet,
+          Cluster.Devnet,
+        ].includes(cluster)
+      ) {
         const connection = createRpc(endpoint, compressionEndpoint, undefined, {
           commitment: "processed",
         });

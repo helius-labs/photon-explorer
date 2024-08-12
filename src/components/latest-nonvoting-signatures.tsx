@@ -81,10 +81,22 @@ export default function LatestNonVotingSignatures() {
 
   const { data, isLoading, isError, isPending } =
     useGetLatestNonVotingSignatures(
-      [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster),
+      [
+        Cluster.Localnet,
+        Cluster.Testnet,
+        Cluster.Custom,
+        Cluster.Devnet,
+      ].includes(cluster),
     );
 
-  if (![Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster)) {
+  if (
+    ![
+      Cluster.Localnet,
+      Cluster.Testnet,
+      Cluster.Custom,
+      Cluster.Devnet,
+    ].includes(cluster)
+  ) {
     return null;
   }
 
