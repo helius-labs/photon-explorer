@@ -23,6 +23,7 @@ import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import { useGetBalance, useGetSolPrice } from "@/hooks/web3";
+import { Skeleton } from "../ui/skeleton";
 
 const formatPriceWithSupSub = (price: string) => {
   const [integerPart, decimalPart] = price.split(".");
@@ -219,13 +220,109 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
 
   if (isLoading) {
     return (
-      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
-        <CardContent className="flex flex-col items-center gap-4 py-6">
-          <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-[-1rem] md:mx-0">
+          {/* First Card Skeleton */}
+          <Card className="shadow pl-4 flex flex-col items-start">
+            <Skeleton className="h-8 w-8 mt-4 mb-1" /> {/* Icon Skeleton */}
+            <Skeleton className="h-4 w-36 ml-2 mb-2" /> {/* Title Skeleton */}
+            <CardContent className="text-3xl md:-ml-4">
+              <Skeleton className="h-6 w-40 mb-1" /> {/* Large Number Skeleton */}
+            </CardContent>
+          </Card>
+  
+          {/* Second Card Skeleton */}
+          <Card className="shadow pl-4 flex flex-col items-start">
+            <Skeleton className="h-8 w-8 mt-4 mb-1" /> {/* Icon Skeleton */}
+            <Skeleton className="h-4 w-36 ml-2 mb-2" /> {/* Title Skeleton */}
+            <CardContent className="text-3xl md:-ml-4">
+              <div className="flex items-center">
+                <Skeleton className="h-6 w-40 md:mr-4 mb-1" /> {/* Large Number Skeleton */}
+                <Skeleton className="h-4 w-24 mt-2 md:mt-0 ml-2 md:ml-0" /> {/* Smaller Number Skeleton */}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+  
+        {/* Data Table Skeleton */}
+        <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
+          <CardContent className="flex flex-col">
+            {/* Title Row Skeleton */}
+            <div className="hidden md:flex justify-between gap-4 mt-6 mr-16 mb-2 py-2 px-2">
+              <div className="flex items-start w-60">
+                {/* Placeholder for possible title icon or empty space */}
+              </div>
+              <Skeleton className="h-4 w-20" /> {/* Title for "Balance" */}
+              <Skeleton className="h-4 w-14" /> {/* Title for "Value" */}
+              <Skeleton className="h-4 w-14" /> {/* Title for "Price" */}
+              <Skeleton className="h-4 w-14" /> {/* Title for "Charts" */}
+            </div>
+            <div className="border-t border-bg-popover mb-2" /> {/* Separator under the title row */}
+  
+            {/* Mobile View Skeleton */}
+            <div className="block md:hidden">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between border-b px-4 py-3">
+                    <div className="flex items-center">
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <div className="ml-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-3 w-12 mt-1" />
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Skeleton className="h-4 w-12" />
+                      <Skeleton className="h-3 w-8 mt-1" />
+                    </div>
+                  </div>
+                  {index < 7 && <div className="border-t border-bg-popover" />} {/* Row Separator */}
+                </div>
+              ))}
+            </div>
+  
+            {/* Desktop View Skeleton */}
+            <div className="hidden md:block">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center w-60">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="ml-4">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-14 mt-1" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-14 text-left" /> {/* Align with "Balance" */}
+                    <Skeleton className="h-4 w-28 text-left" /> {/* Align with "Value" */}
+                    <Skeleton className="h-4 w-28 text-left" /> {/* Align with "Price" */}
+                    <div className="flex w-20 space-x-2">
+                      <Skeleton className="h-6 w-6 rounded-full" /> {/* Align with "Charts" */}
+                      <Skeleton className="h-6 w-6 rounded-full" />
+                    </div>
+                  </div>
+                  {index < 7 && <div className="border-t border-bg-popover" />} {/* Row Separator */}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+  
+          {/* Pagination Skeleton */}
+          <div className="flex items-center justify-center px-4 py-4">
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-8 w-8 rounded-full" /> {/* First arrow circle */}
+              <Skeleton className="h-8 w-8 rounded-full" /> {/* Second arrow circle */}
+              <Skeleton className="h-4 w-16" /> {/* Centered page indicator */}
+              <Skeleton className="h-8 w-8 rounded-full" /> {/* Third arrow circle */}
+              <Skeleton className="h-8 w-8 rounded-full" /> {/* Fourth arrow circle */}
+            </div>
+          </div>
+        </Card>
+      </div>
     );
   }
+  
+  
 
   const totalFungibleValue =
     data?.reduce((accumulator, token) => {
