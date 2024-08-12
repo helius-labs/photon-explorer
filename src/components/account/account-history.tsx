@@ -180,17 +180,23 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   if (isLoading || !isInitialDataLoaded) {
     const skeletonRows = Array.from({ length: pagination.pageSize }, (_, i) => (
       <div key={i}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between p-6">
-          <div className="flex items-center space-x-2 mb-4 md:mb-0"> 
-            <Skeleton className="h-7 w-7 rounded-[8px]" /> 
-            <div className="flex flex-col space-y-2"> 
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-3">
+          {/* Type Section Skeleton */}
+          <div className="flex flex-1 items-center space-x-2 mb-4 md:mb-0">
+            <Skeleton className="h-7 w-7 rounded-[8px]" />
+            <div className="flex flex-col space-y-2">
               <Skeleton className="h-5 w-32" /> {/* Title Skeleton */}
               <Skeleton className="h-3 w-24" /> {/* Timestamp Skeleton */}
             </div>
           </div>
-          <div className="flex flex-1 justify-between items-center">
-            <Skeleton className="h-4 w-44 mx-auto" /> {/* Centered Info Skeleton */}
-            <Skeleton className="hidden md:flex h-4 w-24" /> {/* Signature Skeleton */}
+          {/* Balance Changes Section Skeleton with Circle */}
+          <div className="flex flex-1 items-center justify-center space-x-2">
+            <Skeleton className="h-6 w-6 rounded-full" /> {/* Circle Skeleton */}
+            <Skeleton className="h-4 w-36 md:w-28" /> {/* Info Text Skeleton */}
+          </div>
+          {/* Signature Section Skeleton */}
+          <div className="flex flex-1 items-center justify-center">
+            <Skeleton className="h-4 w-32 md:w-24" /> {/* Signature Skeleton */}
           </div>
         </div>
         {i < pagination.pageSize - 1 && (
@@ -204,13 +210,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         <CardContent className="pt-4">
           <div className="hidden md:flex items-center p-6 border-b">
             <div className="flex-1 flex justify-start">
-              <Skeleton className="md:ml-6 h-3 w-16" /> {/* Type Header */}
+              <Skeleton className="md:ml-6 h-4 w-16" /> {/* Type Header */}
             </div>
             <div className="flex-1 flex justify-center">
-              <Skeleton className="h-3 w-16" /> {/* Centered Info Header */}
+              <Skeleton className="h-4 w-32" /> {/* Centered Info Header */}
             </div>
             <div className="flex-1 flex justify-center">
-              <Skeleton className="h-3 w-32" /> {/* Signature Header */}
+              <Skeleton className="h-4 w-24" /> {/* Signature Header */}
             </div>
           </div>
           {/* Data Row Skeletons */}
@@ -228,9 +234,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         </CardContent>
       </Card>
     );
-  }
-  
-  
+  };
 
   return (
     <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">
