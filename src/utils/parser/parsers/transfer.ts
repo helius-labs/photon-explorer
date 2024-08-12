@@ -1,11 +1,14 @@
 import type { EnrichedTransaction } from "@/types/helius-sdk";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { X } from "lucide-react";
 
 import {
   ActionTypes,
   ParserTransactionTypes,
   SOL,
   type TransactionAction,
+  type XrayNativeTransfer,
+  type XrayTokenTransfer,
   type XrayTransaction,
 } from "../types";
 
@@ -34,6 +37,8 @@ export const parseTransfer = (
       timestamp,
       actions: [],
       description,
+      tokenTransfers: [],
+      nativeTransfers: [],
     };
   }
 
@@ -66,5 +71,7 @@ export const parseTransfer = (
     timestamp,
     actions: actions,
     description,
+    tokenTransfers: tokenTransfers as XrayTokenTransfer[],
+    nativeTransfers: nativeTransfers as XrayNativeTransfer[],
   };
 };

@@ -48,7 +48,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
   const fetchSignatures = useCallback(
-    async (limit: number = 20) => {
+    async (limit: number = 200) => {
       try {
         const newSignatures = await getSignaturesForAddress(
           memoizedAddress,
@@ -78,8 +78,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       const endIndex = startIndex + pageSize;
 
       // If we're close to the end of our current signatures, fetch more
-      if (endIndex + pageSize > allSignatures.length) {
-        await fetchSignatures(pageSize * 2); // Fetch 2 pages worth of signatures
+      if (endIndex + pageSize * 2 > allSignatures.length) {
+        await fetchSignatures(200); // Fetch  signatures
       }
 
       const pageSignatures = allSignatures
@@ -114,7 +114,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   // Fetch initial data
   useEffect(() => {
     const fetchInitialData = async () => {
-      await fetchSignatures(pagination.pageSize * 2); // Fetch 2 pages worth of signatures initially
+      await fetchSignatures(200); // Fetch 2 pages worth of signatures initially
       setIsInitialDataLoaded(true);
     };
     fetchInitialData();
@@ -139,8 +139,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         });
       };
 
-      // Prefetch only the next page
+      // Prefetch pages
       prefetchPage(pagination.pageIndex + 1);
+      prefetchPage(pagination.pageIndex + 2);
     }
   }, [
     data,
