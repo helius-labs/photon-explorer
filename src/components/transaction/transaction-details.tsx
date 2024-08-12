@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "../ui/button";
 import LottieLoader from "../common/lottie-loading";
 import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
+import { Skeleton } from "../ui/skeleton";
 
 export default function TransactionDetails({ tx }: { tx: string }) {
   // Default RPC transaction data
@@ -65,11 +66,62 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     if (parsed.isLoading || transaction.isLoading || compressed.isLoading)
       return (
         <div className="mx-[-1rem] md:mx-0">
-          <Card className="mx-auto max-w-lg flex items-center justify-center h-64">
-            <LottieLoader animationData={loadingBarAnimation} className="h-24 w-24 opacity-80" />
+          <Card className="mx-auto max-w-lg w-full p-4 md:p-6"> {/* Responsive padding */}
+            <CardContent className="p-6 md:p-8"> {/* Responsive padding */}
+              {/* Row 1: Header */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6">
+                <div className="flex items-center space-x-2 md:space-x-3 mb-2 md:mb-0">
+                  <Skeleton className="h-6 w-6 rounded" /> {/* Skeleton for the icon */}
+                  <Skeleton className="h-5 w-20 md:w-28" /> {/* Skeleton for "Token Mint" */}
+                </div>
+                <Skeleton className="h-4 w-20 md:w-24" /> {/* Skeleton for the time ago */}
+              </div>
+              
+              {/* Separator between Row 1 and Row 2 */}
+              <div className="border-t border-gray-200 my-4 md:my-6"></div>
+    
+              {/* Row 2: Description */}
+              <Skeleton className="h-4 w-36 md:w-44 mb-4 md:mb-6" /> {/* Skeleton for description */}
+    
+              {/* Separator between Row 2 and Row 3 */}
+              <div className="border-t border-gray-200 my-4 md:my-6"></div>
+    
+              {/* Row 3: Account */}
+              <div className="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 md:mb-6 space-y-2 md:space-y-0 md:space-x-6">
+                <Skeleton className="h-4 w-20 md:w-24" /> {/* Skeleton for "Account" label */}
+                <Skeleton className="h-4 w-32 md:w-40" /> {/* Skeleton for account address */}
+              </div>
+    
+              {/* Row 4: MINT */}
+              <div className="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 md:mb-6 space-y-2 md:space-y-0 md:space-x-6">
+                <Skeleton className="h-4 w-16 md:w-20" /> {/* Skeleton for "MINT" label */}
+                <Skeleton className="h-4 w-20 md:w-24" /> {/* Skeleton for MINT value */}
+              </div>
+    
+              {/* Row 5: Program */}
+              <div className="flex flex-col md:flex-row justify-start items-start md:items-center mb-4 md:mb-6 space-y-2 md:space-y-0 md:space-x-6">
+                <Skeleton className="h-4 w-24 md:w-28" /> {/* Skeleton for "Program" label */}
+                <Skeleton className="h-4 w-24 md:w-28" /> {/* Skeleton for Program value */}
+              </div>
+    
+              {/* Separator between Row 5 and Row 6 */}
+              <div className="border-t border-gray-200 my-4 md:my-6"></div>
+    
+              {/* Row 6: Signature */}
+              <div className="flex flex-col md:flex-row justify-start items-start md:items-center space-y-2 md:space-y-0 md:space-x-6">
+                <Skeleton className="h-4 w-24 md:w-28" /> {/* Skeleton for "Signature" label */}
+                <Skeleton className="h-4 w-32 md:w-40" /> {/* Skeleton for Signature */}
+              </div>
+            </CardContent>
           </Card>
+          {/* Advanced Details Section */}
+          <div className="mx-auto mb-6 mt-6 flex flex-col md:flex-row justify-center items-center w-full max-w-lg space-y-2 md:space-y-0 md:space-x-4">
+            <Skeleton className="h-6 w-28 md:w-36 rounded-full" /> {/* Skeleton for "Advanced Details" button */}
+            <Skeleton className="h-6 w-12 md:w-12 rounded-full" /> {/* Skeleton for switch */}
+          </div>
         </div>
       );
+    
 
   let transactionOverview = (
     <div className="mx-[-1rem] md:mx-0">
