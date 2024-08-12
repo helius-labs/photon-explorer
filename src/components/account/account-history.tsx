@@ -210,13 +210,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         <CardContent className="pt-4">
           <div className="hidden md:flex items-center p-6 border-b">
             <div className="flex-1 flex justify-start">
-              <Skeleton className="md:ml-6 h-3 w-16" /> {/* Type Header */}
+              <Skeleton className="md:ml-6 h-4 w-16" /> {/* Type Header */}
             </div>
             <div className="flex-1 flex justify-center">
-              <Skeleton className="h-3 w-32" /> {/* Centered Info Header */}
+              <Skeleton className="h-4 w-32" /> {/* Centered Info Header */}
             </div>
             <div className="flex-1 flex justify-center">
-              <Skeleton className="h-3 w-24" /> {/* Signature Header */}
+              <Skeleton className="h-4 w-24" /> {/* Signature Header */}
             </div>
           </div>
           {/* Data Row Skeletons */}

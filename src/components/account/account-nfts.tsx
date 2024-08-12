@@ -10,16 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import LottieLoader from "@/components/common/lottie-loading";
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import Image from 'next/image';
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
 import { CircleHelp } from "lucide-react";
-import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { Switch } from '../ui/switch';
 import { formatCurrencyValue } from '@/utils/numbers';
+import { Skeleton } from '../ui/skeleton';
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
@@ -144,13 +143,51 @@ const AccountNFTs = ({ address }: { address: string }) => {
     );
 
   return (
-    <>
-      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
-        <CardContent className="flex flex-col gap-4 pb-4 pt-6">
+    (
+      <>
+        <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
+          <CardContent className="flex flex-col gap-4 pb-4 pt-6">
           {isLoading ? (
-            <div className="flex flex-col items-center">
-              <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
-            </div>
+  <div>
+<div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:pb-8 md:space-x-4 md:items-center">
+  <div className="flex flex-col font-medium md:flex-grow">
+    <Skeleton className="h-6 w-32" /> {/* Total NFTs */}
+  </div>
+  <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:items-center md:ml-auto pb-8 md:pb-0">
+    <Skeleton className="h-8 w-40" /> {/* Verified Badge */}
+    <Skeleton className="h-8 w-full md:w-44" /> {/* All Collections */}
+  </div>
+</div>
+
+
+
+    
+    {/* Adjusting grid for mobile */}
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+      {Array.from({ length: 20 }).map((_, index) => (
+        <Card key={index} className="shadow">
+          <Skeleton className="h-48 w-full rounded-md" /> {/* Image */}
+          <CardContent>
+            <Skeleton className="h-6 w-full pb-2 mt-4" /> {/* Name */}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+
+    {/* Pagination Skeleton */}
+    <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-4 mt-4">
+      <div className="flex items-center mb-4 sm:mb-0">
+        <Skeleton className="h-6 w-20" /> {/* Rows per page text */}
+      </div>
+      <div className="flex items-center space-x-4">
+        <Skeleton className="h-6 w-12" /> {/* Page indicator */}
+        <Skeleton className="h-8 w-8 rounded-full" /> {/* Left double arrow */}
+        <Skeleton className="h-8 w-8 rounded-full" /> {/* Left single arrow */}
+        <Skeleton className="h-8 w-8 rounded-full" /> {/* Right single arrow */}
+        <Skeleton className="h-8 w-8 rounded-full" /> {/* Right double arrow */}
+      </div>
+    </div>
+  </div>
           ) : (
             <>
               <div className="mb-4 flex flex-col justify-between text-xs sm:flex-row sm:items-center sm:text-sm">
@@ -231,7 +268,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
         onClose={() => setIsModalOpen(false)}
       />
     </>
-  );
+  ));
 };
 
 export default AccountNFTs;

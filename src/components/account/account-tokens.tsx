@@ -14,8 +14,6 @@ import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { DataTable } from "@/components/data-table/data-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import LottieLoader from "@/components/common/lottie-loading";
-import loadingBarAnimation from '@/../public/assets/animations/loadingBar.json';
 import { DollarSign } from "lucide-react";
 import { PublicKey } from "@solana/web3.js";
 import { Cluster } from "@/utils/cluster";
