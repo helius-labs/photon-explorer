@@ -270,6 +270,8 @@ function TransactionBalances(transaction: any, address: string) {
                 isReadable={true}
                 decimals={change.decimals}
                 showChanges={true}
+                showPrice={true}
+                timestamp={transaction.timestamp || 0}
               />
             </div>
           ))}
@@ -298,6 +300,8 @@ function TransactionBalances(transaction: any, address: string) {
               isReadable={false}
               decimals={change.decimals}
               showChanges={true}
+              showPrice={true}
+              timestamp={txnData.data?.blockTime || 0}
             />
           </div>
         ))}

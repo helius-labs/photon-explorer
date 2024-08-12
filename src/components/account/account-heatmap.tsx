@@ -166,8 +166,7 @@ const SolanaTransactionHeatmap: React.FC<{ address: string }> = ({
       <div>
         <div className="mb-4 text-center">
           <p className="text-lg font-semibold">
-            Total Transactions (Last 365 Days):{" "}
-            {totalTransactions.toLocaleString()}
+            {totalTransactions.toLocaleString()} transactions in the last year.
           </p>
         </div>
         <div className="mb-4 grid grid-cols-3 gap-4">
