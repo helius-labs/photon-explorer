@@ -17,5 +17,5 @@ export async function generateMetadata({ params: { address } }: Props) {
 }
 
 export default async function Page({ params: { address } }: Props) {
-  return <AccountTokens address={address} />;
+  return <AccountTokens address={address} solPrice={null} accountInfo={undefined} />;
 }

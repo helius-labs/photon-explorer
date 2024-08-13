@@ -1,6 +1,7 @@
 "use client";
 
 import { useCluster } from "@/providers/cluster-provider";
+import { getTokenPrices } from "@/server/getTokenPrice";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
@@ -89,14 +90,39 @@ export function useGetAccountInfo(address: string, enabled: boolean = true) {
 export function useGetBalance(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  return useQuery({
+  return useQuery<number, Error>({
     queryKey: [endpoint, "getBalance", address],
     queryFn: async () => {
-      const connection = new Connection(endpoint, "processed");
-
-      return await connection.getBalance(new PublicKey(address));
+      try {
+        const connection = new Connection(endpoint, "processed");
+        console.log("Fetching balance for address:", address);
+        return await connection.getBalance(new PublicKey(address));
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+        throw error;
+      }
     },
     enabled,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+async function fetchSolPrice(): Promise<number> {
+  const ids = ["So11111111111111111111111111111111111111112"];
+  const tokenPrices = await getTokenPrices(ids);
+
+  if (tokenPrices && tokenPrices.data[ids[0]]) {
+    return tokenPrices.data[ids[0]].price;
+  } else {
+    throw new Error("Failed to fetch SOL price");
+  }
+}
+
+export function useGetSolPrice() {
+  return useQuery<number, Error>({
+    queryKey: ["solPrice"],
+    queryFn: fetchSolPrice,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 

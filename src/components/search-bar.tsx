@@ -140,40 +140,44 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
 
   async function performSearch(search: string): Promise<GroupedOption[]> {
     search = search.trim();
-
+  
     const recentSearchesOptions = buildRecentSearchesOptions(search, isClient);
-
     const localOptions = buildOptions(search, cluster);
-    let tokenOptions;
+  
+    // Use Promise.all to fetch data in parallel
     try {
-      tokenOptions = await buildTokenOptions(search, cluster, verifiedTokens!);
+      const [tokenOptions, domainOptions, ansDomainOptions] = await Promise.all([
+        buildTokenOptions(search, cluster, verifiedTokens!),
+        hasDomainSyntax(search) && cluster === Cluster.MainnetBeta
+          ? buildDomainOptions(search)
+          : Promise.resolve([]), // Resolve to empty array if the condition is false
+        hasAnsDomainSyntax(search) && cluster === Cluster.MainnetBeta
+          ? buildAnsDomainOptions(search)
+          : Promise.resolve([]), // Resolve to empty array if the condition is false
+      ]);
+  
+      const recentSearchesOptionsAppendable = recentSearchesOptions
+        ? [recentSearchesOptions]
+        : [];
+      const tokenOptionsAppendable = tokenOptions ? [tokenOptions] : [];
+      const domainOptionsAppendable = domainOptions.length > 0 ? domainOptions : [];
+      const ansDomainOptionsAppendable = ansDomainOptions.length > 0 ? ansDomainOptions : [];
+  
+      return [
+        ...recentSearchesOptionsAppendable,
+        ...domainOptionsAppendable,
+        ...ansDomainOptionsAppendable,
+        ...tokenOptionsAppendable,
+        ...localOptions,
+      ];
     } catch (e) {
-      console.error(
-        `Failed to build token options for search: ${e instanceof Error ? e.message : e}`,
-      );
+      console.error(`Error performing search: ${e instanceof Error ? e.message : e}`);
+      return [
+        ...(recentSearchesOptions ? [recentSearchesOptions] : []),
+        ...localOptions,
+      ];
     }
-    const recentSearchesOptionsAppendable = recentSearchesOptions
-      ? [recentSearchesOptions]
-      : [];
-    const tokenOptionsAppendable = tokenOptions ? [tokenOptions] : [];
-    const domainOptions =
-      hasDomainSyntax(search) && cluster === Cluster.MainnetBeta
-        ? (await buildDomainOptions(search)) ?? []
-        : [];
-
-    const ansDomainOptions =
-      hasAnsDomainSyntax(search) && cluster === Cluster.MainnetBeta
-        ? (await buildAnsDomainOptions(search)) ?? []
-        : [];
-
-    return [
-      ...recentSearchesOptionsAppendable,
-      ...domainOptions,
-      ...ansDomainOptions,
-      ...tokenOptionsAppendable,
-      ...localOptions,
-    ];
-  }
+  }  
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
