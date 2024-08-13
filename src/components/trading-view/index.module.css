@@ -18,4 +18,18 @@
 	background-color: var(--tv-color-pane-background);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
+
+  @media (max-width: 768px) {
+	.tv-floating-toolbar {
+	  transform: scale(0.8); /* Shrink the toolbar */
+	  right: 10px; /* Adjust the position */
+	}
+  
+	/* Target y-axis labels and decrease font size */
+	.tv-yaxis-labels .tv-yaxis-label__text {
+	  font-size: 10px !important; /* Decrease font size */
+	  transform: scale(0.8); /* Optional: shrink even further if needed */
+	}
+  }
+  
   

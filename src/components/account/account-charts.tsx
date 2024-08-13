@@ -44,7 +44,6 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
     <>
       <Script
         src="/charting_library/charting_library.standalone.js"
-        strategy="lazyOnload"
         onReady={() => {
           setIsScriptReady(true);
         }}
@@ -52,7 +51,6 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
       />
       <Script
         src="/datafeeds/udf/dist/bundle.js"
-        strategy="lazyOnload"
         onReady={() => {
           setIsScriptReady(true);
         }}
