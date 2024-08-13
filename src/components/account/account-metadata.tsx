@@ -124,7 +124,7 @@ const AccountMetadata: React.FC<Props> = ({ address }) => {
   }
 
   if (nftError || tokenError) {
-    return <p className="text-center text-muted-foreground">Failed to load metadata.</p>;
+    return ;
   }
 
   return (
@@ -132,7 +132,7 @@ const AccountMetadata: React.FC<Props> = ({ address }) => {
       <div className="max-w-screen-lg mx-auto">
         {nftData && <MetadataViewer data={nftData.raw} />}
         {tokenData && <MetadataViewer data={tokenData.raw} />}
-        {!nftData && !tokenData && <p className="text-center text-muted-foreground">No metadata found for the given address.</p>}
+        {!nftData && !tokenData && <p className="text-center text-muted-foreground"></p>}
       </div>
     </div>
   );

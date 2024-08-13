@@ -1,0 +1,51 @@
+.VersionHeader {
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #222;
+	color: #fff;
+	font-family: Arial, Helvetica, sans-serif;
+	height: 60px;
+	max-height: 60px;
+	font-size: 12px;
+  }
+  
+  .TVChartContainer {
+	height: 500px;
+	border-radius: 15px;
+	overflow: hidden;
+	background-color: var(--tv-color-pane-background);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+	.tv-floating-toolbar {
+	  transform: scale(0.8); /* Shrink the toolbar */
+	  right: 10px; /* Adjust the position */
+	}
+  
+	/* Target y-axis labels and decrease font size */
+	.tv-yaxis-labels .tv-yaxis-label__text {
+	  font-size: 10px !important; /* Decrease font size */
+	  transform: scale(0.8); /* Optional: shrink even further if needed */
+	}
+  }
+
+	/* Header background */
+	.tv-header {
+	background-color: var(--header-bg-color) !important;
+	}
+
+	/* Header text color */
+	.tv-header__text {
+	color: var(--header-text-color) !important;
+	}
+
+	/* Header button color */
+	.tv-header__button {
+	background-color: var(--header-button-bg-color) !important;
+	color: var(--header-button-text-color) !important;
+	}
+	
+	
