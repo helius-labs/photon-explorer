@@ -5,8 +5,8 @@ import { useCluster } from "@/providers/cluster-provider";
 import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 
 import {
   useGetCompressedAccount,
@@ -30,9 +30,6 @@ export default function AddressLayout({
   const router = useRouter();
   const { cluster } = useCluster();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const [tabs, setTabs] = useState<Tab[]>([]);
 
   // Fetch 1 signature to check if the address has been used
   const signatures = useGetSignaturesForAddress(address, 1);
@@ -106,7 +103,7 @@ export default function AddressLayout({
     return newTabs;
   }, [accountType, address, pathname]);
 
-  // Default to "Transactions" tab if only the address is provided (no specific tab in the URL)
+  // Route to the correct tab based on the account type
   useEffect(() => {
     // Only redirect to "tokens" tab if the current path is exactly the wallet address path
     if (pathname === `/address/${address}`) {
@@ -178,7 +175,6 @@ export default function AddressLayout({
           accountInfo={accountInfo.data?.value || null}
           signatures={signatures.data || []}
           accountType={accountType}
-          onTabsUpdate={handleTabsUpdate}
         />
         {compressedAccount.data && (
           <CompressionHeader
