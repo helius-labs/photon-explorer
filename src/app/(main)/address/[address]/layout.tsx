@@ -6,7 +6,7 @@ import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   useGetCompressedAccount,
@@ -31,6 +31,8 @@ export default function AddressLayout({
   const { cluster } = useCluster();
   const pathname = usePathname();
 
+  const [tabs, setTabs] = useState<Tab[]>([]);
+
   // Fetch 1 signature to check if the address has been used
   const signatures = useGetSignaturesForAddress(address, 1);
 
@@ -54,8 +56,18 @@ export default function AddressLayout({
     return AccountType.Unknown;
   }, [accountInfo.data, signatures.data]);
 
+  const handleTabsUpdate = (updatedTabs: Tab[]) => {
+    setTabs((prevTabs) => {
+      const isDifferent = JSON.stringify(prevTabs) !== JSON.stringify(updatedTabs);
+      if (isDifferent) {
+        return updatedTabs;
+      }
+      return prevTabs;
+    });
+  };
+
   // Create better logic for the tabs based on the account type
-  const tabs: Tab[] = useMemo(() => {
+  const generatedTabs: Tab[] = useMemo(() => {
     const newTabs: Tab[] = [];
 
     if (accountType === AccountType.Wallet) {
@@ -90,6 +102,7 @@ export default function AddressLayout({
         href: `/address/${address}/history`,
       });
       newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
+      newTabs.push({ name: "Charts", href: `/address/${address}/charts` });
     }
 
     // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"
@@ -103,7 +116,11 @@ export default function AddressLayout({
     return newTabs;
   }, [accountType, address, pathname]);
 
-  // Route to the correct tab based on the account type
+  useEffect(() => {
+    handleTabsUpdate(generatedTabs);
+  }, [generatedTabs]);
+
+  // Default to "Transactions" tab if only the address is provided (no specific tab in the URL)
   useEffect(() => {
     // Only redirect to "tokens" tab if the current path is exactly the wallet address path
     if (pathname === `/address/${address}`) {
@@ -175,6 +192,7 @@ export default function AddressLayout({
           accountInfo={accountInfo.data?.value || null}
           signatures={signatures.data || []}
           accountType={accountType}
+          onTabsUpdate={handleTabsUpdate}
         />
         {compressedAccount.data && (
           <CompressionHeader
