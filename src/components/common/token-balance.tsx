@@ -1,12 +1,14 @@
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { useCluster } from "@/providers/cluster-provider";
+// Import the getHistoricalSolPrice function
+import { getHistoricalSolPrice } from "@/server/getHistoricalSolPrice";
 import { normalizeTokenAmount } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import { formatNumericValue } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
@@ -20,6 +22,8 @@ export function TokenBalance({
   isNFT = false,
   showChanges = false,
   isLink = false,
+  showPrice = false,
+  timestamp,
 }: {
   mint: PublicKey;
   amount: number;
@@ -28,7 +32,10 @@ export function TokenBalance({
   isNFT?: boolean;
   showChanges?: boolean;
   isLink?: boolean;
+  showPrice?: boolean;
+  timestamp?: number;
 }) {
+  // console.log("ShowPrice: ", showPrice, "timestamp: ", timestamp);
   const { data: tokenList } = useGetTokenListVerified();
   const token = tokenList?.find((t) => t.address === mint.toBase58());
 
@@ -37,6 +44,20 @@ export function TokenBalance({
 
   const shouldFetchNFT = isNFT && !token;
   const nftData = useGetNFTsByMint(mint.toBase58(), shouldFetchNFT);
+
+  const [solPrice, setSolPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (
+      showPrice &&
+      mint.toString() === "So11111111111111111111111111111111111111112" &&
+      timestamp
+    ) {
+      getHistoricalSolPrice(timestamp)
+        .then((price) => setSolPrice(price))
+        .catch((error) => console.error("Error fetching SOL price:", error));
+    }
+  }, [showPrice, mint, timestamp]);
 
   let avatarSrc = "";
   let avatarAlt = "";
@@ -84,6 +105,11 @@ export function TokenBalance({
   const { cluster } = useCluster();
   const url = `/address/${mint}?cluster=${cluster}`;
 
+  const totalValue =
+    solPrice !== null && normalizedAmount !== null
+      ? formatNumericValue(solPrice * normalizedAmount)
+      : null;
+
   const content = (
     <div className="inline-flex items-center gap-2">
       {avatarSrc && (
@@ -103,6 +129,11 @@ export function TokenBalance({
       )}
       <span className={getAmountColor()}>
         {getDisplayedAmount()} {symbol}
+        {showPrice &&
+          mint.toString() === "So11111111111111111111111111111111111111112" &&
+          totalValue !== null && (
+            <span className="ml-2 text-gray-500">(${totalValue})</span>
+          )}
       </span>
     </div>
   );
