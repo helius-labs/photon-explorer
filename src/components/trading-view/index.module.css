@@ -31,5 +31,21 @@
 	  transform: scale(0.8); /* Optional: shrink even further if needed */
 	}
   }
-  
-  
+
+	/* Header background */
+	.tv-header {
+	background-color: var(--header-bg-color) !important;
+	}
+
+	/* Header text color */
+	.tv-header__text {
+	color: var(--header-text-color) !important;
+	}
+
+	/* Header button color */
+	.tv-header__button {
+	background-color: var(--header-button-bg-color) !important;
+	color: var(--header-button-text-color) !important;
+	}
+	
+	

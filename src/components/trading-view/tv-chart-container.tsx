@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { widget, ChartingLibraryWidgetOptions, ResolutionString } from '@/../public/charting_library';
 import styles from './index.module.css';
 import { useTheme } from 'next-themes';
-import { COLORS } from '@/../public/styles/colors'
 
 interface TradingViewWidgetProps {
   address: string;
@@ -25,17 +24,6 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   const widgetRef = useRef<any>(null);
   const { theme } = useTheme();
 
-  function getChartStyleOverrides(theme: any) {
-    return {
-      'paneProperties.background': theme === 'dark' ? COLORS.dark.background : COLORS.light.background,
-      'scalesProperties.textColor': theme === 'dark' ? COLORS.dark.textColor : COLORS.light.textColor,
-      'mainSeriesProperties.candleStyle.upColor': theme === 'dark' ? COLORS.dark.upColor : COLORS.light.upColor,
-      'mainSeriesProperties.candleStyle.downColor': theme === 'dark' ? COLORS.dark.downColor : COLORS.light.downColor,
-      'mainSeriesProperties.candleStyle.borderColor': theme === 'dark' ? COLORS.dark.borderColor : COLORS.light.borderColor,
-      'mainSeriesProperties.candleStyle.wickUpColor': theme === 'dark' ? COLORS.dark.wickUpColor : COLORS.light.wickUpColor,
-      'mainSeriesProperties.candleStyle.wickDownColor': theme === 'dark' ? COLORS.dark.wickDownColor : COLORS.light.wickDownColor,
-    };
-  }
 
   useEffect(() => {
     if (!window.tvScriptLoadingPromise) {
@@ -94,7 +82,34 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
             foregroundColor: "#e64b34",
           },
           theme: theme === 'dark' ? 'dark' : 'light',
-          overrides: getChartStyleOverrides(theme),
+          overrides: {
+            // Background and grid settings
+            "paneProperties.background": theme === 'dark' ? "#000000" : "#FFFFFF",
+            "paneProperties.backgroundType": "solid",
+            "scalesProperties.backgroundColor": theme === 'dark' ? "#000000" : "#FFFFFF",
+            "paneProperties.vertGridProperties.color": 'rgba(0,0,0,0)',
+            "paneProperties.horzGridProperties.color": 'rgba(0,0,0,0)',
+        
+            // Candle settings
+            "mainSeriesProperties.candleStyle.upColor": theme === 'dark' ? "#06D6A0" : "#32CD32",
+            "mainSeriesProperties.candleStyle.downColor": theme === 'dark' ? "#EF476F" : "#FF6347",
+            "mainSeriesProperties.candleStyle.drawWick": true,
+            "mainSeriesProperties.candleStyle.drawBorder": true,
+            "mainSeriesProperties.candleStyle.borderColor": theme === 'dark' ? "#06D6A0" : "#32CD32",
+            "mainSeriesProperties.candleStyle.borderUpColor": theme === 'dark' ? "#06D6A0" : "#32CD32",
+            "mainSeriesProperties.candleStyle.borderDownColor": theme === 'dark' ? "#EF476F" : "#FF6347",
+            "mainSeriesProperties.candleStyle.wickUpColor": theme === 'dark' ? "#06D6A0" : "#32CD32",
+            "mainSeriesProperties.candleStyle.wickDownColor": theme === 'dark' ? "#EF476F" : "#FF6347",
+        
+            // Legend and study visibility settings
+            "paneProperties.legendProperties.showStudyTitles": false,
+            "scalesProperties.showStudyLastValue": false,
+            "paneProperties.legendProperties.showBackground": false,
+            "paneProperties.legendProperties.backgroundTransparency": true,
+        
+            // Text and scales settings
+            "scalesProperties.textColor": theme === 'dark' ? "#ffffff" : "#000000",
+          },
           studies_overrides: {},
           custom_css_url: '/styles/tradingview.css',
           custom_formatters: {
@@ -107,6 +122,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
         widgetRef.current = new widget(widgetOptions);
 
         widgetRef.current.onChartReady(() => {
+          widgetRef.current.setCSSCustomProperty('--tv-color-pane-background', theme === 'dark' ? '#000000' : '#FFFFFF');
           widgetRef.current.headerReady().then(() => {
             const button = widgetRef.current.createButton();
             button.classList.add("apply-common-tooltip");
@@ -116,26 +132,6 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
             });
           });
 
-          // Custom behavior when the chart is ready
-          const yAxisLabelInterval = setInterval(() => {
-            const yAxisLabels = document.querySelectorAll('.tv-yaxis-labels .tv-yaxis-label__text');
-            yAxisLabels.forEach(label => {
-              if (label.textContent) {
-                const originalValue = parseFloat(label.textContent.replace(/,/g, ''));
-                const formatted = formatPriceWithSupSub(originalValue);
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = formatted;
-                label.innerHTML = '';
-                if (tempDiv.firstChild) {
-                  label.appendChild(tempDiv.firstChild);
-                }
-              }
-            });
-          }, 1000);
-
-          return () => {
-            clearInterval(yAxisLabelInterval);
-          };
         });
       }
     });
