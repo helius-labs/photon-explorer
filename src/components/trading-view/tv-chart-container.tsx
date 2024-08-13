@@ -91,7 +91,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
           fullscreen: false,
           autosize: true,
           loading_screen: {
-            foregroundColor: "#ffffff",
+            foregroundColor: "#e64b34",
           },
           theme: theme === 'dark' ? 'dark' : 'light',
           overrides: getChartStyleOverrides(theme),
