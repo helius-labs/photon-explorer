@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import LottieLoader from "@/components/common/lottie-loading";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "../ui/skeleton";
 
 interface Transaction {
   blockTime: number;
@@ -237,14 +238,34 @@ const SolanaTransactionHeatmap: React.FC<{ address: string }> = ({
     );
   };
 
+  const daysInWeek = 7;
+  const weeksInMonth = 5;
+
   if (loading) {
     return (
       <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden shadow md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 py-6">
-          <LottieLoader
-            animationData={loadingBarAnimation}
-            className="h-20 w-20"
-          />
+          <Skeleton className="h-6 w-48 mb-4" />
+          <div className="grid grid-cols-3 gap-6 w-full">
+            {Array.from({ length: 12 }).map((_, monthIndex) => (
+              <div key={monthIndex} className="flex flex-col items-center p-4 border rounded-lg shadow-sm">
+                <Skeleton className="h-5 w-14 mb-4" />
+                <div className="grid grid-cols-7 gap-2">
+                  {Array.from({ length: daysInWeek * weeksInMonth }).map((_, dayIndex) => (
+                    <Skeleton
+                      key={dayIndex}
+                      className="h-5 w-5 rounded-full"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 flex items-center gap-3">
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-12" />
+          </div>
         </CardContent>
       </Card>
     );
