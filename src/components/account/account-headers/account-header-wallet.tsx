@@ -139,13 +139,14 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                 {compressedBalance && compressedBalance.value && (
                   <div className="flex items-center">
                     <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                      <Image
-                        src={solLogo}
-                        alt="SOL logo"
-                        loading="eager"
-                        width={24}
-                        height={24}
-                      />
+                    <Image
+                      src={solLogo}
+                      alt="SOL logo"
+                      loading="eager"
+                      width={24}
+                      height={24}
+                      className="h-auto w-[24px]"
+                    />
                     </div>
                     {` | ${lamportsToSolString(
                       compressedBalance.value,
