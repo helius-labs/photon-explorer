@@ -338,7 +338,12 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
           </CardContent>
         </Card>
         <Card className="shadow pl-4 flex flex-col items-left">
-          <Image src={solLogo} alt="Solana" width={24} height={24} className="mb-2 ml-2 mt-4" />
+        <Image
+          src={solLogo}
+          alt="SOL logo"
+          loading="eager"
+          className="h-auto w-[24px] mb-2 ml-2 mt-4"
+        />
           <CardTitle className="text-sm font-medium ml-2">SOL Balance</CardTitle>
           <CardContent className="text-3xl flex items-center md:-ml-4">
             <span>{`${formatNumericValue(solBalanceInSol)} SOL`}</span>
@@ -350,13 +355,14 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
             {isLocalOrTestNet && compressedBalance && compressedBalance.value && (
               <div className="flex items-center mt-2">
                 <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                  <Image
-                    src={solLogo}
-                    alt="SOL logo"
-                    loading="eager"
-                    width={24}
-                    height={24}
-                  />
+                <Image
+                  src={solLogo}
+                  alt="SOL logo"
+                  loading="eager"
+                  width={24}
+                  height={24}
+                  className="h-auto w-[24px]"
+                />
                 </div>
                 <span>{` | ${lamportsToSolString(compressedBalance.value, 2)} COMPRESSED SOL`}</span>
               </div>

@@ -213,9 +213,15 @@ export default function TransactionOverviewCompressed({
               <div className="md:w-1/2 break-words">
                 <span>Transaction Fee</span>
                 <br />
-                <Link href={`/address/${data.transaction.message.accountKeys[0].pubkey.toBase58()}`} className="hover:underline" title={data.transaction.message.accountKeys[0].pubkey.toBase58()}>
-                  <Address pubkey={data.transaction.message.accountKeys[0].pubkey} />
-                </Link>
+                <div className="md:w-1/2 break-words">
+                  <span>Transaction Fee</span>
+                  <br />
+                  <Address
+                    pubkey={data.transaction.message.accountKeys[0].pubkey}
+                    link={true}
+                    showCopyButton={true}
+                  />
+                </div>
               </div>
               <div className="md:w-1/2 break-words text-red-400 font-mono whitespace-normal">
                 <TokenBalanceDelta
@@ -247,9 +253,15 @@ export default function TransactionOverviewCompressed({
                   <TableCell className="break-words whitespace-normal">
                     <span>Transaction Fee</span>
                     <br />
-                    <Link href={`/address/${data.transaction.message.accountKeys[0].pubkey.toBase58()}`} className="hover:underline" title={data.transaction.message.accountKeys[0].pubkey.toBase58()}>
-                      <Address pubkey={data.transaction.message.accountKeys[0].pubkey} />
-                    </Link>
+                    <div className="md:w-1/2 break-words">
+                      <span>Transaction Fee</span>
+                      <br />
+                      <Address
+                        pubkey={data.transaction.message.accountKeys[0].pubkey}
+                        link={true}
+                        showCopyButton={true}
+                      />
+                    </div>
                   </TableCell>
                   <TableCell className="break-words whitespace-normal text-red-400">
                     <TokenBalanceDelta
@@ -270,7 +282,7 @@ export default function TransactionOverviewCompressed({
         <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
           <span className="font-medium">Signature</span>
           <div className="flex items-center space-x-2">
-            <Signature link={false} signature={signature} />
+            <Signature link={true} signature={signature} />
           </div>
         </div>
       </CardContent>

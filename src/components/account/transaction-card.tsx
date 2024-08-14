@@ -368,7 +368,7 @@ export const getColumns = (
             <div className="flex flex-col">
               <div className="items-left flex text-sm font-medium underline">
                 <Signature
-                  link={true}
+                  link={false}
                   copy={false}
                   signature={getValue() as string}
                 />
