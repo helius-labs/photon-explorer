@@ -114,13 +114,11 @@ export default function TransactionOverviewParsed({
               Account
             </span>
             <span className="ml-2 w-full break-words md:w-3/4">
-              <Link
-                href={`/address/${account}`}
-                className="hover:underline"
-                title={account}
-              >
-                <Address pubkey={new PublicKey(account)} />
-              </Link>
+            <Address
+              pubkey={new PublicKey(account)}
+              link={true}
+              showCopyButton={true}
+            />
             </span>
           </div>
 
@@ -150,13 +148,11 @@ export default function TransactionOverviewParsed({
                     </span>
                     <span className="ml-2 w-full break-words md:w-3/4">
                       {action.to ? (
-                        <Link
-                          href={`/address/${action.to}`}
-                          className="hover:underline"
-                          title={action.to}
-                        >
-                          <Address pubkey={new PublicKey(action.to)} />
-                        </Link>
+                        <Address
+                        pubkey={new PublicKey(account)}
+                        link={true}
+                        showCopyButton={true}
+                      />
                       ) : (
                         "Unknown Address"
                       )}
@@ -170,19 +166,15 @@ export default function TransactionOverviewParsed({
                     Sent
                   </span>
                   <span className="ml-2 w-full break-words md:w-3/4">
-                    <Link
-                      href={`/address/${action.mint}`}
-                      className="hover:underline"
-                      title={action.mint}
-                    >
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={action.decimals}
-                        mint={new PublicKey(action.mint!)}
-                        // showPrice={true}
-                        // timestamp={timestamp}
-                      />
-                    </Link>
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                   </span>
                 </div>
               )}
@@ -192,18 +184,15 @@ export default function TransactionOverviewParsed({
                     Received
                   </span>
                   <span className="ml-2 w-full break-words md:w-3/4">
-                    <Link
-                      href={`/address/${action.mint}`}
-                      className="hover:underline"
-                      title={action.mint}
-                    >
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={action.decimals}
-                        mint={new PublicKey(action.mint!)}
-                        showPrice={true}
-                      />
-                    </Link>
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                   </span>
                 </div>
               )}
@@ -213,18 +202,15 @@ export default function TransactionOverviewParsed({
                     BURNT
                   </span>
                   <span className="ml-2 w-full break-words md:w-3/4">
-                    <Link
-                      href={`/address/${action.mint}`}
-                      className="hover:underline"
-                      title={action.mint}
-                    >
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={0}
-                        mint={new PublicKey(action.mint!)}
-                        isReadable={true}
-                      />
-                    </Link>
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                   </span>
                 </div>
               )}
@@ -234,18 +220,15 @@ export default function TransactionOverviewParsed({
                     MINT
                   </span>
                   <span className="ml-2 w-full break-words md:w-3/4">
-                    <Link
-                      href={`/address/${action.mint}`}
-                      className="hover:underline"
-                      title={action.mint}
-                    >
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={0}
-                        mint={new PublicKey(action.mint!)}
-                        isReadable={true}
-                      />
-                    </Link>
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                   </span>
                 </div>
               )}
@@ -253,19 +236,15 @@ export default function TransactionOverviewParsed({
                 <div className="flex items-center">
                   <span className="w-1/4 text-muted-foreground">MINT</span>
                   <span className="ml-2 w-3/4">
-                    <Link
-                      href={`/address/${action.mint}`}
-                      className="hover:underline"
-                      title={action.mint}
-                    >
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={0}
-                        mint={new PublicKey(action.mint!)}
-                        isReadable={true}
-                        isNFT={true}
-                      />
-                    </Link>
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                   </span>
                 </div>
               )}
@@ -276,19 +255,15 @@ export default function TransactionOverviewParsed({
                       Sent
                     </span>
                     <span className="ml-2 w-full break-words md:w-3/4">
-                      <Link
-                        href={`/address/${action.mint}`}
-                        className="hover:underline"
-                        title={action.mint}
-                      >
-                        <TokenBalance
-                          amount={action.amount}
-                          decimals={0}
-                          mint={new PublicKey(action.mint!)}
-                          isReadable={true}
-                          isNFT={true}
-                        />
-                      </Link>
+                    <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                     </span>
                   </div>
                   <div className="flex flex-col items-start md:flex-row md:items-center">
@@ -297,13 +272,11 @@ export default function TransactionOverviewParsed({
                     </span>
                     <span className="ml-2 w-full break-words md:w-3/4">
                       {action.to ? (
-                        <Link
-                          href={`/address/${action.to}`}
-                          className="hover:underline"
-                          title={action.to}
-                        >
-                          <Address pubkey={new PublicKey(action.to)} />
-                        </Link>
+                        <Address
+                        pubkey={new PublicKey(account)}
+                        link={true}
+                        showCopyButton={true}
+                      />
                       ) : (
                         "Unknown Address"
                       )}
@@ -319,13 +292,11 @@ export default function TransactionOverviewParsed({
                     </span>
                     <span className="ml-2 w-full break-words md:w-3/4">
                       {action.from ? (
-                        <Link
-                          href={`/address/${action.from}`}
-                          className="hover:underline"
-                          title={action.from}
-                        >
-                          <Address pubkey={new PublicKey(action.from)} />
-                        </Link>
+                        <Address
+                        pubkey={new PublicKey(account)}
+                        link={true}
+                        showCopyButton={true}
+                      />
                       ) : (
                         "Unknown Address"
                       )}
@@ -336,19 +307,15 @@ export default function TransactionOverviewParsed({
                       NFT
                     </span>
                     <span className="ml-2 w-full break-words md:w-3/4">
-                      <Link
-                        href={`/address/${action.mint}`}
-                        className="hover:underline"
-                        title={action.mint}
-                      >
-                        <TokenBalance
-                          amount={action.amount}
-                          decimals={0}
-                          mint={new PublicKey(action.mint!)}
-                          isReadable={true}
-                          isNFT={true}
-                        />
-                      </Link>
+                    <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                     </span>
                   </div>
                 </>
@@ -357,17 +324,15 @@ export default function TransactionOverviewParsed({
                 <div className="flex items-center">
                   <span className="w-1/4 text-muted-foreground">Price</span>
                   <span className="ml-2 w-3/4">
-                    <Link
-                      href={`/address/${action.mint}`}
-                      className="hover:underline"
-                      title={action.mint}
-                    >
-                      <TokenBalance
-                        amount={action.amount}
-                        decimals={9}
-                        mint={new PublicKey(action.mint!)}
-                      />
-                    </Link>
+                  <TokenBalance
+                    amount={action.amount}
+                    decimals={action.decimals || 0}
+                    mint={new PublicKey(action.mint!)}
+                    isReadable={true}
+                    isLink={true}
+                    // showPrice={true}
+                    // timestamp={timestamp}
+                  />
                   </span>
                 </div>
               )}
@@ -387,7 +352,7 @@ export default function TransactionOverviewParsed({
               Signature
             </span>
             <div className="flex w-full items-center space-x-2 break-words md:w-3/4">
-              <Signature link={false} signature={signature} />
+              <Signature link={true} signature={signature} />
             </div>
           </div>
         </CardContent>
