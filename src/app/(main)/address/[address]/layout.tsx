@@ -102,7 +102,10 @@ export default function AddressLayout({
         href: `/address/${address}/history`,
       });
       newTabs.push({ name: "Metadata", href: `/address/${address}/metadata` });
-      newTabs.push({ name: "Charts", href: `/address/${address}/charts` });
+      // Only add the "Charts" tab for Token account types
+      if (accountType === AccountType.Token) {
+        newTabs.push({ name: "Charts", href: `/address/${address}/charts` });
+      }
     }
 
     // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"

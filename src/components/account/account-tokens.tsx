@@ -310,7 +310,7 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
             <div className="flex items-center space-x-2">
               <Skeleton className="h-8 w-8 rounded-full" /> {/* First arrow circle */}
               <Skeleton className="h-8 w-8 rounded-full" /> {/* Second arrow circle */}
-              <Skeleton className="h-4 w-16" /> {/* Centered page indicator */}
+              <Skeleton className="h-8 w-16" /> {/* Centered page indicator */}
               <Skeleton className="h-8 w-8 rounded-full" /> {/* Third arrow circle */}
               <Skeleton className="h-8 w-8 rounded-full" /> {/* Fourth arrow circle */}
             </div>
@@ -319,8 +319,6 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
       </div>
     );
   }
-  
-  
 
   const totalFungibleValue =
     data?.reduce((accumulator, token) => {
