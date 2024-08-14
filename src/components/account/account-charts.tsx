@@ -29,12 +29,12 @@ const AccountCharts: React.FC<TradingChartProps> = ({ address }) => {
 
   // Handle loading state
   if (isLoading) {
-    return;
+    return <div></div>;
   }
 
   // Handle errors in fetching token data
   if (isError || !tokenData || !tokenData.symbol || !hasPythDataFeed) {
-    return;
+    return <div></div>;
   }
 
   // Extract the symbol from the token data
