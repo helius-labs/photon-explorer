@@ -74,6 +74,7 @@ export enum PROGRAM_NAMES {
   SERUM_POOL = "Serum Pool",
   SOLEND = "Solend Program",
   SOLIDO = "Lido for Solana Program",
+  SQUADS_MULTISIG = "Squads MultiSig Program",
   STEP_SWAP = "Step Finance Swap Program",
   SWIM_SWAP = "Swim Swap Program",
   SWITCHBOARD = "Switchboard Oracle Program",
@@ -435,6 +436,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.PHOENIX,
   },
+  SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SQUADS_MULTISIG,
+  }
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
