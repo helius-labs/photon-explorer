@@ -7,6 +7,8 @@ import { Idl } from "@coral-xyz/anchor";
 import LottieLoader from "../common/lottie-loading";
 import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import { Card } from "../ui/card";
+import { Button } from "@/components/ui/button";
+import IdlParser from "./idl-parser";
 
 interface AnchorIdlProps {
   address: string;
@@ -17,6 +19,7 @@ const AnchorIdl: React.FC<AnchorIdlProps> = ({ address }) => {
   const [idl, setIdl] = useState<Idl | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showRawJson, setShowRawJson] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchIdl = async () => {
@@ -46,10 +49,32 @@ const AnchorIdl: React.FC<AnchorIdlProps> = ({ address }) => {
   return (
     <div>
       {idl ? (
-        <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">
-          <pre className="whitespace-pre-wrap p-8">
-            {JSON.stringify(idl, null, 2)}
-          </pre>
+        <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0 relative">
+          <div className="absolute top-2 right-2 z-10 flex space-x-2 p-2 rounded">
+            <Button
+              onClick={() => setShowRawJson(false)}
+              variant={showRawJson ? "secondary" : "default"}
+              size="sm"
+            >
+              Parsed
+            </Button>
+            <Button
+              onClick={() => setShowRawJson(true)}
+              variant={showRawJson ? "default" : "secondary"}
+              size="sm"
+            >
+              Raw JSON
+            </Button>
+          </div>
+          <div className="p-8 pt-16">
+            {showRawJson ? (
+              <pre className="whitespace-pre-wrap">
+                {JSON.stringify(idl, null, 2)}
+              </pre>
+            ) : (
+              <IdlParser idl={idl} />
+            )}
+          </div>
         </Card>
       ) : (
         <div className="p-4">
