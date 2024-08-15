@@ -47,14 +47,18 @@ const IdlParser: React.FC<IdlParserProps> = ({ idl }) => {
           </li>
         ))}
       </ul>
-      <h4 className="font-semibold mt-2">Arguments:</h4>
-      <ul className="list-disc pl-5">
-        {instruction.args.map((arg, index) => (
-          <li key={index}>
-            {arg.name}: {renderType(arg.type)}
-          </li>
-        ))}
-      </ul>
+      {instruction.args.length > 0 && (
+        <>
+          <h4 className="font-semibold mt-2 text-orange-500">Arguments</h4>
+          <ul className="list-disc pl-5">
+            {instruction.args.map((arg, index) => (
+              <li key={index}>
+                {arg.name}: {renderType(arg.type)}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 
