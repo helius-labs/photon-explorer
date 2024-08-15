@@ -36,6 +36,7 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_1 = "Clockwork Thread Program v1",
   CLOCKWORK_2 = "Clockwork Thread Program v2",
   DRIFT_V2 = "Drift V2 Program",
+  DRIP = "Drip Program",
   MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
   MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
@@ -485,6 +486,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.MAGIC_EDEN_NFT_MARKETPLACE,
   },
+  dripTrkvSyQKvkyWg7oi4jmeEGMA5scSYowHArJ9Vwk: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.DRIP,
+  }
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
