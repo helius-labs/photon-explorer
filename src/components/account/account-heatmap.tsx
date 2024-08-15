@@ -1,11 +1,9 @@
 "use client";
 
-import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import { useCluster } from "@/providers/cluster-provider";
 import { getSignaturesForAddress } from "@/utils/fetchTxnSigs";
 import React, { useCallback, useEffect, useState } from "react";
 
-import LottieLoader from "@/components/common/lottie-loading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "../ui/skeleton";
 
