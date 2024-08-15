@@ -41,7 +41,6 @@ import { TokenList } from "@/schemas/tokenList";
 
 import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { match } from "assert";
 
 interface SearchOptions {
   label: string;
