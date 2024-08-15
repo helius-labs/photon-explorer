@@ -51,6 +51,7 @@ export enum PROGRAM_NAMES {
   ORCA_SWAP_1 = "Orca Swap Program v1",
   ORCA_SWAP_2 = "Orca Swap Program v2",
   ORCA_AQUAFARM = "Orca Aquafarm Program",
+  ORE_V1 = "Ore V1 Program",
   ORE_V2 = "Ore V2 Program",
   PHOENIX = "Phoenix Program",
   PORT = "Port Finance Program",
@@ -469,6 +470,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   oreV2ZymfyeXgNgBdqMkumTqqAprVqgBWQfoYkrtKWQ: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.ORE_V2,
+  },
+  mineRHF5r6S7HyD9SppBfVMXMavDkJsxwGesEvxZr2A: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ORE_V1,
   }
 };
 
