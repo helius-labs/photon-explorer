@@ -51,6 +51,7 @@ export enum PROGRAM_NAMES {
   ORCA_SWAP_1 = "Orca Swap Program v1",
   ORCA_SWAP_2 = "Orca Swap Program v2",
   ORCA_AQUAFARM = "Orca Aquafarm Program",
+  ORE_V2 = "Ore V2 Program",
   PHOENIX = "Phoenix Program",
   PORT = "Port Finance Program",
   PYTH_DEVNET = "Pyth Oracle Program",
@@ -465,6 +466,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.TENSOR_WHITELIST,
   },
+  oreV2ZymfyeXgNgBdqMkumTqqAprVqgBWQfoYkrtKWQ: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ORE_V2,
+  }
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
