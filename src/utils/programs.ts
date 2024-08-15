@@ -80,6 +80,7 @@ export enum PROGRAM_NAMES {
   STEP_SWAP = "Step Finance Swap Program",
   SWIM_SWAP = "Swim Swap Program",
   SWITCHBOARD = "Switchboard Oracle Program",
+  TENSOR_SWAP = "Tensor Swap Program",
   WORMHOLE = "Wormhole",
   WORMHOLE_CORE = "Wormhole Core Bridge",
   WORMHOLE_TOKEN = "Wormhole Token Bridge",
@@ -449,7 +450,11 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.MARGINFI_V2,
-  }
+  },
+  TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TENSOR_SWAP,
+  },
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
