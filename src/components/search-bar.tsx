@@ -41,6 +41,7 @@ import { TokenList } from "@/schemas/tokenList";
 
 import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { match } from "assert";
 
 interface SearchOptions {
   label: string;
@@ -68,6 +69,25 @@ const hasAnsDomainSyntax = (value: string) => {
     value.substring(value.length - 4) !== ".sol" &&
     value.includes(".")
   );
+};
+
+const sortSearchResults = <T,>(
+  results: T[],
+  search: string,
+  getNameField: (item: T) => string
+): T[] => {
+  const searchLower = search.toLowerCase();
+  return results.sort((a, b) => {
+    const nameA = getNameField(a).toLowerCase();
+    const nameB = getNameField(b).toLowerCase();
+    
+    // Move exact matches to the top
+    if (nameA === searchLower) return -1;
+    if (nameB === searchLower) return 1;
+    
+    // Sort alphabetically
+    return nameA.localeCompare(nameB);
+  });
 };
 
 export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
@@ -414,6 +434,11 @@ function buildProgramOptions(search: string, cluster: Cluster) {
   const matchedPrograms = Object.entries(PROGRAM_INFO_BY_ID).filter(
     ([address, { name, deployments }]) => {
       if (!deployments.includes(cluster)) return false;
+      const matches = name.toLowerCase().includes(search.toLowerCase()) ||
+        address.includes(search);
+      if (matches) {
+        console.log("Matched program:", name);
+      }
       return (
         name.toLowerCase().includes(search.toLowerCase()) ||
         address.includes(search)
@@ -422,9 +447,15 @@ function buildProgramOptions(search: string, cluster: Cluster) {
   );
 
   if (matchedPrograms.length > 0) {
+    const sortedPrograms = sortSearchResults(
+      matchedPrograms,
+      search,
+      ([_, { name }]) => name
+    );
+
     return {
       label: "Programs",
-      options: matchedPrograms.map(([address, { name }]) => ({
+      options: sortedPrograms.map(([address, { name }]) => ({
         label: name,
         pathname: "/address/" + address,
         value: [name, address],
@@ -452,9 +483,15 @@ function buildLoaderOptions(search: string) {
   );
 
   if (matchedLoaders.length > 0) {
+    const sortedLoaders = sortSearchResults(
+      matchedLoaders,
+      search,
+      ([_, name]) => name
+    );
+
     return {
       label: "Program Loaders",
-      options: matchedLoaders.map(([id, name]) => ({
+      options: sortedLoaders.map(([id, name]) => ({
         label: name,
         pathname: "/address/" + id,
         value: [name, id],
@@ -475,9 +512,15 @@ function buildSysvarOptions(search: string) {
   );
 
   if (matchedSysvars.length > 0) {
+    const sortedSysvars = sortSearchResults(
+      matchedSysvars,
+      search,
+      ([_, name]) => name
+    );
+
     return {
       label: "Sysvars",
-      options: matchedSysvars.map(([id, name]) => ({
+      options: sortedSysvars.map(([id, name]) => ({
         label: name,
         pathname: "/address/" + id,
         value: [name, id],
@@ -498,9 +541,15 @@ function buildSpecialOptions(search: string) {
   );
 
   if (matchedSpecialIds.length > 0) {
+    const sortedSpecialIds = sortSearchResults(
+      matchedSpecialIds,
+      search,
+      ([_, name]) => name
+    );
+
     return {
       label: "Accounts",
-      options: matchedSpecialIds.map(([id, name]) => ({
+      options: sortedSpecialIds.map(([id, name]) => ({
         label: name,
         pathname: "/address/" + id,
         value: [name, id],
@@ -519,7 +568,7 @@ async function buildTokenOptions(
 
   if (matchedTokens.length > 0) {
     // Prioritize tokens with a matching symbol first
-    const symbolMatches = matchedTokens.filter(
+    const exactSymbolMatches = matchedTokens.filter(
       (token) => token.symbol.toLowerCase() === search.toLowerCase(),
     );
 
@@ -528,9 +577,19 @@ async function buildTokenOptions(
       (token) => token.symbol.toLowerCase() !== search.toLowerCase(),
     );
 
+    // Sort the other matches
+    const sortedOtherMatches = sortSearchResults(
+      otherMatches,
+      search,
+      (token) => token.symbol
+    );
+
+    // Combine exact matches and sorted other matches
+    const sortedTokens = [...exactSymbolMatches, ...sortedOtherMatches];
+
     return {
       label: "Tokens",
-      options: [...symbolMatches, ...otherMatches],
+      options: sortedTokens,
     };
   }
 }
