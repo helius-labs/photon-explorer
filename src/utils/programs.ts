@@ -74,6 +74,7 @@ export enum PROGRAM_NAMES {
   RAYDIUM_CP_SWAP = "Raydium CP Swap",
   SABER_ROUTER = "Saber Router Program",
   SABER_SWAP = "Saber Stable Swap Program",
+  SANCTUM_SINGLE_VALIDATOR_SPL_STAKE_POOL = "Sanctum Single Validator SPL Stake Pool Program",
   SERUM_1 = "Serum Dex Program v1",
   SERUM_2 = "Serum Dex Program v2",
   SERUM_3 = "Serum Dex Program v3",
@@ -489,6 +490,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   dripTrkvSyQKvkyWg7oi4jmeEGMA5scSYowHArJ9Vwk: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.DRIP,
+  },
+  SP12tWFxD9oJsVWNavTTBZvMbA6gkAmxtVgxdqvyvhY: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SANCTUM_SINGLE_VALIDATOR_SPL_STAKE_POOL,
   }
 };
 
