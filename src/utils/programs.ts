@@ -35,6 +35,7 @@ export enum PROGRAM_NAMES {
   CHAINLINK_STORE = "Chainlink Store Program",
   CLOCKWORK_1 = "Clockwork Thread Program v1",
   CLOCKWORK_2 = "Clockwork Thread Program v2",
+  DRIFT_V2 = "Drift V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
   MANGO_ICO = "Mango ICO Program",
   MANGO_1 = "Mango Program v1",
@@ -439,6 +440,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.SQUADS_MULTISIG,
+  },
+  dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.DRIFT_V2,
   }
 };
 
