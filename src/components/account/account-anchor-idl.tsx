@@ -6,6 +6,7 @@ import { useCluster } from "@/providers/cluster-provider";
 import { Idl } from "@coral-xyz/anchor";
 import LottieLoader from "../common/lottie-loading";
 import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
+import { Card } from "../ui/card";
 
 interface AnchorIdlProps {
   address: string;
@@ -22,7 +23,7 @@ const AnchorIdl: React.FC<AnchorIdlProps> = ({ address }) => {
       setLoading(true);
       setError(null);
       try {
-        const fetchedIdl = await grabIdl(address, process.env.NEXT_PUBLIC_HELIUS_API_KEY || "");
+        const fetchedIdl = await grabIdl(address, endpoint || "");
         setIdl(fetchedIdl);
       } catch (err) {
         setError("Failed to fetch IDL");
@@ -43,12 +44,18 @@ const AnchorIdl: React.FC<AnchorIdlProps> = ({ address }) => {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Anchor IDL</h1>
+    <div>
       {idl ? (
-        <pre className="whitespace-pre-wrap">{JSON.stringify(idl, null, 2)}</pre>
+        <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">
+          <pre className="whitespace-pre-wrap p-8">
+            {JSON.stringify(idl, null, 2)}
+          </pre>
+        </Card>
       ) : (
-        <div>No IDL found for this program.</div>
+        <div className="p-4">
+          <h1 className="text-2xl font-semibold mb-4">Anchor IDL</h1>
+          <div>No IDL found for this program</div>
+        </div>
       )}
     </div>
   );
