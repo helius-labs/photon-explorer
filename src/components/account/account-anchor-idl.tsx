@@ -39,7 +39,14 @@ const AnchorIdl: React.FC<AnchorIdlProps> = ({ address }) => {
   }, [address, endpoint]);
 
   if (loading) {
-    return <LottieLoader animationData={loadingBarAnimation} />;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LottieLoader 
+          animationData={loadingBarAnimation}
+          className="h-32 w-32"
+        />
+      </div>
+    );
   }
 
   if (error) {
