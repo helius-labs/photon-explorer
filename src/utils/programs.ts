@@ -40,6 +40,7 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_2 = "Clockwork Thread Program v2",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
+  JUPITER_AGGREGATOR_V6 = "Jupiter Aggregator V6",
   MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
   MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
@@ -524,7 +525,11 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   nftD3vbNkNqfj2Sd3HZwbpw4BxxKWr4AjGb9X38JeZk: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.BONFIDA_NAME_TOKENIZER,
-  }
+  },
+  JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V6,
+  },
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
