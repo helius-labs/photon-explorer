@@ -76,6 +76,7 @@ export enum PROGRAM_NAMES {
   SABER_SWAP = "Saber Stable Swap Program",
   SANCTUM_SINGLE_VALIDATOR_SPL_STAKE_POOL = "Sanctum Single Validator SPL Stake Pool Program",
   SANCTUM_MULTI_VALIDATOR_SPL_STAKE_POOL = "Sanctum Multi-Validator SPL Stake Pool Program",
+  SANCTUM_UNSTAKE = "Sanctum Unstake Program",
   SERUM_1 = "Serum Dex Program v1",
   SERUM_2 = "Serum Dex Program v2",
   SERUM_3 = "Serum Dex Program v3",
@@ -500,6 +501,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.SANCTUM_MULTI_VALIDATOR_SPL_STAKE_POOL,
   },
+  unpXTU2Ndrc7WWNyEhQWe4udTzSibLPi25SXv2xbCHQ: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SANCTUM_UNSTAKE,
+  }
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
