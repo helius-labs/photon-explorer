@@ -89,6 +89,7 @@ export default function AddressLayout({
         name: "Transactions",
         href: `/address/${address}/history`,
       });
+      newTabs.push({ name: "IDL", href: `/address/${address}/anchor-idl` });
     } else if (
       accountType === AccountType.Token ||
       accountType === AccountType.MetaplexNFT ||

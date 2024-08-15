@@ -1,4 +1,3 @@
-import { useCluster } from "@/providers/cluster-provider";
 import { AnchorProvider, Idl, Program } from "@coral-xyz/anchor";
 import {
   Connection,
@@ -10,14 +9,10 @@ import {
 
 export async function grabIdl(
   accountAddress: string,
-  apiKey: string,
+  endpoint: string,
 ): Promise<Idl | null> {
-  const { endpoint } = useCluster();
   try {
-    const connection = new Connection(
-      `${endpoint}?api-key=${apiKey}`,
-      "confirmed",
-    );
+    const connection = new Connection(endpoint);
 
     const dummyKeypair = Keypair.generate();
     const dummyWallet = {
