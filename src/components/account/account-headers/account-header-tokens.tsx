@@ -36,6 +36,7 @@ import {
 import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tab } from "@/components/tab-nav";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;

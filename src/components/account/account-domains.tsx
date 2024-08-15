@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Copy, CheckIcon } from "lucide-react";
 import { shortenLong } from "@/utils/common";
+import { Skeleton } from "../ui/skeleton";
 
 const DomainAddressCell = ({ value }: { value: string | undefined }) => {
   const [hasCopied, setHasCopied] = useState(false);
@@ -221,12 +222,58 @@ export default function AccountDomains({ address }: { address: string }) {
   if (loadingDomains) {
     return (
       <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
-        <CardContent className="flex flex-col items-center gap-4 py-6">
-        <LottieLoader animationData={loadingBarAnimation} className="h-20 w-20" />
+        <CardContent className="flex flex-col gap-4 py-6">
+          {/* Skeleton Table Header */}
+          <div className="grid grid-cols-3 items-center text-center py-2 px-4">
+            <Skeleton className="h-4 w-[120px] justify-self-start" />
+            <Skeleton className="h-4 w-[160px] justify-self-center" />
+            <Skeleton className="h-4 w-[80px] justify-self-center" />
+          </div>
+  
+          {/* Skeleton Rows */}
+          <div className="space-y-4">
+
+            {/* Separator 1 */}
+            <div className="border-t border-bg-popover mb-2"></div>
+            {/* Row 1 */}
+            <div className="grid grid-cols-3 items-center text-center px-4">
+              <Skeleton className="h-4 w-[120px] justify-self-start" />
+              <Skeleton className="h-4 w-[180px] justify-self-center" />
+              <div className="flex items-center justify-center space-x-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-6 w-6 rounded-full" />
+              </div>
+            </div>
+  
+            {/* Separator 2 */}
+            <div className="border-t border-bg-popover mb-2"></div>
+  
+            {/* Row 2 */}
+            <div className="grid grid-cols-3 items-center text-center px-4">
+              <Skeleton className="h-4 w-[120px] justify-self-start" />
+              <Skeleton className="h-4 w-[180px] justify-self-center" />
+              <div className="flex items-center justify-center space-x-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-6 w-6 rounded-full" />
+              </div>
+            </div>
+          </div>
+  
+          {/* Skeleton Pagination */}
+          <div className="flex justify-center pt-6">
+            <div className="flex items-center space-x-4">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
   }
+  
 
   if (!userDomains || userDomains.length === 0) {
     return (
