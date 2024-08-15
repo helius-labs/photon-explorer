@@ -41,6 +41,7 @@ export enum PROGRAM_NAMES {
   MANGO_1 = "Mango Program v1",
   MANGO_2 = "Mango Program v2",
   MANGO_3 = "Mango Program v3",
+  MARGINFI_V2 = "Marginfi V2 Program",
   MARINADE = "Marinade Staking Program",
   MERCURIAL = "Mercurial Stable Swap Program",
   METAPLEX = "Metaplex Program",
@@ -444,6 +445,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.DRIFT_V2,
+  },
+  MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.MARGINFI_V2,
   }
 };
 
