@@ -32,6 +32,7 @@ export enum PROGRAM_NAMES {
   ACUMEN = "Acumen Program",
   BONFIDA_AUCTION = "Bonfida Auction Program",
   BONFIDA_NAME_SERVICE = "Bonfida Name Service Program",
+  BONFIDA_NAME_TOKENIZER = "Bonfida Name Tokenizer Program",
   BREAK_SOLANA = "Break Solana Program",
   CHAINLINK_ORACLE = "Chainlink OCR2 Oracle Program",
   CHAINLINK_STORE = "Chainlink Store Program",
@@ -519,6 +520,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   AVWV7vdWbLqXiLKFaP19GhYurhwxaLp2qRBSjT5tR5vT: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.BONFIDA_AUCTION,
+  },
+  nftD3vbNkNqfj2Sd3HZwbpw4BxxKWr4AjGb9X38JeZk: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.BONFIDA_NAME_TOKENIZER,
   }
 };
 
