@@ -1,26 +1,34 @@
 "use client";
 
-import solLogo from "@/../public/assets/solanaLogoMark.svg";
-import { useCluster } from "@/providers/cluster-provider";
-import { lamportsToSolString } from "@/utils/common";
-import { formatCurrencyValue, formatLargeSize, formatNumericValue } from "@/utils/numbers";
-import { Token } from "@/types/token";
-import { normalizeTokenAmount } from "@/utils/common";
-import cloudflareLoader from "@/utils/imageLoader";
-import { ColumnDef } from "@tanstack/react-table";
-import Image from "next/image";
-import Link from "next/link";
-import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
-import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
-import { DataTable } from "@/components/data-table/data-table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
-import { PublicKey } from "@solana/web3.js";
-import { Cluster } from "@/utils/cluster";
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
+import noLogoImg from "@/../public/assets/noLogoImg.svg";
+import solLogo from "@/../public/assets/solanaLogoMark.svg";
+import { useCluster } from "@/providers/cluster-provider";
+import { Token } from "@/types/token";
+import { Cluster } from "@/utils/cluster";
+import { lamportsToSolString } from "@/utils/common";
+import { normalizeTokenAmount } from "@/utils/common";
+import cloudflareLoader from "@/utils/imageLoader";
+import {
+  formatCurrencyValue,
+  formatLargeSize,
+  formatNumericValue,
+} from "@/utils/numbers";
+import { PublicKey } from "@solana/web3.js";
+import { ColumnDef } from "@tanstack/react-table";
+import { DollarSign, Landmark } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
+import { useGetTotalStake } from "@/hooks/useGetStakedAmount";
+import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 import { useGetBalance, useGetSolPrice } from "@/hooks/web3";
+
+import { DataTable } from "@/components/data-table/data-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Skeleton } from "../ui/skeleton";
 
 const formatPriceWithSupSub = (price: string) => {
@@ -37,8 +45,7 @@ const formatPriceWithSupSub = (price: string) => {
     const significantDigits = decimalPart.substring(firstNonZeroIndex);
     return (
       <>
-        {integerPart}.
-        0<sup>{leadingZerosCount}</sup>
+        {integerPart}. 0<sup>{leadingZerosCount}</sup>
         {significantDigits}
       </>
     );
@@ -118,9 +125,7 @@ const columns: ColumnDef<Token>[] = [
       const price = formatNumericValue(row.original.price, 10);
       return (
         <div className="w-28">
-          ${row.original.price
-            ? formatPriceWithSupSub(price)
-            : "N/A"}
+          ${row.original.price ? formatPriceWithSupSub(price) : "N/A"}
         </div>
       );
     },
@@ -172,19 +177,31 @@ interface AccountTokensProps {
   accountInfo: any;
 }
 
-export default function AccountTokens({ address, solPrice, accountInfo }: AccountTokensProps) {
+export default function AccountTokens({
+  address,
+  solPrice,
+  accountInfo,
+}: AccountTokensProps) {
   const publicKey = new PublicKey(address);
-  const { data, isLoading, isError } = useGetTokensByOwner(publicKey.toBase58());
+  const { data, isLoading, isError } = useGetTokensByOwner(
+    publicKey.toBase58(),
+  );
   const { cluster, endpoint } = useCluster();
-  const { data: compressedBalance } = useGetCompressedBalanceByOwner(publicKey.toBase58());
+  const { data: compressedBalance } = useGetCompressedBalanceByOwner(
+    publicKey.toBase58(),
+  );
   const { data: solBalanceData } = useGetBalance(address);
-
+  const { data: totalStake, isLoading: isStakeLoading } =
+    useGetTotalStake(address);
 
   // Use the hook to get the SOL price
-  const { data: currentSolPrice, isLoading: isSolPriceLoading } = useGetSolPrice();
+  const { data: currentSolPrice, isLoading: isSolPriceLoading } =
+    useGetSolPrice();
 
   // Calculate SOL balance in SOL and USD
-  const solBalanceInSol = solBalanceData ? parseFloat(lamportsToSolString(solBalanceData, 2)) : 0;
+  const solBalanceInSol = solBalanceData
+    ? parseFloat(lamportsToSolString(solBalanceData, 2))
+    : 0;
   const solBalanceUSD = currentSolPrice
     ? formatCurrencyValue(solBalanceInSol * currentSolPrice, 2)
     : null;
@@ -197,7 +214,7 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
 
   if (isError) {
     return (
-      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
+      <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden shadow md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
           <div className="font-semibold text-secondary">
             Unable to fetch account balances
@@ -216,38 +233,28 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
     );
   }
 
-  if (isLoading) {
+  if (isLoading || isStakeLoading) {
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-[-1rem] md:mx-0">
-          {/* First Card Skeleton */}
-          <Card className="shadow pl-4 flex flex-col items-start">
-            <Skeleton className="h-8 w-8 mt-4 mb-1" /> {/* Icon Skeleton */}
-            <Skeleton className="h-4 w-36 ml-2 mb-2" /> {/* Title Skeleton */}
-            <CardContent className="text-3xl md:-ml-4">
-              <Skeleton className="h-6 w-40 mb-1" /> {/* Large Number Skeleton */}
-            </CardContent>
-          </Card>
-  
-          {/* Second Card Skeleton */}
-          <Card className="shadow pl-4 flex flex-col items-start">
-            <Skeleton className="h-8 w-8 mt-4 mb-1" /> {/* Icon Skeleton */}
-            <Skeleton className="h-4 w-36 ml-2 mb-2" /> {/* Title Skeleton */}
-            <CardContent className="text-3xl md:-ml-4">
-              <div className="flex items-center">
-                <Skeleton className="h-6 w-40 md:mr-4 mb-1" /> {/* Large Number Skeleton */}
-                <Skeleton className="h-4 w-24 mt-2 md:mt-0 ml-2 md:ml-0" /> {/* Smaller Number Skeleton */}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mx-[-1rem] grid grid-cols-1 gap-4 md:mx-0 md:grid-cols-3">
+          {/* Three Card Skeletons */}
+          {[...Array(3)].map((_, index) => (
+            <Card key={index} className="flex flex-col items-start pl-4 shadow">
+              <Skeleton className="mb-1 mt-4 h-8 w-8" />
+              <Skeleton className="mb-2 ml-2 h-4 w-36" />
+              <CardContent className="text-3xl md:-ml-4">
+                <Skeleton className="mb-1 h-6 w-40" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
-  
+
         {/* Data Table Skeleton */}
-        <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
+        <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden shadow md:mx-0">
           <CardContent className="flex flex-col">
             {/* Title Row Skeleton */}
-            <div className="hidden md:flex justify-between gap-4 mt-6 mr-16 mb-2 py-2 px-2">
-              <div className="flex items-start w-60">
+            <div className="mb-2 mr-16 mt-6 hidden justify-between gap-4 px-2 py-2 md:flex">
+              <div className="flex w-60 items-start">
                 {/* Placeholder for possible title icon or empty space */}
               </div>
               <Skeleton className="h-4 w-20" /> {/* Title for "Balance" */}
@@ -255,8 +262,8 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
               <Skeleton className="h-4 w-14" /> {/* Title for "Price" */}
               <Skeleton className="h-4 w-14" /> {/* Title for "Charts" */}
             </div>
-            <div className="border-t border-bg-popover mb-2" /> {/* Separator under the title row */}
-  
+            <div className="border-bg-popover mb-2 border-t" />{" "}
+            {/* Separator under the title row */}
             {/* Mobile View Skeleton */}
             <div className="block md:hidden">
               {Array.from({ length: 8 }).map((_, index) => (
@@ -266,53 +273,62 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
                       <Skeleton className="h-8 w-8 rounded-full" />
                       <div className="ml-2">
                         <Skeleton className="h-4 w-16" />
-                        <Skeleton className="h-3 w-12 mt-1" />
+                        <Skeleton className="mt-1 h-3 w-12" />
                       </div>
                     </div>
                     <div className="text-right">
                       <Skeleton className="h-4 w-12" />
-                      <Skeleton className="h-3 w-8 mt-1" />
+                      <Skeleton className="mt-1 h-3 w-8" />
                     </div>
                   </div>
-                  {index < 7 && <div className="border-t border-bg-popover" />} {/* Row Separator */}
+                  {index < 7 && <div className="border-bg-popover border-t" />}{" "}
+                  {/* Row Separator */}
                 </div>
               ))}
             </div>
-  
             {/* Desktop View Skeleton */}
             <div className="hidden md:block">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index}>
                   <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center w-60">
+                    <div className="flex w-60 items-center">
                       <Skeleton className="h-12 w-12 rounded-full" />
                       <div className="ml-4">
                         <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-4 w-14 mt-1" />
+                        <Skeleton className="mt-1 h-4 w-14" />
                       </div>
                     </div>
-                    <Skeleton className="h-4 w-14 text-left" /> {/* Align with "Balance" */}
-                    <Skeleton className="h-4 w-28 text-left" /> {/* Align with "Value" */}
-                    <Skeleton className="h-4 w-28 text-left" /> {/* Align with "Price" */}
+                    <Skeleton className="h-4 w-14 text-left" />{" "}
+                    {/* Align with "Balance" */}
+                    <Skeleton className="h-4 w-28 text-left" />{" "}
+                    {/* Align with "Value" */}
+                    <Skeleton className="h-4 w-28 text-left" />{" "}
+                    {/* Align with "Price" */}
                     <div className="flex w-20 space-x-2">
-                      <Skeleton className="h-6 w-6 rounded-full" /> {/* Align with "Charts" */}
+                      <Skeleton className="h-6 w-6 rounded-full" />{" "}
+                      {/* Align with "Charts" */}
                       <Skeleton className="h-6 w-6 rounded-full" />
                     </div>
                   </div>
-                  {index < 7 && <div className="border-t border-bg-popover" />} {/* Row Separator */}
+                  {index < 7 && <div className="border-bg-popover border-t" />}{" "}
+                  {/* Row Separator */}
                 </div>
               ))}
             </div>
           </CardContent>
-  
+
           {/* Pagination Skeleton */}
           <div className="flex items-center justify-center px-4 py-4">
             <div className="flex items-center space-x-2">
-              <Skeleton className="h-8 w-8 rounded-full" /> {/* First arrow circle */}
-              <Skeleton className="h-8 w-8 rounded-full" /> {/* Second arrow circle */}
+              <Skeleton className="h-8 w-8 rounded-full" />{" "}
+              {/* First arrow circle */}
+              <Skeleton className="h-8 w-8 rounded-full" />{" "}
+              {/* Second arrow circle */}
               <Skeleton className="h-8 w-16" /> {/* Centered page indicator */}
-              <Skeleton className="h-8 w-8 rounded-full" /> {/* Third arrow circle */}
-              <Skeleton className="h-8 w-8 rounded-full" /> {/* Fourth arrow circle */}
+              <Skeleton className="h-8 w-8 rounded-full" />{" "}
+              {/* Third arrow circle */}
+              <Skeleton className="h-8 w-8 rounded-full" />{" "}
+              {/* Fourth arrow circle */}
             </div>
           </div>
         </Card>
@@ -327,48 +343,73 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-[-1rem] md:mx-0">
-        <Card className="shadow pl-4 flex flex-col items-left">
-          <DollarSign className="text-2xl mb-2 mt-4" />
-          <CardTitle className="text-sm font-medium ml-2">Token Balance</CardTitle>
+      <div className="mx-[-1rem] grid grid-cols-1 gap-4 md:mx-0 md:grid-cols-2">
+        <Card className="items-left flex flex-col pl-4 shadow">
+          <DollarSign className="mb-2 mt-4 text-2xl" />
+          <CardTitle className="ml-2 text-sm font-medium">
+            Token Balance
+          </CardTitle>
           <CardContent className="text-3xl md:-ml-4">
             {formatCurrencyValue(totalFungibleValue)}
           </CardContent>
         </Card>
-        <Card className="shadow pl-4 flex flex-col items-left">
-        <Image
-          src={solLogo}
-          alt="SOL logo"
-          loading="eager"
-          className="h-auto w-[24px] mb-2 ml-2 mt-4"
-        />
-          <CardTitle className="text-sm font-medium ml-2">SOL Balance</CardTitle>
-          <CardContent className="text-3xl flex items-center md:-ml-4">
+        <Card className="items-left flex flex-col pl-4 shadow">
+          <Image
+            src={solLogo}
+            alt="SOL logo"
+            loading="eager"
+            className="mb-2 ml-2 mt-4 h-auto w-[24px]"
+          />
+          <CardTitle className="ml-2 text-sm font-medium">
+            SOL Balance
+          </CardTitle>
+          <CardContent className="flex items-center text-3xl md:-ml-4">
             <span>{`${formatNumericValue(solBalanceInSol)} SOL`}</span>
             {solBalanceUSD && (
-              <span className="text-sm mt-2 text-muted-foreground opacity-80 ml-2">
+              <span className="ml-2 mt-2 text-sm text-muted-foreground opacity-80">
                 {solBalanceUSD} USD
               </span>
             )}
-            {isLocalOrTestNet && compressedBalance && compressedBalance.value && (
-              <div className="flex items-center mt-2">
-                <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                <Image
-                  src={solLogo}
-                  alt="SOL logo"
-                  loading="eager"
-                  width={24}
-                  height={24}
-                  className="h-auto w-[24px]"
-                />
+            {isLocalOrTestNet &&
+              compressedBalance &&
+              compressedBalance.value && (
+                <div className="mt-2 flex items-center">
+                  <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
+                    <Image
+                      src={solLogo}
+                      alt="SOL logo"
+                      loading="eager"
+                      width={24}
+                      height={24}
+                      className="h-auto w-[24px]"
+                    />
+                  </div>
+                  <span>{` | ${lamportsToSolString(compressedBalance.value, 2)} COMPRESSED SOL`}</span>
                 </div>
-                <span>{` | ${lamportsToSolString(compressedBalance.value, 2)} COMPRESSED SOL`}</span>
-              </div>
+              )}
+          </CardContent>
+        </Card>
+        <Card className="items-left flex flex-col pl-4 shadow">
+          <Landmark className="mb-2 mt-4 text-2xl" />
+          <CardTitle className="ml-2 text-sm font-medium">Staked SOL</CardTitle>
+          <CardContent className="flex items-center text-3xl md:-ml-4">
+            {totalStake !== null ? (
+              <>
+                <span>{`${formatNumericValue(totalStake)} SOL`}</span>
+                {currentSolPrice && (
+                  <span className="ml-2 mt-2 text-sm text-muted-foreground opacity-80">
+                    {formatCurrencyValue(totalStake || 0 * currentSolPrice, 2)}{" "}
+                    USD
+                  </span>
+                )}
+              </>
+            ) : (
+              <span>N/A</span>
             )}
           </CardContent>
         </Card>
       </div>
-      <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
+      <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden shadow md:mx-0">
         <CardContent className="flex flex-col gap-4 pb-6 pt-6">
           <div className="block md:hidden">
             {data?.map((token, index) => (
@@ -406,9 +447,10 @@ export default function AccountTokens({ address, solPrice, accountInfo }: Accoun
                 <div className="text-right">
                   <div className="text-sm font-medium">
                     {formatLargeSize(
-                      normalizeTokenAmount(token.amount, token.decimals).toFixed(
-                        3,
-                      ),
+                      normalizeTokenAmount(
+                        token.amount,
+                        token.decimals,
+                      ).toFixed(3),
                     )}
                   </div>
                   <div className="text-xs text-gray-500">

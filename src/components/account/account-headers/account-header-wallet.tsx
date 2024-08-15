@@ -2,10 +2,13 @@
 
 import solLogo from "@/../public/assets/solanaLogoMark.svg";
 import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
+import { lamportsToSolString, shorten } from "@/utils/common";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
-import { MoreVertical, CheckIcon, Copy } from "lucide-react";
+import { CheckIcon, Copy, MoreVertical } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -22,16 +25,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { Cluster } from "@/utils/cluster";
-import { lamportsToSolString, shorten } from "@/utils/common";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Link from "next/link";
 
 interface AccountHeaderWalletsProps {
   address: PublicKey;
@@ -64,19 +63,24 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
     }
   }, [hasCopied]);
 
-  const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
+  const isLocalOrTestNet = [
+    Cluster.Localnet,
+    Cluster.Testnet,
+    Cluster.Custom,
+  ].includes(cluster);
 
   const shortenedAddress = shorten(fallbackAddress, 4);
 
   // Find the most popular domain
-  const mainDomain = userDomains && userDomains.length > 0 ? userDomains[0] : null;
+  const mainDomain =
+    userDomains && userDomains.length > 0 ? userDomains[0] : null;
 
   return (
     <div className="mx-[-1rem] md:mx-0">
       <Card className="w-full">
-        <CardHeader className="flex flex-col gap-4 items-center md:flex-row md:items-center">
-          <div className="w-full flex flex-col items-center md:flex-row md:w-auto md:justify-between">
-            <div className="flex items-center justify-center w-full md:w-auto relative">
+        <CardHeader className="flex flex-col items-center gap-4 md:flex-row md:items-center">
+          <div className="flex w-full flex-col items-center md:w-auto md:flex-row md:justify-between">
+            <div className="relative flex w-full items-center justify-center md:w-auto">
               <Avatar
                 size={80}
                 name={fallbackAddress}
@@ -108,7 +112,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
               )}
             </div>
           </div>
-          <div className="flex w-full flex-col items-center md:flex-row md:items-center md:justify-between mt-4 md:mt-0">
+          <div className="mt-4 flex w-full flex-col items-center md:mt-0 md:flex-row md:items-center md:justify-between">
             <div className="text-center text-3xl font-medium leading-none md:text-left">
               <div className="flex items-center justify-center gap-2 md:justify-start">
                 <Address pubkey={address} short showCopyButton={false} />
@@ -139,14 +143,14 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                 {compressedBalance && compressedBalance.value && (
                   <div className="flex items-center">
                     <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-black p-1.5">
-                    <Image
-                      src={solLogo}
-                      alt="SOL logo"
-                      loading="eager"
-                      width={24}
-                      height={24}
-                      className="h-auto w-[24px]"
-                    />
+                      <Image
+                        src={solLogo}
+                        alt="SOL logo"
+                        loading="eager"
+                        width={24}
+                        height={24}
+                        className="h-auto w-[24px]"
+                      />
                     </div>
                     {` | ${lamportsToSolString(
                       compressedBalance.value,
@@ -156,11 +160,12 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
                 )}
               </div>
             </div>
-            <div className="ml-auto flex flex-wrap gap-2 justify-center md:justify-start">
+            <div className="ml-auto flex flex-wrap justify-center gap-2 md:justify-start">
               {!loadingDomains && mainDomain && (
                 <Link href={`/address/${address.toBase58()}/domains`}>
                   <Badge variant="outline">
-                    @ {mainDomain.type === "sns-domain"
+                    @{" "}
+                    {mainDomain.type === "sns-domain"
                       ? mainDomain.name
                       : mainDomain.domain}
                   </Badge>
@@ -182,7 +187,7 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
             </div>
           </div>
           {isLocalOrTestNet && (
-            <div className="hidden md:block ml-auto mt-4 md:mt-0">
+            <div className="ml-auto mt-4 hidden md:mt-0 md:block">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon" variant="outline" className="h-8 w-8">
