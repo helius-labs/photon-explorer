@@ -40,7 +40,14 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_2 = "Clockwork Thread Program v2",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
+  JUPITER_AGGREGATOR_V1 = "Jupiter Aggregator V1",
+  JUPITER_AGGREGATOR_V2 = "Jupiter Aggregator V2",
+  JUPITER_AGGREGATOR_V3 = "Jupiter Aggregator V3",
+  JUPITER_AGGREGATOR_V4 = "Jupiter Aggregator V4",
   JUPITER_AGGREGATOR_V6 = "Jupiter Aggregator V6",
+  JUPITER_APE = "Jupiter Ape Program",
+  JUPITER_DCA = "Jupiter DCA Program",
+  JUPITER_GOVERNANCE = "Jupiter Governance Program",
   MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
   MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
@@ -529,6 +536,34 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V6,
+  },
+  JSWX3pKDbj2EdCMu4ei7sPYSpdcwZNyjkDSteoHQ4UH: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_APE,
+  },
+  GovaE4iu227srtG2s3tZzB4RmWBzw8sTwrCLZz7kN7rY: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_GOVERNANCE,
+  },
+  DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_DCA,
+  },
+  JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V1,
+  },
+  JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V2,
+  },
+  JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V3,
+  },
+  JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V4,
   },
 };
 
