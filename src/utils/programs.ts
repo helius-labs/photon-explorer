@@ -30,16 +30,32 @@ export enum PROGRAM_NAMES {
 
   // other
   ACUMEN = "Acumen Program",
+  BONFIDA_AUCTION = "Bonfida Auction Program",
+  BONFIDA_NAME_SERVICE = "Bonfida Name Service Program",
+  BONFIDA_NAME_TOKENIZER = "Bonfida Name Tokenizer Program",
   BREAK_SOLANA = "Break Solana Program",
   CHAINLINK_ORACLE = "Chainlink OCR2 Oracle Program",
   CHAINLINK_STORE = "Chainlink Store Program",
   CLOCKWORK_1 = "Clockwork Thread Program v1",
   CLOCKWORK_2 = "Clockwork Thread Program v2",
+  DRIFT_V2 = "Drift V2 Program",
+  DRIP = "Drip Program",
+  JUPITER_AGGREGATOR_V1 = "Jupiter Aggregator V1",
+  JUPITER_AGGREGATOR_V2 = "Jupiter Aggregator V2",
+  JUPITER_AGGREGATOR_V3 = "Jupiter Aggregator V3",
+  JUPITER_AGGREGATOR_V4 = "Jupiter Aggregator V4",
+  JUPITER_AGGREGATOR_V6 = "Jupiter Aggregator V6",
+  JUPITER_APE = "Jupiter Ape Program",
+  JUPITER_DCA = "Jupiter DCA Program",
+  JUPITER_GOVERNANCE = "Jupiter Governance Program",
+  MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
+  MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
   MANGO_ICO = "Mango ICO Program",
   MANGO_1 = "Mango Program v1",
   MANGO_2 = "Mango Program v2",
   MANGO_3 = "Mango Program v3",
+  MARGINFI_V2 = "Marginfi V2 Program",
   MARINADE = "Marinade Staking Program",
   MERCURIAL = "Mercurial Stable Swap Program",
   METAPLEX = "Metaplex Program",
@@ -49,6 +65,9 @@ export enum PROGRAM_NAMES {
   ORCA_SWAP_1 = "Orca Swap Program v1",
   ORCA_SWAP_2 = "Orca Swap Program v2",
   ORCA_AQUAFARM = "Orca Aquafarm Program",
+  ORE_V1 = "Ore V1 Program",
+  ORE_V2 = "Ore V2 Program",
+  PHOENIX = "Phoenix Program",
   PORT = "Port Finance Program",
   PYTH_DEVNET = "Pyth Oracle Program",
   PYTH_TESTNET = "Pyth Oracle Program",
@@ -66,6 +85,10 @@ export enum PROGRAM_NAMES {
   RAYDIUM_CP_SWAP = "Raydium CP Swap",
   SABER_ROUTER = "Saber Router Program",
   SABER_SWAP = "Saber Stable Swap Program",
+  SANCTUM_SINGLE_VALIDATOR_SPL_STAKE_POOL = "Sanctum Single Validator SPL Stake Pool Program",
+  SANCTUM_MULTI_VALIDATOR_SPL_STAKE_POOL = "Sanctum Multi-Validator SPL Stake Pool Program",
+  SANCTUM_ROUTER = "Sanctum Router Program",
+  SANCTUM_UNSTAKE = "Sanctum Unstake Program",
   SERUM_1 = "Serum Dex Program v1",
   SERUM_2 = "Serum Dex Program v2",
   SERUM_3 = "Serum Dex Program v3",
@@ -73,9 +96,13 @@ export enum PROGRAM_NAMES {
   SERUM_POOL = "Serum Pool",
   SOLEND = "Solend Program",
   SOLIDO = "Lido for Solana Program",
+  SQUADS_MULTISIG = "Squads MultiSig Program",
   STEP_SWAP = "Step Finance Swap Program",
   SWIM_SWAP = "Swim Swap Program",
   SWITCHBOARD = "Switchboard Oracle Program",
+  TENSOR_CNFT = "Tensor cNFT Program",
+  TENSOR_SWAP = "Tensor Swap Program",
+  TENSOR_WHITELIST = "Tensor Whitelist Program",
   WORMHOLE = "Wormhole",
   WORMHOLE_CORE = "Wormhole Core Bridge",
   WORMHOLE_TOKEN = "Wormhole Token Bridge",
@@ -84,7 +111,7 @@ export enum PROGRAM_NAMES {
   SOLANART_GO = "Solanart - Global offers",
   STEPN_DEX = "STEPN Dex",
   OPENBOOK_DEX = "OpenBook Dex",
-}
+};
 
 const ALL_CLUSTERS = [
   Cluster.Custom,
@@ -429,6 +456,114 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.WORMHOLE_TOKEN,
+  },
+  PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.PHOENIX,
+  },
+  SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SQUADS_MULTISIG,
+  },
+  dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.DRIFT_V2,
+  },
+  MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.MARGINFI_V2,
+  },
+  TSWAPaqyCSx2KABk68Shruf4rp7CxcNi8hAsbdwmHbN: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TENSOR_SWAP,
+  },
+  TCMPhJdwDryooaGtiocG1u3xcYbRpiJzb283XfCZsDp: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TENSOR_CNFT,
+  },
+  TL1ST2iRBzuGTqLn1KXnGdSnEow62BzPnGiqyRXhWtW: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TENSOR_WHITELIST,
+  },
+  oreV2ZymfyeXgNgBdqMkumTqqAprVqgBWQfoYkrtKWQ: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ORE_V2,
+  },
+  mineRHF5r6S7HyD9SppBfVMXMavDkJsxwGesEvxZr2A: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ORE_V1,
+  },
+  M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.MAGIC_EDEN_V2,
+  },
+  MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.MAGIC_EDEN_NFT_MARKETPLACE,
+  },
+  dripTrkvSyQKvkyWg7oi4jmeEGMA5scSYowHArJ9Vwk: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.DRIP,
+  },
+  SP12tWFxD9oJsVWNavTTBZvMbA6gkAmxtVgxdqvyvhY: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SANCTUM_SINGLE_VALIDATOR_SPL_STAKE_POOL,
+  },
+  SPMBzsVUuoHA4Jm6KunbsotaahvVikZs1JyTW6iJvbn: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SANCTUM_MULTI_VALIDATOR_SPL_STAKE_POOL,
+  },
+  unpXTU2Ndrc7WWNyEhQWe4udTzSibLPi25SXv2xbCHQ: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SANCTUM_UNSTAKE,
+  },
+  stkitrT1Uoy18Dk1fTrgPw8W6MVzoCfYoAFT4MLsmhq: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SANCTUM_ROUTER,
+  },
+  jCebN34bUfdeUYJT13J1yG16XWQpt5PDx6Mse9GUqhR: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.BONFIDA_NAME_SERVICE,
+  },
+  AVWV7vdWbLqXiLKFaP19GhYurhwxaLp2qRBSjT5tR5vT: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.BONFIDA_AUCTION,
+  },
+  nftD3vbNkNqfj2Sd3HZwbpw4BxxKWr4AjGb9X38JeZk: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.BONFIDA_NAME_TOKENIZER,
+  },
+  JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V6,
+  },
+  JSWX3pKDbj2EdCMu4ei7sPYSpdcwZNyjkDSteoHQ4UH: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_APE,
+  },
+  GovaE4iu227srtG2s3tZzB4RmWBzw8sTwrCLZz7kN7rY: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_GOVERNANCE,
+  },
+  DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_DCA,
+  },
+  JUP6i4ozu5ydDCnLiMogSckDPpbtr7BJ4FtzYWkb5Rk: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V1,
+  },
+  JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V2,
+  },
+  JUP3c2Uh3WA4Ng34tw6kPd2G4C5BB21Xo36Je1s32Ph: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V3,
+  },
+  JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V4,
   },
 };
 
