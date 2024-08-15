@@ -49,6 +49,7 @@ export enum PROGRAM_NAMES {
   ORCA_SWAP_1 = "Orca Swap Program v1",
   ORCA_SWAP_2 = "Orca Swap Program v2",
   ORCA_AQUAFARM = "Orca Aquafarm Program",
+  PHOENIX = "Phoenix Program",
   PORT = "Port Finance Program",
   PYTH_DEVNET = "Pyth Oracle Program",
   PYTH_TESTNET = "Pyth Oracle Program",
@@ -429,6 +430,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.WORMHOLE_TOKEN,
+  },
+  PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.PHOENIX,
   },
 };
 
