@@ -82,6 +82,7 @@ export enum PROGRAM_NAMES {
   SWITCHBOARD = "Switchboard Oracle Program",
   TENSOR_CNFT = "Tensor cNFT Program",
   TENSOR_SWAP = "Tensor Swap Program",
+  TENSOR_WHITELIST = "Tensor Whitelist Program",
   WORMHOLE = "Wormhole",
   WORMHOLE_CORE = "Wormhole Core Bridge",
   WORMHOLE_TOKEN = "Wormhole Token Bridge",
@@ -459,7 +460,11 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   TCMPhJdwDryooaGtiocG1u3xcYbRpiJzb283XfCZsDp: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.TENSOR_CNFT,
-  }
+  },
+  TL1ST2iRBzuGTqLn1KXnGdSnEow62BzPnGiqyRXhWtW: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TENSOR_WHITELIST,
+  },
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
