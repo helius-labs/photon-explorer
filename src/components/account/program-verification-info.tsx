@@ -105,11 +105,13 @@ const VerificationInfo: React.FC<{ verificationStatus: VerificationStatus }> = (
                 {verificationStatus.executable_hash}
             </code>
           </div>
-          <div>
+          <div className="flex flex-row space-x-1">
             <span className="font-semibold">
                 Last Verified:
+            </span>
+            <span>
+                {formatDate(verificationStatus.last_verified_at)}
             </span> 
-            {formatDate(verificationStatus.last_verified_at)}
           </div>
           <div className="flex items-center">
             <span className="font-semibold mr-2">Repository:</span>
