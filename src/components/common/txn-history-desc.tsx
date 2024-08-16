@@ -195,6 +195,21 @@ function transactionBreakdown(transaction: XrayTransaction, address?: string) {
           )}
         </div>
       );
+    case ParserTransactionTypes.NFT_MINT:
+      return (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <p style={{ margin: 0, marginRight: "8px" }}>Minted</p>
+          {transaction?.actions[0]?.mint && (
+            <TokenBalance
+              amount={transaction.actions[0].amount}
+              decimals={0}
+              mint={new PublicKey(transaction.actions[0].mint)}
+              isReadable={true}
+              isNFT={true}
+            />
+          )}
+        </div>
+      );
     case ParserTransactionTypes.UNKNOWN:
       return (
         <div style={{ display: "flex", alignItems: "center" }}>
