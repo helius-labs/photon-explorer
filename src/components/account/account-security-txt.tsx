@@ -92,6 +92,11 @@ const SecurityTxtDisplay: React.FC<SecurityTxtProps> = ({ programId }) => {
           </Button>
         </div>
         <div className="p-8 pt-16">
+          <div className="border-l-4 border-yellow-500 p-4 mb-4 rounded">
+            <p className="text-sm">
+              <strong>Disclaimer:</strong> The security.txt content is self-reported by the program author and may not be 100% accurate.
+            </p>
+          </div>
           {showRawJson ? (
             <pre className="whitespace-pre-wrap">
               {JSON.stringify(securityTxt, null, 2)}
