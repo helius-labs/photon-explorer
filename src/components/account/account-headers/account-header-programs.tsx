@@ -18,6 +18,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
 import { Cluster } from "@/utils/cluster";
+import { useProgramVerification } from "@/hooks/useProgramVerification";
 
 interface AccountHeaderProgramsProps {
   address: PublicKey;
@@ -45,6 +46,8 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
     ? sysvarInfo
     : "Unknown Account";
   const fallbackAddress = address.toBase58();
+
+  const { verificationStatus, isLoading: isVerificationLoading } = useProgramVerification(programId);
 
   useEffect(() => {
     if (hasCopied) {
@@ -122,6 +125,11 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
                 <Badge variant={isClosed ? "outline" : "success"}>
                   {isClosed ? "Closed" : "Program"}
                 </Badge>
+                {!isVerificationLoading && verificationStatus?.is_verified && (
+                  <Badge variant="success">
+                    Verifiable Build
+                  </Badge>
+                )}
               </div>
               <div className="text-sm text-muted-foreground mt-2 md:mt-1">
                 <TooltipProvider>
