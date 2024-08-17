@@ -90,6 +90,7 @@ export default function AddressLayout({
         href: `/address/${address}/history`,
       });
       newTabs.push({ name: "IDL", href: `/address/${address}/anchor-idl` });
+      newTabs.push({ name: "Security", href: `/address/${address}/security-txt` });
     } else if (
       accountType === AccountType.Token ||
       accountType === AccountType.MetaplexNFT ||
