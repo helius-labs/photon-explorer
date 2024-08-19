@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import { NextFlightResponse } from "next/dist/server/app-render/types";
 
 export type Attribute = {
   value: string;
@@ -129,4 +130,11 @@ export type NFT = {
   burnt?: boolean;
   inscription?: Inscription;
   spl20?: Spl20;
+};
+
+export interface NFTMediaProps {
+  nft: NFT;
+  className?: string;
+  onLoad?: () => void;
+  onError?: () => void;
 };

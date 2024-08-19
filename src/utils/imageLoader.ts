@@ -1,6 +1,6 @@
-const normalizeSrc = (src: string): string => {
-  return src.startsWith("/") ? src.slice(1) : src;
-};
+// const normalizeSrc = (src: string): string => {
+//   return src.startsWith("/") ? src.slice(1) : src;
+// };
 
 export default function cloudflareLoader({
   src,
@@ -16,5 +16,5 @@ export default function cloudflareLoader({
     params.push(`quality=${quality}`);
   }
 
-  return `https://cdn.helius-rpc.com/cdn-cgi/image/${params.join(",")}/${normalizeSrc(src)}`;
+  return `https://cdn.helius-rpc.com/cdn-cgi/image/${params.join(",")}/${encodeURIComponent(src)}`;
 }
