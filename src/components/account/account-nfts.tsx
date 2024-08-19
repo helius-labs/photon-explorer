@@ -37,7 +37,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const collectionFilter = searchParams.get("collection");
+  const [collectionFilter, setCollectionFilter] = useState<string | null>(null);
 
   const [showMetaplexVerified, setShowMetaplexVerified] = useState(false);
   const [showCompressed] = useState(false);
@@ -58,12 +58,33 @@ const AccountNFTs = ({ address }: { address: string }) => {
       });
 
       const sortedCollections = Array.from(collectionSet).sort((a, b) =>
-        a.localeCompare(b, undefined, { sensitivity: "base" })
+        a.localeCompare(b, undefined, { sensitivity: "base" }),
       );
-  
+
       setCollections(["All Collections", ...sortedCollections]);
     }
   }, [nfts]);
+
+  const filteredCollections = useMemo(() => {
+    if (!showMetaplexVerified) return collections;
+    return collections.filter(
+      (collection) =>
+        collection === "All Collections" ||
+        nfts?.some((nft) => nft.collectionName === collection && nft.verified),
+    );
+  }, [collections, nfts, showMetaplexVerified]);
+
+  useEffect(() => {
+    const currentCollection = searchParams.get("collection");
+
+    if (currentCollection && filteredCollections.includes(currentCollection)) {
+      setCollectionFilter(currentCollection);
+    } else {
+      setCollectionFilter("All Collections");
+      handleNoFilter();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, filteredCollections]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const createQueryString = (name: string, value: string) => {
@@ -72,19 +93,43 @@ const AccountNFTs = ({ address }: { address: string }) => {
     return params.toString();
   };
 
-  const handleCollectionFilter = useCallback(
-    (collection: string) => {
-      const queryString = createQueryString("collection", collection);
-      router.push(`${pathname}?${queryString}`);
-    },
-    [createQueryString, pathname, router],
-  );
+  const handleCollectionFilter = (collection: string) => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (collection === "All Collections") {
+      handleNoFilter();
+    } else {
+      newSearchParams.set("collection", collection);
+    }
+    router.push(`${pathname}?${newSearchParams.toString()}`);
+  };
 
   const handleNoFilter = useCallback(() => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete("collection");
     router.push(`${pathname}?${newSearchParams.toString()}`);
   }, [pathname, router, searchParams]);
+
+  const handleVerifiedToggle = useCallback(() => {
+    setShowMetaplexVerified((prev) => {
+      const newValue = !prev;
+      if (
+        newValue &&
+        collectionFilter &&
+        collectionFilter !== "All Collections"
+      ) {
+        // Check if the current collection has any verified NFTs
+        const hasVerifiedNFTs = nfts?.some(
+          (nft) => nft.collectionName === collectionFilter && nft.verified,
+        );
+        if (!hasVerifiedNFTs) {
+          // Reset to "All Collections" if the current collection has no verified NFTs
+          setCollectionFilter("All Collections");
+          handleNoFilter();
+        }
+      }
+      return newValue;
+    });
+  }, [collectionFilter, nfts, handleNoFilter]);
 
   const handleQuickViewClick = useCallback((nftData: NFT) => {
     setSelectedNft(nftData);
@@ -94,8 +139,11 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const filteredNfts = useMemo(() => {
     return (
       nfts?.filter((nft) => {
-        const matchesVerified = showMetaplexVerified ? nft.verified : true;
-        const matchesCollection = !collectionFilter || collectionFilter === "All Collections" || nft.collectionName === collectionFilter;
+        const matchesVerified = !showMetaplexVerified || nft.verified;
+        const matchesCollection =
+          !collectionFilter ||
+          collectionFilter === "All Collections" ||
+          nft.collectionName === collectionFilter;
         const matchesCompressed =
           !showCompressed || (nft.compression && nft.compression.compressed);
         return matchesVerified && matchesCollection && matchesCompressed;
@@ -243,9 +291,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       </Popover>
                       <Switch
                         checked={showMetaplexVerified}
-                        onCheckedChange={() =>
-                          setShowMetaplexVerified((prev) => !prev)
-                        }
+                        onCheckedChange={handleVerifiedToggle}
                         className="ml-2"
                         checkedClassName="bg-purple-600 opacity-90"
                         uncheckedClassName="bg-gray-400"
@@ -255,17 +301,13 @@ const AccountNFTs = ({ address }: { address: string }) => {
                   </div>
                   <Select
                     value={collectionFilter || "All Collections"}
-                    onValueChange={(value) =>
-                      value === "All Collections"
-                        ? handleNoFilter()
-                        : handleCollectionFilter(value)
-                    }
+                    onValueChange={handleCollectionFilter}
                   >
                     <SelectTrigger className="w-full sm:w-48">
                       <SelectValue placeholder="Filter by Collection" />
                     </SelectTrigger>
                     <SelectContent>
-                      {collections.map((collection) => (
+                      {filteredCollections.map((collection) => (
                         <SelectItem key={collection} value={collection}>
                           {collection}
                         </SelectItem>
