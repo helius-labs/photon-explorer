@@ -1,7 +1,7 @@
 import { MainNav } from "@/components/main-nav";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
 import { SearchBar } from "@/components/search-bar";
-import { ThemeToggle } from "@/components/theme-toggle";
+import ClusterSwitcher from "./cluster-switcher";
 
 export function Header() {
   return (
@@ -16,10 +16,7 @@ export function Header() {
           </div>
         </div>
         <div className="flex-shrink-0 flex items-center space-x-2 overflow-hidden">
-          <div className="hidden md:block">
-            <ThemeToggle />
-          </div>
-          <NetworkStatusDropdown />
+          <ClusterSwitcher />
         </div>
       </div>
     </div>

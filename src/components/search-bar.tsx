@@ -210,9 +210,9 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   }, []);
 
   const controlStyles = {
-    base: "border px-4 py-2 border-input shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
-    focus: "rounded-t-lg bg-popover",
-    nonFocus: "rounded-lg",
+    base: "bg-muted-background px-4 py-2 shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
+    focus: "bg-popover",
+    nonFocus: "",
   };
 
   const placeholderStyles =

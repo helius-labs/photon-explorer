@@ -13,7 +13,7 @@ import {
 } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
-import { CheckIcon, Copy, MoreVertical, Info } from "lucide-react";
+import { CheckIcon, Copy, MoreVertical, Info, ChevronDown, BarChart3, ShieldCheck, BarChart3Icon, BarChart, Users, DollarSign } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
@@ -37,6 +37,7 @@ import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tab } from "@/components/tab-nav";
+import { TokenLineChart } from "@/components/token-line-chart";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -236,251 +237,105 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="mx-[-1rem] md:mx-0">
-        <Card className="mb-8 w-full space-y-4 p-6 md:space-y-6">
-          <CardHeader className="relative flex flex-col items-start gap-4 md:flex-row md:gap-6">
-            <div className="relative flex w-full items-center justify-center md:w-auto">
-              {tokenDetails.tokenImageURI ? (
-                <Image
-                  loader={cloudflareLoader}
-                  src={tokenDetails.tokenImageURI}
-                  alt={tokenDetails.tokenName || "Token"}
-                  width={80}
-                  height={80}
-                  loading="eager"
-                  className="rounded-lg"
-                  onError={(event: any) => {
-                    event.target.id = "noLogoImg";
-                    event.target.srcset = noLogoImg.src;
-                  }}
-                />
-              ) : (
-                <Avatar
-                  size={80}
-                  name={address.toBase58()}
-                  variant="pixel"
-                  colors={[
-                    "#D31900",
-                    "#E84125",
-                    "#9945FF",
-                    "#14F195",
-                    "#000000",
-                  ]}
-                />
-              )}
+    <Card className="mb-8 w-full border-none space-y-4 p-6 md:space-y-6">
+      <CardHeader className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 h-auto">
+        <div className="flex items-center gap-4">
+          {/* Token Image, Name, Address */}
+          {tokenDetails.tokenImageURI ? (
+            <Image
+              loader={cloudflareLoader}
+              src={tokenDetails.tokenImageURI}
+              alt={tokenDetails.tokenName}
+              width={52}
+              height={52}
+              className="rounded-full"
+            />
+          ) : (
+            <Avatar
+              size={52}
+              name={address.toBase58()}
+              variant="pixel"
+              colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
+            />
+          )}
+          <div className="flex flex-col">
+            <CardTitle className="text-xl text-foreground grow font-['JetBrains Mono'] leading-7">
+              {tokenDetails.tokenName} ({tokenDetails.tokenSymbol})
+            </CardTitle>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-['Geist Mono']">
+              <span>TOKEN</span>
+              <div className="w-[3px] h-[3px] bg-[#50261f]" />
+              <span>{shortenLong(address.toBase58())}</span>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  navigator.clipboard.writeText(address.toBase58());
+                  setHasCopied(true);
+                }}
+              >
+                {hasCopied ? <CheckIcon className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </Button>
             </div>
-            <div className="flex w-full flex-col md:flex-row md:justify-between">
-              <div className="max-w-xs flex-grow text-center md:text-left">
-                <CardTitle className="text-3xl font-medium leading-none">
-                  <div className="flex flex-col items-center md:flex-row md:justify-start">
-                    <div className="flex flex-col items-center md:flex-row md:items-center">
-                      <span className="max-w-full">
-                        {tokenDetails.tokenName || (
-                          <Address pubkey={address} short />
-                        )}
-                        <span
-                          className={`ml-2 hidden text-3xl text-muted-foreground md:inline ${tokenDetails.tokenName.length > 25 ? "md:hidden" : ""}`}
-                        >
-                          ({tokenDetails.tokenSymbol})
-                        </span>
-                      </span>
-                      {tokenDetails.tokenName !== "" && (
-                        <div
-                          className={`mt-1 text-3xl text-muted-foreground ${tokenDetails.tokenName.length <= 25 ? "md:hidden" : "md:block"}`}
-                        >
-                          ({tokenDetails.tokenSymbol})
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-shrink-0 flex-row items-center justify-center md:mt-0 md:inline-block md:flex-col md:items-start">
-                    <Badge variant="success">{type}</Badge>
-                    {isVerifiedByJupiter && (
-                      <Badge
-                        className="ml-2 mt-0 min-w-[80px] md:mt-2"
-                        variant="verified"
-                      >
-                        Verified
-                        <Image
-                          src={jupLogo}
-                          alt="JUP Logo"
-                          width={16}
-                          height={16}
-                          className="ml-1"
-                        />
-                      </Badge>
-                    )}
-                  </div>
-                </CardTitle>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
-                    onClick={() => {
-                      navigator.clipboard.writeText(address.toBase58());
-                      setHasCopied(true);
-                    }}
-                  >
-                    <span className="sr-only">Copy</span>
-                    {hasCopied ? <CheckIcon /> : <Copy />}
-                  </Button>
-                  <span>{shortenLong(address.toBase58())}</span>
-                </div>
-                <div className="mt-4 flex justify-center space-x-4 md:justify-start">
-                  <a
-                    href={`https://birdeye.so/token/${address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Birdeye"
-                  >
-                    <Image
-                      src={birdeyeIcon.src}
-                      alt="Birdeye"
-                      width={22}
-                      height={22}
-                      loading="eager"
-                      className="rounded-full"
-                    />
-                  </a>
-                  <a
-                    href={`https://dexscreener.com/solana/${address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Dex Screener"
-                  >
-                    <Image
-                      src={dexscreenerIcon.src}
-                      alt="Dexscreener"
-                      width={22}
-                      height={22}
-                      loading="eager"
-                      className="rounded-full"
-                    />
-                  </a>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-col items-center md:mt-0 md:flex-shrink-0 md:flex-grow-0 md:items-end">
-                <div className="flex items-center justify-center md:justify-end">
-                  <span className="text-3xl text-foreground">
-                    {tokenDetails.price}
-                  </span>
-                </div>
-                <div className="mt-4 flex flex-col items-center space-y-2 md:mt-6 md:items-end md:space-y-2">
-                  <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <span className="font-semibold text-muted-foreground">
-                      Supply:
-                    </span>
-                    <span className="truncate md:max-w-none md:whitespace-normal">
-                      {formatSupply(
-                        tokenDetails.supply,
-                        tokenDataFromAPI?.decimals || 0,
-                      )}
-                    </span>
-                  </div>
-                  {tokenDetails.marketCap && tokenDetails.marketCap !== "" && (
-                    <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                      <span className="font-semibold text-muted-foreground">
-                        Market Cap:
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.marketCap}
-                      </span>
-                    </div>
-                  )}
-
-                  {tokenDetails.holders && tokenDetails.holders !== "" && (
-                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
-                      <span className="flex items-center font-semibold text-muted-foreground">
-                        Holders
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="ml-1 md:ml-2">
-                              <Info className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <p className="text-sm text-center">On-chain token holders</p>
-                          </PopoverContent>
-                        </Popover>
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.holders}
-                      </span>
-                    </div>
-                  )}
-                  {tokenDetails.dailyVolume && tokenDetails.dailyVolume !== "" && (
-                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
-                      <span className="flex items-center font-semibold text-muted-foreground">
-                        Daily Volume
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="ml-1 md:ml-2">
-                              <Info className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <p className="text-sm text-center">24hr Solana DEX Volume</p>
-                          </PopoverContent>
-                        </Popover>
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.dailyVolume}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {isLocalOrTestNet && (
-                <div className="ml-4 mt-2 hidden self-start md:mt-0 md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="outline" className="h-8 w-8">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                        <span className="sr-only">More</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          router.push(
-                            `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
-                          );
-                        }}
-                      >
-                        Compressed Accounts
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              )}
-            </div>
-            {isLocalOrTestNet && (
-              <div className="absolute right-4 top-4 md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline" className="h-8 w-8">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        router.push(
-                          `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
-                        );
-                      }}
-                    >
-                      Compressed Accounts
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
-          </CardHeader>
-        </Card>
+          </div>
+        </div>
+        <div className="flex h-[68px] border border-[#422019]">
+      <div className="w-[284px] flex flex-col">
+        {/* Supply */}
+        <div className="flex justify-between items-center px-3 py-2 border-b border-[#422019]">
+          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Supply</span>
+          <span className="text-[#a56459] text-[13px] font-['JetBrains Mono'] leading-[18px]">9,999,999,897.67</span>
+        </div>
+        {/* Market Cap */}
+        <div className="flex justify-between items-center px-3 py-2">
+          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Market Cap</span>
+          <span className="text-[#a56459] text-[13px] font-['JetBrains Mono'] leading-[18px]">$2,098,755.578</span>
+        </div>
       </div>
+      {/* Jupiter Verified and Charts Section */}
+      <div className="border-l border-[#422019] flex flex-col">
+        {/* Jupiter Verified */}
+        <div className="flex justify-start items-center gap-2 px-3 py-2 border-b border-[#422019]">
+        <div className="flex items-center justify-center">
+            <Image
+              src={jupLogo}
+              alt="Jupiter Logo"
+              width={16}
+              height={16}
+            />
+          </div>
+          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Jupiter Verified</span>
+        </div>
+        {/* Charts */}
+        <div className="flex justify-start items-center gap-2 px-3 py-2">
+          <BarChart3Icon className="w-4 h-4 relative text-muted" />
+          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Charts</span>
+        </div>
+      </div>
+    </div>
+    </CardHeader>
+    {/* Price, Holders, Daily Volume */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border">
+      <div className="flex flex-col items-center md:items-start border-r border-border bg-muted-background p-4">
+        <DollarSign className="w-6 h-6 text-foreground mb-2" />
+        <div className="text-xs text-foreground uppercase">Price</div>
+        <div className="text-xl text-[#E84125] font-bold mt-1">{tokenDetails.price}</div>
+      </div>
+
+      <div className="flex flex-col items-center md:items-start border-r border-border bg-muted-background p-4">
+        <Users className="w-6 h-6 text-foreground mb-2" />
+        <div className="text-xs text-foreground uppercase">Holders</div>
+        <div className="text-xl text-[#E84125] font-bold mt-1">{tokenDetails.holders}</div>
+      </div>
+
+      <div className="flex flex-col items-center md:items-start bg-muted-background p-4">
+        <BarChart className="w-6 h-6 text-foreground mb-2" />
+        <div className="text-xs text-foreground uppercase">Daily Volume</div>
+        <div className="text-xl text-[#E84125] font-bold mt-1">{tokenDetails.dailyVolume}</div>
+      </div>
+    </div>
+    </Card>
+    <TokenLineChart />
     </TooltipProvider>
   );
 };
