@@ -25,13 +25,11 @@ export function useWalletLabel(address: string) {
       setLabel(null);
 
       try {
-        console.log("Fetching label for address:", address);
         const response = await fetch(`/api/wallet-label?address=${address}`);
         if (!response.ok) {
           throw new Error("Failed to fetch wallet label");
         }
         const responseData = await response.json();
-        console.log("Received data in hook:", responseData);
 
         let labelValue: string | null = null;
         if (
@@ -44,7 +42,6 @@ export function useWalletLabel(address: string) {
           labelValue = item.label || item.address_name || null;
         }
 
-        console.log("Extracted label value:", labelValue);
         setLabel(labelValue);
 
         if (!labelValue) {
@@ -61,11 +58,7 @@ export function useWalletLabel(address: string) {
     fetchLabel();
   }, [address]);
 
-  useEffect(() => {
-    console.log("Current label state:", label);
-    console.log("Current loading state:", isLoading);
-    console.log("Current error state:", error);
-  }, [label, isLoading, error]);
+  useEffect(() => {}, [label, isLoading, error]);
 
   return { label, isLoading, error };
 }

@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log("API response:", data); // Log the API response
 
     return NextResponse.json(data);
   } catch (error) {
