@@ -32,21 +32,20 @@
   }
 
   .dark {
-    /* Base */
     --background: 12 100% 1%;
+    --foreground: 11 42% 90%;
     --background-emphasized: 9 76% 3%;
-    
     /* Surface */
-    --card: 8 48% 6%;
+    --card-inner: 8 48% 6%;
+    --card: 8, 48, 6%;
+    --card-foreground: 9 32% 59%;
     --card-hovered: 9 51% 8%;
     --tooltip: 0 0% 100%;
-    
     /* Border */
-    --border-light: 11 45% 12%;
+    --border: 11 45% 12%;
     --border-prominent: 9 43% 18%;
     --border-prominent-hovered: 10 45% 22%;
     --separator-branded: 9 81% 53%;
-    
     /* Controls */
     --primary: 9 81% 53%;
     --primary-hovered: 9 81% 58%;
@@ -58,21 +57,34 @@
     --switch-active: 9 81% 53%;
     --switch-handle: 10 45% 22%;
     --switch-handle-active: 0 0% 100%;
-    
     /* Elements */
-    --high-emphasis: 11 42% 90%;
-    --mid-emphasis: 9 32% 59%;
-    --low-emphasis: 9 30% 50%;
+    --muted: 9 32% 59%;    
+    --muted-foreground: 9 30% 50%;
+    --popover: 9 51% 8%;
+
+    --popover-foreground: 0 0% 93.33%;
+
     --on-brand: 12 100% 1%;
     --brand: 9 81% 53%;
     --link: 9 81% 53%;
-    
     /* Foregrounds */
-    --foreground: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --destructive-foreground: 0 0% 100%;  
+
+    --ring: 23.11 59.8% 40%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    /* Custom */
+
+    --input: 0 0% 29.23%;    
+    --accent: 205.71 5.51% 24.9%;
+    --destructive: 10.16 77.87% 53.92%;
   }
 }
 

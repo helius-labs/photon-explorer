@@ -89,10 +89,9 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
   }
 
   return (
-    <Card>
+    <Card className="rounded-none">
       <CardHeader>
         <CardTitle>{tokenData?.symbol} Price Line Chart</CardTitle>
-        <CardDescription>Historical Price Data</CardDescription>
       </CardHeader>
       <CardContent>
         <LineChart width={730} height={250} data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -103,14 +102,6 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
           <Line type="monotone" dataKey="price" stroke="#8884d8" strokeWidth={2} />
         </LineChart>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing historical price data for {tokenData?.symbol}
-        </div>
-      </CardFooter>
     </Card>
   );
 }

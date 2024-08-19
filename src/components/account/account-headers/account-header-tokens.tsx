@@ -40,7 +40,7 @@ import { Tab } from "@/components/tab-nav";
 import { TokenLineChart } from "@/components/token-line-chart";
 
 interface AccountHeaderTokensProps {
-  address: PublicKey;
+  address: string;
   type?: string;
   onTabsUpdate: (tabs: Tab[]) => void;
 }
@@ -87,18 +87,18 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     data: tokenDataFromAPI,
     isLoading: tokenDataLoading,
     isError: tokenDataError,
-  } = useGetTokensByMint(address.toBase58());
+  } = useGetTokensByMint(address);
   const {
     data: tokenMetricsData,
     isLoading: tokenMetricsLoading,
     isError: tokenMetricsError,
-  } = useGetTokenMetrics(address.toBase58());
-  const { hasPythDataFeed } = usePythDataFeed(address.toBase58());
+  } = useGetTokenMetrics(address);
+  const { hasPythDataFeed } = usePythDataFeed(address);
 
   // Check if the token is verified by Jupiter
   const isVerifiedByJupiter = useMemo(() => {
     if (tokenList) {
-      return tokenList.some((token) => token.address === address.toBase58());
+      return tokenList.some((token) => token.address === address);
     }
     return false;
   }, [tokenList, address]);
@@ -110,7 +110,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     if (!tokenListError && !tokenDataError && !tokenMetricsError) {
       if (tokenList) {
         const tokenFromList = tokenList.find(
-          (token) => token.address === address.toBase58(),
+          (token) => token.address === address,
         );
         if (tokenFromList || tokenDataFromAPI) {
           setTokenDetails({
@@ -237,107 +237,104 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
 
   return (
     <TooltipProvider>
-    <Card className="mb-8 w-full border-none space-y-4 p-6 md:space-y-6">
-      <CardHeader className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 h-auto">
-        <div className="flex items-center gap-4">
-          {/* Token Image, Name, Address */}
-          {tokenDetails.tokenImageURI ? (
-            <Image
-              loader={cloudflareLoader}
-              src={tokenDetails.tokenImageURI}
-              alt={tokenDetails.tokenName}
-              width={52}
-              height={52}
-              className="rounded-full"
-            />
-          ) : (
-            <Avatar
-              size={52}
-              name={address.toBase58()}
-              variant="pixel"
-              colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
-            />
-          )}
-          <div className="flex flex-col">
-            <CardTitle className="text-xl text-foreground grow font-['JetBrains Mono'] leading-7">
-              {tokenDetails.tokenName} ({tokenDetails.tokenSymbol})
-            </CardTitle>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground font-['Geist Mono']">
-              <span>TOKEN</span>
-              <div className="w-[3px] h-[3px] bg-[#50261f]" />
-              <span>{shortenLong(address.toBase58())}</span>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  navigator.clipboard.writeText(address.toBase58());
-                  setHasCopied(true);
-                }}
-              >
-                {hasCopied ? <CheckIcon className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </Button>
+      <Card className="w-full border-none space-y-4 p-6 md:space-y-6">
+        <CardHeader className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 h-auto">
+          <div className="flex items-center gap-4">
+            {/* Token Image, Name, Address */}
+            {tokenDetails.tokenImageURI ? (
+              <Image
+                loader={cloudflareLoader}
+                src={tokenDetails.tokenImageURI}
+                alt={tokenDetails.tokenName}
+                width={52}
+                height={52}
+                className="rounded-full"
+              />
+            ) : (
+              <Avatar
+                size={52}
+                name={address}
+                variant="pixel"
+                colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
+              />
+            )}
+            <div className="flex flex-col">
+              <CardTitle className="text-xl text-foreground font-['JetBrains Mono'] leading-7">
+                {tokenDetails.tokenName} ({tokenDetails.tokenSymbol})
+              </CardTitle>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground font-['Geist Mono']">
+                <span>TOKEN</span>
+                <div className="w-[3px] h-[3px] bg-border-prominent-hovered" />
+                <span>{shortenLong(address)}</span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    navigator.clipboard.writeText(address);
+                    setHasCopied(true);
+                  }}
+                >
+                  {hasCopied ? <CheckIcon className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex h-[68px] border border-[#422019]">
-      <div className="w-[284px] flex flex-col">
-        {/* Supply */}
-        <div className="flex justify-between items-center px-3 py-2 border-b border-[#422019]">
-          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Supply</span>
-          <span className="text-[#a56459] text-[13px] font-['JetBrains Mono'] leading-[18px]">9,999,999,897.67</span>
-        </div>
-        {/* Market Cap */}
-        <div className="flex justify-between items-center px-3 py-2">
-          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Market Cap</span>
-          <span className="text-[#a56459] text-[13px] font-['JetBrains Mono'] leading-[18px]">$2,098,755.578</span>
-        </div>
-      </div>
-      {/* Jupiter Verified and Charts Section */}
-      <div className="border-l border-[#422019] flex flex-col">
-        {/* Jupiter Verified */}
-        <div className="flex justify-start items-center gap-2 px-3 py-2 border-b border-[#422019]">
-        <div className="flex items-center justify-center">
-            <Image
-              src={jupLogo}
-              alt="Jupiter Logo"
-              width={16}
-              height={16}
-            />
+          <div className="flex h-[68px] border border-border-prominent">
+            <div className="w-[284px] flex flex-col">
+              {/* Supply */}
+              <div className="flex justify-between items-center px-3 py-2 border-b border-border-prominent">
+                <span className="text-muted text-[13px] leading-[18px]">Supply</span>
+                <span className="text-muted-foreground text-[13px] leading-[18px]">
+                  9,999,999,897.67
+                </span>
+              </div>
+              {/* Market Cap */}
+              <div className="flex justify-between items-center px-3 py-2">
+                <span className="text-muted text-[13px] leading-[18px]">Market Cap</span>
+                <span className="text-muted-foreground text-[13px] leading-[18px]">
+                  $2,098,755.578
+                </span>
+              </div>
+            </div>
+            {/* Jupiter Verified and Charts Section */}
+            <div className="border-l border-border-prominent flex flex-col">
+              {/* Jupiter Verified */}
+              <div className="flex justify-start items-center gap-2 px-3 py-2 border-b border-border-prominent">
+                <Image src={jupLogo} alt="Jupiter Logo" width={16} height={16} />
+                <span className="text-muted-foreground text-[13px] leading-[18px]">Jupiter Verified</span>
+              </div>
+              {/* Charts */}
+              <div className="flex justify-start items-center gap-2 px-3 py-2">
+                <BarChart3Icon className="w-4 h-4 text-muted" />
+                <span className="text-muted-foreground text-[13px] leading-[18px]">Charts</span>
+              </div>
+            </div>
           </div>
-          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Jupiter Verified</span>
+        </CardHeader>
+        {/* Price, Holders, Daily Volume */}
+        <div className="grid grid-cols-1 md:grid-cols-3 border bg-card-inner">
+          <div className="flex flex-col items-center md:items-start border-r border-border p-4">
+            <DollarSign className="w-6 h-6 text-foreground mb-2" />
+            <div className="text-xs text-foreground uppercase">Price</div>
+            <div className="text-xl text-brand font-bold mt-1">{tokenDetails.price}</div>
+          </div>
+  
+          <div className="flex flex-col items-center md:items-start border-r border-border p-4">
+            <Users className="w-6 h-6 text-foreground mb-2" />
+            <div className="text-xs text-foreground uppercase">Holders</div>
+            <div className="text-xl text-brand font-bold mt-1">{tokenDetails.holders}</div>
+          </div>
+  
+          <div className="flex flex-col items-center md:items-start p-4">
+            <BarChart className="w-6 h-6 text-foreground mb-2" />
+            <div className="text-xs text-foreground uppercase">Daily Volume</div>
+            <div className="text-xl text-brand font-bold mt-1">{tokenDetails.dailyVolume}</div>
+          </div>
         </div>
-        {/* Charts */}
-        <div className="flex justify-start items-center gap-2 px-3 py-2">
-          <BarChart3Icon className="w-4 h-4 relative text-muted" />
-          <span className="text-[#b88076] text-[13px] font-['JetBrains Mono'] leading-[18px]">Charts</span>
-        </div>
-      </div>
-    </div>
-    </CardHeader>
-    {/* Price, Holders, Daily Volume */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border">
-      <div className="flex flex-col items-center md:items-start border-r border-border bg-muted-background p-4">
-        <DollarSign className="w-6 h-6 text-foreground mb-2" />
-        <div className="text-xs text-foreground uppercase">Price</div>
-        <div className="text-xl text-[#E84125] font-bold mt-1">{tokenDetails.price}</div>
-      </div>
-
-      <div className="flex flex-col items-center md:items-start border-r border-border bg-muted-background p-4">
-        <Users className="w-6 h-6 text-foreground mb-2" />
-        <div className="text-xs text-foreground uppercase">Holders</div>
-        <div className="text-xl text-[#E84125] font-bold mt-1">{tokenDetails.holders}</div>
-      </div>
-
-      <div className="flex flex-col items-center md:items-start bg-muted-background p-4">
-        <BarChart className="w-6 h-6 text-foreground mb-2" />
-        <div className="text-xs text-foreground uppercase">Daily Volume</div>
-        <div className="text-xl text-[#E84125] font-bold mt-1">{tokenDetails.dailyVolume}</div>
-      </div>
-    </div>
-    </Card>
-    <TokenLineChart />
+      </Card>
+      <TokenLineChart address={address} />
     </TooltipProvider>
   );
-};
+}  
 
 export default AccountHeaderTokens;

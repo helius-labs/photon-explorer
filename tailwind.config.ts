@@ -20,6 +20,9 @@ const config = {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        "border-prominent": "hsl(var(--border-prominent))",
+        "border-prominent-hovered": "hsl(var(--border-prominent-hovered))",
+        "separator-branded": "hsl(var(--separator-branded))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -51,7 +54,20 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          inner: "hsl(var(--card-inner))",
         },
+        tooltip: "hsl(var(--tooltip))",
+        field: "hsl(var(--field))",
+        switch: "hsl(var(--switch))",
+        "switch-hovered": "hsl(var(--switch-hovered))",
+        "switch-active": "hsl(var(--switch-active))",
+        "switch-handle": "hsl(var(--switch-handle))",
+        "switch-handle-active": "hsl(var(--switch-handle-active))",
+        "high-emphasis": "hsl(var(--high-emphasis))",
+        "mid-emphasis": "hsl(var(--mid-emphasis))",
+        "low-emphasis": "hsl(var(--low-emphasis))",
+        "on-brand": "hsl(var(--on-brand))",
+        brand: "hsl(var(--brand))",
       },
       borderRadius: {
         lg: "var(--radius)",
