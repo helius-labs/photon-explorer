@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 import { NFT } from "@/types/nft";
+import { NFTMedia } from '../common/nft-media';
 import { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,7 +14,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
 import Image from 'next/image';
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
 import { CircleHelp } from "lucide-react";
 import { Switch } from '../ui/switch';
@@ -85,16 +85,14 @@ const AccountNFTs = ({ address }: { address: string }) => {
 
   const columns: ColumnDef<NFT>[] = useMemo(() => [
     {
-      header: "Image",
+      header: "Media",
       accessorKey: "image",
       cell: ({ getValue, row }) => {
-        const imageUrl = getValue<string>() || noLogoImg.src;
         return (
           <div className="group relative">
-            <Image
-              src={imageUrl}
-              alt="NFT"
-              className="h-40 w-full rounded-md object-cover"
+            <NFTMedia
+              nft={row.original}
+              className="object-contain rounded-md"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
               <Button
