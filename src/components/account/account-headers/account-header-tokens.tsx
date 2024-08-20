@@ -167,8 +167,12 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
       tabs.push({ name: "Charts", href: `/address/${address}/charts` });
     }
 
+    if (type === "Token2022") {
+      tabs.push({ name: "Mint Extensions", href: `/address/${address}/mint-extensions` })
+    }
+
     onTabsUpdate(tabs);
-  }, [address, onTabsUpdate, hasPythDataFeed]);
+  }, [address, onTabsUpdate, hasPythDataFeed, type]);
 
   // Reset copied status after a delay
   useEffect(() => {
