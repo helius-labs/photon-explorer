@@ -3,9 +3,7 @@
 import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
-
 import { formatCurrencyValue } from "@/utils/numbers";
-import { NFTMedia } from '../common/nft-media';
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
 import Image from "next/image";
@@ -16,7 +14,6 @@ import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { NFTMedia } from "../common/nft-media";
 import { Skeleton } from "../ui/skeleton";
 import { Switch } from "../ui/switch";
 
@@ -154,24 +152,26 @@ const AccountNFTs = ({ address }: { address: string }) => {
     );
   }, [nfts, showMetaplexVerified, collectionFilter, showCompressed]);
 
-  const columns: ColumnDef<NFT>[] = useMemo(() => [
-    {
-      header: "Media",
-      accessorKey: "image",
-      cell: ({ getValue, row }) => {
-        return (
-          <div className="group relative">
-            <NFTMedia
-              nft={row.original}
-              className="object-contain rounded-md"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
-              <Button
-                onClick={() => handleQuickViewClick(row.original)}
-                className="text-white"
-              >
-                Quick View
-              </Button>
+  const columns: ColumnDef<NFT>[] = useMemo(
+    () => [
+      {
+        header: "Media",
+        accessorKey: "image",
+        cell: ({ getValue, row }) => {
+          return (
+            <div className="group relative">
+              <NFTMedia
+                nft={row.original}
+                className="rounded-md object-contain"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+                <Button
+                  onClick={() => handleQuickViewClick(row.original)}
+                  className="text-white"
+                >
+                  Quick View
+                </Button>
+              </div>
             </div>
           );
         },
