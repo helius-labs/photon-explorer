@@ -106,7 +106,12 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
               stroke="#a66559" 
             />
             <Tooltip
-              contentStyle={{ backgroundColor: '#000', color: '#fff', border: '1px solid #000' }}
+              contentStyle={{ 
+                backgroundColor: '#000', 
+                color: '#fff', 
+                border: '1px solid #000', 
+                borderRadius: '8px'
+              }}
               labelStyle={{ color: '#fff' }}
               itemStyle={{ color: '#fff' }}
               labelFormatter={(label) => `Time: ${new Date(label).toLocaleString()}`}
