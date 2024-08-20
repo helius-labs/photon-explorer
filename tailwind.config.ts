@@ -26,10 +26,12 @@ const config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
+        "background-emphasized": "hsl(var(--background-emphasized))",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hovered: "hsl(var(--primary-hovered))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

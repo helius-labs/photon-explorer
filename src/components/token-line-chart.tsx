@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 import { usePythDataFeed } from "@/hooks/usePythDataFeed";
-import datafeed from "@/utils/datafeed"; // Assuming this is where your datafeed is located
+import datafeed from "@/utils/datafeed"; 
 
 interface ChartData {
   time: number;
@@ -22,25 +21,16 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Ensure address is available before proceeding
   const publicKey = address ? new PublicKey(address) : null;
-
-  // Fetch token data based on the mint address
-  const { data: tokenData, isLoading: tokenLoading, isError: tokenError } = useGetTokensByMint(
-    publicKey?.toBase58() || "",
-    !!address
-  );
-
-  // Use the custom hook to check for the Pyth data feed
+  const { data: tokenData, isLoading: tokenLoading } = useGetTokensByMint(publicKey?.toBase58() || "", !!address);
   const { hasPythDataFeed, isLoading: pythLoading } = usePythDataFeed(address);
 
-  // Fetch historical bars using the `getBars` function from your datafeed
   useEffect(() => {
     if (!tokenLoading && !pythLoading && hasPythDataFeed && tokenData) {
       const symbolInfo = {
-        ticker: tokenData.symbol, // Use token symbol from fetched data
-        name: tokenData.symbol,
-        description: `${tokenData.symbol} Trading Pair`,
+        ticker: tokenData?.symbol || "Unknown Symbol",
+        name: tokenData?.symbol || "Unknown Name",
+        description: `${tokenData?.symbol || "Unknown"} Trading Pair`,
         exchange: "Pyth",
         type: "crypto",
         session: "24x7",
@@ -54,7 +44,7 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
       };
 
       const resolution = "60"; // 60-minute candles
-      const from = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7; // 1 week ago
+      const from = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 60; // Last 60 days
       const to = Math.floor(Date.now() / 1000);
 
       datafeed.getBars(
@@ -80,8 +70,23 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
     }
   }, [tokenLoading, pythLoading, hasPythDataFeed, tokenData]);
 
+  // Custom tick formatter to show day and month, e.g., '15 Aug'
+  const formatDayMonth = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const day = date.getDate();
+    const month = date.toLocaleString("default", { month: "short" });
+    return `${day} ${month}`;
+  };
+
+  // Reduce the number of X-axis ticks by filtering the ticks within the last 7 days
+  const getTicks = () => {
+    const ticks = chartData.map((d) => d.time);
+    const tickInterval = Math.max(1, Math.floor(ticks.length / 7)); // Show 7 ticks for each day
+    return ticks.filter((_, index) => index % tickInterval === 0);
+  };
+
   if (tokenLoading || pythLoading || isLoading) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   if (!hasPythDataFeed) {
@@ -89,18 +94,34 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
   }
 
   return (
-    <Card className="rounded-none">
-      <CardHeader>
-        <CardTitle>{tokenData?.symbol} Price Line Chart</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <LineChart width={730} height={250} data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="time" tickFormatter={(time) => new Date(time).toLocaleDateString()} />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="price" stroke="#8884d8" strokeWidth={2} />
-        </LineChart>
+    <Card className="rounded-none shadow-lg border-none">
+      <CardHeader />
+      <CardContent className="p-4">
+        <ResponsiveContainer width="100%" height={100}>
+          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+            <XAxis 
+              dataKey="time" 
+              ticks={getTicks()} 
+              tickFormatter={(time) => formatDayMonth(time)} 
+              stroke="#a66559" 
+            />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#000', color: '#fff', border: '1px solid #000' }}
+              labelStyle={{ color: '#fff' }}
+              itemStyle={{ color: '#fff' }}
+              labelFormatter={(label) => `Time: ${new Date(label).toLocaleString()}`}
+              formatter={(value) => [`$${value}`, 'Price']}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="price" 
+              stroke="#e84125" 
+              strokeWidth={2} 
+              dot={false} 
+              activeDot={{ r: 8 }} 
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );

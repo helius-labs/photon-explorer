@@ -44,7 +44,7 @@ export function shorten(string: string | undefined, chars = 4): string {
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
 }
 
-export function shortenLong(string: any, chars: number = 4): string {
+export function shortenLong(string: any, chars: number = 8): string {
   if (typeof string !== "string") {
     return ""; // Return an empty string if the input is not a string
   }
