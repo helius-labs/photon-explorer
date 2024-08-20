@@ -5,7 +5,6 @@ import { useCluster } from "@/providers/cluster-provider";
 import { NFT } from "@/types/nft";
 import { Cluster } from "@/utils/cluster";
 import { shorten, shortenLong } from "@/utils/common";
-import cloudflareLoader from "@/utils/imageLoader";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
 import { CheckIcon, ChevronDownCircle, Copy, MoreVertical } from "lucide-react";
@@ -37,6 +36,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NFTMedia } from "@/components/common/nft-media";
 
 interface AccountHeaderNFTsProps {
   address: PublicKey;
@@ -59,7 +59,6 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
   );
 
   const displayName = nft?.name || "";
-  const displayImage = nft?.content?.links?.image || nft?.image || noLogoImg.src;
   const fallbackAddress = address.toBase58();
 
   const royaltyPercentage = nft?.royalty?.basis_points
@@ -139,20 +138,11 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
       <div className="mx-[-1rem] md:mx-0">
         <Card className="mb-8 w-full space-y-4 p-6 md:h-auto md:space-y-6">
           <CardHeader className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
-            <div className="relative flex-shrink-0">
-              {displayImage ? (
-                <Image
-                  loader={cloudflareLoader}
-                  src={displayImage}
-                  alt={displayName}
-                  width={180}
-                  height={180}
-                  loading="eager"
-                  className="rounded-lg"
-                  onError={(event: any) => {
-                    event.target.id = "noLogoImg";
-                    event.target.srcset = noLogoImg.src;
-                  }}
+            <div className="relative flex-shrink-0 w-full md:w-72 h-72">
+              {nft ? (
+                <NFTMedia 
+                  nft={nft}
+                  className="w-full h-full rounded-lg shadow-md object-contain"
                 />
               ) : (
                 <Avatar
