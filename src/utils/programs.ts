@@ -128,6 +128,7 @@ export enum PROGRAM_NAMES {
   SOLANART_GO = "Solanart - Global offers",
   STEPN_DEX = "STEPN Dex",
   OPENBOOK_DEX = "OpenBook Dex",
+  OPENBOOK_DEX_V2 = "OpenBook Dex V2",
 };
 
 const ALL_CLUSTERS = [
@@ -649,6 +650,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   FqGg2Y1FNxMiGd51Q6UETixQWkF5fB92MysbYogRJb3P: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.HAWKSIGHT,
+  },
+  opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.OPENBOOK_DEX_V2,
   },
 };
 
