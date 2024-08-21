@@ -189,32 +189,39 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                     <span className="text-muted-foreground text-[13px] leading-[18px]">Charts</span>
                   </div>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <ChevronDown className="w-5 h-5 cursor-pointer" />
-                    </PopoverTrigger>
-                    <PopoverContent align="end" className="w-52">
-                      <div className="flex flex-col gap-2 text-xs">
-                        <a
-                          href={`https://birdeye.so/token/${address.toBase58()}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2"
-                        >
-                          <Image src={birdeyeIcon} alt="Birdeye" width={16} height={16} />
-                          <span>View on Birdeye</span>
-                        </a>
-                        <a
-                          href={`https://dexscreener.com/solana/${address.toBase58()}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2"
-                        >
-                          <Image src={dexscreenerIcon} alt="Dexscreener" width={16} height={16} />
-                          <span>View on Dexscreener</span>
-                        </a>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                  <PopoverTrigger asChild>
+                    <ChevronDown className="w-5 h-5 cursor-pointer" />
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    align="end" 
+                    className="w-52 bg-popover border border-brand rounded-none shadow-lg"
+                  >
+                    <div className="flex flex-col gap-2 text-xs">
+                      <a
+                        href={`https://birdeye.so/token/${address.toBase58()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 h-9 bg-card-hovered border-b border-border hover:bg-card-inner transition-colors"
+                      >
+                        <div className="p-0.5 bg-muted rounded-full flex items-center justify-center">
+                          <Image src={birdeyeIcon} alt="Birdeye" width={18} height={18} className="rounded-full"/>
+                        </div>
+                        <span className="text-[13px] text-primary-foreground font-['Geist Mono'] leading-[18px]">Birdeye</span>
+                      </a>
+                      <a
+                        href={`https://dexscreener.com/solana/${address.toBase58()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 h-9 bg-card-hovered border-b border-border hover:bg-card-inner transition-colors"
+                      >
+                        <div className="p-0.5 bg-muted rounded-full flex items-center justify-center">
+                          <Image src={dexscreenerIcon} alt="DexScreener" width={18} height={18} className="rounded-full" />
+                        </div>
+                        <span className="text-[13px] text-primary-foreground font-['Geist Mono'] leading-[18px]">DexScreener</span>
+                      </a>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 </div>
               </div>
             </div>

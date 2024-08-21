@@ -107,13 +107,16 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
             />
             <Tooltip
               contentStyle={{ 
-                backgroundColor: '#000', 
-                color: '#fff', 
-                border: '1px solid #000', 
-                borderRadius: '8px'
+                backgroundColor: '#fff',
+                color: '#000',
+                border: '1px solid #ddd', 
+                borderRadius: '8px', 
+                padding: '10px',
+                fontFamily: "'Geist Mono', monospace", 
+                fontSize: '13px',
               }}
-              labelStyle={{ color: '#fff' }}
-              itemStyle={{ color: '#fff' }}
+              labelStyle={{ color: '#000', fontSize: '13px' }}
+              itemStyle={{ color: '#000', fontSize: '13px' }}
               labelFormatter={(label) => `Time: ${new Date(label).toLocaleString()}`}
               formatter={(value) => [`$${value}`, 'Price']}
             />
