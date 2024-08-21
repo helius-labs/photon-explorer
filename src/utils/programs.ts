@@ -95,6 +95,7 @@ export enum PROGRAM_NAMES {
   RAYDIUM_LP_2 = "Raydium Liquidity Pool Program v2",
   RAYDIUM_STAKING = "Raydium Staking Program",
   RAYDIUM_CP_SWAP = "Raydium CP Swap",
+  SABER_DECIMAL_WRAPPER = "Saber Decimal Wrapper Program",
   SABER_ROUTER = "Saber Router Program",
   SABER_SWAP = "Saber Stable Swap Program",
   SANCTUM_SINGLE_VALIDATOR_SPL_STAKE_POOL = "Sanctum Single Validator SPL Stake Pool Program",
@@ -624,6 +625,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.FLUXBEAM,
+  },
+  DecZY86MU5Gj7kppfUCEmd4LbXXuyZH1yHaP2NTqdiZB: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SABER_DECIMAL_WRAPPER,
   },
 };
 
