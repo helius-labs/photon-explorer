@@ -60,6 +60,11 @@ export enum PROGRAM_NAMES {
   MARGINFI_V2 = "Marginfi V2 Program",
   MARINADE = "Marinade Staking Program",
   MERCURIAL = "Mercurial Stable Swap Program",
+  METADAO_AMM = "MetaDAO AMM Program",
+  METADAO_AUTOCRAT = "MetaDAO Autocrat Program",
+  METADAO_AUTOCRAT_MIGRATOR = "MetaDAO Autocrat Migrator Program",
+  METADAO_CONDITIONAL_VAULT = "MetaDAO Conditional Vault Program",
+  METADAO_OPTIMISTIC_TIMELOCK = "MetaDAO Optimistic Timelock Program",
   METAPLEX = "Metaplex Program",
   NFT_AUCTION = "NFT Auction Program",
   NFT_CANDY_MACHINE = "NFT Candy Machine Program",
@@ -574,6 +579,26 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   "4R3gSG8BpU4t19KYj8CfnbtRpnT8gtk4dvTHxVRwc2r7": {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.JITO_TIP_DISTRIBUTION,
+  },
+  autoQP9RmUNkzzKRXsMkWicDVZ3h29vvyMDcAYjCxxg: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METADAO_AUTOCRAT,
+  },
+  AMM5G2nxuKUwCLRYTW7qqEwuoqCtNSjtbipwEmm2g8bH: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METADAO_AMM,
+  },
+  MigRDW6uxyNMDBD8fX2njCRyJC4YZk2Rx9pDUZiAESt: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METADAO_AUTOCRAT_MIGRATOR
+  },
+  VAU1T7S5UuEHmMvXtXMVmpEoQtZ2ya7eRb7gcN47wDp: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METADAO_CONDITIONAL_VAULT
+  },
+  tiME1hz9F5C5ZecbvE5z6Msjy8PKfTqo1UuRYXfndKF: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METADAO_OPTIMISTIC_TIMELOCK,
   },
 };
 
