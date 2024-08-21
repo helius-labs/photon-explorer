@@ -43,6 +43,7 @@ export enum PROGRAM_NAMES {
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
   FLUXBEAM = "FluxBeam Program",
+  HAWKSIGHT = "Hawksight Program",
   HELIUM_TREASURY_MANAGEMENT = "Helium Treasury Management Program",
   INVARIANT_SWAP = "Invariant Swap Program",
   JITO_TIP_DISTRIBUTION = "Jito Tip Distribution Program",
@@ -644,7 +645,11 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   BANANAjs7FJiPQqJTGFzkZJndT9o7UmKiYYGaJz6frGu: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.BANANA_GUN_ROUTER,
-  }
+  },
+  FqGg2Y1FNxMiGd51Q6UETixQWkF5fB92MysbYogRJb3P: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.HAWKSIGHT,
+  },
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
