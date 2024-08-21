@@ -40,6 +40,7 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_2 = "Clockwork Thread Program v2",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
+  FLUXBEAM = "FluxBeam Program",
   HELIUM_TREASURY_MANAGEMENT = "Helium Treasury Management Program",
   JITO_TIP_DISTRIBUTION = "Jito Tip Distribution Program",
   JITO_TIP_PAYMENT = "Jito Tip Payment Program",
@@ -619,6 +620,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   treaf4wWBBty3fHdyBpo35Mz84M8k3heKXmjmi9vFt5: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.HELIUM_TREASURY_MANAGEMENT,
+  },
+  FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.FLUXBEAM,
   },
 };
 
