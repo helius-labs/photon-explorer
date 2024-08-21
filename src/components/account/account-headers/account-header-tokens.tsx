@@ -221,68 +221,75 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
           </div>
         </CardHeader>
         <div className="relative w-full h-auto">
-        <div className="relative bg-card-inner border-[16px] border-t-[2px] border-b-[2px] border-transparent"
+        <div
+          className="relative bg-card-inner border-[16px] border-t-[2px] border-b-[2px] border-transparent"
           style={{
             backgroundImage: `url(${tokenLinesDesktop.src})`,
-            backgroundSize: "150% 150%",
+            backgroundSize: "200% 200%",
             backgroundRepeat: "no-repeat",
-            backgroundPosition: "center"
-          }}>
-          {/* Price, Holders, Daily Volume */}
-          <div className="grid grid-cols-1 md:grid-cols-3 border-border border-b-0 bg-background">
-                    <div className="flex flex-col items-center space-y-2 md:items-start border-r border-border p-6">
-                      <DollarSign className="w-6 h-6 text-foreground mb-2" />
-                      <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
-                        <div className="absolute left-0 top-0 h-full flex items-center">
-                          <Image
-                            src={raceStripe}
-                            alt="Race Stripe"
-                            width={14}
-                            height={24}
-                            className="object-contain"
-                          />
-                        </div>
-                        <span className="ml-6">Price</span>
-                      </div>
-                      <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.price}</div>
-                    </div>
+            backgroundPosition: "center",
+          }}
+        >
+          {/* Grid layout for PRICE, HOLDERS, DAILY VOLUME */}
+          <div className="grid grid-cols-1 md:grid-cols-3">
+            {/* Price Box */}
+            <div className="border border-border p-4 flex flex-col items-center md:items-start bg-background">
+              <DollarSign className="w-6 h-6 text-foreground mb-2" />
+              <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
+                <div className="absolute left-0 top-0 h-full flex items-center">
+                  <Image
+                    src={raceStripe}
+                    alt="Race Stripe"
+                    width={14}
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="ml-6">Price</span>
+              </div>
+              <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.price}</div>
+            </div>
 
-                    <div className="flex flex-col items-center space-y-2 md:items-start border-r border-border p-6">
-                      <Users className="w-6 h-6 text-foreground mb-2" />
-                      <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
-                        <div className="absolute left-0 top-0 h-full flex items-center">
-                          <Image
-                            src={raceStripe}
-                            alt="Race Stripe"
-                            width={14}
-                            height={24}
-                            className="object-contain"
-                          />
-                        </div>
-                        <span className="ml-6">Holders</span>
-                      </div>
-                      <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.holders}</div>
-                    </div>
+            {/* Holders Box */}
+            <div className="border border-border p-4 flex flex-col items-center md:items-start bg-background">
+              <Users className="w-6 h-6 text-foreground mb-2" />
+              <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
+                <div className="absolute left-0 top-0 h-full flex items-center">
+                  <Image
+                    src={raceStripe}
+                    alt="Race Stripe"
+                    width={14}
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="ml-6">Holders</span>
+              </div>
+              <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.holders}</div>
+            </div>
 
-                    <div className="flex flex-col items-center space-y-2 md:items-start p-6">
-                      <BarChart className="w-6 h-6 text-foreground mb-2" />
-                      <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
-                        <div className="absolute left-0 top-0 h-full flex items-center">
-                          <Image
-                            src={raceStripe}
-                            alt="Race Stripe"
-                            width={14}
-                            height={24}
-                            className="object-contain"
-                          />
-                        </div>
-                        <span className="ml-6">Daily Volume</span>
-                      </div>
-                      <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.dailyVolume}</div>
-                    </div>
-                  </div>
-                  <div className="relative border border-t-0">
-              <div className="relative z-10">
+            {/* Daily Volume Box */}
+            <div className="border border-border p-4 flex flex-col items-center md:items-start bg-background">
+              <BarChart className="w-6 h-6 text-foreground mb-2" />
+              <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
+                <div className="absolute left-0 top-0 h-full flex items-center">
+                  <Image
+                    src={raceStripe}
+                    alt="Race Stripe"
+                    width={14}
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="ml-6">Daily Volume</span>
+              </div>
+              <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.dailyVolume}</div>
+            </div>
+          </div>
+
+          {/* Token Line Chart */}
+          <div className="relative border border-t-0">
+            <div className="relative z-10">
               <TokenLineChart address={address.toBase58()} />
             </div>
           </div>
