@@ -66,6 +66,8 @@ export enum PROGRAM_NAMES {
   METADAO_CONDITIONAL_VAULT = "MetaDAO Conditional Vault Program",
   METADAO_OPTIMISTIC_TIMELOCK = "MetaDAO Optimistic Timelock Program",
   METAPLEX = "Metaplex Program",
+  METEORA_DLMM = "Meteora DLMM Program",
+  METEORA_POOLS = "Meteora Pools Program",
   NFT_AUCTION = "NFT Auction Program",
   NFT_CANDY_MACHINE = "NFT Candy Machine Program",
   NFT_CANDY_MACHINE_V2 = "NFT Candy Machine Program V2",
@@ -605,6 +607,14 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.PUMPFUN,
   },
+  LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METEORA_DLMM,
+  },
+  Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METEORA_POOLS,
+  }
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
