@@ -40,6 +40,8 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_2 = "Clockwork Thread Program v2",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
+  JITO_TIP_DISTRIBUTION = "Jito Tip Distribution Program",
+  JITO_TIP_PAYMENT = "Jito Tip Payment Program",
   JUPITER_AGGREGATOR_V1 = "Jupiter Aggregator V1",
   JUPITER_AGGREGATOR_V2 = "Jupiter Aggregator V2",
   JUPITER_AGGREGATOR_V3 = "Jupiter Aggregator V3",
@@ -564,6 +566,14 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.JUPITER_AGGREGATOR_V4,
+  },
+  T1pyyaTNZsKv2WcRAB8oVnk93mLJw2XzjtVYqCsaHqt: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JITO_TIP_PAYMENT,
+  },
+  "4R3gSG8BpU4t19KYj8CfnbtRpnT8gtk4dvTHxVRwc2r7": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JITO_TIP_DISTRIBUTION,
   },
 };
 
