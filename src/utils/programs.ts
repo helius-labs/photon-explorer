@@ -40,6 +40,7 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_2 = "Clockwork Thread Program v2",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
+  HELIUM_TREASURY_MANAGEMENT = "Helium Treasury Management Program",
   JITO_TIP_DISTRIBUTION = "Jito Tip Distribution Program",
   JITO_TIP_PAYMENT = "Jito Tip Payment Program",
   JUPITER_AGGREGATOR_V1 = "Jupiter Aggregator V1",
@@ -614,7 +615,11 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.METEORA_POOLS,
-  }
+  },
+  treaf4wWBBty3fHdyBpo35Mz84M8k3heKXmjmi9vFt5: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.HELIUM_TREASURY_MANAGEMENT,
+  },
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
