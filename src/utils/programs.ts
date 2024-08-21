@@ -30,6 +30,7 @@ export enum PROGRAM_NAMES {
 
   // other
   ACUMEN = "Acumen Program",
+  BANANA_GUN_ROUTER = "Banana Gun Router Program",
   BONFIDA_AUCTION = "Bonfida Auction Program",
   BONFIDA_NAME_SERVICE = "Bonfida Name Service Program",
   BONFIDA_NAME_TOKENIZER = "Bonfida Name Tokenizer Program",
@@ -640,6 +641,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.INVARIANT_SWAP,
   },
+  BANANAjs7FJiPQqJTGFzkZJndT9o7UmKiYYGaJz6frGu: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.BANANA_GUN_ROUTER,
+  }
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
