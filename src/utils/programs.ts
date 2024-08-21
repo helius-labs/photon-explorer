@@ -76,6 +76,7 @@ export enum PROGRAM_NAMES {
   ORE_V2 = "Ore V2 Program",
   PHOENIX = "Phoenix Program",
   PORT = "Port Finance Program",
+  PUMPFUN = "Pump.fun Program",
   PYTH_DEVNET = "Pyth Oracle Program",
   PYTH_TESTNET = "Pyth Oracle Program",
   PYTH_MAINNET = "Pyth Oracle Program",
@@ -599,6 +600,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   tiME1hz9F5C5ZecbvE5z6Msjy8PKfTqo1UuRYXfndKF: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.METADAO_OPTIMISTIC_TIMELOCK,
+  },
+  "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.PUMPFUN,
   },
 };
 
