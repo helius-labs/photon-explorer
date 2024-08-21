@@ -43,6 +43,7 @@ export enum PROGRAM_NAMES {
   DRIP = "Drip Program",
   FLUXBEAM = "FluxBeam Program",
   HELIUM_TREASURY_MANAGEMENT = "Helium Treasury Management Program",
+  INVARIANT_SWAP = "Invariant Swap Program",
   JITO_TIP_DISTRIBUTION = "Jito Tip Distribution Program",
   JITO_TIP_PAYMENT = "Jito Tip Payment Program",
   JUPITER_AGGREGATOR_V1 = "Jupiter Aggregator V1",
@@ -634,6 +635,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   H8W3ctz92svYg6mkn1UtGfu2aQr2fnUFHM1RhScEtQDt: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.CROPPER_WHIRLPOOL,
+  },
+  HyaB3W9q6XdA5xwpU4XnSZV94htfmbmqJXZcEbRaJutt: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.INVARIANT_SWAP,
   },
 };
 
