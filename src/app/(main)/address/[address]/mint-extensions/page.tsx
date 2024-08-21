@@ -10,8 +10,8 @@ type Props = Readonly<{
 // Dynamic metadata
 export async function generateMetadata({ params }: Props) {
   return {
-    title: `Address ${shorten(params.address)} - Anchor IDL | XRAY`,
-    description: `Anchor IDL for the program at address ${params.address}`,
+    title: `Address ${shorten(params.address)} - Mint Extensions | XRAY`,
+    description: `Mint extensions for the token account at address ${params.address}`,
   };
 }
 
