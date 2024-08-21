@@ -1,24 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { PublicKey, AccountInfo, ParsedAccountData } from "@solana/web3.js";
-import Avatar from "boring-avatars";
-import { useRouter } from "next/navigation";
-import { CheckIcon, Copy, MoreVertical } from "lucide-react";
 import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
 import { shortenLong } from "@/utils/common";
+import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
+import { AccountInfo, ParsedAccountData, PublicKey } from "@solana/web3.js";
+import Avatar from "boring-avatars";
+import { CheckIcon, Copy, MoreVertical } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+
+import { useProgramVerification } from "@/hooks/useProgramVerification";
+import { useWalletLabel } from "@/hooks/useWalletLabel";
+
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
-import { Cluster } from "@/utils/cluster";
-import { useProgramVerification } from "@/hooks/useProgramVerification";
 
 interface AccountHeaderProgramsProps {
   address: PublicKey;
@@ -41,13 +49,20 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
   const displayName = programInfo
     ? programInfo.name
     : specialInfo
-    ? specialInfo
-    : sysvarInfo
-    ? sysvarInfo
-    : "Unknown Account";
+      ? specialInfo
+      : sysvarInfo
+        ? sysvarInfo
+        : "Unknown Account";
   const fallbackAddress = address.toBase58();
 
-  const { verificationStatus, isLoading: isVerificationLoading } = useProgramVerification(programId);
+  const { verificationStatus, isLoading: isVerificationLoading } =
+    useProgramVerification(programId);
+  const {
+    label,
+    labelType,
+    isLoading: loadingLabel,
+    error: labelError,
+  } = useWalletLabel(programId);
 
   useEffect(() => {
     if (hasCopied) {
@@ -58,38 +73,43 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
     }
   }, [hasCopied]);
 
-  const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
+  const isLocalOrTestNet = [
+    Cluster.Localnet,
+    Cluster.Testnet,
+    Cluster.Custom,
+  ].includes(cluster);
 
   const renderParsedData = () => {
     if (accountInfo && "parsed" in accountInfo.data) {
       const { parsed } = accountInfo.data;
       if (parsed.type === "fees") {
         return (
-          <div className="flex flex-col items-center md:items-end md:ml-auto">
+          <div className="flex flex-col items-center md:ml-auto md:items-end">
             <div className="flex flex-col text-sm text-muted-foreground">
-              <strong>Lamports per Signature</strong> {parsed.info.feeCalculator.lamportsPerSignature}
+              <strong>Lamports per Signature</strong>{" "}
+              {parsed.info.feeCalculator.lamportsPerSignature}
             </div>
           </div>
         );
       } else if (parsed.type === "rewards") {
         return (
-          <div className="flex flex-col items-center md:items-end md:ml-auto">
+          <div className="flex flex-col items-center md:ml-auto md:items-end">
             <div className="flex flex-col text-sm text-muted-foreground">
-              <strong>Validator Point Value</strong> {parsed.info.validatorPointValue}
+              <strong>Validator Point Value</strong>{" "}
+              {parsed.info.validatorPointValue}
             </div>
           </div>
         );
       }
-      // Handle other parsed types if needed
     }
     return null;
   };
 
   return (
     <div className="mx-[-1rem] md:mx-0">
-      <Card className="w-full mb-8 space-y-4 p-6 md:space-y-6">
+      <Card className="mb-8 w-full space-y-4 p-6 md:space-y-6">
         <CardHeader className="relative flex flex-col items-start gap-4 md:flex-row md:gap-6">
-          <div className="flex items-center w-full md:w-auto relative justify-center md:justify-start">
+          <div className="relative flex w-full items-center justify-center md:w-auto md:justify-start">
             <Avatar
               size={80}
               name={fallbackAddress}
@@ -97,7 +117,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
               colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
             />
             {isLocalOrTestNet && (
-              <div className="absolute top-0 right-0 md:hidden">
+              <div className="absolute right-0 top-0 md:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon" variant="outline" className="h-8 w-8">
@@ -108,7 +128,9 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                        router.push(
+                          `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
+                        );
                       }}
                     >
                       Compressed Accounts
@@ -118,7 +140,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
               </div>
             )}
           </div>
-          <div className="flex flex-col items-center text-center w-full md:flex-row md:items-center md:text-left md:justify-between">
+          <div className="flex w-full flex-col items-center text-center md:flex-row md:items-center md:justify-between md:text-left">
             <div className="text-2xl font-medium leading-none md:text-left">
               <div className="flex flex-col items-center justify-center gap-2 md:flex-row md:justify-start">
                 {displayName || <Address pubkey={address} short />}
@@ -126,12 +148,16 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
                   {isClosed ? "Closed" : "Program"}
                 </Badge>
                 {!isVerificationLoading && verificationStatus?.is_verified && (
-                  <Badge variant="success">
-                    Verifiable Build
-                  </Badge>
+                  <Badge variant="success">Verifiable Build</Badge>
+                )}
+                {!loadingLabel && label && (
+                  <Badge variant="secondary">{label}</Badge>
+                )}
+                {!loadingLabel && labelType && (
+                  <Badge variant="outline">{labelType}</Badge>
                 )}
               </div>
-              <div className="text-sm text-muted-foreground mt-2 md:mt-1">
+              <div className="mt-2 text-sm text-muted-foreground md:mt-1">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -162,7 +188,7 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
             {renderParsedData()}
           </div>
           {isLocalOrTestNet && (
-            <div className="hidden md:flex ml-auto self-start font-medium mt-4 md:mt-0">
+            <div className="ml-auto mt-4 hidden self-start font-medium md:mt-0 md:flex">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon" variant="outline" className="h-8 w-8">
@@ -173,7 +199,9 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     onClick={() => {
-                      router.push(`/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`);
+                      router.push(
+                        `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
+                      );
                     }}
                   >
                     Compressed Accounts

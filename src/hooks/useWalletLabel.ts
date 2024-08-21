@@ -10,6 +10,7 @@ interface WalletLabelItem {
 
 export function useWalletLabel(address: string) {
   const [label, setLabel] = useState<string | null>(null);
+  const [labelType, setLabelType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -32,6 +33,7 @@ export function useWalletLabel(address: string) {
         const responseData = await response.json();
 
         let labelValue: string | null = null;
+        let labelTypeValue: string | null = null;
         if (
           responseData &&
           responseData.data &&
@@ -40,9 +42,11 @@ export function useWalletLabel(address: string) {
         ) {
           const item = responseData.data[0] as WalletLabelItem;
           labelValue = item.label || item.address_name || null;
+          labelTypeValue = item.label_type || item.label_subtype || null;
         }
 
         setLabel(labelValue);
+        setLabelType(labelTypeValue);
 
         if (!labelValue) {
           console.warn("No label found in the API response");
@@ -58,7 +62,7 @@ export function useWalletLabel(address: string) {
     fetchLabel();
   }, [address]);
 
-  useEffect(() => {}, [label, isLoading, error]);
+  useEffect(() => {}, [label, labelType, isLoading, error]);
 
-  return { label, isLoading, error };
+  return { label, labelType, isLoading, error };
 }
