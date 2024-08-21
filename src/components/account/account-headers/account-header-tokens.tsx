@@ -233,7 +233,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
           {/* Grid layout for PRICE, HOLDERS, DAILY VOLUME */}
           <div className="grid grid-cols-1 md:grid-cols-3">
             {/* Price Box */}
-            <div className="border border-border p-4 flex flex-col items-center md:items-start bg-background">
+            <div className="border border-border p-4 flex flex-col space-y-2 items-center md:items-start bg-background">
               <DollarSign className="w-6 h-6 text-foreground mb-2" />
               <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
                 <div className="absolute left-0 top-0 h-full flex items-center">
@@ -247,11 +247,11 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                 </div>
                 <span className="ml-6">Price</span>
               </div>
-              <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.price}</div>
+              <div className="text-xl text-foreground font-bold pt-1">{tokenDetails.price}</div>
             </div>
 
             {/* Holders Box */}
-            <div className="border border-border p-4 flex flex-col items-center md:items-start bg-background">
+            <div className="border border-border p-4 flex flex-col space-y-2 items-center md:items-start bg-background">
               <Users className="w-6 h-6 text-foreground mb-2" />
               <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
                 <div className="absolute left-0 top-0 h-full flex items-center">
@@ -265,11 +265,11 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                 </div>
                 <span className="ml-6">Holders</span>
               </div>
-              <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.holders}</div>
+              <div className="text-xl text-foreground font-bold pt-1">{tokenDetails.holders}</div>
             </div>
 
             {/* Daily Volume Box */}
-            <div className="border border-border p-4 flex flex-col items-center md:items-start bg-background">
+            <div className="border border-border p-4 flex flex-col space-y-2 items-center md:items-start bg-background">
               <BarChart className="w-6 h-6 text-foreground mb-2" />
               <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
                 <div className="absolute left-0 top-0 h-full flex items-center">
@@ -283,7 +283,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                 </div>
                 <span className="ml-6">Daily Volume</span>
               </div>
-              <div className="text-xl text-foreground font-bold mt-1">{tokenDetails.dailyVolume}</div>
+              <div className="text-xl text-foreground font-bold pt-1">{tokenDetails.dailyVolume}</div>
             </div>
           </div>
 
