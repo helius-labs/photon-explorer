@@ -38,6 +38,7 @@ export enum PROGRAM_NAMES {
   CHAINLINK_STORE = "Chainlink Store Program",
   CLOCKWORK_1 = "Clockwork Thread Program v1",
   CLOCKWORK_2 = "Clockwork Thread Program v2",
+  CROPPER_WHIRLPOOL = "Cropper Whirlpool Program",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
   FLUXBEAM = "FluxBeam Program",
@@ -629,6 +630,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   DecZY86MU5Gj7kppfUCEmd4LbXXuyZH1yHaP2NTqdiZB: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.SABER_DECIMAL_WRAPPER,
+  },
+  H8W3ctz92svYg6mkn1UtGfu2aQr2fnUFHM1RhScEtQDt: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.CROPPER_WHIRLPOOL,
   },
 };
 
