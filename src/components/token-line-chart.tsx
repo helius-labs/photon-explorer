@@ -1,12 +1,12 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 import { usePythDataFeed } from "@/hooks/usePythDataFeed";
-import datafeed from "@/utils/datafeed"; 
+import datafeed from "@/utils/datafeed";
+import Image from "next/image";
+import dottedLines from "@/../public/assets/dottedLines.svg";
 
 interface ChartData {
   time: number;
@@ -81,8 +81,23 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
   // Reduce the number of X-axis ticks by filtering the ticks within the last 7 days
   const getTicks = () => {
     const ticks = chartData.map((d) => d.time);
-    const tickInterval = Math.max(1, Math.floor(ticks.length / 7)); // Show 7 ticks for each day
+    const tickInterval = Math.max(1, Math.floor(ticks.length / 6)); // Show 7 ticks for each day
     return ticks.filter((_, index) => index % tickInterval === 0);
+  };
+
+  // Ensure that the correct date and time is displayed in the tooltip
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp);
+    // Format date as: DD/MM/YYYY HH:MM:SS (You can customize this)
+    return date.toLocaleString("en-GB", {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,  // Use 24-hour format
+    });
   };
 
   if (tokenLoading || pythLoading || isLoading) {
@@ -95,41 +110,69 @@ export function TokenLineChart({ address }: TokenLineChartProps) {
 
   return (
     <Card className="rounded-none shadow-lg border-none">
-      <CardHeader />
-      <CardContent className="p-4">
-        <ResponsiveContainer width="100%" height={100}>
-          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-            <XAxis 
-              dataKey="time" 
-              ticks={getTicks()} 
-              tickFormatter={(time) => formatDayMonth(time)} 
-              stroke="#a66559" 
+      <CardHeader className="p-0" />
+      <CardContent className="relative bg-background p-0">
+        {/* Main Chart Area with Background */}
+        <div className="relative" style={{ height: 200 }}>
+          {/* Dotted Lines Background, inside the chart area */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={dottedLines}
+              alt="Dotted Lines Background"
+              layout="fill"
+              objectFit="contain"
+              className="pointer-events-none"
             />
-            <Tooltip
-              contentStyle={{ 
-                backgroundColor: '#fff',
-                color: '#000',
-                border: '1px solid #ddd', 
-                borderRadius: '8px', 
-                padding: '10px',
-                fontFamily: "'Geist Mono', monospace", 
-                fontSize: '13px',
-              }}
-              labelStyle={{ color: '#000', fontSize: '13px' }}
-              itemStyle={{ color: '#000', fontSize: '13px' }}
-              labelFormatter={(label) => `Time: ${new Date(label).toLocaleString()}`}
-              formatter={(value) => [`$${value}`, 'Price']}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="price" 
-              stroke="#e84125" 
-              strokeWidth={2} 
-              dot={false} 
-              activeDot={{ r: 8 }} 
-            />
-          </LineChart>
-        </ResponsiveContainer>
+          </div>
+
+          {/* Chart Container */}
+          <div className="relative z-10 h-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
+                <Line
+                  type="monotone"
+                  dataKey="price"
+                  stroke="#e84125"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 8 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    color: '#000',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    fontFamily: "'Geist Mono', monospace",
+                    fontSize: '13px',
+                  }}
+                  labelStyle={{ color: '#000', fontSize: '13px' }}
+                  itemStyle={{ color: '#000', fontSize: '13px' }}
+                  labelFormatter={(label) => `Time: ${formatDate(label)}`}
+                  formatter={(value) => [`$${value}`, 'Price']}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* X-Axis Section without Background */}
+        <div className="bg-background mt-0 text-xs">
+          <ResponsiveContainer width="100%" height={40}>
+            <LineChart data={chartData}>
+              <XAxis
+                dataKey="time"
+                ticks={getTicks()}
+                tickFormatter={(time) => formatDayMonth(time)}
+                stroke="#a66559"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
