@@ -1,9 +1,9 @@
 "use client";
 
 import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
 import { formatCurrencyValue } from "@/utils/numbers";
+import { isLikelySpam } from "@/utils/spam-detection/spamDetection";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleHelp } from "lucide-react";
 import Image from "next/image";
@@ -38,21 +38,55 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [collectionFilter, setCollectionFilter] = useState<string | null>(null);
+  const [collectionFilter, setCollectionFilter] = useState<string | undefined>(
+    undefined,
+  );
 
   const [showMetaplexVerified, setShowMetaplexVerified] = useState(false);
   const [showCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
+  const [filterSpam, setFilterSpam] = useState(true);
+  const [spamFilteredNfts, setSpamFilteredNfts] = useState<NFT[]>([]);
 
   const { data: nfts, isLoading, isError } = useGetNFTsByOwner(address);
 
   useEffect(() => {
-    if (nfts) {
-      const collectionSet = new Set<string>();
+    const applySpamFilter = async () => {
+      if (!nfts) return;
 
-      nfts.forEach((nft) => {
+      const filtered = filterSpam
+        ? await Promise.all(
+            nfts.map(async (nft) => {
+              const isSpam = await isLikelySpam(nft);
+              return isSpam ? null : nft;
+            }),
+          )
+        : nfts;
+      setSpamFilteredNfts(filtered.filter((nft): nft is NFT => nft !== null));
+    };
+
+    applySpamFilter();
+  }, [nfts, filterSpam]);
+
+  useEffect(() => {
+    const applySpamFilter = async () => {
+      if (!nfts) return;
+
+      const filtered = filterSpam
+        ? await Promise.all(
+            nfts.map(async (nft) => {
+              const isSpam = await isLikelySpam(nft);
+              return isSpam ? null : nft;
+            }),
+          )
+        : nfts;
+      const nonSpamNfts = filtered.filter((nft): nft is NFT => nft !== null);
+      setSpamFilteredNfts(nonSpamNfts);
+
+      const collectionSet = new Set<string>();
+      nonSpamNfts.forEach((nft) => {
         if (nft.collectionName) {
           collectionSet.add(nft.collectionName);
         }
@@ -63,17 +97,21 @@ const AccountNFTs = ({ address }: { address: string }) => {
       );
 
       setCollections(["All Collections", ...sortedCollections]);
-    }
-  }, [nfts]);
+    };
+
+    applySpamFilter();
+  }, [nfts, filterSpam]);
 
   const filteredCollections = useMemo(() => {
     if (!showMetaplexVerified) return collections;
     return collections.filter(
       (collection) =>
         collection === "All Collections" ||
-        nfts?.some((nft) => nft.collectionName === collection && nft.verified),
+        spamFilteredNfts.some(
+          (nft) => nft.collectionName === collection && nft.verified,
+        ),
     );
-  }, [collections, nfts, showMetaplexVerified]);
+  }, [collections, spamFilteredNfts, showMetaplexVerified]);
 
   useEffect(() => {
     const currentCollection = searchParams.get("collection");
@@ -94,21 +132,26 @@ const AccountNFTs = ({ address }: { address: string }) => {
     return params.toString();
   };
 
-  const handleCollectionFilter = (collection: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (collection === "All Collections") {
-      handleNoFilter();
-    } else {
-      newSearchParams.set("collection", collection);
-    }
-    router.push(`${pathname}?${newSearchParams.toString()}`);
-  };
-
   const handleNoFilter = useCallback(() => {
+    setCollectionFilter(undefined);
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete("collection");
     router.push(`${pathname}?${newSearchParams.toString()}`);
   }, [pathname, router, searchParams]);
+
+  const handleCollectionFilter = useCallback(
+    (collection: string) => {
+      if (collection === "All Collections") {
+        handleNoFilter();
+      } else {
+        setCollectionFilter(collection);
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set("collection", collection);
+        router.push(`${pathname}?${newSearchParams.toString()}`);
+      }
+    },
+    [handleNoFilter, pathname, router, searchParams],
+  );
 
   const handleVerifiedToggle = useCallback(() => {
     setShowMetaplexVerified((prev) => {
@@ -118,19 +161,16 @@ const AccountNFTs = ({ address }: { address: string }) => {
         collectionFilter &&
         collectionFilter !== "All Collections"
       ) {
-        // Check if the current collection has any verified NFTs
-        const hasVerifiedNFTs = nfts?.some(
+        const hasVerifiedNFTs = spamFilteredNfts.some(
           (nft) => nft.collectionName === collectionFilter && nft.verified,
         );
         if (!hasVerifiedNFTs) {
-          // Reset to "All Collections" if the current collection has no verified NFTs
-          setCollectionFilter("All Collections");
           handleNoFilter();
         }
       }
       return newValue;
     });
-  }, [collectionFilter, nfts, handleNoFilter]);
+  }, [collectionFilter, spamFilteredNfts, handleNoFilter]);
 
   const handleQuickViewClick = useCallback((nftData: NFT) => {
     setSelectedNft(nftData);
@@ -138,19 +178,24 @@ const AccountNFTs = ({ address }: { address: string }) => {
   }, []);
 
   const filteredNfts = useMemo(() => {
-    return (
-      nfts?.filter((nft) => {
-        const matchesVerified = !showMetaplexVerified || nft.verified;
-        const matchesCollection =
-          !collectionFilter ||
-          collectionFilter === "All Collections" ||
-          nft.collectionName === collectionFilter;
-        const matchesCompressed =
-          !showCompressed || (nft.compression && nft.compression.compressed);
-        return matchesVerified && matchesCollection && matchesCompressed;
-      }) || []
-    );
-  }, [nfts, showMetaplexVerified, collectionFilter, showCompressed]);
+    return spamFilteredNfts.filter((nft) => {
+      const matchesVerified = !showMetaplexVerified || nft.verified;
+      const matchesCollection =
+        !collectionFilter || nft.collectionName === collectionFilter;
+      const matchesCompressed =
+        !showCompressed || (nft.compression && nft.compression.compressed);
+      return matchesVerified && matchesCollection && matchesCompressed;
+    });
+  }, [
+    spamFilteredNfts,
+    showMetaplexVerified,
+    collectionFilter,
+    showCompressed,
+  ]);
+
+  const handleSpamFilterToggle = useCallback(() => {
+    setFilterSpam((prev) => !prev);
+  }, []);
 
   const columns: ColumnDef<NFT>[] = useMemo(
     () => [
@@ -268,6 +313,28 @@ const AccountNFTs = ({ address }: { address: string }) => {
                 </div>
                 <div className="flex flex-col space-y-4 sm:mt-0 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
                   <div className="flex cursor-pointer items-center space-x-2">
+                    <Badge
+                      className="mt-3 flex items-center space-x-2 md:mt-0"
+                      variant="outline"
+                    >
+                      Likely Spam
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <CircleHelp className="ml-1 h-4 w-4 cursor-pointer" />
+                        </PopoverTrigger>
+                        <PopoverContent className="text-center">
+                          Filter out NFTs that are likely to be spam
+                        </PopoverContent>
+                      </Popover>
+                      <Switch
+                        checked={filterSpam}
+                        onCheckedChange={handleSpamFilterToggle}
+                        className="ml-2"
+                        checkedClassName="bg-purple-600 opacity-90"
+                        uncheckedClassName="bg-gray-400"
+                        style={{ transform: "scale(0.85)" }}
+                      />
+                    </Badge>
                     <Badge
                       className="mt-3 flex items-center space-x-2 md:mt-0"
                       variant="verified"
