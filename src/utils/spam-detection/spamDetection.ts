@@ -7,6 +7,8 @@ import { createUmi, publicKey } from "@metaplex-foundation/umi";
 import { defaultPlugins } from "@metaplex-foundation/umi-bundle-defaults";
 
 import { SpamModel, defaultModel } from "./spamModel";
+import { whitelistedCollections, whitelistedCreators } from "./whitelist";
+import { blacklistedCollections, blacklistedCreators } from "./blacklist";
 
 const model: SpamModel = defaultModel;
 let umiInstance: ReturnType<typeof createUmi> | null = null;
@@ -84,9 +86,19 @@ const spamIndicators = [
   ".app",
   "www",
   "eligible",
+  ".news",
 ];
 
 export const isLikelySpam = async (nft: NFT): Promise<boolean> => {
+  // Check whitelist and blacklist first before moving on
+  if ((nft.collection && whitelistedCollections.includes(nft.collection)) || (nft.creators?.some(creator => whitelistedCreators.includes(creator.address)))) {
+    return false;
+  }
+
+  if ((nft.collection && blacklistedCollections.includes(nft.collection)) || (nft.creators?.some(creator => blacklistedCreators.includes(creator.address)))) {
+    return true;
+  }
+
   // Tokenize the NFT data
   const nameTokens = tokenize(nft.name);
   const descriptionTokens = tokenize(nft.description);
