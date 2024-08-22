@@ -5,14 +5,16 @@ import {
   timeAgoWithFormat,
 } from "@/utils/common";
 import { SOL } from "@/utils/parser";
+import { isJitoTransaction } from "@/utils/jito";
 import { CompressedTransaction } from "@lightprotocol/stateless.js";
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { ArrowRightLeft } from "lucide-react";
+
 import Link from "next/link";
 
+
 import Address from "@/components/common/address";
-import { BalanceDelta } from "@/components/common/balance-delta";
 import Signature from "@/components/common/signature";
 import { TokenBalanceDelta } from "@/components/common/token-balance-delta";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +47,8 @@ export default function TransactionOverviewCompressed({
     sortOrder: number;
   }
 
+  const isJito = isJitoTransaction(data);
+  
   // Native balance changes
   let accountRows: Row[] = [];
 
@@ -185,32 +189,45 @@ export default function TransactionOverviewCompressed({
 
   return (
     <div className="mx-[-1rem] md:mx-0">
-      <Card className="mx-auto w-full max-w-lg p-3">
-        <CardHeader className="flex flex-col items-start justify-between space-y-3 md:flex-row md:items-center md:space-y-0">
-          <div className="flex items-center space-x-3">
-            <ArrowRightLeft className="h-6 w-6" />
-            <CardTitle className="text-xl font-bold md:text-2xl">
-              Transaction
-            </CardTitle>
+
+    <Card className="mx-auto w-full max-w-lg p-3">
+      <CardHeader className="flex flex-col items-start justify-between space-y-3 md:flex-row md:items-center md:space-y-0">
+        <div className="flex items-center space-x-3">
+          <ArrowRightLeft className="h-6 w-6" />
+          <CardTitle className="text-xl font-bold md:text-2xl">
+            Transaction
+          </CardTitle>
+          <Badge
+            className="px-2 py-1 text-xs"
+            variant={data.meta?.err === null ? "success" : "destructive"}
+          >
+            {data.meta?.err === null ? "Success" : "Failed"}
+          </Badge>
+          {isJito && (
             <Badge
               className="px-2 py-1 text-xs"
-              variant={data.meta?.err === null ? "success" : "destructive"}
+              variant="secondary"
             >
-              {data.meta?.err === null ? "Success" : "Failed"}
+              Jito
             </Badge>
-          </div>
-          <div className="flex flex-col items-start text-left md:items-end md:text-right">
-            <span>{timeAgoWithFormat(data.blockTime!, true)}</span>
-            <span className="text-xs text-muted-foreground">
-              {dateFormat(data.blockTime!)}
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col space-y-2">
-          <div className="block space-y-2 md:hidden">
-            {data?.meta?.fee && (
-              <div className="mb-2 flex flex-col md:mb-0 md:flex-row md:justify-between">
-                <div className="break-words md:w-1/2">
+          )}
+        </div>
+        <div className="flex flex-col items-start text-left md:items-end md:text-right">
+          <span>{timeAgoWithFormat(data.blockTime!, true)}</span>
+          <span className="text-xs text-muted-foreground">
+            {dateFormat(data.blockTime!)}
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col space-y-2">
+        <div className="block md:hidden space-y-2">
+          {data?.meta?.fee && (
+            <div className="flex flex-col md:flex-row md:justify-between mb-2 md:mb-0">
+              <div className="md:w-1/2 break-words">
+                <span>Transaction Fee</span>
+                <br />
+                <div className="md:w-1/2 break-words">
+
                   <span>Transaction Fee</span>
                   <br />
                   <div className="break-words md:w-1/2">

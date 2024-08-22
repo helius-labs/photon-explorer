@@ -169,7 +169,7 @@ export default function TransactionDetails({ tx }: { tx: string }) {
     <>
       {transactionOverview}
       {transaction.data && (
-        <div className="mx-auto mb-6 mt-4 flex w-full max-w-lg">
+        <div className="mx-auto mb-6 mt-4 flex items-center justify-center w-full max-w-lg">
           <Badge className="mr-2 cursor-pointer" variant="outline" onClick={toggleDetails}>
             Advanced Details
           </Badge>
