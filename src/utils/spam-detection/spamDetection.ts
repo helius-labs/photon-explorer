@@ -145,7 +145,7 @@ export const isLikelySpam = async (nft: NFT): Promise<boolean> => {
     (hasUnverifiedCreator ? 0.15 : 0) +
     (hasSuspiciousAttributes ? 0.15 : 0) +
     spamProbability * 0.2; // +
-  proofLengthImpossible ? 0.1 : 0;
+    //proofLengthImpossible ? 0.1 : 0;
 
   return spamScore > 0.5;
 };
