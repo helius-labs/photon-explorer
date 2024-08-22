@@ -139,6 +139,15 @@ export const getColumns = (
       ) {
         txnFailed = true;
       }
+      if (isParsedTransactionWithMeta(transaction) && transaction.meta?.err) {
+        txnFailed = true;
+      }
+      if (
+        isXrayTransaction(transaction) &&
+        transaction.transactionError != null
+      ) {
+        txnFailed = true;
+      }
 
       if (isParsedTransactionWithMeta(transaction)) {
         description = transaction.meta?.logMessages?.join(" ") || "";

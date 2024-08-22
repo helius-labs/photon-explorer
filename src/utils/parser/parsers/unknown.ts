@@ -5,6 +5,7 @@ import {
   ParserTransactionTypes,
   SOL,
   type TransactionAction,
+  TransactionErrorOrNull,
   XrayNativeTransfer,
   XrayTokenTransfer,
   type XrayTransaction,
@@ -25,6 +26,7 @@ export const parseUnknown = (
     instructions,
     feePayer,
     description,
+    transactionError,
   } = transaction;
 
   if (tokenTransfers === null || nativeTransfers === null) {
@@ -38,6 +40,7 @@ export const parseUnknown = (
       description,
       tokenTransfers: tokenTransfers as XrayTokenTransfer[],
       nativeTransfers: nativeTransfers as XrayNativeTransfer[],
+      transactionError: transactionError as TransactionErrorOrNull,
     };
   }
 
@@ -73,5 +76,6 @@ export const parseUnknown = (
     description,
     tokenTransfers: tokenTransfers as XrayTokenTransfer[],
     nativeTransfers: nativeTransfers as XrayNativeTransfer[],
+    transactionError: transactionError as TransactionErrorOrNull,
   };
 };
