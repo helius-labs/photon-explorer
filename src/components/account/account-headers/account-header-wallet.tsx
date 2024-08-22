@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useFetchDomains } from "@/hooks/useFetchDomains";
+import { useWalletLabel } from "@/hooks/useWalletLabel";
 
 import Address from "@/components/common/address";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,11 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
     address.toBase58(),
     endpoint,
   );
+  const {
+    label,
+    isLoading: loadingLabel,
+    error: labelError,
+  } = useWalletLabel(address.toBase58());
 
   const fallbackAddress = address.toBase58();
 
@@ -71,7 +77,6 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
 
   const shortenedAddress = shorten(fallbackAddress, 4);
 
-  // Find the most popular domain
   const mainDomain =
     userDomains && userDomains.length > 0 ? userDomains[0] : null;
 
@@ -138,6 +143,16 @@ const AccountHeaderWallets: React.FC<AccountHeaderWalletsProps> = ({
               </div>
               <div className="mt-2 flex items-center justify-center md:justify-start">
                 <Badge variant="success">Wallet</Badge>
+                {!loadingLabel && label && (
+                  <Badge variant="secondary" className="ml-2">
+                    {label}
+                  </Badge>
+                )}
+                {labelError && (
+                  <Badge variant="destructive" className="ml-2">
+                    Error loading label
+                  </Badge>
+                )}
               </div>
               <div className="mt-4 flex flex-col items-center gap-2 text-lg text-muted-foreground md:mt-2 md:items-start">
                 {compressedBalance && compressedBalance.value && (
