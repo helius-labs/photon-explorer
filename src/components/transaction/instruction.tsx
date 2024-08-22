@@ -1,6 +1,7 @@
 "use client";
 
 import { lamportsToSolString } from "@/utils/common";
+import { isJitoTip } from "@/utils/jito";
 import {
   ParsedInnerInstruction,
   ParsedInstruction,
@@ -24,14 +25,32 @@ export default function Instruction({
   innerInstructions?: ParsedInnerInstruction[] | null;
   index: number;
 }) {
+  let isJito = false;
+  let toAddress: string | undefined;
+  let amount: number | undefined;
+
+  if ("parsed" in instruction && instruction.parsed.type === "transfer") {
+    toAddress = instruction.parsed.info.destination;
+    amount = instruction.parsed.info.lamports;
+    
+    if (toAddress !== undefined && amount !== undefined) {
+      isJito = isJitoTip(toAddress, amount);
+    }
+  }
+
   return (
     <>
       <div className="mx-[-1rem] md:mx-0 overflow-x-auto">
       <Card key={`instruction-${index}`} className="mb-6 w-full">
         <CardHeader>
           <CardTitle>
-            <Badge className="mr-2">#{index}</Badge>{" "}
+            <Badge className="mr-2 px-2 py-1 text-sm h-6">#{index}</Badge>{" "}
             <Address pubkey={instruction.programId} />
+            {isJito && (
+              <Badge variant="secondary" className="ml-4 px-2 py-1 text-sm h-6">
+                Jito Tip
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
