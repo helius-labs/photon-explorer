@@ -114,12 +114,11 @@ export default function TransactionOverviewParsed({
             <CardTitle className="text-xl font-bold md:text-2xl">
               {type}
             </CardTitle>
-            <Badge
-              className="px-2 py-1 text-xs"
-              variant={txnFailed === false ? "success" : "destructive"}
-            >
-              {txnFailed === false ? "Success" : "Failed"}
-            </Badge>
+            {txnFailed && (
+              <Badge className="px-2 py-1 text-xs" variant="destructive">
+                Failed
+              </Badge>
+            )}
           </div>
 
           <div className="mt-2 flex flex-col text-left md:mt-0 md:text-right">
