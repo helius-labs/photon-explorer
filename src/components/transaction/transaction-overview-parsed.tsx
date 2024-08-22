@@ -26,8 +26,13 @@ import Link from "next/link";
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
 import { TokenBalance } from "@/components/common/token-balance";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+
+function isXrayTransaction(transaction: any): transaction is XrayTransaction {
+  return (transaction as XrayTransaction).timestamp !== undefined;
+}
 
 export default function TransactionOverviewParsed({
   data,
@@ -36,6 +41,13 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
+
+  //finding failed txn
+  let txnFailed = false;
+
+  if (isXrayTransaction(data) && data.transactionError != null) {
+    txnFailed = true;
+  }
 
   // Function to shorten all public key strings within the description and wrap with Link
   const renderDescription = (desc: string) => {
@@ -102,6 +114,12 @@ export default function TransactionOverviewParsed({
             <CardTitle className="text-xl font-bold md:text-2xl">
               {type}
             </CardTitle>
+            <Badge
+              className="px-2 py-1 text-xs"
+              variant={txnFailed === false ? "success" : "destructive"}
+            >
+              {txnFailed === false ? "Success" : "Failed"}
+            </Badge>
           </div>
 
           <div className="mt-2 flex flex-col text-left md:mt-0 md:text-right">
