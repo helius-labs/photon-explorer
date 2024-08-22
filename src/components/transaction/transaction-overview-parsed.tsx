@@ -196,9 +196,8 @@ export default function TransactionOverviewParsed({
                   <span className="ml-2 w-full break-words md:w-3/4">
                     <TokenBalance
                       amount={action.amount}
-                      decimals={action.decimals || 0}
+                      decimals={action.decimals}
                       mint={new PublicKey(action.mint!)}
-                      isReadable={true}
                       isLink={true}
                       // showPrice={true}
                       // timestamp={timestamp}
@@ -214,9 +213,8 @@ export default function TransactionOverviewParsed({
                   <span className="ml-2 w-full break-words md:w-3/4">
                     <TokenBalance
                       amount={action.amount}
-                      decimals={action.decimals || 0}
+                      decimals={action.decimals}
                       mint={new PublicKey(action.mint!)}
-                      isReadable={true}
                       isLink={true}
                       // showPrice={true}
                       // timestamp={timestamp}
