@@ -4,12 +4,12 @@ import {
   shorten,
   timeAgoWithFormat,
 } from "@/utils/common";
+import { isJitoTransactionXray } from "@/utils/jito";
 import {
   ActionTypes,
   ParserTransactionTypes,
   XrayTransaction,
 } from "@/utils/parser";
-import { isJitoTransactionXray } from "@/utils/jito";
 import { PublicKey } from "@solana/web3.js";
 import {
   ArrowRight,
@@ -29,7 +29,6 @@ import { TokenBalance } from "@/components/common/token-balance";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
   return (transaction as XrayTransaction).timestamp !== undefined;
@@ -42,9 +41,9 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
-    console.log("XrayTransaction data:", data);
-    const isJito = isJitoTransactionXray(data);
-    console.log("Is Jito transaction:", isJito);
+  console.log("XrayTransaction data:", data);
+  const isJito = isJitoTransactionXray(data);
+  console.log("Is Jito transaction:", isJito);
 
   //finding failed txn
   let txnFailed = false;
@@ -122,14 +121,11 @@ export default function TransactionOverviewParsed({
             {txnFailed && (
               <Badge className="px-2 py-1 text-xs" variant="destructive">
                 Failed
-            </Badge>)}
+              </Badge>
+            )}
             {isJito && (
-              <Badge
-                className="px-2 py-1 text-xs"
-                variant="secondary"
-              >
+              <Badge className="px-2 py-1 text-xs" variant="secondary">
                 Jito
-
               </Badge>
             )}
           </div>
