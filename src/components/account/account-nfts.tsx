@@ -339,7 +339,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       className="mt-3 flex items-center space-x-2 md:mt-0"
                       variant="verified"
                     >
-                      Verified
+                      Filter by Verified
                       <Image
                         src={metaplexLogo}
                         alt="Metaplex Logo"
