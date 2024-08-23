@@ -6,12 +6,8 @@ import { usePathname } from "next/navigation";
 
 import Link from "@/components/ui/link";
 
-import LogoBlack from "/public/assets/logo-text-black.svg";
-import LogoWhite from "/public/assets/logo-text-white.svg";
-import LogoIconBlack from "/public/assets/logoBlack.svg";
-import LogoIconWhite from "/public/assets/logoWhite.svg";
 import xrayIcon from "/public/assets/xrayIcon.svg";
-import xrayLogo from "/public/assets/xrayLogo.svg";
+import xrayLogo2 from "/public/assets/xrayLogo2.svg";
 
 export function MainNav({
   className,
@@ -38,7 +34,7 @@ export function MainNav({
               width={0}
               height={0}
               priority
-              src={xrayLogo}
+              src={xrayLogo2}
             />
             <Image
               className="hidden h-6 w-full md:dark:block"
@@ -46,7 +42,7 @@ export function MainNav({
               width={0}
               height={0}
               priority
-              src={xrayLogo}
+              src={xrayLogo2}
             />
             {/* Mobile logos */}
             <Image

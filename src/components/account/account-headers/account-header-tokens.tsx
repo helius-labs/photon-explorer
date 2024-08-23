@@ -2,8 +2,6 @@ import birdeyeIcon from "@/../public/assets/birdeye.svg";
 import dexscreenerIcon from "@/../public/assets/dexscreener.svg";
 import jupLogo from "@/../public/assets/jupLogo.png";
 import noLogoImg from "@/../public/assets/noLogoImg.svg";
-import { useCluster } from "@/providers/cluster-provider";
-import { Cluster } from "@/utils/cluster";
 import { shortenLong } from "@/utils/common";
 import cloudflareLoader from "@/utils/imageLoader";
 import {
@@ -13,30 +11,23 @@ import {
 } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
-import { CheckIcon, Copy, MoreVertical, Info } from "lucide-react";
+import { CheckIcon, Copy, ChevronDown, BarChart3Icon, BarChart, Users, DollarSign } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
 import { useGetTokenMetrics } from "@/hooks/jupiterTokenMetrics";
 import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 import { usePythDataFeed } from "@/hooks/usePythDataFeed";
 
-import Address from "@/components/common/address";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TokenLineChart } from "@/components/token-line-chart";
+import tokenLinesDesktop from "@/../public/assets/tokenLinesDesktop.svg";
 import { Tab } from "@/components/tab-nav";
+import raceStripe from "@/../public/assets/raceStripe.svg";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -74,86 +65,32 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     token_program: "",
   });
 
-  const router = useRouter();
-  const { cluster, endpoint } = useCluster();
-
-  const {
-    data: tokenList,
-    isLoading: tokenListLoading,
-    isError: tokenListError,
-  } = useGetTokenListVerified();
-  const {
-    data: tokenDataFromAPI,
-    isLoading: tokenDataLoading,
-    isError: tokenDataError,
-  } = useGetTokensByMint(address.toBase58());
-  const {
-    data: tokenMetricsData,
-    isLoading: tokenMetricsLoading,
-    isError: tokenMetricsError,
-  } = useGetTokenMetrics(address.toBase58());
+  const { data: tokenList, isLoading: tokenListLoading } = useGetTokenListVerified();
+  const { data: tokenDataFromAPI, isLoading: tokenDataLoading } = useGetTokensByMint(address.toBase58());
+  const { data: tokenMetricsData, isLoading: tokenMetricsLoading } = useGetTokenMetrics(address.toBase58());
   const { hasPythDataFeed } = usePythDataFeed(address.toBase58());
-
-  // Check if the token is verified by Jupiter
-  const isVerifiedByJupiter = useMemo(() => {
-    if (tokenList) {
-      return tokenList.some((token) => token.address === address.toBase58());
-    }
-    return false;
-  }, [tokenList, address]);
 
   // Update token details based on API data
   useEffect(() => {
     if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) return;
 
-    if (!tokenListError && !tokenDataError && !tokenMetricsError) {
-      if (tokenList) {
-        const tokenFromList = tokenList.find(
-          (token) => token.address === address.toBase58(),
-        );
-        if (tokenFromList || tokenDataFromAPI) {
-          setTokenDetails({
-            tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
-            tokenImageURI:
-              tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
-            tokenSymbol:
-              tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
-            supply:
-              tokenDataFromAPI?.supply !== undefined
-                ? tokenDataFromAPI.supply
-                : undefined,
-            price:
-              tokenDataFromAPI?.price !== undefined
-                ? formatCurrencyValue(tokenDataFromAPI.price)
-                : "",
-            marketCap: tokenMetricsData?.data?.marketCap
-              ? formatCurrencyValue(tokenMetricsData?.data?.marketCap)
-              : "",
-            mint_authority: tokenDataFromAPI?.mint_authority || "",
-            freeze_authority: tokenDataFromAPI?.freeze_authority || "",
-            token_program: tokenDataFromAPI?.token_program || "",
-            dailyVolume: tokenMetricsData?.data?.dailyVolume
-              ? formatCurrencyValue(tokenMetricsData.data.dailyVolume)
-              : "",
-            holders: tokenMetricsData?.data?.holders
-              ? formatNumericValue(tokenMetricsData.data.holders).toString()
-              : "",
-          });
-        }
-      }
+    const tokenFromList = tokenList?.find((token) => token.address === address.toBase58());
+    if (tokenFromList || tokenDataFromAPI) {
+      setTokenDetails({
+        tokenName: tokenDataFromAPI?.name || tokenFromList?.name || "",
+        tokenImageURI: tokenDataFromAPI?.logoURI || tokenFromList?.logoURI || null,
+        tokenSymbol: tokenDataFromAPI?.symbol || tokenFromList?.symbol || "",
+        supply: tokenDataFromAPI?.supply !== undefined ? tokenDataFromAPI.supply : undefined,
+        price: tokenDataFromAPI?.price !== undefined ? formatCurrencyValue(tokenDataFromAPI.price) : "",
+        marketCap: tokenMetricsData?.data?.marketCap ? formatCurrencyValue(tokenMetricsData.data.marketCap) : "",
+        mint_authority: tokenDataFromAPI?.mint_authority || "",
+        freeze_authority: tokenDataFromAPI?.freeze_authority || "",
+        token_program: tokenDataFromAPI?.token_program || "",
+        dailyVolume: tokenMetricsData?.data?.dailyVolume ? formatCurrencyValue(tokenMetricsData.data.dailyVolume) : "",
+        holders: tokenMetricsData?.data?.holders ? formatNumericValue(tokenMetricsData.data.holders).toString() : "",
+      });
     }
-  }, [
-    tokenList,
-    tokenDataFromAPI,
-    tokenMetricsData,
-    tokenListLoading,
-    tokenDataLoading,
-    tokenMetricsLoading,
-    tokenListError,
-    tokenDataError,
-    tokenMetricsError,
-    address,
-  ]);
+  }, [tokenList, tokenDataFromAPI, tokenMetricsData, tokenListLoading, tokenDataLoading, tokenMetricsLoading, address]);
 
   // Update the tabs
   useEffect(() => {
@@ -162,7 +99,6 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
       { name: "Metadata", href: `/address/${address}/metadata` },
     ];
 
-    // Conditionally add the "Charts" tab
     if (hasPythDataFeed) {
       tabs.push({ name: "Charts", href: `/address/${address}/charts` });
     }
@@ -170,317 +106,196 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
     onTabsUpdate(tabs);
   }, [address, onTabsUpdate, hasPythDataFeed]);
 
-  // Reset copied status after a delay
-  useEffect(() => {
-    if (hasCopied) {
-      const timer = setTimeout(() => {
-        setHasCopied(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [hasCopied]);
-
-  const isLocalOrTestNet = [
-    Cluster.Localnet,
-    Cluster.Testnet,
-    Cluster.Custom,
-  ].includes(cluster);
-
-  if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) {
-    return (
-      <div className="mx-[-1rem] md:mx-0">
-        <Card className="mb-8 w-full space-y-4 p-4 md:p-12 md:space-y-6">
-          <div className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
-            <Skeleton className="h-20 w-20 rounded-lg mt-8 md:mt-0" />
-            <div className="flex w-full flex-col md:flex-row md:justify-between">
-              <div className="max-w-xs flex-grow text-center md:text-left">
-              <div className="text-3xl font-medium leading-none flex flex-col items-center md:flex-row md:justify-start">
-                <Skeleton className="h-8 w-44 mb-2 md:mb-2" />
-                <Skeleton className="h-8 w-24 mb-2 md:ml-2 md:mb-2" />
+  return (
+    <TooltipProvider>
+      <Card className="w-full border-none space-y-4 p-6 md:space-y-6">
+        <CardHeader className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 h-auto">
+          <div className="flex items-center gap-4">
+            {/* Token Image, Name, Address */}
+            {tokenDetails.tokenImageURI ? (
+              <Image
+                loader={cloudflareLoader}
+                src={tokenDetails.tokenImageURI}
+                alt={tokenDetails.tokenName}
+                width={52}
+                height={52}
+                className="rounded-full"
+              />
+            ) : (
+              <Avatar
+                size={52}
+                name={address.toBase58()}
+                variant="pixel"
+                colors={["#D31900", "#E84125", "#9945FF", "#14F195", "#000000"]}
+              />
+            )}
+            <div className="flex flex-col">
+              <CardTitle className="text-xl text-foreground font-['JetBrains Mono'] leading-7">
+                {tokenDetails.tokenName} ({tokenDetails.tokenSymbol})
+              </CardTitle>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground font-['Geist Mono']">
+                <span>TOKEN</span>
+                <div className="w-[3px] h-[3px] bg-border-prominent-hovered" />
+                <span>{shortenLong(address.toBase58())}</span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    navigator.clipboard.writeText(address.toBase58());
+                    setHasCopied(true);
+                  }}
+                >
+                  {hasCopied ? <CheckIcon className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </Button>
               </div>
-                <div className="flex justify-center space-x-4 md:justify-start">
-                  <Skeleton className="h-6 w-20" />
-                  <Skeleton className="ml-2 h-6 w-20" />
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex h-[68px] border border-border-prominent">
+              <div className="w-[284px] flex flex-col">
+                {/* Supply */}
+                <div className="flex justify-between items-center px-3 py-2 border-b border-border-prominent">
+                  <span className="text-muted text-[13px] leading-[18px]">Supply</span>
+                  <span className="text-muted-foreground text-[13px] leading-[18px]">
+                    {formatSupply(tokenDetails.supply, tokenDataFromAPI?.decimals || 0)}
+                  </span>
                 </div>
-                <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
-                  <Skeleton className="h-4 w-34" />
-                </div>
-                <div className="mt-4 flex justify-center space-x-4 md:justify-start">
-                  <Skeleton className="h-6 w-6 rounded-full" />
-                  <Skeleton className="h-6 w-6 rounded-full" />
+                {/* Market Cap */}
+                <div className="flex justify-between items-center px-3 py-2">
+                  <span className="text-muted text-[13px] leading-[18px]">Market Cap</span>
+                  <span className="text-muted-foreground text-[13px] leading-[18px]">
+                    {tokenDetails.marketCap ? tokenDetails.marketCap : "N/A"}
+                  </span>
                 </div>
               </div>
-              <div className="mt-4 flex flex-col items-center md:mt-0 md:flex-shrink-0 md:flex-grow-0 md:items-end">
-                <Skeleton className="h-7 w-24 mb-4" />
-                <div className="mt-4 flex flex-col items-center space-y-2 md:mt-6 md:items-end md:space-y-2">
-                  <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-44 mb-2 md:mb-0" />
+              {/* Jupiter Verified and Charts Section */}
+              <div className="border-l border-border-prominent flex flex-col">
+                {/* Jupiter Verified */}
+                <div className="flex justify-start items-center gap-2 px-3 py-2 border-b border-border-prominent">
+                  <Image src={jupLogo} alt="Jupiter Logo" width={16} height={16} />
+                  <span className="text-muted-foreground text-[13px] leading-[18px]">Jupiter Verified</span>
+                </div>
+                {/* Charts and Popover */}
+                <div className="flex justify-between items-center gap-2 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <BarChart3Icon className="w-4 h-4 text-muted" />
+                    <span className="text-muted-foreground text-[13px] leading-[18px]">Charts</span>
                   </div>
-                  <div className="justify-center flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-24 mb-2 md:mb-0" />
-                  </div>
-                  <div className="justify-center flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-24 mb-2 md:mb-0" />
-                  </div>
-                  <div className="justify-center flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-44 mb-6 md:mb-0" />
-                  </div>
+                  <Popover>
+                  <PopoverTrigger asChild>
+                    <ChevronDown className="w-5 h-5 cursor-pointer" />
+                  </PopoverTrigger>
+                  <PopoverContent 
+                    align="end" 
+                    className="w-52 bg-popover border border-brand rounded-none shadow-lg"
+                  >
+                    <div className="flex flex-col gap-2 text-xs">
+                      <a
+                        href={`https://birdeye.so/token/${address.toBase58()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 h-9 bg-card-hovered border-b border-border hover:bg-card-inner transition-colors"
+                      >
+                        <div className="p-0.5 bg-muted rounded-full flex items-center justify-center">
+                          <Image src={birdeyeIcon} alt="Birdeye" width={18} height={18} className="rounded-full"/>
+                        </div>
+                        <span className="text-[13px] text-primary-foreground font-['Geist Mono'] leading-[18px]">Birdeye</span>
+                      </a>
+                      <a
+                        href={`https://dexscreener.com/solana/${address.toBase58()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2 h-9 bg-card-hovered border-b border-border hover:bg-card-inner transition-colors"
+                      >
+                        <div className="p-0.5 bg-muted rounded-full flex items-center justify-center">
+                          <Image src={dexscreenerIcon} alt="DexScreener" width={18} height={18} className="rounded-full" />
+                        </div>
+                        <span className="text-[13px] text-primary-foreground font-['Geist Mono'] leading-[18px]">DexScreener</span>
+                      </a>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 </div>
               </div>
             </div>
           </div>
-        </Card>
-      </div>
-    );
-  }  
-
-  return (
-    <TooltipProvider>
-      <div className="mx-[-1rem] md:mx-0">
-        <Card className="mb-8 w-full space-y-4 p-6 md:space-y-6">
-          <CardHeader className="relative flex flex-col items-start gap-4 md:flex-row md:gap-6">
-            <div className="relative flex w-full items-center justify-center md:w-auto">
-              {tokenDetails.tokenImageURI ? (
-                <Image
-                  loader={cloudflareLoader}
-                  src={tokenDetails.tokenImageURI}
-                  alt={tokenDetails.tokenName || "Token"}
-                  width={80}
-                  height={80}
-                  loading="eager"
-                  className="rounded-lg"
-                  onError={(event: any) => {
-                    event.target.id = "noLogoImg";
-                    event.target.srcset = noLogoImg.src;
-                  }}
-                />
-              ) : (
-                <Avatar
-                  size={80}
-                  name={address.toBase58()}
-                  variant="pixel"
-                  colors={[
-                    "#D31900",
-                    "#E84125",
-                    "#9945FF",
-                    "#14F195",
-                    "#000000",
-                  ]}
-                />
-              )}
+        </CardHeader>
+        <div className="relative w-full h-auto">
+        <div
+          className="relative bg-card-inner border-[16px] border-t-[2px] border-b-[2px] border-transparent"
+          style={{
+            backgroundImage: `url(${tokenLinesDesktop.src})`,
+            backgroundSize: "200% 200%",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+          }}
+        >
+          {/* Grid layout for PRICE, HOLDERS, DAILY VOLUME */}
+          <div className="grid grid-cols-1 md:grid-cols-3">
+            {/* Price Box */}
+            <div className="border border-border p-4 flex flex-col space-y-2 items-center md:items-start bg-background">
+              <DollarSign className="w-6 h-6 text-foreground mb-2" />
+              <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
+                <div className="absolute left-0 top-0 h-full flex items-center">
+                  <Image
+                    src={raceStripe}
+                    alt="Race Stripe"
+                    width={14}
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="ml-6">Price</span>
+              </div>
+              <div className="text-xl text-foreground font-bold pt-1">{tokenDetails.price}</div>
             </div>
-            <div className="flex w-full flex-col md:flex-row md:justify-between">
-              <div className="max-w-xs flex-grow text-center md:text-left">
-                <CardTitle className="text-3xl font-medium leading-none">
-                  <div className="flex flex-col items-center md:flex-row md:justify-start">
-                    <div className="flex flex-col items-center md:flex-row md:items-center">
-                      <span className="max-w-full">
-                        {tokenDetails.tokenName || (
-                          <Address pubkey={address} short />
-                        )}
-                        <span
-                          className={`ml-2 hidden text-3xl text-muted-foreground md:inline ${tokenDetails.tokenName.length > 25 ? "md:hidden" : ""}`}
-                        >
-                          ({tokenDetails.tokenSymbol})
-                        </span>
-                      </span>
-                      {tokenDetails.tokenName !== "" && (
-                        <div
-                          className={`mt-1 text-3xl text-muted-foreground ${tokenDetails.tokenName.length <= 25 ? "md:hidden" : "md:block"}`}
-                        >
-                          ({tokenDetails.tokenSymbol})
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-shrink-0 flex-row items-center justify-center md:mt-0 md:inline-block md:flex-col md:items-start">
-                    <Badge variant="success">{type}</Badge>
-                    {isVerifiedByJupiter && (
-                      <Badge
-                        className="ml-2 mt-0 min-w-[80px] md:mt-2"
-                        variant="verified"
-                      >
-                        Verified
-                        <Image
-                          src={jupLogo}
-                          alt="JUP Logo"
-                          width={16}
-                          height={16}
-                          className="ml-1"
-                        />
-                      </Badge>
-                    )}
-                  </div>
-                </CardTitle>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="mr-2 h-5 w-5 rounded-[6px] [&_svg]:size-3.5"
-                    onClick={() => {
-                      navigator.clipboard.writeText(address.toBase58());
-                      setHasCopied(true);
-                    }}
-                  >
-                    <span className="sr-only">Copy</span>
-                    {hasCopied ? <CheckIcon /> : <Copy />}
-                  </Button>
-                  <span>{shortenLong(address.toBase58())}</span>
-                </div>
-                <div className="mt-4 flex justify-center space-x-4 md:justify-start">
-                  <a
-                    href={`https://birdeye.so/token/${address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Birdeye"
-                  >
-                    <Image
-                      src={birdeyeIcon.src}
-                      alt="Birdeye"
-                      width={22}
-                      height={22}
-                      loading="eager"
-                      className="rounded-full"
-                    />
-                  </a>
-                  <a
-                    href={`https://dexscreener.com/solana/${address}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Dex Screener"
-                  >
-                    <Image
-                      src={dexscreenerIcon.src}
-                      alt="Dexscreener"
-                      width={22}
-                      height={22}
-                      loading="eager"
-                      className="rounded-full"
-                    />
-                  </a>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-col items-center md:mt-0 md:flex-shrink-0 md:flex-grow-0 md:items-end">
-                <div className="flex items-center justify-center md:justify-end">
-                  <span className="text-3xl text-foreground">
-                    {tokenDetails.price}
-                  </span>
-                </div>
-                <div className="mt-4 flex flex-col items-center space-y-2 md:mt-6 md:items-end md:space-y-2">
-                  <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <span className="font-semibold text-muted-foreground">
-                      Supply:
-                    </span>
-                    <span className="truncate md:max-w-none md:whitespace-normal">
-                      {formatSupply(
-                        tokenDetails.supply,
-                        tokenDataFromAPI?.decimals || 0,
-                      )}
-                    </span>
-                  </div>
-                  {tokenDetails.marketCap && tokenDetails.marketCap !== "" && (
-                    <div className="justifycenter flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                      <span className="font-semibold text-muted-foreground">
-                        Market Cap:
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.marketCap}
-                      </span>
-                    </div>
-                  )}
 
-                  {tokenDetails.holders && tokenDetails.holders !== "" && (
-                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
-                      <span className="flex items-center font-semibold text-muted-foreground">
-                        Holders
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="ml-1 md:ml-2">
-                              <Info className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <p className="text-sm text-center">On-chain token holders</p>
-                          </PopoverContent>
-                        </Popover>
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.holders}
-                      </span>
-                    </div>
-                  )}
-                  {tokenDetails.dailyVolume && tokenDetails.dailyVolume !== "" && (
-                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
-                      <span className="flex items-center font-semibold text-muted-foreground">
-                        Daily Volume
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="ml-1 md:ml-2">
-                              <Info className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <p className="text-sm text-center">24hr Solana DEX Volume</p>
-                          </PopoverContent>
-                        </Popover>
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.dailyVolume}
-                      </span>
-                    </div>
-                  )}
+            {/* Holders Box */}
+            <div className="border border-border p-4 flex flex-col space-y-2 items-center md:items-start bg-background">
+              <Users className="w-6 h-6 text-foreground mb-2" />
+              <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
+                <div className="absolute left-0 top-0 h-full flex items-center">
+                  <Image
+                    src={raceStripe}
+                    alt="Race Stripe"
+                    width={14}
+                    height={24}
+                    className="object-contain"
+                  />
                 </div>
+                <span className="ml-6">Holders</span>
               </div>
-              {isLocalOrTestNet && (
-                <div className="ml-4 mt-2 hidden self-start md:mt-0 md:block">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="outline" className="h-8 w-8">
-                        <MoreVertical className="h-3.5 w-3.5" />
-                        <span className="sr-only">More</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          router.push(
-                            `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
-                          );
-                        }}
-                      >
-                        Compressed Accounts
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              )}
+              <div className="text-xl text-foreground font-bold pt-1">{tokenDetails.holders}</div>
             </div>
-            {isLocalOrTestNet && (
-              <div className="absolute right-4 top-4 md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline" className="h-8 w-8">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                      <span className="sr-only">More</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        router.push(
-                          `/address/${address.toBase58()}/compressed-accounts?cluster=${endpoint}`,
-                        );
-                      }}
-                    >
-                      Compressed Accounts
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+
+            {/* Daily Volume Box */}
+            <div className="border border-border p-4 flex flex-col space-y-2 items-center md:items-start bg-background">
+              <BarChart className="w-6 h-6 text-foreground mb-2" />
+              <div className="flex items-center text-xs uppercase bg-brand font-bold text-background-emphasized pr-2 py-0.5 relative">
+                <div className="absolute left-0 top-0 h-full flex items-center">
+                  <Image
+                    src={raceStripe}
+                    alt="Race Stripe"
+                    width={14}
+                    height={24}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="ml-6">Daily Volume</span>
               </div>
-            )}
-          </CardHeader>
-        </Card>
+              <div className="text-xl text-foreground font-bold pt-1">{tokenDetails.dailyVolume}</div>
+            </div>
+          </div>
+
+          {/* Token Line Chart */}
+          <div className="relative border border-t-0">
+            <div className="relative z-10">
+              <TokenLineChart address={address.toBase58()} />
+            </div>
+          </div>
+        </div>
       </div>
+      </Card>
     </TooltipProvider>
   );
 };

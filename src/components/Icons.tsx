@@ -6,7 +6,7 @@
   const IconTwitterX = ({ size = 24, className }: IconProps) => (
     <svg 
     xmlns="http://www.w3.org/2000/svg" 
-    width="16" 
+    width={size} 
     height="16" 
     fill="currentColor" 
     className={className} 
