@@ -5,14 +5,13 @@ import {
   timeAgoWithFormat,
 } from "@/utils/common";
 import { SOL } from "@/utils/parser";
+import { isJitoTransaction } from "@/utils/jito";
 import { CompressedTransaction } from "@lightprotocol/stateless.js";
 import { ParsedTransactionWithMeta, PublicKey } from "@solana/web3.js";
 import BigNumber from "bignumber.js";
 import { ArrowRightLeft } from "lucide-react";
-import Link from 'next/link';
 
 import Address from "@/components/common/address";
-import { BalanceDelta } from "@/components/common/balance-delta";
 import Signature from "@/components/common/signature";
 import { TokenBalanceDelta } from "@/components/common/token-balance-delta";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +44,8 @@ export default function TransactionOverviewCompressed({
     sortOrder: number;
   }
 
+  const isJito = isJitoTransaction(data);
+  
   // Native balance changes
   let accountRows: Row[] = [];
 
@@ -198,6 +199,14 @@ export default function TransactionOverviewCompressed({
           >
             {data.meta?.err === null ? "Success" : "Failed"}
           </Badge>
+          {isJito && (
+            <Badge
+              className="px-2 py-1 text-xs"
+              variant="secondary"
+            >
+              Jito
+            </Badge>
+          )}
         </div>
         <div className="flex flex-col items-start text-left md:items-end md:text-right">
           <span>{timeAgoWithFormat(data.blockTime!, true)}</span>

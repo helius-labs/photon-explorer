@@ -9,8 +9,8 @@ import {
   ParserTransactionTypes,
   XrayTransaction,
 } from "@/utils/parser";
+import { isJitoTransactionXray } from "@/utils/jito";
 import { PublicKey } from "@solana/web3.js";
-import BigNumber from "bignumber.js";
 import {
   ArrowRight,
   ArrowRightLeftIcon,
@@ -28,6 +28,7 @@ import Signature from "@/components/common/signature";
 import { TokenBalance } from "@/components/common/token-balance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 export default function TransactionOverviewParsed({
   data,
@@ -36,6 +37,9 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
+    console.log("XrayTransaction data:", data);
+    const isJito = isJitoTransactionXray(data);
+    console.log("Is Jito transaction:", isJito);
 
   // Function to shorten all public key strings within the description and wrap with Link
   const renderDescription = (desc: string) => {
@@ -102,6 +106,14 @@ export default function TransactionOverviewParsed({
             <CardTitle className="text-xl font-bold md:text-2xl">
               {type}
             </CardTitle>
+            {isJito && (
+              <Badge
+                className="px-2 py-1 text-xs"
+                variant="secondary"
+              >
+                Jito
+              </Badge>
+            )}
           </div>
 
           <div className="mt-2 flex flex-col text-left md:mt-0 md:text-right">

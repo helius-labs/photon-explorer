@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { isJitoTransaction, JITO_TIP_ADDRESSES } from "@/utils/jito";
 
 export default function TransactionInfo({
   tx,
@@ -17,6 +18,20 @@ export default function TransactionInfo({
   data: ParsedTransactionWithMeta;
 }) {
   const { data: signatureStatus } = useGetSignatureStatus(tx);
+  
+  const isJito = isJitoTransaction(data);
+  let jitoTipAmount = 0;
+
+  if (isJito) {
+    data.transaction.message.instructions.forEach(instruction => {
+      if ("parsed" in instruction && instruction.parsed.type === "transfer") {
+        const { destination, lamports } = instruction.parsed.info;
+        if (JITO_TIP_ADDRESSES.includes(destination)) {
+          jitoTipAmount = lamports;
+        }
+      }
+    });
+  }
 
   return (
     <div className="mx-[-1rem] overflow-x-auto md:mx-0">
@@ -79,6 +94,16 @@ export default function TransactionInfo({
                 <TableCell>UNIX Timestamp</TableCell>
                 <TableCell className="capitalize">{data.blockTime}</TableCell>
               </TableRow>
+              {isJito && (
+                <TableRow>
+                  <TableCell>Jito Tip</TableCell>
+                  <TableCell>
+                    <span className="flex items-center">
+                      {lamportsToSolString(jitoTipAmount, 7)} SOL
+                    </span>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

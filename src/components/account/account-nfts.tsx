@@ -1,50 +1,129 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
+import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
 import { NFT } from "@/types/nft";
+import { formatCurrencyValue } from "@/utils/numbers";
+import { isLikelySpam } from "@/utils/spam-detection/spamDetection";
 import { ColumnDef } from "@tanstack/react-table";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CircleHelp } from "lucide-react";
+import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
+
 import AccountNFTsModal from "@/components/account/account-nfts-modal";
 import { NFTGridTable } from "@/components/data-table/data-table-nft-grid";
-import Image from 'next/image';
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
-import metaplexLogo from "@/../public/assets/metaplexLogo.jpg";
-import { CircleHelp } from "lucide-react";
-import { Switch } from '../ui/switch';
-import { formatCurrencyValue } from '@/utils/numbers';
-import { Skeleton } from '../ui/skeleton';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { NFTMedia } from "../common/nft-media";
+import { Skeleton } from "../ui/skeleton";
+import { Switch } from "../ui/switch";
 
 const AccountNFTs = ({ address }: { address: string }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const collectionFilter = searchParams.get("collection");
+  const [collectionFilter, setCollectionFilter] = useState<string | undefined>(
+    undefined,
+  );
 
   const [showMetaplexVerified, setShowMetaplexVerified] = useState(false);
   const [showCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [collections, setCollections] = useState<string[]>([]);
+  const [filterSpam, setFilterSpam] = useState(true);
+  const [spamFilteredNfts, setSpamFilteredNfts] = useState<NFT[]>([]);
 
   const { data: nfts, isLoading, isError } = useGetNFTsByOwner(address);
 
   useEffect(() => {
-    if (nfts) {
+    const applySpamFilter = async () => {
+      if (!nfts) return;
+
+      const filtered = filterSpam
+        ? await Promise.all(
+            nfts.map(async (nft) => {
+              const isSpam = await isLikelySpam(nft);
+              return isSpam ? null : nft;
+            }),
+          )
+        : nfts;
+      setSpamFilteredNfts(filtered.filter((nft): nft is NFT => nft !== null));
+    };
+
+    applySpamFilter();
+  }, [nfts, filterSpam]);
+
+  useEffect(() => {
+    const applySpamFilter = async () => {
+      if (!nfts) return;
+
+      const filtered = filterSpam
+        ? await Promise.all(
+            nfts.map(async (nft) => {
+              const isSpam = await isLikelySpam(nft);
+              return isSpam ? null : nft;
+            }),
+          )
+        : nfts;
+      const nonSpamNfts = filtered.filter((nft): nft is NFT => nft !== null);
+      setSpamFilteredNfts(nonSpamNfts);
+
       const collectionSet = new Set<string>();
-      nfts.forEach((nft) => {
+      nonSpamNfts.forEach((nft) => {
         if (nft.collectionName) {
           collectionSet.add(nft.collectionName);
         }
       });
-      setCollections(Array.from(collectionSet));
+
+      const sortedCollections = Array.from(collectionSet).sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" }),
+      );
+
+      setCollections(["All Collections", ...sortedCollections]);
+    };
+
+    applySpamFilter();
+  }, [nfts, filterSpam]);
+
+  const filteredCollections = useMemo(() => {
+    if (!showMetaplexVerified) return collections;
+    return collections.filter(
+      (collection) =>
+        collection === "All Collections" ||
+        spamFilteredNfts.some(
+          (nft) => nft.collectionName === collection && nft.verified,
+        ),
+    );
+  }, [collections, spamFilteredNfts, showMetaplexVerified]);
+
+  useEffect(() => {
+    const currentCollection = searchParams.get("collection");
+
+    if (currentCollection && filteredCollections.includes(currentCollection)) {
+      setCollectionFilter(currentCollection);
+    } else {
+      setCollectionFilter("All Collections");
+      handleNoFilter();
     }
-  }, [nfts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, filteredCollections]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const createQueryString = (name: string, value: string) => {
@@ -53,16 +132,45 @@ const AccountNFTs = ({ address }: { address: string }) => {
     return params.toString();
   };
 
-  const handleCollectionFilter = useCallback((collection: string) => {
-    const queryString = createQueryString("collection", collection);
-    router.push(`${pathname}?${queryString}`);
-  }, [createQueryString, pathname, router]);
-
   const handleNoFilter = useCallback(() => {
+    setCollectionFilter(undefined);
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete("collection");
     router.push(`${pathname}?${newSearchParams.toString()}`);
   }, [pathname, router, searchParams]);
+
+  const handleCollectionFilter = useCallback(
+    (collection: string) => {
+      if (collection === "All Collections") {
+        handleNoFilter();
+      } else {
+        setCollectionFilter(collection);
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set("collection", collection);
+        router.push(`${pathname}?${newSearchParams.toString()}`);
+      }
+    },
+    [handleNoFilter, pathname, router, searchParams],
+  );
+
+  const handleVerifiedToggle = useCallback(() => {
+    setShowMetaplexVerified((prev) => {
+      const newValue = !prev;
+      if (
+        newValue &&
+        collectionFilter &&
+        collectionFilter !== "All Collections"
+      ) {
+        const hasVerifiedNFTs = spamFilteredNfts.some(
+          (nft) => nft.collectionName === collectionFilter && nft.verified,
+        );
+        if (!hasVerifiedNFTs) {
+          handleNoFilter();
+        }
+      }
+      return newValue;
+    });
+  }, [collectionFilter, spamFilteredNfts, handleNoFilter]);
 
   const handleQuickViewClick = useCallback((nftData: NFT) => {
     setSelectedNft(nftData);
@@ -70,61 +178,68 @@ const AccountNFTs = ({ address }: { address: string }) => {
   }, []);
 
   const filteredNfts = useMemo(() => {
-    return (
-      nfts?.filter((nft) => {
-        const matchesVerified = showMetaplexVerified ? nft.verified : true;
-        const matchesCollection = collectionFilter
-          ? nft.collectionName === collectionFilter
-          : true;
-        const matchesCompressed =
-          !showCompressed || (nft.compression && nft.compression.compressed);
-        return matchesVerified && matchesCollection && matchesCompressed;
-      }) || []
-    );
-  }, [nfts, showMetaplexVerified, collectionFilter, showCompressed]);
+    return spamFilteredNfts.filter((nft) => {
+      const matchesVerified = !showMetaplexVerified || nft.verified;
+      const matchesCollection =
+        !collectionFilter || nft.collectionName === collectionFilter;
+      const matchesCompressed =
+        !showCompressed || (nft.compression && nft.compression.compressed);
+      return matchesVerified && matchesCollection && matchesCompressed;
+    });
+  }, [
+    spamFilteredNfts,
+    showMetaplexVerified,
+    collectionFilter,
+    showCompressed,
+  ]);
 
-  const columns: ColumnDef<NFT>[] = useMemo(() => [
-    {
-      header: "Image",
-      accessorKey: "image",
-      cell: ({ getValue, row }) => {
-        const imageUrl = getValue<string>() || noLogoImg.src;
-        return (
-          <div className="group relative">
-            <Image
-              src={imageUrl}
-              alt="NFT"
-              className="h-40 w-full rounded-md object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
-              <Button
-                onClick={() => handleQuickViewClick(row.original)}
-                className="text-white"
-              >
-                Quick View
-              </Button>
+  const handleSpamFilterToggle = useCallback(() => {
+    setFilterSpam((prev) => !prev);
+  }, []);
+
+  const columns: ColumnDef<NFT>[] = useMemo(
+    () => [
+      {
+        header: "Media",
+        accessorKey: "image",
+        cell: ({ getValue, row }) => {
+          return (
+            <div className="group relative">
+              <NFTMedia
+                nft={row.original}
+                className="rounded-md object-contain"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+                <Button
+                  onClick={() => handleQuickViewClick(row.original)}
+                  className="text-white"
+                >
+                  Quick View
+                </Button>
+              </div>
             </div>
-          </div>
-        );
+          );
+        },
       },
-    },
-    {
-      header: "Name",
-      accessorKey: "name",
-    },
-    {
-      header: "Price (SOL)",
-      accessorKey: "value",
-      cell: ({ getValue }) => {
-        const price = getValue<number>();
-        return price ? formatCurrencyValue(price) : "N/A";
+      {
+        header: "Name",
+        accessorKey: "name",
       },
-    },
-  ], [handleQuickViewClick]);
+      {
+        header: "Price (SOL)",
+        accessorKey: "value",
+        cell: ({ getValue }) => {
+          const price = getValue<number>();
+          return price ? formatCurrencyValue(price) : "N/A";
+        },
+      },
+    ],
+    [handleQuickViewClick],
+  );
 
   if (isError)
     return (
-      <Card className="col-span-12 mb-10 shadow mx-[-1rem] md:mx-0">
+      <Card className="col-span-12 mx-[-1rem] mb-10 shadow md:mx-0">
         <CardContent className="flex flex-col items-center gap-4 pb-6 pt-6">
           <div className="font-semibold text-secondary">
             Unable to fetch NFTs
@@ -143,71 +258,98 @@ const AccountNFTs = ({ address }: { address: string }) => {
     );
 
   return (
-    (
-      <>
-        <Card className="col-span-12 mb-10 shadow overflow-hidden mx-[-1rem] md:mx-0">
-          <CardContent className="flex flex-col gap-4 pb-4 pt-6">
+    <>
+      <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden shadow md:mx-0">
+        <CardContent className="flex flex-col gap-4 pb-4 pt-6">
           {isLoading ? (
-  <div>
-<div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:pb-8 md:space-x-4 md:items-center">
-  <div className="flex flex-col font-medium md:flex-grow">
-    <Skeleton className="h-6 w-32" /> {/* Total NFTs */}
-  </div>
-  <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:items-center md:ml-auto pb-8 md:pb-0">
-    <Skeleton className="h-8 w-40" /> {/* Verified Badge */}
-    <Skeleton className="h-8 w-full md:w-44" /> {/* All Collections */}
-  </div>
-</div>
+            <div>
+              <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-x-4 md:space-y-0 md:pb-8">
+                <div className="flex flex-col font-medium md:flex-grow">
+                  <Skeleton className="h-6 w-32" /> {/* Total NFTs */}
+                </div>
+                <div className="flex flex-col space-y-4 pb-8 md:ml-auto md:flex-row md:items-center md:space-x-4 md:space-y-0 md:pb-0">
+                  <Skeleton className="h-8 w-40" /> {/* Verified Badge */}
+                  <Skeleton className="h-8 w-full md:w-44" />{" "}
+                  {/* All Collections */}
+                </div>
+              </div>
 
+              {/* Adjusting grid for mobile */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+                {Array.from({ length: 20 }).map((_, index) => (
+                  <Card key={index} className="shadow">
+                    <Skeleton className="h-48 w-full rounded-md" />{" "}
+                    {/* Image */}
+                    <CardContent>
+                      <Skeleton className="mt-4 h-6 w-full pb-2" /> {/* Name */}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-
-    
-    {/* Adjusting grid for mobile */}
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-      {Array.from({ length: 20 }).map((_, index) => (
-        <Card key={index} className="shadow">
-          <Skeleton className="h-48 w-full rounded-md" /> {/* Image */}
-          <CardContent>
-            <Skeleton className="h-6 w-full pb-2 mt-4" /> {/* Name */}
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-
-    {/* Pagination Skeleton */}
-    <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-4 mt-4">
-      <div className="flex items-center mb-4 sm:mb-0">
-        <Skeleton className="h-6 w-20" /> {/* Rows per page text */}
-      </div>
-      <div className="flex items-center space-x-4">
-        <Skeleton className="h-6 w-12" /> {/* Page indicator */}
-        <Skeleton className="h-8 w-8 rounded-full" /> {/* Left double arrow */}
-        <Skeleton className="h-8 w-8 rounded-full" /> {/* Left single arrow */}
-        <Skeleton className="h-8 w-8 rounded-full" /> {/* Right single arrow */}
-        <Skeleton className="h-8 w-8 rounded-full" /> {/* Right double arrow */}
-      </div>
-    </div>
-  </div>
+              {/* Pagination Skeleton */}
+              <div className="mt-4 flex flex-col items-center justify-between px-4 py-4 sm:flex-row">
+                <div className="mb-4 flex items-center sm:mb-0">
+                  <Skeleton className="h-6 w-20" /> {/* Rows per page text */}
+                </div>
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-6 w-12" /> {/* Page indicator */}
+                  <Skeleton className="h-8 w-8 rounded-full" />{" "}
+                  {/* Left double arrow */}
+                  <Skeleton className="h-8 w-8 rounded-full" />{" "}
+                  {/* Left single arrow */}
+                  <Skeleton className="h-8 w-8 rounded-full" />{" "}
+                  {/* Right single arrow */}
+                  <Skeleton className="h-8 w-8 rounded-full" />{" "}
+                  {/* Right double arrow */}
+                </div>
+              </div>
+            </div>
           ) : (
             <>
               <div className="mb-4 flex flex-col justify-between text-xs sm:flex-row sm:items-center sm:text-sm">
                 <div className="flex flex-col font-medium sm:flex-row sm:space-x-4">
                   <span>Total NFTs: {filteredNfts.length}</span>
                 </div>
-                <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:items-center sm:space-x-4 sm:mt-0">
-                  <div className="flex items-center space-x-2 cursor-pointer">
-                    <Badge className="flex items-center space-x-2 mt-3 md:mt-0" variant="verified">
+                <div className="flex flex-col space-y-4 sm:mt-0 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
+                  <div className="flex cursor-pointer items-center space-x-2">
+                    <Badge
+                      className="mt-3 flex items-center space-x-2 md:mt-0"
+                      variant="outline"
+                    >
+                      Likely Spam
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <CircleHelp className="ml-1 h-4 w-4 cursor-pointer" />
+                        </PopoverTrigger>
+                        <PopoverContent className="text-center">
+                          Filter out NFTs that are likely to be spam
+                        </PopoverContent>
+                      </Popover>
+                      <Switch
+                        checked={filterSpam}
+                        onCheckedChange={handleSpamFilterToggle}
+                        className="ml-2"
+                        checkedClassName="bg-purple-600 opacity-90"
+                        uncheckedClassName="bg-gray-400"
+                        style={{ transform: "scale(0.85)" }}
+                      />
+                    </Badge>
+                    <Badge
+                      className="mt-3 flex items-center space-x-2 md:mt-0"
+                      variant="verified"
+                    >
                       Verified
                       <Image
                         src={metaplexLogo}
                         alt="Metaplex Logo"
                         width={16}
                         height={16}
-                        className="rounded-full ml-2"
+                        className="ml-2 rounded-full"
                       />
                       <Popover>
                         <PopoverTrigger asChild>
-                          <CircleHelp className="w-4 h-4 ml-1 cursor-pointer" />
+                          <CircleHelp className="ml-1 h-4 w-4 cursor-pointer" />
                         </PopoverTrigger>
                         <PopoverContent>
                           Filter your response by Metaplex Verified NFTs
@@ -215,9 +357,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       </Popover>
                       <Switch
                         checked={showMetaplexVerified}
-                        onCheckedChange={() =>
-                          setShowMetaplexVerified((prev) => !prev)
-                        }
+                        onCheckedChange={handleVerifiedToggle}
                         className="ml-2"
                         checkedClassName="bg-purple-600 opacity-90"
                         uncheckedClassName="bg-gray-400"
@@ -226,19 +366,14 @@ const AccountNFTs = ({ address }: { address: string }) => {
                     </Badge>
                   </div>
                   <Select
-                    value={collectionFilter || "all"}
-                    onValueChange={(value) =>
-                      value === "all"
-                        ? handleNoFilter()
-                        : handleCollectionFilter(value)
-                    }
+                    value={collectionFilter || "All Collections"}
+                    onValueChange={handleCollectionFilter}
                   >
                     <SelectTrigger className="w-full sm:w-48">
                       <SelectValue placeholder="Filter by Collection" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Collections</SelectItem>
-                      {collections.map((collection) => (
+                      {filteredCollections.map((collection) => (
                         <SelectItem key={collection} value={collection}>
                           {collection}
                         </SelectItem>
@@ -268,7 +403,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
         onClose={() => setIsModalOpen(false)}
       />
     </>
-  ));
+  );
 };
 
 export default AccountNFTs;

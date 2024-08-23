@@ -36,7 +36,7 @@ export default function Address({
 
   let addressLabel = display;
   if (short && display === address) {
-    addressLabel = shorten(display, 4);
+    addressLabel = shorten(display, 8);
   }
 
   React.useEffect(() => {

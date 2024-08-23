@@ -44,10 +44,15 @@ export function shorten(string: string | undefined, chars = 4): string {
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
 }
 
-export function shortenLong(string: string | undefined, chars = 8): string {
-  if (!string) {
-    return "";
+export function shortenLong(string: any, chars: number = 8): string {
+  if (typeof string !== "string") {
+    return ""; // Return an empty string if the input is not a string
   }
+
+  if (string.length <= chars * 2) {
+    return string; // Return the original string if it's shorter than twice the chars
+  }
+
   return `${string.slice(0, chars)}...${string.slice(-chars)}`;
 }
 

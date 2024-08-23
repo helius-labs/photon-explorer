@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import { NFT } from "@/types/nft";
-import cloudflareLoader from "@/utils/imageLoader";
-import Image from "next/image";
+import { NFTMedia } from "./nft-media";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "../ui/button";
 
@@ -15,7 +13,6 @@ interface NFTGridItemProps {
 
 export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const tokenImage = nft.image || noLogoImg;
   const maxLength = 16;
 
   const truncateName = (name: string) => {
@@ -31,20 +28,11 @@ export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
         {isLoading && (
           <Skeleton className="absolute h-full w-full rounded-md" />
         )}
-        <Image
-          loader={cloudflareLoader}
-          src={tokenImage}
-          alt={nft.name || "Unknown"}
-          width={300}
-          height={300}
-          loading="eager"
+        <NFTMedia
+          nft={nft}
           className="max-h-48 min-h-48 w-full rounded-lg"
           onLoad={() => setIsLoading(false)}
-          onError={(event: any) => {
-            event.target.id = "noLogoImg";
-            event.target.srcset = noLogoImg.src;
-            setIsLoading(false);
-          }}
+          onError={() => setIsLoading(false)}
         />
         <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
           <Button onClick={() => onQuickView(nft)} className="text-white">

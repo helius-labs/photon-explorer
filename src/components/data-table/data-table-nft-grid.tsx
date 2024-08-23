@@ -3,13 +3,15 @@
 import { NFT } from "@/types/nft";
 import {
   ColumnDef,
-  useReactTable,
+  SortingState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useMemo, useState } from "react";
+
 import { NFTGridItem } from "../common/nft-items";
 import { NFTGridPagination } from "./data-table-nft-grid-pagination";
 
@@ -24,6 +26,10 @@ export function NFTGridTable<TData, TValue>({
   data,
   onQuickView,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "name", desc: false },
+  ]);
+
   const table = useReactTable({
     data,
     columns,
@@ -31,26 +37,38 @@ export function NFTGridTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
     initialState: {
       pagination: {
         pageSize: 20,
       },
     },
   });
-  
+
+  const sortedRows = useMemo(() => {
+    return [...table.getRowModel().rows].sort((a, b) => {
+      const aName = (a.original as NFT).name?.toLowerCase() ?? "";
+      const bName = (b.original as NFT).name?.toLowerCase() ?? "";
+
+      return aName.localeCompare(bName);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table.getRowModel().rows]);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {table.getRowModel().rows.length > 0 ? (
-          table
-            .getRowModel()
-            .rows.map((row) => (
-              <NFTGridItem
-                key={row.id}
-                nft={row.original as NFT}
-                onQuickView={onQuickView}
-              />
-            ))
+        {sortedRows.length > 0 ? (
+          sortedRows.map((row) => (
+            <NFTGridItem
+              key={row.id}
+              nft={row.original as NFT}
+              onQuickView={onQuickView}
+            />
+          ))
         ) : (
           <div className="col-span-full text-center">No results.</div>
         )}
