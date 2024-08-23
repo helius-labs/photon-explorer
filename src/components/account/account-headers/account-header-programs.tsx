@@ -4,22 +4,34 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CheckIcon, Copy, MoreVertical, XIcon } from "lucide-react";
 import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
 import { shortenLong } from "@/utils/common";
+import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
+
+import { useProgramVerification } from "@/hooks/useProgramVerification";
+import { useWalletLabel } from "@/hooks/useWalletLabel";
+
 import Address from "@/components/common/address";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { PROGRAM_INFO_BY_ID, SPECIAL_IDS, SYSVAR_IDS } from "@/utils/programs";
-import { Cluster } from "@/utils/cluster";
-import { useProgramVerification } from "@/hooks/useProgramVerification";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface AccountHeaderProgramsProps {
   address: PublicKey;
   accountInfo: AccountInfo<Buffer | ParsedAccountData> | null;
-  isClosed?: boolean;
 }
 
-const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address, accountInfo, isClosed }) => {
+const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address, accountInfo }) => {
   const [hasCopied, setHasCopied] = useState(false);
   const router = useRouter();
   const { cluster, endpoint } = useCluster();
@@ -28,8 +40,9 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address, 
   const specialInfo = SPECIAL_IDS[programId];
   const sysvarInfo = SYSVAR_IDS[programId];
   const displayName = programInfo ? programInfo.name : specialInfo ? specialInfo : sysvarInfo ? sysvarInfo : "Unknown Account";
-  const fallbackAddress = address.toBase58();
+  
   const { verificationStatus, isLoading: isVerificationLoading } = useProgramVerification(programId);
+  const { label, labelType, isLoading: loadingLabel } = useWalletLabel(programId);
 
   useEffect(() => {
     if (hasCopied) {
@@ -38,7 +51,11 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address, 
     }
   }, [hasCopied]);
 
-  const isLocalOrTestNet = [Cluster.Localnet, Cluster.Testnet, Cluster.Custom].includes(cluster);
+  const isLocalOrTestNet = [
+    Cluster.Localnet,
+    Cluster.Testnet,
+    Cluster.Custom,
+  ].includes(cluster);
 
   return (
     <div className="flex justify-between items-center px-4 py-3 md:py-6 md:px-8 bg-background space-x-4">
@@ -89,6 +106,11 @@ const AccountHeaderPrograms: React.FC<AccountHeaderProgramsProps> = ({ address, 
               </Tooltip>
             </TooltipProvider>
           </div>
+          {!loadingLabel && label && (
+            <div className="text-sm text-muted-foreground">
+              <span className="font-medium">Label:</span> {label} ({labelType})
+            </div>
+          )}
         </div>
       </div>
 
