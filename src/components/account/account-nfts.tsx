@@ -317,7 +317,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       className="mt-3 flex items-center space-x-2 md:mt-0"
                       variant="outline"
                     >
-                      Likely Spam
+                      Filter Out Spam
                       <Popover>
                         <PopoverTrigger asChild>
                           <CircleHelp className="ml-1 h-4 w-4 cursor-pointer" />
