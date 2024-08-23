@@ -18,7 +18,18 @@ const MetadataViewer: React.FC<MetadataViewerProps> = ({ data }) => {
   const [showCode, setShowCode] = useState(true);
   const [hasCopied, setHasCopied] = useState(false);
 
-  const formattedMetadata = JSON.stringify(data, null, 2);
+  const filterMintExtensions = (metadata: any) => {
+    const filteredData = { ...metadata };
+
+    if (filteredData.mint_extensions) {
+      delete filteredData.mint_extensions;
+    }
+
+    return filteredData;
+  };
+
+  const filteredMetadata = filterMintExtensions(data);
+  const formattedMetadata = JSON.stringify(filteredMetadata, null, 2);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(formattedMetadata);
