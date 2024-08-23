@@ -94,7 +94,9 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
             <div className="h-full w-full flex-grow lg:flex-grow-0 lg:overflow-hidden">
               <DialogHeader>
                 <DialogTitle className="mb-2 text-xl font-bold text-foreground sm:text-2xl">
-                  {nft.name || "Unknown NFT"}
+                  <Link href={`/address/${nft.mint.toBase58()}`} className="hover:underline">
+                    {nft.name || "Unknown NFT"}
+                  </Link>
                 </DialogTitle>
                 <div className="mb-2 flex flex-wrap">
                   <Badge variant="success" className="mb-2 mr-2">

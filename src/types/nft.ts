@@ -137,4 +137,5 @@ export interface NFTMediaProps {
   className?: string;
   onLoad?: () => void;
   onError?: () => void;
+  onMediaLoad?: (url: string) => void;
 };
