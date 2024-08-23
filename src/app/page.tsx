@@ -1,4 +1,4 @@
-import xrayLogo from "@/../public/assets/xrayLogo.svg";
+import xrayLogo2 from "@/../public/assets/xrayLogo2.svg";
 import type { Metadata } from "next";
 import Image from "next/image";
 
@@ -30,7 +30,7 @@ export default async function Home() {
       <div className="grow px-4 pt-20 md:pt-40">
         <div className="flex flex-col items-center space-y-6 md:space-y-10">
           <div className="h-14 w-48 sm:h-14 sm:w-48 md:h-16 md:w-72 lg:h-24 lg:w-96">
-            <Image src={xrayLogo} alt="XRAY Logo" priority />
+            <Image src={xrayLogo2} alt="XRAY Logo" priority />
           </div>
           <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
             <SearchBar autoFocus={false} />

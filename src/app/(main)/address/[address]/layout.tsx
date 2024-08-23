@@ -4,7 +4,7 @@ import loadingBarAnimation from "@/../public/assets/animations/loadingBar.json";
 import { useCluster } from "@/providers/cluster-provider";
 import { AccountType, getAccountType } from "@/utils/account";
 import { isSolanaAccountAddress } from "@/utils/common";
-import { PublicKey } from "@solana/web3.js";
+import { Account, PublicKey } from "@solana/web3.js";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -108,6 +108,10 @@ export default function AddressLayout({
       // Only add the "Charts" tab for Token account types
       if (accountType === AccountType.Token) {
         newTabs.push({ name: "Charts", href: `/address/${address}/charts` });
+      }
+
+      if (accountType === AccountType.Token2022) {
+        newTabs.push({ name: "Token Extensions", href: `/address/${address}/mint-extensions` });
       }
     }
 

@@ -62,15 +62,43 @@ const SecurityTxtDisplay: React.FC<SecurityTxtProps> = ({ programId }) => {
     );
   }
 
-  const formatFieldValue = (key: string, value: string) => {
+  const formatFieldValue = (key: string, value: string | undefined): React.ReactNode => {
+    if (!value) return "N/A";
+
     if (key === "preferred_languages") {
       return value.toUpperCase();
     }
     if (key === "contacts") {
-      return value.split(",").map(contact => contact.trim()).join(", ");
+      return value.split(",").map((contact, index) => {
+        const trimmedContact = contact.trim();
+        if (trimmedContact.startsWith("email:")) {
+          const email = trimmedContact.substring(6);
+          return <a key={index} href={`mailto:${email}`} className="text-blue-500 hover:underline">{email}</a>;
+        }
+        if (trimmedContact.startsWith("http")) {
+          return <a key={index} href={trimmedContact} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{trimmedContact} <ExternalLink className="inline-block ml-1 h-4 w-4" /></a>;
+        }
+        return <span key={index}>{trimmedContact}</span>;
+      }).reduce((prev, curr, index) => index === 0 ? [curr] : [...prev, ", ", curr], [] as React.ReactNode[]);
     }
     return value;
   };
+
+  const formatFieldName = (key: string) => {
+    const specialCases: { [key: string]: string } = {
+      "project_url": "Project URL",
+      "source_code": "Source Code",
+      "source_release": "Source Release",
+      "source_revision": "Source Revision",
+    };
+    return specialCases[key] || key.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  };
+
+  const orderedKeys: (keyof SecurityTxt)[] = [
+    "name", "project_url", "contacts", "policy", "source_code",
+    "source_release", "source_revision", "preferred_languages",
+    "encryption", "auditors", "acknowledgements", "expiry"
+  ];
 
   return (
     <div>
@@ -103,18 +131,23 @@ const SecurityTxtDisplay: React.FC<SecurityTxtProps> = ({ programId }) => {
             </pre>
           ) : (
             <div className="space-y-4">
-              {Object.entries(securityTxt).map(([key, value]) => (
-                <div key={key}>
-                  <span className="font-semibold">{key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ')}:</span>{' '}
-                  {key === 'project_url' || key === 'policy' || key === 'source_code' ? (
-                    <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                      {value} <ExternalLink className="inline-block ml-1 h-4 w-4" />
-                    </a>
-                  ) : (
-                    formatFieldValue(key, value)
-                  )}
-                </div>
-              ))}
+              {orderedKeys.map((key) => {
+                if (key in securityTxt) {
+                  return (
+                    <div key={key}>
+                      <span className="font-semibold">{formatFieldName(key)}:</span>{" "}
+                      {["project_url", "policy", "source_code"].includes(key) ? (
+                        <a href={securityTxt[key]} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          {securityTxt[key]} <ExternalLink className="inline-block ml-1 h-4 w-4" />
+                        </a>
+                      ) : (
+                        formatFieldValue(key, securityTxt[key])
+                      )}
+                    </div>
+                  );
+                }
+                return null;
+              })}
             </div>
           )}
         </div>
