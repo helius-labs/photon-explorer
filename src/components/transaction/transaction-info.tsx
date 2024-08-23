@@ -1,0 +1,113 @@
+import { lamportsToSolString, timeAgoWithFormat } from "@/utils/common";
+import { ParsedTransactionWithMeta } from "@solana/web3.js";
+
+import { useGetSignatureStatus } from "@/hooks/web3";
+
+import Address from "@/components/common/address";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { isJitoTransaction, JITO_TIP_ADDRESSES } from "@/utils/jito";
+
+export default function TransactionInfo({
+  tx,
+  data,
+}: {
+  tx: string;
+  data: ParsedTransactionWithMeta;
+}) {
+  const { data: signatureStatus } = useGetSignatureStatus(tx);
+  
+  const isJito = isJitoTransaction(data);
+  let jitoTipAmount = 0;
+
+  if (isJito) {
+    data.transaction.message.instructions.forEach(instruction => {
+      if ("parsed" in instruction && instruction.parsed.type === "transfer") {
+        const { destination, lamports } = instruction.parsed.info;
+        if (JITO_TIP_ADDRESSES.includes(destination)) {
+          jitoTipAmount = lamports;
+        }
+      }
+    });
+  }
+
+  return (
+    <div className="mx-[-1rem] overflow-x-auto md:mx-0">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Transaction Metadata</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="w-1/4">Slot</TableCell>
+                <TableCell>{data?.slot}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Signer</TableCell>
+                <TableCell>
+                  <Address
+                    pubkey={data?.transaction.message.accountKeys[0].pubkey}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Fee Payer</TableCell>
+                <TableCell>
+                  <Address
+                    pubkey={data?.transaction.message.accountKeys[0].pubkey}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Transaction Fee</TableCell>
+                <TableCell>
+                  {data?.meta?.fee && (
+                    <span>{lamportsToSolString(data?.meta?.fee, 7)} SOL</span>
+                  )}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Compute units consumed</TableCell>
+                <TableCell>{data?.meta?.computeUnitsConsumed}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Transaction Version</TableCell>
+                <TableCell>{data?.version}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Recent Blockhash</TableCell>
+                <TableCell>
+                  {data?.transaction.message.recentBlockhash}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Confirmation status</TableCell>
+                <TableCell className="capitalize">
+                  {signatureStatus?.value?.confirmationStatus}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>UNIX Timestamp</TableCell>
+                <TableCell className="capitalize">{data.blockTime}</TableCell>
+              </TableRow>
+              {isJito && (
+                <TableRow>
+                  <TableCell>Jito Tip</TableCell>
+                  <TableCell>
+                    <span className="flex items-center">
+                      {lamportsToSolString(jitoTipAmount, 7)} SOL
+                    </span>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

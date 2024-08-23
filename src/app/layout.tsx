@@ -1,14 +1,11 @@
+import { ClusterProvider } from "@/providers/cluster-provider";
+import { ReactQueryClientProvider } from "@/providers/query-client-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { cn } from "@/utils/common";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Inter as Fontface } from "next/font/google";
 import { Suspense } from "react";
-
-import { cn } from "@/lib/utils";
-
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
-import { ClusterProvider } from "@/components/providers/cluster-provider";
-import { ReactQueryClientProvider } from "@/components/providers/query-client-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 
 import "./globals.css";
 
@@ -17,24 +14,18 @@ const fontface = Fontface({
 });
 
 export const metadata: Metadata = {
-  title: "Photon Block Explorer",
+  title: "XRAY Beta",
   description: "",
   icons: [
     {
       rel: "icon",
       type: "image/png",
       sizes: "32x32",
-      url: "/favicon/favicon-32x32.png",
-    },
-    {
-      rel: "icon",
-      type: "image/png",
-      sizes: "512x512",
-      url: "/favicon/favicon-512x512.png",
+      url: "/favicon/xray-icon.png",
     },
     {
       rel: "apple-touch-icon",
-      url: "/favicon/favicon-512x512.png",
+      url: "/favicon/xray-icon.png",
     },
   ],
 };
@@ -46,13 +37,20 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+      </head>
       <body
         className={cn(
-          "min-h-screen bg-background antialiased",
+          "flex min-h-screen flex-col bg-background antialiased",
           fontface.className,
         )}
       >
+        <div className="relative top-0 z-[-1]">
+          <div className="absolute bottom-auto left-0 right-0 top-0 mt-[-60px] block h-[720px] w-full"></div>
+        </div>
         <ReactQueryClientProvider>
           <ThemeProvider
             attribute="class"
@@ -62,15 +60,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
           >
             <Suspense>
               <ClusterProvider>
-                <Header />
-                <main className="container flex-1 space-y-4 p-8 pt-6">
+                <div className="flex min-h-screen w-full flex-col">
                   {children}
-                </main>
-                <Footer />
+                </div>
               </ClusterProvider>
             </Suspense>
           </ThemeProvider>
         </ReactQueryClientProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

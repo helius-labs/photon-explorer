@@ -1,28 +1,46 @@
+import xrayLogo2 from "@/../public/assets/xrayLogo2.svg";
 import type { Metadata } from "next";
+import Image from "next/image";
 
-import LatestCompressionSignatures from "@/components/latest-compression-signatures";
+import { Footer } from "@/components/footer";
 import LatestNonVotingSignatures from "@/components/latest-nonvoting-signatures";
-import LatestTransactions from "@/components/latest-transactions";
+import { MainNav } from "@/components/main-nav";
+import { NetworkStatusDropdown } from "@/components/network-dropdown";
+import { SearchBar } from "@/components/search-bar";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Home | Photon - Solana Explorer",
-  description: "Photon - Solana Explorer",
+  title: "Home | XRAY",
+  description:
+    "The most readable Solana explorer. Explore the Solana blockchain with ease.",
 };
 
-export default function Home() {
+export default async function Home() {
   return (
     <>
-      <div className="flex items-center justify-between space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Photon - Solana Explorer
-        </h1>
-      </div>
-
-      <div className="grid gap-4 grid-cols-4">
-        <div className="col-span-4">
-          <LatestNonVotingSignatures />
+      <div>
+        <div className="flex h-16 items-center justify-between px-4 md:px-8">
+          <MainNav />
+          <div className="ml-auto flex items-center space-x-2 md:space-x-4">
+            <ThemeToggle />
+            <NetworkStatusDropdown />
+          </div>
         </div>
       </div>
+      <div className="grow px-4 pt-20 md:pt-40">
+        <div className="flex flex-col items-center space-y-6 md:space-y-10">
+          <div className="h-14 w-48 sm:h-14 sm:w-48 md:h-16 md:w-72 lg:h-24 lg:w-96">
+            <Image src={xrayLogo2} alt="XRAY Logo" priority />
+          </div>
+          <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
+            <SearchBar autoFocus={false} />
+          </div>
+          <div className="w-full max-w-md pb-8 md:max-w-lg md:pb-16 lg:max-w-xl">
+            <LatestNonVotingSignatures />
+          </div>
+        </div>
+      </div>
+      <Footer />
     </>
   );
 }

@@ -2,16 +2,9 @@
 
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import * as React from "react";
@@ -26,67 +19,73 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { DataTableToolbar } from "./data-table-toolbar";
-
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  pagination?: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  onPageChange?: (newPageIndex: number) => void;
+  manualPagination?: boolean;
+  loadedPages?: Set<number>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pagination,
+  onPageChange,
+  manualPagination = false,
+  loadedPages,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [paginationState, setPaginationState] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-      columnFilters,
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getPaginationRowModel: manualPagination
+      ? undefined
+      : getPaginationRowModel(),
+    manualPagination,
+    pageCount: manualPagination ? -1 : undefined,
+    state: {
+      pagination: manualPagination
+        ? pagination || paginationState
+        : paginationState,
+    },
+    onPaginationChange: manualPagination
+      ? (updater) => {
+          const newPagination =
+            typeof updater === "function"
+              ? updater(pagination || paginationState)
+              : updater;
+          onPageChange && onPageChange(newPagination.pageIndex);
+        }
+      : setPaginationState,
   });
 
   return (
-    <div className="space-y-4">
-      <DataTableToolbar table={table} />
-      <div className="rounded-md border">
-        <Table>
+    <div className="relative flex h-full flex-col">
+      <div className="flex-1 overflow-auto pb-2 md:pb-0">
+        <Table className="min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -120,7 +119,19 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {(manualPagination || !pagination) && (
+        <div className="sticky bottom-0 z-10 w-full md:relative md:p-0">
+          <div className="block h-4 md:hidden"></div>
+          <div className="flex justify-center">
+            <DataTablePagination
+              table={table}
+              onPageChange={manualPagination ? onPageChange : undefined}
+              manualPagination={manualPagination}
+              loadedPages={loadedPages}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

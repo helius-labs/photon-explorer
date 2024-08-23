@@ -1,88 +1,38 @@
 "use client";
 
+import { useCluster } from "@/providers/cluster-provider";
+import { getTokenPrices } from "@/server/getTokenPrice";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
-
-import { getBlockSchema } from "@/schemas/getBlock";
-import { getSignaturesForAddressSchema } from "@/schemas/getSignaturesForAddress";
-import { getTokenAccountsByOwnerSchema } from "@/schemas/getTokenAccountsByOwner";
-import { getTransactionSchema } from "@/schemas/getTransaction";
-
-import { useCluster } from "@/components/providers/cluster-provider";
-
-// TODO: Validate all responses with zod schemas
 
 export function useGetSlot(enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [endpoint, "getSlot"],
     queryFn: async () => {
-      return fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getSlot",
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      const connection = new Connection(endpoint, "processed");
+
+      return await connection.getSlot();
     },
     enabled,
   });
-
-  return {
-    slot: data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetBlock(slot: number, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, isPending, refetch } = useQuery({
+  return useQuery({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getBlock",
-          params: [
-            slot,
-            {
-              maxSupportedTransactionVersion: 0,
-              transactionDetails: "full",
-              encoding: "jsonParsed",
-              rewards: false,
-            },
-          ],
-        }),
-      }).then((res) => res.json());
+      const connection = new Connection(endpoint, "confirmed");
 
-      return getBlockSchema.parse(response);
+      return await connection.getBlock(Number(slot), {
+        maxSupportedTransactionVersion: 0,
+      });
     },
     enabled,
   });
-
-  return {
-    data,
-    isPending,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetTransaction(signature: string, enabled: boolean = true) {
@@ -91,23 +41,31 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
   return useQuery({
     queryKey: [endpoint, "getTransaction", signature],
     queryFn: async () => {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getTransaction",
-          params: [
-            signature,
-            { maxSupportedTransactionVersion: 0, encoding: "jsonParsed" },
-          ],
-        }),
-      }).then((res) => res.json());
+      const connection = new Connection(endpoint, "confirmed");
 
-      return getTransactionSchema.parse(response);
+      return await connection.getParsedTransaction(signature, {
+        maxSupportedTransactionVersion: 0,
+      });
+    },
+    enabled,
+    staleTime: 1000 * 60 * 60,
+  });
+}
+
+export function useGetSignatureStatus(
+  signature: string,
+  enabled: boolean = true,
+) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getSignatureStatus", signature],
+    queryFn: async () => {
+      const connection = new Connection(endpoint, "processed");
+
+      return await connection.getSignatureStatus(signature, {
+        searchTransactionHistory: true,
+      });
     },
     enabled,
   });
@@ -116,151 +74,122 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
 export function useGetAccountInfo(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery({
     queryKey: [endpoint, "getAccountInfo", address],
     queryFn: async () => {
-      return fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getAccountInfo",
-          params: [address, { encoding: "jsonParsed" }],
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      const connection = new Connection(endpoint, "processed");
+
+      return await connection.getParsedAccountInfo(new PublicKey(address), {
+        commitment: "processed",
+      });
     },
     enabled,
   });
-
-  return {
-    account: data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
 export function useGetBalance(address: string, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
+  return useQuery<number, Error>({
     queryKey: [endpoint, "getBalance", address],
     queryFn: async () => {
-      return fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getBalance",
-          params: [address],
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => res.result);
+      try {
+        const connection = new Connection(endpoint, "processed");
+        console.log("Fetching balance for address:", address);
+        return await connection.getBalance(new PublicKey(address));
+      } catch (error) {
+        console.error("Error fetching balance:", error);
+        throw error;
+      }
     },
     enabled,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
+}
 
-  return {
-    balance: data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
+async function fetchSolPrice(): Promise<number> {
+  const ids = ["So11111111111111111111111111111111111111112"];
+  const tokenPrices = await getTokenPrices(ids);
+
+  if (tokenPrices && tokenPrices.data[ids[0]]) {
+    return tokenPrices.data[ids[0]].price;
+  } else {
+    throw new Error("Failed to fetch SOL price");
+  }
+}
+
+export function useGetSolPrice() {
+  return useQuery<number, Error>({
+    queryKey: ["solPrice"],
+    queryFn: fetchSolPrice,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 }
 
 export function useGetSignaturesForAddress(
   address: string,
+  limit: number = 10,
   enabled: boolean = true,
+  before?: string,
 ) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
-    queryKey: [endpoint, "getSignaturesForAddress", address],
+  return useQuery({
+    queryKey: [endpoint, "getSignaturesForAddress", address, limit, before],
     queryFn: async () => {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getSignaturesForAddress",
-          params: [
-            address,
-            {
-              limit: 1000,
-            },
-          ],
-        }),
-      }).then((res) => res.json());
+      const connection = new Connection(endpoint, "confirmed");
 
-      return getSignaturesForAddressSchema.parse(response);
+      return await connection.getSignaturesForAddress(new PublicKey(address), {
+        limit,
+        before,
+      });
     },
     enabled,
+    staleTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
   });
-
-  return {
-    data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
 }
 
-export function useGetTokenAccountsByOwner(
-  address: string,
+export function useGetParsedAccountInfo(
+  publicKey: PublicKey,
   enabled: boolean = true,
 ) {
   const { endpoint } = useCluster();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery({
-    queryKey: [endpoint, "getTokenAccountsByOwner", address],
+  return useQuery({
+    queryKey: [endpoint, "getParsedAccountInfo", publicKey.toBase58()],
     queryFn: async () => {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getTokenAccountsByOwner",
-          params: [
-            address,
-            {
-              programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-            },
-            {
-              encoding: "jsonParsed",
-              commitment: "processed",
-            },
-          ],
-        }),
-      }).then((res) => res.json());
+      const connection = new Connection(endpoint, "confirmed");
 
-      return getTokenAccountsByOwnerSchema.parse(response);
+      return await connection.getParsedAccountInfo(publicKey);
     },
     enabled,
   });
+}
 
-  return {
-    data,
-    isLoading,
-    isFetching,
-    isError: error,
-    refetch,
-  };
+export function useGetRecentPerformanceSamples(options = {}) {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getRecentPerformanceSamples"],
+    queryFn: async () => {
+      const connection = new Connection(endpoint, "processed");
+
+      const performanceSamples =
+        await connection.getRecentPerformanceSamples(1);
+      const sample = performanceSamples[0];
+
+      const totalTransactions = Number(sample.numTransactions);
+      const samplePeriodSecs = sample.samplePeriodSecs;
+      const avgTps = totalTransactions / samplePeriodSecs;
+
+      const start = Date.now();
+      await connection.getSlot();
+      const end = Date.now();
+      const latency = end - start;
+
+      return { avgTps, latency };
+    },
+    ...options,
+  });
 }

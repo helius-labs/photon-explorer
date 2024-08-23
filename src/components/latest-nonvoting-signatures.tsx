@@ -1,88 +1,48 @@
 "use client";
 
+import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
+import { timeAgoWithFormat } from "@/utils/common";
+import { statuses } from "@/utils/data";
 import { ColumnDef } from "@tanstack/react-table";
-import { LoaderCircle, RotateCw } from "lucide-react";
 import { useMemo } from "react";
 
-import { compressions, statuses } from "@/lib/data";
-import { timeAgoWithFormat } from "@/lib/utils";
+import { useGetLatestNonVotingSignatures } from "@/hooks/compression";
 
-import { Item } from "@/schemas/getLatestNonVotingSignatures";
-
-import {
-  useGetLatestCompressionSignatures,
-  useGetLatestNonVotingSignatures,
-} from "@/hooks/compression";
-
+import Loading from "@/components/common/loading";
+import Signature from "@/components/common/signature";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import Loading from "@/components/loading";
-import Signature from "@/components/signature";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function LatestNonVotingSignatures() {
   type Transaction = {
-    slot: number;
     signature: string;
     status: boolean;
     blockTime: number | null;
-    compression: boolean;
   };
+
+  const { cluster } = useCluster();
 
   const columns = useMemo<ColumnDef<Transaction>[]>(
     () => [
-      {
-        accessorKey: "slot",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Slot" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("slot")}</div>,
-        enableSorting: true,
-      },
       {
         accessorKey: "signature",
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Signature" />
         ),
-        cell: ({ row }) => (
-          <Signature short={false}>{row.getValue("signature")}</Signature>
-        ),
+        cell: ({ row }) => <Signature signature={row.getValue("signature")} />,
         enableSorting: true,
-      },
-      {
-        accessorKey: "compression",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Compression" />
-        ),
-        cell: ({ row }) => {
-          const compression = compressions.find(
-            (compression) => compression.value === row.getValue("compression"),
-          );
-
-          if (!compression) {
-            return null;
-          }
-
-          return (
-            <div className="flex w-[100px] items-center">
-              {compression.icon && (
-                <compression.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-              )}
-              <span>{compression.label}</span>
-            </div>
-          );
-        },
-        enableSorting: true,
-        filterFn: (row, id, value) => {
-          return value.includes(row.getValue(id));
-        },
       },
       {
         accessorKey: "status",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
+          <DataTableColumnHeader
+            column={column}
+            title="Status"
+            className="hidden sm:table-cell"
+          />
         ),
         cell: ({ row }) => {
           const status = statuses.find(
@@ -94,11 +54,11 @@ export default function LatestNonVotingSignatures() {
           }
 
           return (
-            <div className="flex w-[100px] items-center">
+            <div className="hidden items-center justify-center sm:flex sm:justify-start">
               {status.icon && (
                 <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
               )}
-              <span>{status.label}</span>
+              <span className="hidden sm:inline">{status.label}</span>
             </div>
           );
         },
@@ -119,98 +79,62 @@ export default function LatestNonVotingSignatures() {
     [],
   );
 
-  const { data, refetch } = useGetLatestNonVotingSignatures();
+  const { data, isLoading, isError, isPending } =
+    useGetLatestNonVotingSignatures(
+      [
+        Cluster.Localnet,
+        Cluster.Testnet,
+        Cluster.Custom,
+        Cluster.Devnet,
+      ].includes(cluster),
+    );
 
-  const {
-    data: dataCompressions,
-    isLoading,
-    isPending,
-    isFetching,
-    isError,
-  } = useGetLatestCompressionSignatures(!!data);
+  if (
+    ![
+      Cluster.Localnet,
+      Cluster.Testnet,
+      Cluster.Custom,
+      Cluster.Devnet,
+    ].includes(cluster)
+  ) {
+    return null;
+  }
 
-  // Check if there are any compression signatures
-  const signatures: Transaction[] | undefined = data?.result.value.items?.map(
-    (item: Item): Transaction => ({
-      slot: item.slot,
+  const signatures: Transaction[] | undefined = data?.value.items?.map(
+    (item): Transaction => ({
       signature: item.signature,
       status: true,
       blockTime: item.blockTime,
-      compression: dataCompressions?.result.value.items.some(
-        (compressionItem) => compressionItem.signature === item.signature,
-      )
-        ? true
-        : false,
     }),
   );
 
-  // TODO: Refactor jsx
-  if (isError)
+  if (isLoading) {
     return (
-      <Card>
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            {isFetching ? (
-              <>
-                <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-                Loading
-              </>
-            ) : (
-              <>
-                <RotateCw className="mr-1 h-4 w-4" />
-                Refresh
-              </>
-            )}
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div>Failed to load</div>
-        </CardContent>
-      </Card>
-    );
-  if (isLoading || isPending || isFetching)
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center">
-          <div className="grid gap-2">
-            <CardTitle>Latest Non-Voting Transactions</CardTitle>
-          </div>
-          <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-            <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-            Loading
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
+      <Card className="mx-5 mb-16 md:mx-0 md:mb-0">
+        <CardContent className="flex min-h-[200px] items-center justify-center md:min-h-[200px]">
           <Loading />
         </CardContent>
       </Card>
     );
+  }
+
+  if (isError || !signatures || signatures.length === 0) {
+    return null;
+  }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle>Latest Non-Voting Transactions</CardTitle>
+    <Card className="mx-auto mb-16 w-full border md:mb-0">
+      <CardContent className="pt-4">
+        <div className="mb-2 flex justify-center text-sm text-secondary">
+          Recent transactions
         </div>
-        <Button size="sm" className="ml-auto gap-1" onClick={() => refetch()}>
-          {isFetching ? (
-            <>
-              <LoaderCircle className="mr-1 h-4 w-4 animate-spin" />
-              Loading
-            </>
-          ) : (
-            <>
-              <RotateCw className="mr-1 h-4 w-4" />
-              Refresh
-            </>
-          )}
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <DataTable data={signatures!} columns={columns} />
+        <div
+          className={`transition-opacity duration-700 ease-in-out ${isLoading ? "opacity-0" : "opacity-100"}`}
+        >
+          <div className="flex justify-center overflow-x-auto">
+            <DataTable data={signatures!} columns={columns} />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

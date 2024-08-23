@@ -3,7 +3,7 @@
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { Table } from "@tanstack/react-table";
 
-import { compressions, statuses } from "@/lib/data";
+import { compressions, statuses } from "@/utils/data";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,11 +18,19 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const isSignature = table.getAllColumns().find((x) => x.id === "signature");
+  const isCompression = table
+    .getAllColumns()
+    .find((x) => x.id === "compression");
+  const isStatus = table.getAllColumns().find((x) => x.id === "status");
 
+  if (!isSignature && !isCompression && !isStatus) {
+    return null;
+  }
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {table.getAllColumns().find((x) => x.id === "signature") && (
+        {isSignature && (
           <Input
             placeholder="Filter signature..."
             value={
@@ -34,14 +42,14 @@ export function DataTableToolbar<TData>({
             className="h-8 w-[150px] lg:w-[250px]"
           />
         )}
-        {table.getAllColumns().find((x) => x.id === "compression") && (
+        {isCompression && (
           <DataTableFacetedFilter
             column={table.getColumn("compression")}
             title="Compression"
             options={compressions}
           />
         )}
-        {table.getAllColumns().find((x) => x.id === "status") && (
+        {isStatus && (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
