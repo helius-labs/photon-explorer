@@ -6,6 +6,7 @@ import {
   ParserTransactionTypes,
   SOL,
   type TransactionAction,
+  TransactionErrorOrNull,
   XrayNativeTransfer,
   XrayTokenTransfer,
   type XrayTransaction,
@@ -26,6 +27,7 @@ export const parseNftList = (
     feePayer,
     description,
     events,
+    transactionError,
   } = transaction;
 
   if (tokenTransfers === null || nativeTransfers === null) {
@@ -39,6 +41,7 @@ export const parseNftList = (
       description,
       tokenTransfers: tokenTransfers as XrayTokenTransfer[],
       nativeTransfers: nativeTransfers as XrayNativeTransfer[],
+      transactionError: transactionError as TransactionErrorOrNull,
     };
   }
 
@@ -64,5 +67,6 @@ export const parseNftList = (
     description,
     tokenTransfers: tokenTransfers as XrayTokenTransfer[],
     nativeTransfers: nativeTransfers as XrayNativeTransfer[],
+    transactionError: transactionError as TransactionErrorOrNull,
   };
 };

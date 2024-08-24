@@ -1,5 +1,6 @@
 import type { EnrichedTransaction } from "@/types/helius-sdk";
 import { Source, TransactionType } from "@/types/helius-sdk";
+import { TransactionError } from "@solana/web3.js";
 
 import * as parser from "./parsers";
 
@@ -35,6 +36,14 @@ export enum ParserTransactionTypes {
   NFT_MINT = "NFT Mint",
 }
 
+type InstructionError = [number, string[]];
+
+type TransactionErrorType = {
+  InstructionError: InstructionError;
+};
+
+export type TransactionErrorOrNull = TransactionErrorType | null;
+
 export type XrayParser = (
   transaction: EnrichedTransaction,
   address?: string,
@@ -62,6 +71,7 @@ export interface XrayTransaction {
   slot?: number;
   tokenTransfers: XrayTokenTransfer[];
   nativeTransfers: XrayNativeTransfer[];
+  transactionError?: TransactionErrorOrNull;
 }
 export interface XrayTokenTransfer {
   fromTokenAccount: string;
@@ -100,6 +110,7 @@ export const unknownXrayTransaction: XrayTransaction = {
   type: ParserTransactionTypes.UNKNOWN,
   tokenTransfers: [],
   nativeTransfers: [],
+  transactionError: null,
 };
 
 export const XrayParsers = {

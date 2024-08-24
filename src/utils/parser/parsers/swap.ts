@@ -5,6 +5,7 @@ import {
   ParserTransactionTypes,
   SOL,
   type TransactionAction,
+  TransactionErrorOrNull,
   XrayNativeTransfer,
   XrayTokenTransfer,
   type XrayTransaction,
@@ -23,6 +24,7 @@ export const parseSwap = (
     events,
     description,
     feePayer,
+    transactionError,
   } = transaction;
 
   // If the transaction is not a SWAP, return UNKNOWN
@@ -37,6 +39,7 @@ export const parseSwap = (
       description,
       tokenTransfers: tokenTransfers as XrayTokenTransfer[],
       nativeTransfers: nativeTransfers as XrayNativeTransfer[],
+      transactionError: transactionError as TransactionErrorOrNull,
     };
   }
 
@@ -89,5 +92,6 @@ export const parseSwap = (
     description,
     tokenTransfers: tokenTransfers as XrayTokenTransfer[],
     nativeTransfers: nativeTransfers as XrayNativeTransfer[],
+    transactionError: transactionError as TransactionErrorOrNull,
   };
 };

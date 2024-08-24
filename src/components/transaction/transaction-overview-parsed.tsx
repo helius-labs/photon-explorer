@@ -4,12 +4,12 @@ import {
   shorten,
   timeAgoWithFormat,
 } from "@/utils/common";
+import { isJitoTransactionXray } from "@/utils/jito";
 import {
   ActionTypes,
   ParserTransactionTypes,
   XrayTransaction,
 } from "@/utils/parser";
-import { isJitoTransactionXray } from "@/utils/jito";
 import { PublicKey } from "@solana/web3.js";
 import {
   ArrowRight,
@@ -26,9 +26,13 @@ import Link from "next/link";
 import Address from "@/components/common/address";
 import Signature from "@/components/common/signature";
 import { TokenBalance } from "@/components/common/token-balance";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
+
+function isXrayTransaction(transaction: any): transaction is XrayTransaction {
+  return (transaction as XrayTransaction).timestamp !== undefined;
+}
 
 export default function TransactionOverviewParsed({
   data,
@@ -37,9 +41,16 @@ export default function TransactionOverviewParsed({
 }) {
   const { timestamp, type, source, actions, signature, account, description } =
     data;
-    console.log("XrayTransaction data:", data);
-    const isJito = isJitoTransactionXray(data);
-    console.log("Is Jito transaction:", isJito);
+  console.log("XrayTransaction data:", data);
+  const isJito = isJitoTransactionXray(data);
+  console.log("Is Jito transaction:", isJito);
+
+  //finding failed txn
+  let txnFailed = false;
+
+  if (isXrayTransaction(data) && data.transactionError != null) {
+    txnFailed = true;
+  }
 
   // Function to shorten all public key strings within the description and wrap with Link
   const renderDescription = (desc: string) => {
@@ -106,11 +117,14 @@ export default function TransactionOverviewParsed({
             <CardTitle className="text-xl font-bold md:text-2xl">
               {type}
             </CardTitle>
+
+            {txnFailed && (
+              <Badge className="px-2 py-1 text-xs" variant="destructive">
+                Failed
+              </Badge>
+            )}
             {isJito && (
-              <Badge
-                className="px-2 py-1 text-xs"
-                variant="secondary"
-              >
+              <Badge className="px-2 py-1 text-xs" variant="secondary">
                 Jito
               </Badge>
             )}
@@ -191,9 +205,8 @@ export default function TransactionOverviewParsed({
                   <span className="ml-2 w-full break-words md:w-3/4">
                     <TokenBalance
                       amount={action.amount}
-                      decimals={action.decimals || 0}
+                      decimals={action.decimals}
                       mint={new PublicKey(action.mint!)}
-                      isReadable={true}
                       isLink={true}
                       // showPrice={true}
                       // timestamp={timestamp}
@@ -209,9 +222,8 @@ export default function TransactionOverviewParsed({
                   <span className="ml-2 w-full break-words md:w-3/4">
                     <TokenBalance
                       amount={action.amount}
-                      decimals={action.decimals || 0}
+                      decimals={action.decimals}
                       mint={new PublicKey(action.mint!)}
-                      isReadable={true}
                       isLink={true}
                       // showPrice={true}
                       // timestamp={timestamp}
