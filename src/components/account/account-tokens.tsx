@@ -200,8 +200,8 @@ export default function AccountTokens({
 
   // Calculate SOL balance in SOL and USD
   const solBalanceInSol = solBalanceData
-    ? parseFloat(lamportsToSolString(solBalanceData, 2))
-    : 0;
+  ? parseFloat(lamportsToSolString(solBalanceData))
+  : 0;
   const solBalanceUSD = currentSolPrice
     ? formatCurrencyValue(solBalanceInSol * currentSolPrice, 2)
     : null;

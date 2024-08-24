@@ -20,23 +20,21 @@ export function getBaseUrl() {
 }
 
 export function lamportsToSol(lamports: number | bigint): number {
-  if (typeof lamports === "number") {
-    return lamports / LAMPORTS_PER_SOL;
-  }
+  const lamportsPerSol = BigInt(LAMPORTS_PER_SOL);
+  const bigIntLamports = BigInt(lamports);
+  
+  const solPart = bigIntLamports / lamportsPerSol;
+  const fractionalPart = bigIntLamports % lamportsPerSol;
+  
+  return Number(solPart) + Number(fractionalPart) / LAMPORTS_PER_SOL;
+}
 
-  let signMultiplier = 1;
-  if (lamports < 0) {
-    signMultiplier = -1;
-  }
-
-  const absLamports = lamports < 0 ? -lamports : lamports;
-  const lamportsString = absLamports.toString(10).padStart(10, "0");
-  const splitIndex = lamportsString.length - 9;
-  const solString =
-    lamportsString.slice(0, splitIndex) +
-    "." +
-    lamportsString.slice(splitIndex);
-  return signMultiplier * parseFloat(solString);
+export function lamportsToSolString(lamports: number | bigint, maximumFractionDigits: number = 9): string {
+  const solValue = lamportsToSol(lamports);
+  return solValue.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maximumFractionDigits,
+  });
 }
 
 export function shorten(string: string | undefined, chars = 4): string {
@@ -64,14 +62,6 @@ export function normalizeTokenAmount(
   if (typeof raw === "string") rawTokens = parseInt(raw);
   else rawTokens = raw;
   return rawTokens / Math.pow(10, decimals);
-}
-
-export function lamportsToSolString(
-  lamports: number | bigint,
-  maximumFractionDigits = 9,
-): string {
-  const sol = lamportsToSol(lamports);
-  return new Intl.NumberFormat("en-US", { maximumFractionDigits }).format(sol);
 }
 
 export function isSolanaSignature(txHash: string): boolean {

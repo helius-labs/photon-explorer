@@ -93,17 +93,15 @@ export function useGetBalance(address: string, enabled: boolean = true) {
   return useQuery<number, Error>({
     queryKey: [endpoint, "getBalance", address],
     queryFn: async () => {
-      try {
-        const connection = new Connection(endpoint, "processed");
-        console.log("Fetching balance for address:", address);
-        return await connection.getBalance(new PublicKey(address));
-      } catch (error) {
-        console.error("Error fetching balance:", error);
-        throw error;
-      }
+      const connection = new Connection(endpoint, "processed");
+      return await connection.getBalance(new PublicKey(address));
     },
     enabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: (failureCount, error) => {
+      console.error(`Error fetching balance (attempt ${failureCount}):`, error);
+      return failureCount < 3;
+    },
   });
 }
 
