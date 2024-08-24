@@ -1,55 +1,26 @@
 import { MainNav } from "@/components/main-nav";
 import { NetworkStatusDropdown } from "@/components/network-dropdown";
 import { SearchBar } from "@/components/search-bar";
-import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
-import ClusterSwitcher from "./cluster-switcher";
 
 export function Header() {
   return (
-    <div className="relative w-full border-b border-border bg-background">
-      <div className="relative flex h-16 w-full items-center justify-between px-4 md:px-8">
-        {/* Left Section: Main Navigation */}
-        <div className="z-10 flex-shrink-0">
+    <div className="relative border-b w-full">
+      <div className="flex h-16 items-center justify-between px-4 md:px-8 w-full">
+        <div className="flex-shrink-0">
           <MainNav />
         </div>
-
-        {/* Center Section: Search Bar */}
-        <div className="absolute left-1/2 z-0 w-full max-w-[600px] -translate-x-1/2 transform px-4">
+        <div className="flex-grow flex justify-center ml-4 md:ml-14">
+        <div className="w-full max-w-[240px] sm:max-w-[400px] md:max-w-[500px] lg:max-w-[500px] xl:max-w-[600px]">
           <SearchBar autoFocus={false} />
+          </div>
         </div>
-
-        {/* Right Section: Buttons */}
-        <div className="z-10 flex flex-shrink-0 items-center space-x-6">
-          {/* Custom STAKE WITH US Button */}
-          <div className="inline-flex items-center justify-center gap-2 rounded-[2px] bg-[#E84125] px-4 py-2 text-[#050100]">
-            <div className="h-[6px] w-[6px] bg-[#050100]"></div>
-            <span className="font-['Geist Mono'] text-[12px] font-semibold leading-[20px]">
-              STAKE
-            </span>
-            <div className="h-[6px] w-[6px] bg-[#050100]"></div>
+          <div className="flex-shrink-0 flex items-center space-x-2 overflow-hidden">
+          <div className="hidden md:block">
+            <ThemeToggle />
           </div>
-
-          {/* SWAP Button */}
-          <Button
-            variant="ghost"
-            className="text-elements-midEm font-['Geist Mono'] px-4 py-2 text-[12px]"
-          >
-            SWAP
-          </Button>
-
-          {/* STATS Button */}
-          <Button
-            variant="ghost"
-            className="text-elements-midEm font-['Geist Mono'] px-4 py-2 text-[12px]"
-          >
-            STATS
-          </Button>
-
-          {/* Cluster Switcher */}
-          <div className="flex flex-shrink-0 items-center space-x-2 overflow-hidden">
-            <ClusterSwitcher />
-          </div>
+          <NetworkStatusDropdown />
         </div>
       </div>
     </div>

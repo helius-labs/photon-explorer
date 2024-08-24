@@ -229,9 +229,9 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
   }, []);
 
   const controlStyles = {
-    base: "bg-field px-4 py-2 shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
-    focus: "bg-popover",
-    nonFocus: "",
+    base: "border px-4 py-2 border-input shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
+    focus: "rounded-t-lg bg-popover",
+    nonFocus: "rounded-lg",
   };
 
   const placeholderStyles =
@@ -374,8 +374,7 @@ const Control = ({
     >
       <X className="h-5 w-5" />
     </button>
-    <div className="pointer-events-none hidden h-6 w-6 select-none items-center justify-center rounded border bg-border-prominent px-1.5 font-mono text-[14px] text-sm font-medium text-foreground opacity-80 sm:flex">
-      {"/"}
+    <div className="pointer-events-none hidden h-6 w-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-[14px] text-sm font-medium text-muted-foreground opacity-80 sm:flex">      {"/"}
     </div>
   </components.Control>
 );

@@ -49,7 +49,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         )}
       >
         <div className="relative top-0 z-[-1]">
-          <div className="absolute bottom-auto left-0 right-0 top-0 mt-[-60px] block h-[720px] w-full"></div>
+        <div className="absolute bottom-auto left-0 right-0 top-0 mt-[-60px] block h-[720px] w-full dark:bg-[radial-gradient(circle_closest-corner_at_50%_-40%,#38383d,rgba(5,5,5,0)_68%)]">
+          </div>          
         </div>
         <ReactQueryClientProvider>
           <ThemeProvider
