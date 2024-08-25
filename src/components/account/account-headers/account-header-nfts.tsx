@@ -37,6 +37,7 @@ import {
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NFTMedia } from "@/components/common/nft-media";
+import ViewMediaButton from "@/components/common/view-media-button";
 
 interface AccountHeaderNFTsProps {
   address: PublicKey;
@@ -140,10 +141,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
           <CardHeader className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
             <div className="relative flex-shrink-0 w-full md:w-72 h-72">
               {nft ? (
-                <NFTMedia 
-                  nft={nft}
-                  className="w-full h-full rounded-lg shadow-md object-contain"
-                />
+                <ViewMediaButton nft={nft} />
               ) : (
                 <Avatar
                   size={180}
