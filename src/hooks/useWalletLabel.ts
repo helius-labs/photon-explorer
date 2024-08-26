@@ -24,8 +24,8 @@ export function useWalletLabel(address: string) {
         );
 
         if (walletInfo) {
-          setLabel(walletInfo.tags[0]);
-          setLabelType(walletInfo.tags[1]); // Use the first tag as the label type
+          setLabel(walletInfo.name);
+          setLabelType(walletInfo.type); // Use the first tag as the label type
         } else {
           setLabel(null);
           setLabelType(null);
