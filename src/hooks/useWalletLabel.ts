@@ -1,5 +1,16 @@
-import { WalletLabelItem, accountTags } from "@/data/account-tags";
+import {
+  WalletLabelItem as LocalWalletLabelItem,
+  accountTags,
+} from "@/data/account-tags";
 import { useEffect, useState } from "react";
+
+interface WalletLabelItem {
+  address: string;
+  address_name?: string;
+  label?: string;
+  label_subtype?: string;
+  label_type?: string;
+}
 
 export function useWalletLabel(address: string) {
   const [label, setLabel] = useState<string | null>(null);
@@ -8,7 +19,7 @@ export function useWalletLabel(address: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchLabel = () => {
+    const fetchLabel = async () => {
       if (!address) {
         setIsLoading(false);
         return;
@@ -19,16 +30,24 @@ export function useWalletLabel(address: string) {
       setLabel(null);
 
       try {
-        const walletInfo = accountTags.find(
-          (account: WalletLabelItem) => account.address === address,
+        // Check local data first
+        const localWalletInfo = accountTags.find(
+          (account: LocalWalletLabelItem) => account.address === address,
         );
 
-        if (walletInfo) {
-          setLabel(walletInfo.name);
-          setLabelType(walletInfo.type); // Use the first tag as the label type
+        if (localWalletInfo) {
+          setLabel(localWalletInfo.name);
+          setLabelType(localWalletInfo.type);
         } else {
-          setLabel(null);
-          setLabelType(null);
+          // If no local match, fetch from API
+          const response = await fetch(`/api/wallet-label?address=${address}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch wallet label");
+          }
+          const ResponseData = await response.json();
+          // console.log("api data:", ResponseData);
+          setLabel(ResponseData.data[0]?.label || null);
+          setLabelType(ResponseData.data[0]?.label_type || null);
         }
       } catch (err) {
         console.error("Error fetching wallet label:", err);
