@@ -51,10 +51,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     undefined,
   );
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
-  const [loadedPages, setLoadedPages] = useState<Set<number>>(() => {
-    const stored = localStorage.getItem(`loadedPages-${address}-${cluster}`);
-    return stored ? new Set(JSON.parse(stored)) : new Set([0]);
-  });
+  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
   const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
 
   const [remountKey, setRemountKey] = useState(0);
@@ -177,23 +174,32 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   useEffect(() => {
     if (data) {
-      const prefetchPage = async (pageIndex: number) => {
-        const cachedData = queryClient.getQueryData<TransactionData[]>([
-          "transactions",
-          memoizedAddress,
-          pageIndex,
-          remountKey,
-        ]);
+      const prefetchPages = async () => {
+        const currentPage = pagination.pageIndex;
+        for (let i = 1; i <= 2; i++) {
+          const pageIndex = currentPage + i;
+          const cachedData = queryClient.getQueryData<TransactionData[]>([
+            "transactions",
+            memoizedAddress,
+            pageIndex,
+            remountKey,
+          ]);
 
-        if (!cachedData) {
-          await queryClient.prefetchQuery<TransactionData[]>({
-            queryKey: ["transactions", memoizedAddress, pageIndex, remountKey],
-            queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
-          });
+          if (!cachedData) {
+            await queryClient.prefetchQuery<TransactionData[]>({
+              queryKey: [
+                "transactions",
+                memoizedAddress,
+                pageIndex,
+                remountKey,
+              ],
+              queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
+            });
+          }
         }
       };
 
-      prefetchPage(pagination.pageIndex + 1);
+      prefetchPages();
     }
   }, [
     data,
@@ -203,27 +209,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     fetchTransactions,
     memoizedAddress,
     remountKey,
-    loadedPages,
   ]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      `loadedPages-${address}-${cluster}`,
-      JSON.stringify(Array.from(loadedPages)),
-    );
-  }, [loadedPages, address, cluster]);
-
-  useEffect(() => {
-    const storedPages = localStorage.getItem(
-      `loadedPages-${address}-${cluster}`,
-    );
-    if (storedPages) {
-      setLoadedPages(new Set(JSON.parse(storedPages)));
-    } else {
-      setLoadedPages(new Set([0]));
-    }
-    setRemountKey((prev) => prev + 1);
-  }, [address, cluster]);
 
   const handlePageChange = (newPageIndex: number) => {
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
