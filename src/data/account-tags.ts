@@ -7,29 +7,58 @@ export interface WalletLabelItem {
 export const accountTags: WalletLabelItem[] = [
   {
     address: "HXsKP7wrBWaQ8T2Vtjry3Nj3oUgwYcqq9vrHDM12G664",
-    name: "Binance",
+    name: "Binance 1",
     type: "Exchange",
   },
   {
     address: "28nYGHJyUVcVdxZtzKByBXEj127XnrUkrE3VaGuWj1ZU",
-    name: "Binance",
+    name: "Binance 2",
     type: "Exchange",
   },
   {
     address: "BZ3kabSsMzbuJUguYxtmkRtzw7ACqw1DUMH8PcbvXiUr",
-    name: "Binance",
+    name: "Binance 3",
     type: "Exchange",
   },
   {
     address: "6QJzieMYfp7yr3EdrePaQoG3Ghxs2wM98xSLRu8Xh56U",
-    name: "Binance",
+    name: "Binance 4",
     type: "Exchange",
   },
   {
     address: "3gd3dqgtJ4jWfBfLYTX67DALFetjc5iS72sCgRhCkW2u",
-    name: "Binance",
+    name: "Binance 5",
     type: "Exchange",
   },
+  {
+    address: "2ojv9BAiHUrvsm9gxDe7fJSzbNZSJcxZvf8dqmWGHG8S",
+    name: "Binance 6",
+    type: "Exchange",
+  },
+  {
+    address: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    name: "Binance 7",
+    type: "Exchange",
+  },
+  {
+    address: "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+    name: "Binance 9",
+    type: "Exchange",
+  },
+  {
+    address: "FWznbcNXWQuHTawe9RxvQ2LdCENssh12dsznf4RiouN5",
+    name: "Kraken",
+    type: "Exchange",
+  },
+  {
+    address: "AC5RDfQFmDS1deWZos921JfqscXdByf8BKHs5ACWjtW2",
+    name: "Bybit 1",
+    type: "Exchange",
+  },
+  {
+    address: "42brAgAVNzMBP7aaktPvAmBSPEkehnFQejiZc53EpJFd",
+    name: "Bybit 2",
+    type: "Exchange",
   {
     address: "GJRs4FwHtemZ5ZE9x3FNvJ8TMwitKTh21yxdRPqn7npE",
     name: "Coinbase",
