@@ -51,8 +51,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     undefined,
   );
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
-  const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
+  const [loadedPages, setLoadedPages] = useState<Set<number>>(() => {
+    const stored = localStorage.getItem(`loadedPages-${address}-${cluster}`);
+    return stored ? new Set(JSON.parse(stored)) : new Set([0]);
+  });
   const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
+
+  const [remountKey, setRemountKey] = useState(0);
 
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
@@ -72,45 +77,24 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     if (!hasMoreTransactions) return [];
 
     try {
-      console.log("Fetching signatures for address:", memoizedAddress);
-      console.log("Last signature:", lastSignature);
-
       await refetchSignatures();
 
       if (error) {
-        console.error("Error fetching signatures:", error);
         throw error;
       }
 
       if (newSignatures && newSignatures.length > 0) {
-        console.log(
-          "Fetched signatures:",
-          newSignatures.map((sig) => sig.signature),
-        );
         setAllSignatures((prev) => [...prev, ...newSignatures]);
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
-        console.log(
-          "Updated last signature:",
-          newSignatures[newSignatures.length - 1].signature,
-        );
       } else {
-        console.log("No new signatures fetched");
         setHasMoreTransactions(false);
       }
 
       return newSignatures || [];
     } catch (error) {
-      console.error("Error in fetchSignatures:", error);
       throw error;
     }
-  }, [
-    memoizedAddress,
-    refetchSignatures,
-    newSignatures,
-    error,
-    lastSignature,
-    hasMoreTransactions,
-  ]);
+  }, [refetchSignatures, newSignatures, error, hasMoreTransactions]);
 
   useEffect(() => {
     if (!isInitialDataLoaded && newSignatures) {
@@ -124,14 +108,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     async (pageIndex: number, pageSize: number) => {
       const startIndex = pageIndex * pageSize;
       const endIndex = startIndex + pageSize;
-
-      console.log("Fetching transactions:", {
-        pageIndex,
-        pageSize,
-        startIndex,
-        endIndex,
-      });
-      console.log("All signatures length:", allSignatures.length);
 
       const remainingPages = Math.floor(
         (allSignatures.length - endIndex) / pageSize,
@@ -151,8 +127,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           return "";
         });
 
-      console.log("Page signatures:", pageSignatures);
-
       let parsedTransactions: TransactionData[] | null = null;
       if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
         parsedTransactions = await getParsedTransactions(
@@ -160,8 +134,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           memoizedCluster,
         );
       }
-
-      console.log("Parsed transactions:", parsedTransactions);
 
       setLoadedPages((prev) => new Set(prev).add(pageIndex));
 
@@ -173,7 +145,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
       // Cache the result for this page
       queryClient.setQueryData(
-        ["transactions", memoizedAddress, pageIndex],
+        ["transactions", memoizedAddress, pageIndex, remountKey],
         result,
       );
 
@@ -186,29 +158,22 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       hasMoreTransactions,
       queryClient,
       memoizedAddress,
+      remountKey,
     ],
   );
 
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
-    queryKey: ["transactions", memoizedAddress, pagination.pageIndex],
+    queryKey: [
+      "transactions",
+      memoizedAddress,
+      pagination.pageIndex,
+      remountKey,
+    ],
     queryFn: () => fetchTransactions(pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 30 * 60 * 1000, // 30 minutes
     enabled: isInitialDataLoaded,
-    select: (newData) => {
-      console.log("Query succeeded with data:", newData);
-      return newData;
-    },
+    select: (newData) => newData,
   });
-
-  useEffect(() => {
-    console.log("Current data:", data);
-    console.log("All signatures:", allSignatures);
-    console.log("Is loading:", isLoading);
-    console.log("Is error:", isError);
-    console.log("Is initial data loaded:", isInitialDataLoaded);
-  }, [data, allSignatures, isLoading, isError, isInitialDataLoaded]);
 
   useEffect(() => {
     if (data) {
@@ -217,19 +182,18 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           "transactions",
           memoizedAddress,
           pageIndex,
+          remountKey,
         ]);
 
         if (!cachedData) {
           await queryClient.prefetchQuery<TransactionData[]>({
-            queryKey: ["transactions", memoizedAddress, pageIndex],
+            queryKey: ["transactions", memoizedAddress, pageIndex, remountKey],
             queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
-            staleTime: 10 * 60 * 1000, // 10 minutes
           });
         }
       };
 
       prefetchPage(pagination.pageIndex + 1);
-      prefetchPage(pagination.pageIndex + 2);
     }
   }, [
     data,
@@ -238,7 +202,28 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     queryClient,
     fetchTransactions,
     memoizedAddress,
+    remountKey,
+    loadedPages,
   ]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      `loadedPages-${address}-${cluster}`,
+      JSON.stringify(Array.from(loadedPages)),
+    );
+  }, [loadedPages, address, cluster]);
+
+  useEffect(() => {
+    const storedPages = localStorage.getItem(
+      `loadedPages-${address}-${cluster}`,
+    );
+    if (storedPages) {
+      setLoadedPages(new Set(JSON.parse(storedPages)));
+    } else {
+      setLoadedPages(new Set([0]));
+    }
+    setRemountKey((prev) => prev + 1);
+  }, [address, cluster]);
 
   const handlePageChange = (newPageIndex: number) => {
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));

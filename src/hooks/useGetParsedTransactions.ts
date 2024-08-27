@@ -11,7 +11,7 @@ export function useGetParsedTransactions(
     queryKey: ["parsedTransactions", transactions, cluster],
     queryFn: () => getParsedTransactions(transactions, cluster),
     // temp removed to fix loading issue on return to the page
-    staleTime: 1000 * 60 * 5, //5 mins
+    //staleTime: 1000 * 60 * 5, //5 mins
     // refetchInterval: 1000 * 60 * 5, //5 mins
     enabled,
   });

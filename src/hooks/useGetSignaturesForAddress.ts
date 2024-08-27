@@ -18,7 +18,7 @@ export function useGetSignaturesForAddress(
       return await getSignaturesForAddress(address, limit, endpoint, before);
     },
     enabled,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchInterval: 1000 * 60 * 10, // 10 minutes
+    // staleTime: 1000 * 60 * 5, // 5 minutes
+    // refetchInterval: 1000 * 60 * 10, // 10 minutes
   });
 }
