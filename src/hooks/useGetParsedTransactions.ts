@@ -10,8 +10,9 @@ export function useGetParsedTransactions(
   return useQuery({
     queryKey: ["parsedTransactions", transactions, cluster],
     queryFn: () => getParsedTransactions(transactions, cluster),
-    staleTime: 1000 * 60 * 5, //5 mins
-    refetchInterval: 1000 * 60 * 5, //5 mins
+    // temp removed to fix loading issue on return to the page
+    // staleTime: 1000 * 60 * 5, //5 mins
+    // refetchInterval: 1000 * 60 * 5, //5 mins
     enabled,
   });
 }
