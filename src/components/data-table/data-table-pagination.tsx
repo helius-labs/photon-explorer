@@ -23,9 +23,17 @@ export function DataTablePagination<TData>({
   manualPagination = false,
   loadedPages,
 }: DataTablePaginationProps<TData>) {
+  console.log(
+    `DataTablePagination rendered, current page: ${table.getState().pagination.pageIndex}, canNextPage: ${table.getCanNextPage()}, loadedPages:`,
+    loadedPages,
+  );
   const handlePageChange = (newPageIndex: number) => {
+    console.log(`Attempting to change to page ${newPageIndex}`);
     if (loadedPages && !loadedPages.has(newPageIndex)) {
+      console.log(`Page ${newPageIndex} is not loaded, cannot change page`);
       return; // Prevent navigation to unloaded pages
+    } else {
+      console.log(`Page ${newPageIndex} is loaded, changing page`);
     }
     if (manualPagination && onPageChange) {
       onPageChange(newPageIndex);
@@ -35,7 +43,9 @@ export function DataTablePagination<TData>({
   };
 
   const isPageLoaded = (pageIndex: number) => {
-    return !loadedPages || loadedPages.has(pageIndex);
+    const isLoaded = !loadedPages || loadedPages.has(pageIndex);
+    console.log(`Checking if page ${pageIndex} is loaded:`, isLoaded);
+    return isLoaded;
   };
 
   const getLastLoadedPage = () => {
@@ -46,6 +56,8 @@ export function DataTablePagination<TData>({
   const currentPageIndex = table.getState().pagination.pageIndex;
   const lastLoadedPage = getLastLoadedPage();
   const isNextPageLoading = !isPageLoaded(currentPageIndex + 1);
+  console.log("isPageLoaded", isPageLoaded(currentPageIndex + 1));
+  console.log("isNextPageLoading", isNextPageLoading);
 
   return (
     <div className="flex items-center justify-between px-4 pt-2">

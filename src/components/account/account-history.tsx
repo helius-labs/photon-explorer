@@ -73,22 +73,27 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const fetchSignatures = useCallback(async () => {
     if (!hasMoreTransactions) return [];
 
+    console.log("Fetching more signatures");
     try {
       await refetchSignatures();
 
       if (error) {
+        console.log("Error fetching signatures:", error);
         throw error;
       }
 
       if (newSignatures && newSignatures.length > 0) {
+        console.log(`Fetched ${newSignatures.length} new signatures`);
         setAllSignatures((prev) => [...prev, ...newSignatures]);
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
+        console.log("No more signatures to fetch");
         setHasMoreTransactions(false);
       }
 
       return newSignatures || [];
     } catch (error) {
+      console.log("Error in fetchSignatures:", error);
       throw error;
     }
   }, [refetchSignatures, newSignatures, error, hasMoreTransactions]);
@@ -98,11 +103,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       setAllSignatures(newSignatures);
       setLastSignature(newSignatures[newSignatures.length - 1].signature);
       setIsInitialDataLoaded(true);
+      console.log("Initial data loaded, enabling main query");
     }
   }, [newSignatures, isInitialDataLoaded]);
 
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
+      console.log(`Fetching transactions for page ${pageIndex}`);
       const startIndex = pageIndex * pageSize;
       const endIndex = startIndex + pageSize;
 
@@ -110,7 +117,14 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         (allSignatures.length - endIndex) / pageSize,
       );
 
+      console.log(
+        `Remaining pages: ${remainingPages}, hasMoreTransactions: ${hasMoreTransactions}`,
+      );
+
       if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
+        console.log(
+          `Fetching more signatures, remaining pages: ${remainingPages}`,
+        );
         await fetchSignatures();
       }
 
@@ -132,7 +146,11 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         );
       }
 
-      setLoadedPages((prev) => new Set(prev).add(pageIndex));
+      setLoadedPages((prev) => {
+        const newSet = new Set(prev).add(pageIndex);
+        console.log(`Updated loadedPages:`, Array.from(newSet));
+        return newSet;
+      });
 
       const result = pageSignatures.map((signature, index) =>
         parsedTransactions && parsedTransactions[index]
@@ -146,6 +164,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         result,
       );
 
+      console.log(
+        `Fetched ${result.length} transactions for page ${pageIndex}`,
+      );
       return result;
     },
     [
@@ -159,47 +180,84 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     ],
   );
 
-  const { data, isLoading, isError } = useQuery<TransactionData[]>({
-    queryKey: [
+  useEffect(() => {
+    // This effect will run when the component mounts or when the address changes
+    setRemountKey((prev) => prev + 1);
+    setIsInitialDataLoaded(false);
+    // Reset other necessary state here
+  }, [address]);
+
+  useEffect(() => {
+    console.log("loadedPages updated:", Array.from(loadedPages));
+  }, [loadedPages]);
+
+  const queryKey = useMemo(
+    () => [
       "transactions",
       memoizedAddress,
+      memoizedCluster,
       pagination.pageIndex,
       remountKey,
     ],
-    queryFn: () => fetchTransactions(pagination.pageIndex, pagination.pageSize),
-    placeholderData: (previousData) => previousData,
+    [memoizedAddress, memoizedCluster, pagination.pageIndex, remountKey],
+  );
+
+  const { data, isLoading, isError } = useQuery<TransactionData[]>({
+    queryKey,
+    queryFn: () => {
+      console.log(`Fetching transactions for page ${pagination.pageIndex}`);
+      return fetchTransactions(pagination.pageIndex, pagination.pageSize);
+    },
+    staleTime: 5 * 60 * 1000,
+    initialData: () => {
+      const existingData =
+        queryClient.getQueryData<TransactionData[]>(queryKey);
+      console.log(
+        `Initial data for page ${pagination.pageIndex}:`,
+        existingData ? "exists" : "not found",
+      );
+      return existingData || undefined;
+    },
     enabled: isInitialDataLoaded,
-    select: (newData) => newData,
   });
 
   useEffect(() => {
     if (data) {
       const prefetchPages = async () => {
         const currentPage = pagination.pageIndex;
+        console.log(`Prefetching pages, current page: ${currentPage}`);
         for (let i = 1; i <= 2; i++) {
           const pageIndex = currentPage + i;
-          const cachedData = queryClient.getQueryData<TransactionData[]>([
+          const prefetchQueryKey = [
             "transactions",
             memoizedAddress,
+            memoizedCluster,
             pageIndex,
             remountKey,
-          ]);
+          ];
+          const cachedData =
+            queryClient.getQueryData<TransactionData[]>(prefetchQueryKey);
 
           if (!cachedData) {
+            console.log(`Prefetching data for page ${pageIndex}`);
             await queryClient.prefetchQuery<TransactionData[]>({
-              queryKey: [
-                "transactions",
-                memoizedAddress,
-                pageIndex,
-                remountKey,
-              ],
+              queryKey: prefetchQueryKey,
               queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
+              staleTime: 5 * 60 * 1000, // 5 minutes
             });
+          } else {
+            console.log(`Data for page ${pageIndex} already cached`);
+            // Update the displayed transactions with the cached data
+            queryClient.setQueryData(prefetchQueryKey, cachedData);
+            // Update the loadedPages state
+            setLoadedPages((prev) => new Set(prev).add(pageIndex));
           }
         }
       };
 
       prefetchPages();
+    } else {
+      console.log("No data available, skipping prefetch");
     }
   }, [
     data,
@@ -208,10 +266,12 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     queryClient,
     fetchTransactions,
     memoizedAddress,
+    memoizedCluster,
     remountKey,
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
+    console.log(`Page change requested to ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
 
     // Check if we need to fetch more signatures
