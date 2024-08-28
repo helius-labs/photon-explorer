@@ -5,6 +5,7 @@ import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
 import { getSignaturesForAddress } from "@/utils/fetchTxnSigs";
 import { XrayTransaction } from "@/utils/parser";
+import { ParserTransactionTypes } from "@/utils/parser";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import {
   ConfirmedSignatureInfo,
@@ -259,6 +260,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     router.push(`/?cluster=${memoizedCluster}`);
   };
 
+  const [typeFilter, setTypeFilter] = useState<ParserTransactionTypes | null>(
+    null,
+  );
+
   if (isError) {
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
@@ -284,12 +289,17 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">
       <CardContent className="pt-6">
         {data && data.length > 0 ? (
-          <TransactionCard
-            data={data}
-            pagination={pagination}
-            onPageChange={handlePageChange}
-            loadedPages={loadedPages}
-          />
+          <>
+            <div className="mb-4 flex justify-end">
+              <TypeFilter value={typeFilter} onChange={setTypeFilter} />
+            </div>
+            <TransactionCard
+              data={data}
+              pagination={pagination}
+              onPageChange={handlePageChange}
+              loadedPages={loadedPages}
+            />
+          </>
         ) : (
           <div className="text-center text-muted-foreground">
             No transaction history found for this address.
@@ -356,5 +366,30 @@ function LoadingSkeleton({ pageSize }: { pageSize: number }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function TypeFilter({
+  value,
+  onChange,
+}: {
+  value: ParserTransactionTypes | null;
+  onChange: (value: ParserTransactionTypes | null) => void;
+}) {
+  return (
+    <select
+      value={value || ""}
+      onChange={(e) =>
+        onChange((e.target.value as ParserTransactionTypes) || null)
+      }
+      className="rounded border p-2"
+    >
+      <option value="">All Types</option>
+      {Object.values(ParserTransactionTypes).map((type) => (
+        <option key={type} value={type}>
+          {type}
+        </option>
+      ))}
+    </select>
   );
 }
