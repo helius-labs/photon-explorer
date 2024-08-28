@@ -59,6 +59,7 @@ export const accountTags: WalletLabelItem[] = [
     address: "42brAgAVNzMBP7aaktPvAmBSPEkehnFQejiZc53EpJFd",
     name: "Bybit 2",
     type: "Exchange",
+  },
   {
     address: "GJRs4FwHtemZ5ZE9x3FNvJ8TMwitKTh21yxdRPqn7npE",
     name: "Coinbase",
