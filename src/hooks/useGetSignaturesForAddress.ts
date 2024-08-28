@@ -10,7 +10,6 @@ export function useGetSignaturesForAddress(
   enabled: boolean = true,
 ) {
   const { endpoint } = useCluster();
-  //console.log("FETCHING SIGNATURES:", address, limit, before, enabled);
 
   return useQuery<ConfirmedSignatureInfo[], Error>({
     queryKey: [endpoint, "getSignaturesForAddress", address, limit, before],

@@ -6,13 +6,12 @@ export async function getSignaturesForAddress(
   endpoint: string,
   before?: string,
 ): Promise<ConfirmedSignatureInfo[]> {
-  //console.log("In fetchTxnSigs");
   const connection = new Connection(endpoint);
   const signatures = await connection.getSignaturesForAddress(
     new PublicKey(address),
     { limit, before },
   );
-  //console.log("signatures:", signatures);
+
   return signatures;
 }
 
