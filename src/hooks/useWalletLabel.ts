@@ -1,3 +1,7 @@
+import {
+  WalletLabelItem as LocalWalletLabelItem,
+  accountTags,
+} from "@/data/account-tags";
 import { useEffect, useState } from "react";
 
 interface WalletLabelItem {
@@ -26,30 +30,24 @@ export function useWalletLabel(address: string) {
       setLabel(null);
 
       try {
-        const response = await fetch(`/api/wallet-label?address=${address}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch wallet label");
-        }
-        const responseData = await response.json();
+        // Check local data first
+        const localWalletInfo = accountTags.find(
+          (account: LocalWalletLabelItem) => account.address === address,
+        );
 
-        let labelValue: string | null = null;
-        let labelTypeValue: string | null = null;
-        if (
-          responseData &&
-          responseData.data &&
-          Array.isArray(responseData.data) &&
-          responseData.data.length > 0
-        ) {
-          const item = responseData.data[0] as WalletLabelItem;
-          labelValue = item.label || item.address_name || null;
-          labelTypeValue = item.label_type || item.label_subtype || null;
-        }
-
-        setLabel(labelValue);
-        setLabelType(labelTypeValue);
-
-        if (!labelValue) {
-          console.warn("No label found in the API response");
+        if (localWalletInfo) {
+          setLabel(localWalletInfo.name);
+          setLabelType(localWalletInfo.type);
+        } else {
+          // If no local match, fetch from API
+          const response = await fetch(`/api/wallet-label?address=${address}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch wallet label");
+          }
+          const ResponseData = await response.json();
+          // console.log("api data:", ResponseData);
+          setLabel(ResponseData.data[0]?.label || null);
+          setLabelType(ResponseData.data[0]?.label_type || null);
         }
       } catch (err) {
         console.error("Error fetching wallet label:", err);
@@ -61,8 +59,6 @@ export function useWalletLabel(address: string) {
 
     fetchLabel();
   }, [address]);
-
-  useEffect(() => {}, [label, labelType, isLoading, error]);
 
   return { label, labelType, isLoading, error };
 }
