@@ -11,6 +11,7 @@ export async function getSignaturesForAddress(
     new PublicKey(address),
     { limit, before },
   );
+
   return signatures;
 }
 
