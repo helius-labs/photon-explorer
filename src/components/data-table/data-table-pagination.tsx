@@ -15,6 +15,7 @@ interface DataTablePaginationProps<TData> {
   onPageChange?: (newPageIndex: number) => void;
   manualPagination?: boolean;
   loadedPages?: Set<number>;
+  lastPageNum?: number;
 }
 
 export function DataTablePagination<TData>({
@@ -22,6 +23,7 @@ export function DataTablePagination<TData>({
   onPageChange,
   manualPagination = false,
   loadedPages,
+  lastPageNum,
 }: DataTablePaginationProps<TData>) {
   const handlePageChange = (newPageIndex: number) => {
     if (loadedPages && !loadedPages.has(newPageIndex)) {
@@ -48,6 +50,8 @@ export function DataTablePagination<TData>({
   const currentPageIndex = table.getState().pagination.pageIndex;
   const lastLoadedPage = getLastLoadedPage();
   const isNextPageLoading = !isPageLoaded(currentPageIndex + 1);
+  const isLastPage =
+    lastPageNum !== undefined && currentPageIndex === lastPageNum;
 
   return (
     <div className="flex items-center justify-between px-4 pt-2">
@@ -80,8 +84,8 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => handlePageChange(currentPageIndex + 1)}
-            disabled={!table.getCanNextPage() || isNextPageLoading}
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage() || isLastPage}
           >
             <span className="sr-only">
               {isNextPageLoading ? "Loading next page" : "Go to next page"}
@@ -97,7 +101,7 @@ export function DataTablePagination<TData>({
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
               onClick={() => handlePageChange(lastLoadedPage)}
-              disabled={currentPageIndex >= lastLoadedPage}
+              disabled={currentPageIndex >= lastLoadedPage || isLastPage}
             >
               <span className="sr-only">Go to last loaded page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />

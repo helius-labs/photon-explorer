@@ -58,6 +58,7 @@ interface TransactionCardProps {
   pagination: { pageIndex: number; pageSize: number };
   onPageChange: (newPageIndex: number) => void;
   loadedPages: Set<number>;
+  lastPageNum: number;
 }
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {
@@ -406,6 +407,7 @@ export function TransactionCard({
   pagination,
   onPageChange,
   loadedPages,
+  lastPageNum,
 }: TransactionCardProps) {
   const pathname = usePathname();
   const address = pathname.split("/")[2];
@@ -464,6 +466,7 @@ export function TransactionCard({
           onPageChange={onPageChange}
           manualPagination={true}
           loadedPages={loadedPages}
+          lastPageNum={lastPageNum}
         />
       </div>
       <div className="block md:hidden">
@@ -485,6 +488,7 @@ export function TransactionCard({
             onPageChange={onPageChange}
             manualPagination={true}
             loadedPages={loadedPages}
+            lastPageNum={lastPageNum}
           />
         </div>
       </div>

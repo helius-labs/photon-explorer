@@ -55,6 +55,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
   const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
+  const [lastPageNum, setLastPageNum] = useState<number | null>(null);
 
   const [remountKey, setRemountKey] = useState(0);
 
@@ -89,9 +90,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   );
 
   // Add logging for newSignatures
-  useEffect(() => {
-    console.log("New signatures:", newSignatures);
-  }, [newSignatures]);
+  useEffect(() => {}, [newSignatures]);
 
   // Add logging for error
   useEffect(() => {
@@ -111,11 +110,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       }
 
       if (newSignatures && newSignatures.length > 0) {
-        console.log("Fetched new signatures:", newSignatures);
         setAllSignatures((prev) => [...prev, ...newSignatures]);
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
-        console.log("No more signatures to fetch");
         setHasMoreTransactions(false);
       }
 
@@ -170,9 +167,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             return "";
           });
 
-        console.log("Current date range:", dateRange);
-        console.log("Processing signatures:", batchSignatures);
-
         let parsedTransactions: TransactionData[] | null = null;
         if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
           parsedTransactions = await getParsedTransactions(
@@ -188,10 +182,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               : filteredSignatures[currentIndex + i];
 
           if ("blockTime" in transaction && transaction.blockTime != null) {
-            console.log(
-              "Transaction date:",
-              new Date(transaction.blockTime * 1000),
-            );
           }
 
           if (!typeFilter || (transaction as any).type === typeFilter) {
@@ -216,6 +206,18 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         ],
         result,
       );
+
+      const isCurrentPageFull = result.length === pageSize;
+      const hasMoreFilteredTransactions =
+        currentIndex < filteredSignatures.length;
+
+      setLastPageNum(
+        !isCurrentPageFull &&
+          !hasMoreFilteredTransactions &&
+          !hasMoreTransactions
+          ? pagination.pageIndex
+          : null,
+      );
       return result;
     },
     [
@@ -228,6 +230,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       remountKey,
       typeFilter,
       dateRange,
+      pagination.pageIndex,
     ],
   );
 
@@ -374,6 +377,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               pagination={pagination}
               onPageChange={handlePageChange}
               loadedPages={loadedPages}
+              lastPageNum={lastPageNum ?? -1}
             />
           </>
         ) : (
