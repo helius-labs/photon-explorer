@@ -12,8 +12,6 @@ export function useGetSignaturesForAddress(
   endDate?: Date,
 ) {
   const { endpoint } = useCluster();
-  console.log("startDate", startDate);
-  console.log("endDate", endDate);
 
   return useQuery<ConfirmedSignatureInfo[], Error>({
     queryKey: [
