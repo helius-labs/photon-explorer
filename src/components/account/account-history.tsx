@@ -142,15 +142,25 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       let result: TransactionData[] = [];
       let currentIndex = startIndex;
 
-      while (result.length < pageSize && currentIndex < allSignatures.length) {
+      // Filter signatures based on date range
+      const filteredSignatures = allSignatures.filter((sig) => {
+        if (!dateRange || !dateRange.from || !dateRange.to) return true;
+        const txDate = new Date((sig as any).blockTime * 1000);
+        return txDate >= dateRange.from && txDate <= dateRange.to;
+      });
+
+      while (
+        result.length < pageSize &&
+        currentIndex < filteredSignatures.length
+      ) {
         if (
-          currentIndex + pageSize > allSignatures.length &&
+          currentIndex + pageSize > filteredSignatures.length &&
           hasMoreTransactions
         ) {
           await fetchSignatures();
         }
 
-        const batchSignatures = allSignatures
+        const batchSignatures = filteredSignatures
           .slice(currentIndex, currentIndex + pageSize)
           .map((sig) => {
             if ("signature" in sig) return sig.signature;
@@ -160,7 +170,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             return "";
           });
 
-        // Log the date range and the signatures being processed
         console.log("Current date range:", dateRange);
         console.log("Processing signatures:", batchSignatures);
 
@@ -176,13 +185,12 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           const transaction =
             parsedTransactions && parsedTransactions[i]
               ? parsedTransactions[i]
-              : allSignatures[currentIndex + i];
+              : filteredSignatures[currentIndex + i];
 
-          // Log the transaction date for debugging
-          if ("blockTime" in transaction) {
+          if ("blockTime" in transaction && transaction.blockTime != null) {
             console.log(
               "Transaction date:",
-              new Date(transaction.blockTime ?? 0 * 1000),
+              new Date(transaction.blockTime * 1000),
             );
           }
 
