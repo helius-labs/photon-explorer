@@ -3,7 +3,6 @@
 import { useCluster } from "@/providers/cluster-provider";
 import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
-import { getSignaturesForAddress } from "@/utils/fetchTxnSigs";
 import { XrayTransaction } from "@/utils/parser";
 import { ParserTransactionTypes } from "@/utils/parser";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
@@ -14,11 +13,13 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { DateRange } from "react-day-picker";
 
 import { useGetSignaturesForAddress } from "@/hooks/useGetSignaturesForAddress";
 
 import { TransactionCard } from "@/components/account/transaction-card";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
@@ -36,7 +37,7 @@ interface AccountHistoryProps {
 const INITIAL_PAGE_SIZE = 10;
 const INITIAL_FETCH_LIMIT = 500;
 const ADDITIONAL_FETCH_LIMIT = 200;
-const PREFETCH_THRESHOLD = 2; // Number of pages before running out to trigger a new fetch
+const PREFETCH_THRESHOLD = 2;
 
 export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster, endpoint } = useCluster();
@@ -64,6 +65,16 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     null,
   );
 
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
+  useEffect(() => {
+    setPagination({ pageIndex: 0, pageSize: INITIAL_PAGE_SIZE });
+    setIsInitialDataLoaded(false);
+    setAllSignatures([]);
+    setLastSignature(undefined);
+    setHasMoreTransactions(true);
+  }, [typeFilter, dateRange]);
+
   const {
     data: newSignatures,
     refetch: refetchSignatures,
@@ -73,7 +84,21 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     INITIAL_FETCH_LIMIT,
     lastSignature,
     !isInitialDataLoaded,
+    dateRange?.from,
+    dateRange?.to,
   );
+
+  // Add logging for newSignatures
+  useEffect(() => {
+    console.log("New signatures:", newSignatures);
+  }, [newSignatures]);
+
+  // Add logging for error
+  useEffect(() => {
+    if (error) {
+      console.error("Error from useGetSignaturesForAddress:", error);
+    }
+  }, [error]);
 
   const fetchSignatures = useCallback(async () => {
     if (!hasMoreTransactions) return [];
@@ -86,14 +111,17 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       }
 
       if (newSignatures && newSignatures.length > 0) {
+        console.log("Fetched new signatures:", newSignatures);
         setAllSignatures((prev) => [...prev, ...newSignatures]);
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
+        console.log("No more signatures to fetch");
         setHasMoreTransactions(false);
       }
 
       return newSignatures || [];
     } catch (error) {
+      console.error("Error in fetchSignatures:", error);
       throw error;
     }
   }, [refetchSignatures, newSignatures, error, hasMoreTransactions]);
@@ -132,6 +160,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             return "";
           });
 
+        // Log the date range and the signatures being processed
+        console.log("Current date range:", dateRange);
+        console.log("Processing signatures:", batchSignatures);
+
         let parsedTransactions: TransactionData[] | null = null;
         if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
           parsedTransactions = await getParsedTransactions(
@@ -146,6 +178,14 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               ? parsedTransactions[i]
               : allSignatures[currentIndex + i];
 
+          // Log the transaction date for debugging
+          if ("blockTime" in transaction) {
+            console.log(
+              "Transaction date:",
+              new Date(transaction.blockTime ?? 0 * 1000),
+            );
+          }
+
           if (!typeFilter || (transaction as any).type === typeFilter) {
             result.push(transaction);
             if (result.length === pageSize) break;
@@ -157,9 +197,15 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
       setLoadedPages((prev) => new Set(prev).add(pageIndex));
 
-      // Cache the result for this page
       queryClient.setQueryData(
-        ["transactions", memoizedAddress, pageIndex, remountKey, typeFilter],
+        [
+          "transactions",
+          memoizedAddress,
+          pageIndex,
+          remountKey,
+          typeFilter,
+          dateRange,
+        ],
         result,
       );
       return result;
@@ -173,14 +219,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       memoizedAddress,
       remountKey,
       typeFilter,
+      dateRange,
     ],
   );
 
   useEffect(() => {
-    // This effect will run when the component mounts or when the address changes
     setRemountKey((prev) => prev + 1);
     setIsInitialDataLoaded(false);
-    // Reset other necessary state here
   }, [address]);
 
   const queryKey = useMemo(
@@ -191,6 +236,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       pagination.pageIndex,
       remountKey,
       typeFilter,
+      dateRange,
     ],
     [
       memoizedAddress,
@@ -198,6 +244,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       pagination.pageIndex,
       remountKey,
       typeFilter,
+      dateRange,
     ],
   );
 
@@ -228,6 +275,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             pageIndex,
             remountKey,
             typeFilter,
+            dateRange,
           ];
           const cachedData =
             queryClient.getQueryData<TransactionData[]>(prefetchQueryKey);
@@ -236,19 +284,16 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             await queryClient.prefetchQuery<TransactionData[]>({
               queryKey: prefetchQueryKey,
               queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
-              staleTime: 5 * 60 * 1000, // 5 minutes
+              staleTime: 5 * 60 * 1000,
             });
           } else {
-            // Update the displayed transactions with the cached data
             queryClient.setQueryData(prefetchQueryKey, cachedData);
-            // Update the loadedPages state
             setLoadedPages((prev) => new Set(prev).add(pageIndex));
           }
         }
       };
 
       prefetchPages();
-    } else {
     }
   }, [
     data,
@@ -260,12 +305,12 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     memoizedCluster,
     remountKey,
     typeFilter,
+    dateRange,
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
 
-    // Check if we need to fetch more signatures
     const remainingPages = Math.floor(
       (allSignatures.length - (newPageIndex + 1) * pagination.pageSize) /
         pagination.pageSize,
@@ -305,7 +350,15 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       <CardContent className="pt-6">
         {data && data.length > 0 ? (
           <>
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex justify-between">
+              <DateRangePicker
+                onDateRangeChange={(start, end) => {
+                  setDateRange({
+                    from: start || undefined,
+                    to: end || undefined,
+                  });
+                }}
+              />
               <TypeFilter value={typeFilter} onChange={setTypeFilter} />
             </div>
             <TransactionCard
@@ -318,10 +371,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         ) : (
           <div className="text-center text-muted-foreground">
             No transaction history found for this address.
-            <p>
-              Debug: Data length: {data?.length}, All signatures:{" "}
-              {allSignatures.length}
-            </p>
           </div>
         )}
       </CardContent>
