@@ -60,6 +60,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
+  const [typeFilter, setTypeFilter] = useState<ParserTransactionTypes | null>(
+    null,
+  );
+
   const {
     data: newSignatures,
     refetch: refetchSignatures,
@@ -105,48 +109,57 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
       const startIndex = pageIndex * pageSize;
-      const endIndex = startIndex + pageSize;
+      let endIndex = startIndex + pageSize;
 
-      const remainingPages = Math.floor(
-        (allSignatures.length - endIndex) / pageSize,
-      );
+      let result: TransactionData[] = [];
+      let currentIndex = startIndex;
 
-      if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
-        await fetchSignatures();
-      }
+      while (result.length < pageSize && currentIndex < allSignatures.length) {
+        if (
+          currentIndex + pageSize > allSignatures.length &&
+          hasMoreTransactions
+        ) {
+          await fetchSignatures();
+        }
 
-      const pageSignatures = allSignatures
-        .slice(startIndex, endIndex)
-        .map((sig) => {
-          if ("signature" in sig) return sig.signature;
-          if ("transaction" in sig && sig.transaction.signatures.length > 0) {
-            return sig.transaction.signatures[0];
+        const batchSignatures = allSignatures
+          .slice(currentIndex, currentIndex + pageSize)
+          .map((sig) => {
+            if ("signature" in sig) return sig.signature;
+            if ("transaction" in sig && sig.transaction.signatures.length > 0) {
+              return sig.transaction.signatures[0];
+            }
+            return "";
+          });
+
+        let parsedTransactions: TransactionData[] | null = null;
+        if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
+          parsedTransactions = await getParsedTransactions(
+            batchSignatures,
+            memoizedCluster,
+          );
+        }
+
+        for (let i = 0; i < batchSignatures.length; i++) {
+          const transaction =
+            parsedTransactions && parsedTransactions[i]
+              ? parsedTransactions[i]
+              : allSignatures[currentIndex + i];
+
+          if (!typeFilter || (transaction as any).type === typeFilter) {
+            result.push(transaction);
+            if (result.length === pageSize) break;
           }
-          return "";
-        });
+        }
 
-      let parsedTransactions: TransactionData[] | null = null;
-      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
-        parsedTransactions = await getParsedTransactions(
-          pageSignatures,
-          memoizedCluster,
-        );
+        currentIndex += pageSize;
       }
 
-      setLoadedPages((prev) => {
-        const newSet = new Set(prev).add(pageIndex);
-        return newSet;
-      });
-
-      const result = pageSignatures.map((signature, index) =>
-        parsedTransactions && parsedTransactions[index]
-          ? parsedTransactions[index]
-          : allSignatures[startIndex + index],
-      );
+      setLoadedPages((prev) => new Set(prev).add(pageIndex));
 
       // Cache the result for this page
       queryClient.setQueryData(
-        ["transactions", memoizedAddress, pageIndex, remountKey],
+        ["transactions", memoizedAddress, pageIndex, remountKey, typeFilter],
         result,
       );
       return result;
@@ -159,6 +172,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       queryClient,
       memoizedAddress,
       remountKey,
+      typeFilter,
     ],
   );
 
@@ -169,10 +183,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     // Reset other necessary state here
   }, [address]);
 
-  // useEffect(() => {
-  //   console.log("loadedPages updated:", Array.from(loadedPages));
-  // }, [loadedPages]);
-
   const queryKey = useMemo(
     () => [
       "transactions",
@@ -180,8 +190,15 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       memoizedCluster,
       pagination.pageIndex,
       remountKey,
+      typeFilter,
     ],
-    [memoizedAddress, memoizedCluster, pagination.pageIndex, remountKey],
+    [
+      memoizedAddress,
+      memoizedCluster,
+      pagination.pageIndex,
+      remountKey,
+      typeFilter,
+    ],
   );
 
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
@@ -210,6 +227,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             memoizedCluster,
             pageIndex,
             remountKey,
+            typeFilter,
           ];
           const cachedData =
             queryClient.getQueryData<TransactionData[]>(prefetchQueryKey);
@@ -241,6 +259,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     memoizedAddress,
     memoizedCluster,
     remountKey,
+    typeFilter,
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
@@ -259,10 +278,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const handleReturn = () => {
     router.push(`/?cluster=${memoizedCluster}`);
   };
-
-  const [typeFilter, setTypeFilter] = useState<ParserTransactionTypes | null>(
-    null,
-  );
 
   if (isError) {
     return (
