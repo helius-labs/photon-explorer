@@ -33,8 +33,6 @@ export const useNiftyAsset = (accountInfo: AccountInfo<Buffer | ParsedAccountDat
 
       const [assetData] = assetSerializer.deserialize(accountData);
 
-      console.log(`ASSET DATA: ${JSON.stringify(assetData, null, 2)}`);
-
       if (assetData.discriminator === Discriminator.Asset) {
         return assetData as Asset;
       }
