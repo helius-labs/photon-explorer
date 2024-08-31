@@ -10,12 +10,14 @@ import {
 import React from "react";
 
 import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
+import { useNiftyAsset } from "@/hooks/useNiftyAsset";
 
 import AccountHeaderNFTs from "@/components/account/account-headers/account-header-nfts";
 import AccountHeaderPrograms from "@/components/account/account-headers/account-header-programs";
 import AccountHeaderTokens from "@/components/account/account-headers/account-header-tokens";
 import AccountHeaderUnknown from "@/components/account/account-headers/account-header-unknown";
 import AccountHeaderWallets from "@/components/account/account-headers/account-header-wallet";
+import AccountHeaderNiftyAsset from "@/components/account/account-headers/account-header-nifty";
 import { Tab } from "../tab-nav";
 
 interface AccountHeaderProps {
@@ -43,12 +45,19 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({
 
   const { data: nftData } = useGetNFTsByMint(address.toBase58(), shouldFetchNFT);
 
+  const asset = useNiftyAsset(accountInfo);
+
   const isCompressedNFT = nftData?.compression?.compressed;
 
   const renderAccountHeader = () => {
     if (shouldFetchNFT && isCompressedNFT) {
       return <AccountHeaderNFTs address={address} nft={nftData || null} />;
     }
+
+    if (asset) {
+      return <AccountHeaderNiftyAsset address={address} asset={asset} />;
+    }
+
     switch (accountType) {
       case AccountType.Token:
         return <AccountHeaderTokens address={address} onTabsUpdate={onTabsUpdate} />;
