@@ -1,3 +1,4 @@
+import { Asset } from "@nifty-oss/asset";
 import { PublicKey } from "@solana/web3.js";
 import { NextFlightResponse } from "next/dist/server/app-render/types";
 
@@ -133,7 +134,7 @@ export type NFT = {
 };
 
 export interface NFTMediaProps {
-  nft: NFT;
+  nft: NFT | Asset;
   className?: string;
   onLoad?: () => void;
   onError?: () => void;

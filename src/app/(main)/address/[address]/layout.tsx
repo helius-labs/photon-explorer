@@ -113,6 +113,15 @@ export default function AddressLayout({
       if (accountType === AccountType.Token2022) {
         newTabs.push({ name: "Token Extensions", href: `/address/${address}/mint-extensions` });
       }
+    } else if (accountType === AccountType.NiftyAsset) {
+      newTabs.push({
+        name: "Transactions",
+        href: `/address/${address}/history`,
+      });
+      newTabs.push({
+        name: "Extensions",
+        href: `/address/${address}/nifty-extensions`,
+      });
     }
 
     // Add the "Compressed Accounts" tab if the pathname includes "compressed-accounts"
@@ -147,7 +156,8 @@ export default function AddressLayout({
         accountType === AccountType.NFToken ||
         accountType === AccountType.Token2022 ||
         accountType === AccountType.CompressedNFT ||
-        accountType === AccountType.NotFound
+        accountType === AccountType.NotFound ||
+        accountType === AccountType.NiftyAsset
       ) {
         router.replace(`/address/${address}/history?cluster=${cluster}`);
       }

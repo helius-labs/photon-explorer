@@ -5,6 +5,7 @@ import {
   ConfirmedSignatureInfo,
   ParsedAccountData,
 } from "@solana/web3.js";
+import { getInternalAssetAccountDataSerializer, ASSET_PROGRAM_ID, Discriminator } from "@nifty-oss/asset";
 
 export enum AccountType {
   Wallet = "Wallet",
@@ -18,10 +19,45 @@ export enum AccountType {
   CompressedNFT = "CompressedNFT",
   Token2022 = "Token2022",
   Token2022NFT = "Token2022NFT",
+  NiftyAsset = "NiftyAsset",
 }
 
 const SYSTEM_PROGRAM = "11111111111111111111111111111111";
 const NFTOKEN_ADDRESS = "nftokf9qcHSYkVSP3P2gUMmV6d4AwjMueXgUu43HyLL";
+
+const isNiftyAsset = (accountInfo: AccountInfo<Buffer | ParsedAccountData> | null): boolean => {
+  if (!accountInfo || accountInfo.owner.toString() !== ASSET_PROGRAM_ID) {
+    return false;
+  }
+  
+  try {
+    const assetSerializer = getInternalAssetAccountDataSerializer();
+    let accountData: Uint8Array;
+
+    if (Buffer.isBuffer(accountInfo.data)) {
+      accountData = new Uint8Array(accountInfo.data);
+    } else if (typeof accountInfo.data === 'object' && 'raw' in accountInfo.data) {
+      const rawData = accountInfo.data.raw;
+      if (rawData instanceof Uint8Array) {
+        accountData = rawData;
+      } else if (Array.isArray(rawData)) {
+        accountData = new Uint8Array(rawData);
+      } else if (rawData instanceof ArrayBuffer) {
+        accountData = new Uint8Array(rawData);
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+    const [assetData] = assetSerializer.deserialize(accountData);
+    return assetData.discriminator === Discriminator.Asset;
+  } catch (error) {
+    console.error("Error checking for Nifty Asset:", error);
+    return false;
+  }
+};
 
 export function getAccountType(
   accountInfo: AccountInfo<Buffer | ParsedAccountData> | null,
@@ -97,6 +133,11 @@ export function getAccountType(
   // Check for known sysvar program addresses
   if (accountInfo && SYSVAR_IDS[accountInfo.owner.toBase58()]) {
     return AccountType.Program;
+  }
+
+  // Check for Nifty Asset
+  if (isNiftyAsset(accountInfo)) {
+    return AccountType.NiftyAsset;
   }
 
   return AccountType.Unknown;

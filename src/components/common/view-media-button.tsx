@@ -3,9 +3,10 @@ import { ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { NFTMedia } from "@/components/common/nft-media";
 import { NFT } from '@/types/nft';
+import { Asset } from '@nifty-oss/asset';
 
 interface ViewMediaButtonProps {
-    nft: NFT;
+    nft: NFT | Asset;
 }
 
 const ViewMediaButton: React.FC<ViewMediaButtonProps> = ({ nft }) => {
