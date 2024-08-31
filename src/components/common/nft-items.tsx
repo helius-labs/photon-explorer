@@ -23,18 +23,20 @@ export function NFTGridItem({ nft, onQuickView }: NFTGridItemProps) {
   };
 
   return (
-    <div className="group relative flex flex-col items-center rounded-lg border shadow-lg">
-      <div className="h-50 relative w-full">
+    <div className="group relative flex flex-col rounded-lg border shadow-lg overflow-hidden bg-background">
+      <div className="relative w-full pt-[100%]">
         {isLoading && (
-          <Skeleton className="absolute h-full w-full rounded-md" />
+          <Skeleton className="absolute inset-0" />
         )}
-        <NFTMedia
-          nft={nft}
-          className="max-h-48 min-h-48 w-full rounded-lg"
-          onLoad={() => setIsLoading(false)}
-          onError={() => setIsLoading(false)}
-        />
-        <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <NFTMedia
+            nft={nft}
+            className="h-full w-full object-cover"
+            onLoad={() => setIsLoading(false)}
+            onError={() => setIsLoading(false)}
+          />
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 transition-opacity group-hover:opacity-100">
           <Button onClick={() => onQuickView(nft)} className="text-white">
             Quick View
           </Button>
