@@ -25,6 +25,7 @@ export function DataTablePagination<TData>({
   loadedPages,
   lastPageNum,
 }: DataTablePaginationProps<TData>) {
+  console.log("in pagination and last page num", lastPageNum);
   const handlePageChange = (newPageIndex: number) => {
     if (loadedPages && !loadedPages.has(newPageIndex)) {
       return; // Prevent navigation to unloaded pages

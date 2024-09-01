@@ -110,7 +110,11 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       }
 
       if (newSignatures && newSignatures.length > 0) {
-        setAllSignatures((prev) => [...prev, ...newSignatures]);
+        setAllSignatures((prev) => {
+          const updatedSignatures = [...prev, ...newSignatures];
+          console.log(`Total signatures: ${updatedSignatures.length}`);
+          return updatedSignatures;
+        });
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
         setHasMoreTransactions(false);
@@ -133,6 +137,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
+      console.log(`Fetching transactions for page ${pageIndex}`);
       const startIndex = pageIndex * pageSize;
       let endIndex = startIndex + pageSize;
 
@@ -145,6 +150,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         const txDate = new Date((sig as any).blockTime * 1000);
         return txDate >= dateRange.from && txDate <= dateRange.to;
       });
+
+      console.log(
+        `Working with ${filteredSignatures.length} filtered signatures`,
+      );
 
       while (
         result.length < pageSize &&
@@ -167,6 +176,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             return "";
           });
 
+        console.log(`Processing batch of ${batchSignatures.length} signatures`);
+
         let parsedTransactions: TransactionData[] | null = null;
         if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
           parsedTransactions = await getParsedTransactions(
@@ -182,6 +193,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               : filteredSignatures[currentIndex + i];
 
           if ("blockTime" in transaction && transaction.blockTime != null) {
+            console.log(
+              `Parsed transaction for page ${pageIndex}:`,
+              transaction,
+            );
           }
 
           if (!typeFilter || (transaction as any).type === typeFilter) {
@@ -207,17 +222,24 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         result,
       );
 
+      // Update lastPageNum logic
       const isCurrentPageFull = result.length === pageSize;
       const hasMoreFilteredTransactions =
         currentIndex < filteredSignatures.length;
 
-      setLastPageNum(
-        !isCurrentPageFull &&
-          !hasMoreFilteredTransactions &&
-          !hasMoreTransactions
-          ? pagination.pageIndex
-          : null,
-      );
+      if (
+        !isCurrentPageFull ||
+        (!hasMoreFilteredTransactions && !hasMoreTransactions)
+      ) {
+        setLastPageNum(pageIndex);
+        console.log(`lastPageNum updated to ${pageIndex}`);
+      } else if (lastPageNum !== null && pageIndex > lastPageNum) {
+        setLastPageNum(null);
+        console.log(`lastPageNum updated to null`);
+      }
+
+      console.log(`Page ${pageIndex}: lastPageNum set to ${lastPageNum}`);
+      console.log(`Transactions for page ${pageIndex}:`, result);
       return result;
     },
     [
@@ -230,7 +252,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       remountKey,
       typeFilter,
       dateRange,
-      pagination.pageIndex,
+      lastPageNum,
     ],
   );
 
@@ -262,6 +284,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
     queryKey,
     queryFn: () => {
+      console.log(`Fetching transactions for page ${pagination.pageIndex}`);
       return fetchTransactions(pagination.pageIndex, pagination.pageSize);
     },
     staleTime: 5 * 60 * 1000,
@@ -275,6 +298,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   useEffect(() => {
     if (data) {
+      console.log(
+        `Displaying transactions for page ${pagination.pageIndex}:`,
+        data,
+      );
       const prefetchPages = async () => {
         const currentPage = pagination.pageIndex;
         for (let i = 1; i <= 2; i++) {
@@ -320,14 +347,18 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
+    console.log(`Changing to page ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
 
-    const remainingPages = Math.floor(
-      (allSignatures.length - (newPageIndex + 1) * pagination.pageSize) /
-        pagination.pageSize,
-    );
-    if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
-      fetchSignatures();
+    // Update fetching logic
+    if (lastPageNum === null || newPageIndex <= lastPageNum) {
+      const remainingPages = Math.floor(
+        (allSignatures.length - (newPageIndex + 1) * pagination.pageSize) /
+          pagination.pageSize,
+      );
+      if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
+        fetchSignatures();
+      }
     }
   };
 
