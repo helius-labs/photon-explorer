@@ -13,7 +13,7 @@ import {
 } from "@/utils/numbers";
 import { PublicKey } from "@solana/web3.js";
 import Avatar from "boring-avatars";
-import { CheckIcon, Copy, MoreVertical, Info } from "lucide-react";
+import { CheckIcon, Copy, Info, MoreVertical } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
@@ -24,6 +24,7 @@ import { useGetTokensByMint } from "@/hooks/useGetTokensByMint";
 import { usePythDataFeed } from "@/hooks/usePythDataFeed";
 
 import Address from "@/components/common/address";
+import { Tab } from "@/components/tab-nav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,10 +34,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TooltipProvider, Tooltip } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tab } from "@/components/tab-nav";
+import { Tooltip, TooltipProvider } from "@/components/ui/tooltip";
 
 interface AccountHeaderTokensProps {
   address: PublicKey;
@@ -158,17 +162,26 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
   // Update the tabs
   useEffect(() => {
     const tabs: Tab[] = [
-      { name: "Transactions", href: `/address/${address}/history` },
-      { name: "Metadata", href: `/address/${address}/metadata` },
+      {
+        name: "Transactions",
+        href: `/address/${address}/history?cluster=${cluster}`,
+      },
+      {
+        name: "Metadata",
+        href: `/address/${address}/metadata?cluster=${cluster}`,
+      },
     ];
 
     // Conditionally add the "Charts" tab
     if (hasPythDataFeed) {
-      tabs.push({ name: "Charts", href: `/address/${address}/charts` });
+      tabs.push({
+        name: "Charts",
+        href: `/address/${address}/charts?cluster=${cluster}`,
+      });
     }
 
     onTabsUpdate(tabs);
-  }, [address, onTabsUpdate, hasPythDataFeed]);
+  }, [address, onTabsUpdate, hasPythDataFeed, cluster]);
 
   // Reset copied status after a delay
   useEffect(() => {
@@ -189,21 +202,21 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
   if (tokenListLoading || tokenDataLoading || tokenMetricsLoading) {
     return (
       <div className="mx-[-1rem] md:mx-0">
-        <Card className="mb-8 w-full space-y-4 p-4 md:p-12 md:space-y-6">
+        <Card className="mb-8 w-full space-y-4 p-4 md:space-y-6 md:p-12">
           <div className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
-            <Skeleton className="h-20 w-20 rounded-lg mt-8 md:mt-0" />
+            <Skeleton className="mt-8 h-20 w-20 rounded-lg md:mt-0" />
             <div className="flex w-full flex-col md:flex-row md:justify-between">
               <div className="max-w-xs flex-grow text-center md:text-left">
-              <div className="text-3xl font-medium leading-none flex flex-col items-center md:flex-row md:justify-start">
-                <Skeleton className="h-8 w-44 mb-2 md:mb-2" />
-                <Skeleton className="h-8 w-24 mb-2 md:ml-2 md:mb-2" />
-              </div>
+                <div className="flex flex-col items-center text-3xl font-medium leading-none md:flex-row md:justify-start">
+                  <Skeleton className="mb-2 h-8 w-44 md:mb-2" />
+                  <Skeleton className="mb-2 h-8 w-24 md:mb-2 md:ml-2" />
+                </div>
                 <div className="flex justify-center space-x-4 md:justify-start">
                   <Skeleton className="h-6 w-20" />
                   <Skeleton className="ml-2 h-6 w-20" />
                 </div>
-                <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
-                  <Skeleton className="h-4 w-34" />
+                <div className="mt-2 flex justify-center text-sm text-muted-foreground md:justify-start">
+                  <Skeleton className="w-34 h-4" />
                 </div>
                 <div className="mt-4 flex justify-center space-x-4 md:justify-start">
                   <Skeleton className="h-6 w-6 rounded-full" />
@@ -211,19 +224,19 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                 </div>
               </div>
               <div className="mt-4 flex flex-col items-center md:mt-0 md:flex-shrink-0 md:flex-grow-0 md:items-end">
-                <Skeleton className="h-7 w-24 mb-4" />
+                <Skeleton className="mb-4 h-7 w-24" />
                 <div className="mt-4 flex flex-col items-center space-y-2 md:mt-6 md:items-end md:space-y-2">
                   <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-44 mb-2 md:mb-0" />
+                    <Skeleton className="mb-2 h-5 w-44 md:mb-0" />
                   </div>
-                  <div className="justify-center flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-24 mb-2 md:mb-0" />
+                  <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
+                    <Skeleton className="mb-2 h-5 w-24 md:mb-0" />
                   </div>
-                  <div className="justify-center flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-24 mb-2 md:mb-0" />
+                  <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
+                    <Skeleton className="mb-2 h-5 w-24 md:mb-0" />
                   </div>
-                  <div className="justify-center flex flex-col space-x-2 text-center text-sm md:flex-row md:justify-end">
-                    <Skeleton className="h-5 w-44 mb-6 md:mb-0" />
+                  <div className="flex flex-col justify-center space-x-2 text-center text-sm md:flex-row md:justify-end">
+                    <Skeleton className="mb-6 h-5 w-44 md:mb-0" />
                   </div>
                 </div>
               </div>
@@ -232,7 +245,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
         </Card>
       </div>
     );
-  }  
+  }
 
   return (
     <TooltipProvider>
@@ -390,7 +403,7 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                   )}
 
                   {tokenDetails.holders && tokenDetails.holders !== "" && (
-                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
+                    <div className="flex flex-col items-center text-center text-sm md:flex-row md:justify-end md:space-x-2">
                       <span className="flex items-center font-semibold text-muted-foreground">
                         Holders
                         <Popover>
@@ -400,7 +413,9 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                             </button>
                           </PopoverTrigger>
                           <PopoverContent>
-                            <p className="text-sm text-center">On-chain token holders</p>
+                            <p className="text-center text-sm">
+                              On-chain token holders
+                            </p>
                           </PopoverContent>
                         </Popover>
                       </span>
@@ -409,26 +424,29 @@ const AccountHeaderTokens: React.FC<AccountHeaderTokensProps> = ({
                       </span>
                     </div>
                   )}
-                  {tokenDetails.dailyVolume && tokenDetails.dailyVolume !== "" && (
-                    <div className="flex flex-col items-center md:flex-row md:justify-end md:space-x-2 text-center text-sm">
-                      <span className="flex items-center font-semibold text-muted-foreground">
-                        Daily Volume
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="ml-1 md:ml-2">
-                              <Info className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <p className="text-sm text-center">24hr Solana DEX Volume</p>
-                          </PopoverContent>
-                        </Popover>
-                      </span>
-                      <span className="truncate md:max-w-none md:whitespace-normal">
-                        {tokenDetails.dailyVolume}
-                      </span>
-                    </div>
-                  )}
+                  {tokenDetails.dailyVolume &&
+                    tokenDetails.dailyVolume !== "" && (
+                      <div className="flex flex-col items-center text-center text-sm md:flex-row md:justify-end md:space-x-2">
+                        <span className="flex items-center font-semibold text-muted-foreground">
+                          Daily Volume
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="ml-1 md:ml-2">
+                                <Info className="h-4 w-4 text-muted-foreground" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <p className="text-center text-sm">
+                                24hr Solana DEX Volume
+                              </p>
+                            </PopoverContent>
+                          </Popover>
+                        </span>
+                        <span className="truncate md:max-w-none md:whitespace-normal">
+                          {tokenDetails.dailyVolume}
+                        </span>
+                      </div>
+                    )}
                 </div>
               </div>
               {isLocalOrTestNet && (

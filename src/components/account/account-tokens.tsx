@@ -20,6 +20,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DollarSign, Landmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { useGetCompressedBalanceByOwner } from "@/hooks/compression";
 import { useGetTotalStake } from "@/hooks/useGetStakedAmount";
@@ -54,7 +55,7 @@ const formatPriceWithSupSub = (price: string) => {
   return <>{price}</>;
 };
 
-const columns: ColumnDef<Token>[] = [
+const getColumns = (cluster: string): ColumnDef<Token>[] => [
   {
     header: "",
     accessorKey: "token",
@@ -64,7 +65,7 @@ const columns: ColumnDef<Token>[] = [
       const tokenMint = row.original.mint.toBase58();
       return (
         <div className="flex items-center md:w-60">
-          <Link href={`/address/${tokenMint}`} passHref>
+          <Link href={`/address/${tokenMint}?cluster=${cluster}`} passHref>
             <Image
               loader={cloudflareLoader}
               src={row.original.logoURI || noLogoImg.src}
@@ -80,7 +81,7 @@ const columns: ColumnDef<Token>[] = [
             />
           </Link>
           <div className="ml-4">
-            <Link href={`/address/${tokenMint}`} passHref>
+            <Link href={`/address/${tokenMint}?cluster=${cluster}`} passHref>
               <span className="text-sm font-medium md:w-60">{tokenName}</span>
               <div className="text-sm font-bold">{tokenSymbol}</div>
             </Link>
@@ -182,11 +183,12 @@ export default function AccountTokens({
   solPrice,
   accountInfo,
 }: AccountTokensProps) {
+  const { cluster } = useCluster();
   const publicKey = new PublicKey(address);
   const { data, isLoading, isError } = useGetTokensByOwner(
     publicKey.toBase58(),
   );
-  const { cluster, endpoint } = useCluster();
+  const { endpoint } = useCluster();
   const { data: compressedBalance } = useGetCompressedBalanceByOwner(
     publicKey.toBase58(),
   );
@@ -200,8 +202,8 @@ export default function AccountTokens({
 
   // Calculate SOL balance in SOL and USD
   const solBalanceInSol = solBalanceData
-  ? parseFloat(lamportsToSolString(solBalanceData, 6))
-  : 0;
+    ? parseFloat(lamportsToSolString(solBalanceData, 6))
+    : 0;
   const solBalanceUSD = currentSolPrice
     ? formatCurrencyValue(solBalanceInSol * currentSolPrice, 2)
     : null;
@@ -211,6 +213,8 @@ export default function AccountTokens({
     Cluster.Testnet,
     Cluster.Custom,
   ].includes(cluster);
+
+  const columns = useMemo(() => getColumns(cluster), [cluster]);
 
   if (isError) {
     return (
@@ -418,7 +422,10 @@ export default function AccountTokens({
                 className="flex items-center justify-between border-b px-4 py-2"
               >
                 <div className="flex items-center">
-                  <Link href={`/address/${token.mint.toBase58()}`} passHref>
+                  <Link
+                    href={`/address/${token.mint.toBase58()}?cluster=${cluster}`}
+                    passHref
+                  >
                     <Image
                       loader={cloudflareLoader}
                       src={token.logoURI || noLogoImg.src}
@@ -434,7 +441,10 @@ export default function AccountTokens({
                     />
                   </Link>
                   <div className="ml-2">
-                    <Link href={`/address/${token.mint.toBase58()}`} passHref>
+                    <Link
+                      href={`/address/${token.mint.toBase58()}?cluster=${cluster}`}
+                      passHref
+                    >
                       <span className="text-sm font-medium">
                         {token.name || "Unknown"}
                       </span>

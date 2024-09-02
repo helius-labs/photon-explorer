@@ -37,7 +37,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
   onClose,
 }) => {
   const [ownerDomain, setOwnerDomain] = React.useState<string | null>(null);
-  const { endpoint } = useCluster();
+  const { endpoint, cluster } = useCluster();
 
   const { data: userDomains, isLoading: loadingDomains } = useFetchDomains(
     nft?.owner || "",
@@ -94,7 +94,10 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
             <div className="h-full w-full flex-grow lg:flex-grow-0 lg:overflow-hidden">
               <DialogHeader>
                 <DialogTitle className="mb-2 text-xl font-bold text-foreground sm:text-2xl">
-                  <Link href={`/address/${nft.mint.toBase58()}`} className="hover:underline">
+                  <Link
+                    href={`/address/${nft.mint.toBase58()}?cluster=${cluster}`}
+                    className="hover:underline"
+                  >
                     {nft.name || "Unknown NFT"}
                   </Link>
                 </DialogTitle>
@@ -132,7 +135,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                             Owner
                           </Badge>
                           <Link
-                            href={`/address/${nft.owner}`}
+                            href={`/address/${nft.owner}?cluster=${cluster}`}
                             className="text-muted-foreground underline"
                           >
                             {ownerDomain
@@ -149,7 +152,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                             Collection
                           </Badge>
                           <Link
-                            href={`/address/${nft.collection}`}
+                            href={`/address/${nft.collection}?cluster=${cluster}`}
                             className="text-muted-foreground underline"
                           >
                             {nft.collectionName
@@ -164,7 +167,7 @@ const AccountNFTsModal: React.FC<AccountNFTsModalProps> = ({
                             Mint
                           </Badge>
                           <Link
-                            href={`/address/${nft.mint.toBase58()}`}
+                            href={`/address/${nft.mint.toBase58()}?cluster=${cluster}`}
                             className="text-muted-foreground underline"
                           >
                             {shorten(nft.mint.toBase58() || "Unknown")}

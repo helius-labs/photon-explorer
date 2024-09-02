@@ -13,7 +13,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
+import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
+
 import Address from "@/components/common/address";
+import { NFTMedia } from "@/components/common/nft-media";
+import ViewMediaButton from "@/components/common/view-media-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,16 +32,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useGetNFTsByMint } from "@/hooks/useGetNFTsByMint";
-import { Skeleton } from "@/components/ui/skeleton";
-import { NFTMedia } from "@/components/common/nft-media";
-import ViewMediaButton from "@/components/common/view-media-button";
 
 interface AccountHeaderNFTsProps {
   address: PublicKey;
@@ -56,7 +57,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
 
   const { isLoading: nftDataLoading } = useGetNFTsByMint(
     address.toBase58(),
-    true
+    true,
   );
 
   const displayName = nft?.name || "";
@@ -101,20 +102,20 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                 <div className="max-w-sm flex-grow text-center md:text-left">
                   <CardTitle className="text-3xl font-medium leading-none">
                     <div className="flex flex-col items-center md:flex-row md:justify-start">
-                      <Skeleton className="h-8 w-48 mb-2" />
+                      <Skeleton className="mb-2 h-8 w-48" />
                       <div className="mt-2 flex space-x-2 md:ml-2 md:mt-0">
                         <Skeleton className="h-6 w-20" />
                         <Skeleton className="h-6 w-20" />
                       </div>
                     </div>
                   </CardTitle>
-                  <div className="mt-2 text-sm text-muted-foreground flex justify-center md:justify-start">
+                  <div className="mt-2 flex justify-center text-sm text-muted-foreground md:justify-start">
                     <Skeleton className="h-4 w-36" />
                   </div>
                 </div>
               </div>
               <div className="md:text-md mt-2 max-w-md text-center text-sm text-foreground md:text-left">
-                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="mb-2 h-6 w-full" />
                 <div className="mt-4 flex justify-center space-x-4 md:justify-start">
                   <Skeleton className="h-6 w-6 rounded-full" />
                   <Skeleton className="h-6 w-6 rounded-full" />
@@ -139,7 +140,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
       <div className="mx-[-1rem] md:mx-0">
         <Card className="mb-8 w-full space-y-4 p-6 md:h-auto md:space-y-6">
           <CardHeader className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
-            <div className="relative flex-shrink-0 w-full md:w-72 h-72">
+            <div className="relative h-72 w-full flex-shrink-0 md:w-72">
               {nft ? (
                 <ViewMediaButton nft={nft} />
               ) : (
@@ -193,7 +194,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                         {type === "Token2022" && (
                           <Badge variant="success">Token2022</Badge>
                         )}
-                        {nft?.creators?.some(creator => creator.verified) && (
+                        {nft?.creators?.some((creator) => creator.verified) && (
                           <Badge variant="outline">Verified</Badge>
                         )}
                         {nft?.compression?.compressed && (
@@ -268,7 +269,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                   <div className="mt-4 flex justify-center space-x-4 md:justify-start">
                     {nft.content?.links && (
                       <a
-                        href={nft.content?.links.animation || '#'}
+                        href={nft.content?.links.animation || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -282,7 +283,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                       </a>
                     )}
                     <a
-                      href={nft.content?.links?.external_url || '#'}
+                      href={nft.content?.links?.external_url || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -309,7 +310,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                     </span>
                     {nft.collectionName ? (
                       <Link
-                        href={`/address/${nft.collection}`}
+                        href={`/address/${nft.collection}?cluster=${cluster}`}
                         className="text-muted-foreground hover:underline"
                       >
                         {nft.collectionName}
@@ -333,7 +334,7 @@ const AccountHeaderNFTs: React.FC<AccountHeaderNFTsProps> = ({
                       Owner:{" "}
                     </span>
                     <Link
-                      href={`/address/${nft.owner}`}
+                      href={`/address/${nft.owner}?cluster=${cluster}`}
                       className="hover:underline"
                     >
                       {shorten(nft.owner)}
