@@ -25,7 +25,14 @@ import {
   X,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useId } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActionMeta,
   ControlProps,
@@ -73,132 +80,192 @@ const hasAnsDomainSyntax = (value: string) => {
 const sortSearchResults = <T,>(
   results: T[],
   search: string,
-  getNameField: (item: T) => string
+  getNameField: (item: T) => string,
 ): T[] => {
   const searchLower = search.toLowerCase();
   return results.sort((a, b) => {
     const nameA = getNameField(a).toLowerCase();
     const nameB = getNameField(b).toLowerCase();
-    
+
     // Move exact matches to the top
     if (nameA === searchLower) return -1;
     if (nameB === searchLower) return 1;
-    
+
     // Sort alphabetically
     return nameA.localeCompare(nameB);
   });
 };
 
 export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
-  const asyncRef = React.useRef<SelectInstance<SearchOptions> | null>(null);
-  const [search, setSearch] = React.useState("");
+  const asyncRef = useRef<SelectInstance<SearchOptions> | null>(null);
+  const [search, setSearch] = useState("");
   const router = useRouter();
   const { cluster } = useCluster();
   const { data: verifiedTokens } = useGetTokenListVerified();
 
   const searchParams = useSearchParams();
-  const [isClient, setIsClient] = React.useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [recentSearches, setRecentSearches] = useLocalStorage<SearchOptions[]>(
     "recentSearchesV2",
     [],
   );
 
-  const onChange = (
-    option: OnChangeValue<SearchOptions, false>,
-    meta: ActionMeta<SearchOptions>,
-  ) => {
-    if (meta.action === "select-option") {
-      // Update recent searches
-      setRecentSearches((prevSearches) => {
-        return [
-          option as SearchOptions,
-          ...prevSearches.filter((item) => item.pathname !== option?.pathname),
-        ].slice(0, 5); // Limit to 5 recent searches
-      });
+  // Memoizooorrrr
+  const memoizedRecentSearches = useMemo(
+    () => recentSearches,
+    [recentSearches],
+  );
+  const memoizedBuildOptions = useMemo(
+    () => (search: string) => buildOptions(search, cluster),
+    [cluster],
+  );
+  const styles = useMemo(
+    () => ({
+      controlStyles: {
+        base: "border px-4 py-2 border-input shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
+        focus: "rounded-t-lg bg-popover",
+        nonFocus: "rounded-lg",
+      },
+      placeholderStyles:
+        "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis",
+      selectInputStyles: "text-sm font-medium text-muted-foreground",
+      valueContainerStyles: "px-1 cursor-text",
+      singleValueStyles: "leading-7 ml-1",
+      menuStyles:
+        "rounded-b-lg border border-t-0 border-input bg-popover overflow-hidden w-full",
+      groupHeadingStyles:
+        "ml-2 mt-2 mb-1 text-muted-foreground text-xs font-medium",
+      optionStyles: {
+        base: "hover:cursor-pointer px-3 py-2 text-sm w-full",
+        focus: "bg-accent",
+        selected: "",
+      },
+      noOptionsMessageStyles: "py-4 text-sm",
+      loadingMessageStyles: "py-4 text-sm",
+    }),
+    [],
+  );
 
-      const nextQueryString = searchParams?.toString();
-      router.push(
-        `${option?.pathname}${nextQueryString ? `?${nextQueryString}` : ""}`,
+  const onChange = useCallback(
+    (
+      option: OnChangeValue<SearchOptions, false>,
+      meta: ActionMeta<SearchOptions>,
+    ) => {
+      if (meta.action === "select-option") {
+        // Update recent searches
+        setRecentSearches((prevSearches) =>
+          [
+            option as SearchOptions,
+            ...prevSearches.filter(
+              (item) => item.pathname !== option?.pathname,
+            ),
+          ].slice(0, 5),
+        ); // Limit to 5 recent searches
+
+        const nextQueryString = searchParams?.toString();
+        router.push(
+          `${option?.pathname}${nextQueryString ? `?${nextQueryString}` : ""}`,
+        );
+
+        setSearch("");
+      }
+    },
+    [router, searchParams, setRecentSearches],
+  );
+
+  const onInputChange = useCallback(
+    (value: string, { action }: InputActionMeta) => {
+      if (action === "input-change") {
+        setSearch(value);
+      }
+    },
+    [],
+  );
+
+  const buildRecentSearchesOptions = useCallback(
+    (search: string, isClient: boolean): GroupedOption | undefined => {
+      // Only show recent when client is available to prevent hydration errors
+      if (!isClient) return;
+
+      const matchedRecentSearches = memoizedRecentSearches.filter(
+        (recentSearch) =>
+          search.length === 0 ||
+          recentSearch.label.toLowerCase().includes(search.toLowerCase()),
       );
-      setSearch("");
-    }
-  };
 
-  const onInputChange = (value: string, { action }: InputActionMeta) => {
-    if (action === "input-change") {
-      setSearch(value);
-    }
-  };
+      if (matchedRecentSearches.length > 0) {
+        return {
+          label: "Recent Searches",
+          options: matchedRecentSearches.map((recentSearch) => ({
+            ...recentSearch,
+            icon: <Clock strokeWidth={0.5} className="h-8 w-8" />,
+            recentSearch: true,
+          })),
+        };
+      }
+    },
+    [memoizedRecentSearches],
+  );
 
-  function buildRecentSearchesOptions(
-    search: string,
-    isClient: boolean,
-  ): GroupedOption | undefined {
-    // Only show recent when client is available to prevent hydration errors
-    if (!isClient) return;
+  const performSearch = useCallback(
+    async (inputSearch: string): Promise<GroupedOption[]> => {
+      const search = inputSearch.trim();
 
-    const matchedRecentSearches = recentSearches.filter(
-      (recentSearch) =>
-        search.length === 0 ||
-        recentSearch.label.toLowerCase().includes(search.toLowerCase()),
-    );
+      const recentSearchesOptions = buildRecentSearchesOptions(
+        search,
+        isClient,
+      );
+      const localOptions = memoizedBuildOptions(search);
 
-    if (matchedRecentSearches.length > 0) {
-      return {
-        label: "Recent Searches",
-        options: matchedRecentSearches.map((recentSearch) => ({
-          label: recentSearch.label,
-          pathname: recentSearch.pathname,
-          value: recentSearch.value,
-          icon: <Clock strokeWidth={0.5} className="h-8 w-8" />,
-          recentSearch: true,
-        })),
-      };
-    }
-  }
+      // Use Promise.all to fetch data in parallel
+      try {
+        const [tokenOptions, domainOptions, ansDomainOptions] =
+          await Promise.all([
+            buildTokenOptions(search, cluster, verifiedTokens!),
+            hasDomainSyntax(search) && cluster === Cluster.MainnetBeta
+              ? buildDomainOptions(search)
+              : Promise.resolve([]), // Resolve to empty array if the condition is false
+            hasAnsDomainSyntax(search) && cluster === Cluster.MainnetBeta
+              ? buildAnsDomainOptions(search)
+              : Promise.resolve([]), // Resolve to empty array if the condition is false
+          ]);
 
-  async function performSearch(search: string): Promise<GroupedOption[]> {
-    search = search.trim();
-  
-    const recentSearchesOptions = buildRecentSearchesOptions(search, isClient);
-    const localOptions = buildOptions(search, cluster);
-  
-    // Use Promise.all to fetch data in parallel
-    try {
-      const [tokenOptions, domainOptions, ansDomainOptions] = await Promise.all([
-        buildTokenOptions(search, cluster, verifiedTokens!),
-        hasDomainSyntax(search) && cluster === Cluster.MainnetBeta
-          ? buildDomainOptions(search)
-          : Promise.resolve([]), // Resolve to empty array if the condition is false
-        hasAnsDomainSyntax(search) && cluster === Cluster.MainnetBeta
-          ? buildAnsDomainOptions(search)
-          : Promise.resolve([]), // Resolve to empty array if the condition is false
-      ]);
-  
-      const recentSearchesOptionsAppendable = recentSearchesOptions
-        ? [recentSearchesOptions]
-        : [];
-      const tokenOptionsAppendable = tokenOptions ? [tokenOptions] : [];
-      const domainOptionsAppendable = domainOptions.length > 0 ? domainOptions : [];
-      const ansDomainOptionsAppendable = ansDomainOptions.length > 0 ? ansDomainOptions : [];
-  
-      return [
-        ...recentSearchesOptionsAppendable,
-        ...domainOptionsAppendable,
-        ...ansDomainOptionsAppendable,
-        ...tokenOptionsAppendable,
-        ...localOptions,
-      ];
-    } catch (e) {
-      console.error(`Error performing search: ${e instanceof Error ? e.message : e}`);
-      return [
-        ...(recentSearchesOptions ? [recentSearchesOptions] : []),
-        ...localOptions,
-      ];
-    }
-  }  
+        const recentSearchesOptionsAppendable = recentSearchesOptions
+          ? [recentSearchesOptions]
+          : [];
+        const tokenOptionsAppendable = tokenOptions ? [tokenOptions] : [];
+        const domainOptionsAppendable =
+          domainOptions.length > 0 ? domainOptions : [];
+        const ansDomainOptionsAppendable =
+          ansDomainOptions.length > 0 ? ansDomainOptions : [];
 
-  React.useEffect(() => {
+        return [
+          ...recentSearchesOptionsAppendable,
+          ...domainOptionsAppendable,
+          ...ansDomainOptionsAppendable,
+          ...tokenOptionsAppendable,
+          ...localOptions,
+        ];
+      } catch (e) {
+        console.error(
+          `Error performing search: ${e instanceof Error ? e.message : e}`,
+        );
+        return [
+          ...(recentSearchesOptions ? [recentSearchesOptions] : []),
+          ...localOptions,
+        ];
+      }
+    },
+    [
+      buildRecentSearchesOptions,
+      cluster,
+      isClient,
+      memoizedBuildOptions,
+      verifiedTokens,
+    ],
+  );
+
+  useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || e.key === "/") {
         if (
@@ -224,48 +291,28 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const controlStyles = {
-    base: "border px-4 py-2 border-input shadow-sm transition-colors hover:bg-popover hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 sm:pr-12",
-    focus: "rounded-t-lg bg-popover",
-    nonFocus: "rounded-lg",
-  };
-
-  const placeholderStyles =
-    "text-sm font-medium text-muted-foreground whitespace-nowrap overflow-hidden overflow-ellipsis";
-  const selectInputStyles = "text-sm font-medium text-muted-foreground";
-  const valueContainerStyles = "px-1 cursor-text";
-  const singleValueStyles = "leading-7 ml-1";
-  const menuStyles =
-    "rounded-b-lg border border-t-0 border-input bg-popover overflow-hidden w-full";
-  const groupHeadingStyles =
-    "ml-2 mt-2 mb-1 text-muted-foreground text-xs font-medium";
-  const optionStyles = {
-    base: "hover:cursor-pointer px-3 py-2 text-sm w-full",
-    focus: "bg-accent",
-    selected: "",
-  };
-  const noOptionsMessageStyles = "py-4 text-sm";
-  const loadingMessageStyles = "py-4 text-sm";
 
   // Get recent searches as default options
   const recentSearchesOptions = buildRecentSearchesOptions("", isClient);
   const defaultOptions = recentSearchesOptions ? [recentSearchesOptions] : [];
 
-  const clearRecentSearch = (pathname: string) => {
-    setRecentSearches((prevSearches) =>
-      prevSearches.filter((item) => item.pathname !== pathname),
-    );
-    setTimeout(() => {
-      asyncRef?.current?.onInputChange(search, {
-        prevInputValue: "",
-        action: "set-value",
+  const clearRecentSearch = useCallback(
+    (pathname: string) => {
+      setRecentSearches((prevSearches) =>
+        prevSearches.filter((item) => item.pathname !== pathname),
+      );
+      setTimeout(() => {
+        asyncRef?.current?.onInputChange(search, {
+          prevInputValue: "",
+          action: "set-value",
+        });
       });
-    });
-  };
+    },
+    [setRecentSearches, search],
+  );
 
   const resetValue = "" as any;
 
@@ -273,7 +320,7 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
     <AsyncSelect
       ref={asyncRef}
       autoFocus={autoFocus}
-      cacheOptions={false}
+      cacheOptions={true}
       // @ts-ignore
       clearRecentSearch={clearRecentSearch}
       defaultOptions={defaultOptions}
@@ -306,23 +353,25 @@ export function SearchBar({ autoFocus = true }: { autoFocus?: boolean }) {
       classNames={{
         control: ({ isFocused }) =>
           clsx(
-            isFocused ? controlStyles.focus : controlStyles.nonFocus,
-            controlStyles.base,
+            isFocused
+              ? styles.controlStyles.focus
+              : styles.controlStyles.nonFocus,
+            styles.controlStyles.base,
           ),
-        placeholder: () => placeholderStyles,
-        input: () => selectInputStyles,
-        valueContainer: () => valueContainerStyles,
-        singleValue: () => singleValueStyles,
-        menu: () => menuStyles,
-        groupHeading: () => groupHeadingStyles,
+        placeholder: () => styles.placeholderStyles,
+        input: () => styles.selectInputStyles,
+        valueContainer: () => styles.valueContainerStyles,
+        singleValue: () => styles.singleValueStyles,
+        menu: () => styles.menuStyles,
+        groupHeading: () => styles.groupHeadingStyles,
         option: ({ isFocused, isSelected }) =>
           clsx(
-            isFocused && optionStyles.focus,
-            isSelected && optionStyles.selected,
-            optionStyles.base,
+            isFocused && styles.optionStyles.focus,
+            isSelected && styles.optionStyles.selected,
+            styles.optionStyles.base,
           ),
-        noOptionsMessage: () => noOptionsMessageStyles,
-        loadingMessage: () => loadingMessageStyles,
+        noOptionsMessage: () => styles.noOptionsMessageStyles,
+        loadingMessage: () => styles.loadingMessageStyles,
       }}
       styles={{
         control: (baseStyles, state) => ({
@@ -374,7 +423,9 @@ const Control = ({
     >
       <X className="h-5 w-5" />
     </button>
-    <div className="pointer-events-none hidden h-6 w-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-[14px] text-sm font-medium text-muted-foreground opacity-80 sm:flex">      {"/"}
+    <div className="pointer-events-none hidden h-6 w-6 select-none items-center justify-center rounded border bg-muted px-1.5 font-mono text-[14px] text-sm font-medium text-muted-foreground opacity-80 sm:flex">
+      {" "}
+      {"/"}
     </div>
   </components.Control>
 );
@@ -432,7 +483,8 @@ function buildProgramOptions(search: string, cluster: Cluster) {
   const matchedPrograms = Object.entries(PROGRAM_INFO_BY_ID).filter(
     ([address, { name, deployments }]) => {
       if (!deployments.includes(cluster)) return false;
-      const matches = name.toLowerCase().includes(search.toLowerCase()) ||
+      const matches =
+        name.toLowerCase().includes(search.toLowerCase()) ||
         address.includes(search);
       if (matches) {
         console.log("Matched program:", name);
@@ -448,7 +500,7 @@ function buildProgramOptions(search: string, cluster: Cluster) {
     const sortedPrograms = sortSearchResults(
       matchedPrograms,
       search,
-      ([_, { name }]) => name
+      ([_, { name }]) => name,
     );
 
     return {
@@ -484,7 +536,7 @@ function buildLoaderOptions(search: string) {
     const sortedLoaders = sortSearchResults(
       matchedLoaders,
       search,
-      ([_, name]) => name
+      ([_, name]) => name,
     );
 
     return {
@@ -513,7 +565,7 @@ function buildSysvarOptions(search: string) {
     const sortedSysvars = sortSearchResults(
       matchedSysvars,
       search,
-      ([_, name]) => name
+      ([_, name]) => name,
     );
 
     return {
@@ -542,7 +594,7 @@ function buildSpecialOptions(search: string) {
     const sortedSpecialIds = sortSearchResults(
       matchedSpecialIds,
       search,
-      ([_, name]) => name
+      ([_, name]) => name,
     );
 
     return {
@@ -579,7 +631,7 @@ async function buildTokenOptions(
     const sortedOtherMatches = sortSearchResults(
       otherMatches,
       search,
-      (token) => token.symbol
+      (token) => token.symbol,
     );
 
     // Combine exact matches and sorted other matches
