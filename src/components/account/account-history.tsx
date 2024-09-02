@@ -76,7 +76,10 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     setAllSignatures([]);
     setLastSignature(undefined);
     setHasMoreTransactions(true);
-  }, [typeFilter, dateRange]);
+
+    // Clear the cache for transaction history
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
+  }, [typeFilter, dateRange, memoizedAddress, queryClient]);
 
   const {
     data: newSignatures,
@@ -366,6 +369,23 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     router.push(`/?cluster=${memoizedCluster}`);
   };
 
+  const handleDateRangeChange = (start: Date | null, end: Date | null) => {
+    setDateRange({
+      from: start || undefined,
+      to: end || undefined,
+    });
+    setLastPageNum(null); // Reset lastPageNum
+    // Clear the cache for transaction history
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
+  };
+
+  const handleTypeFilterChange = (value: ParserTransactionTypes | null) => {
+    setTypeFilter(value);
+    // Clear the cache for transaction history
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
+    setLastPageNum(null);
+  };
+
   if (isError) {
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
@@ -393,15 +413,11 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         {data && data.length > 0 ? (
           <>
             <div className="mb-4 flex justify-between">
-              <DateRangePicker
-                onDateRangeChange={(start, end) => {
-                  setDateRange({
-                    from: start || undefined,
-                    to: end || undefined,
-                  });
-                }}
+              <DateRangePicker onDateRangeChange={handleDateRangeChange} />
+              <TypeFilter
+                value={typeFilter}
+                onChange={handleTypeFilterChange}
               />
-              <TypeFilter value={typeFilter} onChange={setTypeFilter} />
             </div>
             <TransactionCard
               data={data}
