@@ -63,18 +63,11 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const fetchSignatures = useCallback(
     async (limit: number = 200): Promise<TransactionData[]> => {
       try {
-        console.log(
-          `Fetching new signatures. Limit: ${limit}, Last signature: ${lastSignature}`,
-        );
         const newSignatures = await getSignaturesForAddress(
           memoizedAddress,
           limit,
           endpoint,
           lastSignature,
-        );
-        console.log(
-          `Fetched ${newSignatures.length} new signatures:`,
-          newSignatures,
         );
         setAllSignatures((prevSignatures) => [
           ...prevSignatures,
@@ -83,7 +76,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         if (newSignatures.length > 0) {
           const newLastSignature =
             newSignatures[newSignatures.length - 1].signature;
-          console.log(`Setting new last signature: ${newLastSignature}`);
           setLastSignature(newLastSignature);
         }
         return newSignatures;
@@ -101,9 +93,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       const endIndex = startIndex + pageSize;
 
       if (endIndex + pageSize * 2 > allSignatures.length) {
-        console.log(
-          `Fetching more signatures. Current count: ${allSignatures.length}, Required: ${endIndex + pageSize * 2}`,
-        );
         await fetchSignatures(200);
       }
 
@@ -121,11 +110,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           return ""; // or handle the case where there is no signature
         });
 
-      console.log(
-        `Fetching transactions for page ${pageIndex}. Signatures:`,
-        pageSignatures,
-      );
-
       let parsedTransactions: TransactionData[] | null = null;
       if (
         memoizedCluster === Cluster.MainnetBeta ||
@@ -134,9 +118,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         parsedTransactions = await getParsedTransactions(
           pageSignatures,
           memoizedCluster,
-        );
-        console.log(
-          `Parsed ${parsedTransactions?.length} transactions for page ${pageIndex}`,
         );
       }
 
@@ -157,10 +138,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      console.log("Fetching initial data");
       await fetchSignatures(200);
       setIsInitialDataLoaded(true);
-      console.log("Initial data loaded");
     };
     fetchInitialData();
   }, [fetchSignatures, pagination.pageSize]);
@@ -176,7 +155,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   React.useEffect(() => {
     if (data) {
       const prefetchPage = async (pageIndex: number) => {
-        console.log(`Prefetching page ${pageIndex}`);
         await queryClient.prefetchQuery<TransactionData[]>({
           queryKey: ["transactions", memoizedAddress, pageIndex],
           queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
@@ -197,7 +175,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
-    console.log(`Changing to page ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
   };
 
