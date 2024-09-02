@@ -15,7 +15,15 @@ interface DataTablePaginationProps<TData> {
   onPageChange?: (newPageIndex: number) => void;
   manualPagination?: boolean;
   loadedPages?: Set<number>;
-  lastPageNum?: number;
+  lastPageNum: number | null;
+}
+
+interface DataTablePaginationProps<TData> {
+  table: Table<TData>;
+  onPageChange?: (newPageIndex: number) => void;
+  manualPagination?: boolean;
+  loadedPages?: Set<number>;
+  lastPageNum: number | null;
 }
 
 export function DataTablePagination<TData>({
@@ -25,7 +33,6 @@ export function DataTablePagination<TData>({
   loadedPages,
   lastPageNum,
 }: DataTablePaginationProps<TData>) {
-  console.log("in pagination and last page num", lastPageNum);
   const handlePageChange = (newPageIndex: number) => {
     if (loadedPages && !loadedPages.has(newPageIndex)) {
       return; // Prevent navigation to unloaded pages
@@ -51,8 +58,6 @@ export function DataTablePagination<TData>({
   const currentPageIndex = table.getState().pagination.pageIndex;
   const lastLoadedPage = getLastLoadedPage();
   const isNextPageLoading = !isPageLoaded(currentPageIndex + 1);
-  const isLastPage =
-    lastPageNum !== undefined && currentPageIndex === lastPageNum;
 
   return (
     <div className="flex items-center justify-between px-4 pt-2">
@@ -86,7 +91,7 @@ export function DataTablePagination<TData>({
             variant="outline"
             className="h-8 w-8 p-0"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage() || isLastPage}
+            disabled={currentPageIndex >= (lastPageNum ?? Infinity)}
           >
             <span className="sr-only">
               {isNextPageLoading ? "Loading next page" : "Go to next page"}
@@ -102,7 +107,7 @@ export function DataTablePagination<TData>({
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
               onClick={() => handlePageChange(lastLoadedPage)}
-              disabled={currentPageIndex >= lastLoadedPage || isLastPage}
+              disabled={currentPageIndex >= lastLoadedPage}
             >
               <span className="sr-only">Go to last loaded page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />

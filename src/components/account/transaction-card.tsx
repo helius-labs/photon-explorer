@@ -58,7 +58,7 @@ interface TransactionCardProps {
   pagination: { pageIndex: number; pageSize: number };
   onPageChange: (newPageIndex: number) => void;
   loadedPages: Set<number>;
-  lastPageNum: number;
+  lastPageNum: number | null;
 }
 
 function isXrayTransaction(transaction: any): transaction is XrayTransaction {

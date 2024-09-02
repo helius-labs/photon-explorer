@@ -68,6 +68,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
+  const [parsedTransactionCount, setParsedTransactionCount] = useState(0);
+
   useEffect(() => {
     setPagination({ pageIndex: 0, pageSize: INITIAL_PAGE_SIZE });
     setIsInitialDataLoaded(false);
@@ -103,6 +105,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     if (!hasMoreTransactions) return [];
 
     try {
+      console.log("Fetching signatures..."); // Added log
       await refetchSignatures();
 
       if (error) {
@@ -112,12 +115,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       if (newSignatures && newSignatures.length > 0) {
         setAllSignatures((prev) => {
           const updatedSignatures = [...prev, ...newSignatures];
-          console.log(`Total signatures: ${updatedSignatures.length}`);
+          console.log(`Signatures: ${updatedSignatures}`);
           return updatedSignatures;
         });
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
         setHasMoreTransactions(false);
+        console.log("No more signatures to fetch.");
       }
 
       return newSignatures || [];
@@ -139,7 +143,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     async (pageIndex: number, pageSize: number) => {
       console.log(`Fetching transactions for page ${pageIndex}`);
       const startIndex = pageIndex * pageSize;
-      let endIndex = startIndex + pageSize;
 
       let result: TransactionData[] = [];
       let currentIndex = startIndex;
@@ -155,6 +158,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         `Working with ${filteredSignatures.length} filtered signatures`,
       );
 
+      let parsedCount = 0;
       while (
         result.length < pageSize &&
         currentIndex < filteredSignatures.length
@@ -197,6 +201,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               `Parsed transaction for page ${pageIndex}:`,
               transaction,
             );
+            parsedCount++;
           }
 
           if (!typeFilter || (transaction as any).type === typeFilter) {
@@ -208,7 +213,15 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         currentIndex += pageSize;
       }
 
+      setParsedTransactionCount((prev) => prev + parsedCount);
       setLoadedPages((prev) => new Set(prev).add(pageIndex));
+
+      // Replace the hasNextPage logic with lastPageNum logic
+      const remainingTransactions =
+        filteredSignatures.length - (startIndex + result.length);
+      if (remainingTransactions === 0 && lastPageNum === null) {
+        setLastPageNum(pageIndex);
+      }
 
       queryClient.setQueryData(
         [
@@ -222,24 +235,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         result,
       );
 
-      // Update lastPageNum logic
-      const isCurrentPageFull = result.length === pageSize;
-      const hasMoreFilteredTransactions =
-        currentIndex < filteredSignatures.length;
-
-      if (
-        !isCurrentPageFull ||
-        (!hasMoreFilteredTransactions && !hasMoreTransactions)
-      ) {
-        setLastPageNum(pageIndex);
-        console.log(`lastPageNum updated to ${pageIndex}`);
-      } else if (lastPageNum !== null && pageIndex > lastPageNum) {
-        setLastPageNum(null);
-        console.log(`lastPageNum updated to null`);
-      }
-
-      console.log(`Page ${pageIndex}: lastPageNum set to ${lastPageNum}`);
-      console.log(`Transactions for page ${pageIndex}:`, result);
+      console.log(`Transactions for page ${pageIndex + 1}:`, result);
+      console.log(`Last page number: ${lastPageNum}`);
       return result;
     },
     [
@@ -304,7 +301,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       );
       const prefetchPages = async () => {
         const currentPage = pagination.pageIndex;
-        for (let i = 1; i <= 2; i++) {
+        for (let i = 1; i <= PREFETCH_THRESHOLD; i++) {
           const pageIndex = currentPage + i;
           const prefetchQueryKey = [
             "transactions",
@@ -329,6 +326,16 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             setLoadedPages((prev) => new Set(prev).add(pageIndex));
           }
         }
+
+        // Check if we need to fetch more signatures
+        const remainingParsedTransactions =
+          allSignatures.length - parsedTransactionCount;
+        const remainingPages = Math.floor(
+          remainingParsedTransactions / pagination.pageSize,
+        );
+        if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
+          fetchSignatures();
+        }
       };
 
       prefetchPages();
@@ -344,22 +351,15 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     remountKey,
     typeFilter,
     dateRange,
+    parsedTransactionCount,
+    allSignatures.length,
+    fetchSignatures,
+    hasMoreTransactions,
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
     console.log(`Changing to page ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
-
-    // Update fetching logic
-    if (lastPageNum === null || newPageIndex <= lastPageNum) {
-      const remainingPages = Math.floor(
-        (allSignatures.length - (newPageIndex + 1) * pagination.pageSize) /
-          pagination.pageSize,
-      );
-      if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
-        fetchSignatures();
-      }
-    }
   };
 
   const handleReturn = () => {
@@ -408,7 +408,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               pagination={pagination}
               onPageChange={handlePageChange}
               loadedPages={loadedPages}
-              lastPageNum={lastPageNum ?? -1}
+              lastPageNum={lastPageNum}
             />
           </>
         ) : (
