@@ -107,7 +107,7 @@ export function DataTablePagination<TData>({
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
               onClick={() => handlePageChange(lastLoadedPage)}
-              disabled={currentPageIndex >= lastLoadedPage}
+              disabled={currentPageIndex >= (lastPageNum ?? Infinity)}
             >
               <span className="sr-only">Go to last loaded page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />

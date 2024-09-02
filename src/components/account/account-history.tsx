@@ -382,8 +382,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const handleTypeFilterChange = (value: ParserTransactionTypes | null) => {
     setTypeFilter(value);
     // Clear the cache for transaction history
-    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
     setLastPageNum(null);
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
   };
 
   if (isError) {
