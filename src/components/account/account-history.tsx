@@ -3,8 +3,8 @@
 import { useCluster } from "@/providers/cluster-provider";
 import { getParsedTransactions } from "@/server/getParsedTransactions";
 import { Cluster } from "@/utils/cluster";
-import { getSignaturesForAddress } from "@/utils/fetchTxnSigs";
 import { XrayTransaction } from "@/utils/parser";
+import { ParserTransactionTypes } from "@/utils/parser";
 import { SignatureWithMetadata } from "@lightprotocol/stateless.js";
 import {
   ConfirmedSignatureInfo,
@@ -13,11 +13,13 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { DateRange } from "react-day-picker";
 
 import { useGetSignaturesForAddress } from "@/hooks/useGetSignaturesForAddress";
 
 import { TransactionCard } from "@/components/account/transaction-card";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
@@ -35,7 +37,7 @@ interface AccountHistoryProps {
 const INITIAL_PAGE_SIZE = 10;
 const INITIAL_FETCH_LIMIT = 500;
 const ADDITIONAL_FETCH_LIMIT = 200;
-const PREFETCH_THRESHOLD = 2; // Number of pages before running out to trigger a new fetch
+const PREFETCH_THRESHOLD = 2;
 
 export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster, endpoint } = useCluster();
@@ -53,11 +55,31 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
   const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
+  const [lastPageNum, setLastPageNum] = useState<number | null>(null);
 
   const [remountKey, setRemountKey] = useState(0);
 
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
+
+  const [typeFilter, setTypeFilter] = useState<ParserTransactionTypes | null>(
+    null,
+  );
+
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
+  const [parsedTransactionCount, setParsedTransactionCount] = useState(0);
+
+  useEffect(() => {
+    setPagination({ pageIndex: 0, pageSize: INITIAL_PAGE_SIZE });
+    setIsInitialDataLoaded(false);
+    setAllSignatures([]);
+    setLastSignature(undefined);
+    setHasMoreTransactions(true);
+
+    // Clear the cache for transaction history
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
+  }, [typeFilter, dateRange, memoizedAddress, queryClient]);
 
   const {
     data: newSignatures,
@@ -68,12 +90,25 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     INITIAL_FETCH_LIMIT,
     lastSignature,
     !isInitialDataLoaded,
+    dateRange?.from,
+    dateRange?.to,
   );
+
+  // Add logging for newSignatures
+  useEffect(() => {}, [newSignatures]);
+
+  // Add logging for error
+  useEffect(() => {
+    if (error) {
+      console.error("Error from useGetSignaturesForAddress:", error);
+    }
+  }, [error]);
 
   const fetchSignatures = useCallback(async () => {
     if (!hasMoreTransactions) return [];
 
     try {
+      console.log("Fetching signatures..."); // Added log
       await refetchSignatures();
 
       if (error) {
@@ -81,14 +116,20 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       }
 
       if (newSignatures && newSignatures.length > 0) {
-        setAllSignatures((prev) => [...prev, ...newSignatures]);
+        setAllSignatures((prev) => {
+          const updatedSignatures = [...prev, ...newSignatures];
+          console.log(`Signatures: ${updatedSignatures}`);
+          return updatedSignatures;
+        });
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
         setHasMoreTransactions(false);
+        console.log("No more signatures to fetch.");
       }
 
       return newSignatures || [];
     } catch (error) {
+      console.error("Error in fetchSignatures:", error);
       throw error;
     }
   }, [refetchSignatures, newSignatures, error, hasMoreTransactions]);
@@ -103,51 +144,102 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
+      console.log(`Fetching transactions for page ${pageIndex}`);
       const startIndex = pageIndex * pageSize;
-      const endIndex = startIndex + pageSize;
 
-      const remainingPages = Math.floor(
-        (allSignatures.length - endIndex) / pageSize,
-      );
+      let result: TransactionData[] = [];
+      let currentIndex = startIndex;
 
-      if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
-        await fetchSignatures();
-      }
-
-      const pageSignatures = allSignatures
-        .slice(startIndex, endIndex)
-        .map((sig) => {
-          if ("signature" in sig) return sig.signature;
-          if ("transaction" in sig && sig.transaction.signatures.length > 0) {
-            return sig.transaction.signatures[0];
-          }
-          return "";
-        });
-
-      let parsedTransactions: TransactionData[] | null = null;
-      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
-        parsedTransactions = await getParsedTransactions(
-          pageSignatures,
-          memoizedCluster,
-        );
-      }
-
-      setLoadedPages((prev) => {
-        const newSet = new Set(prev).add(pageIndex);
-        return newSet;
+      // Filter signatures based on date range
+      const filteredSignatures = allSignatures.filter((sig) => {
+        if (!dateRange || !dateRange.from || !dateRange.to) return true;
+        const txDate = new Date((sig as any).blockTime * 1000);
+        return txDate >= dateRange.from && txDate <= dateRange.to;
       });
 
-      const result = pageSignatures.map((signature, index) =>
-        parsedTransactions && parsedTransactions[index]
-          ? parsedTransactions[index]
-          : allSignatures[startIndex + index],
+      console.log(
+        `Working with ${filteredSignatures.length} filtered signatures`,
       );
 
-      // Cache the result for this page
+      let parsedCount = 0;
+      while (
+        result.length < pageSize &&
+        currentIndex < filteredSignatures.length
+      ) {
+        if (
+          currentIndex + pageSize > filteredSignatures.length &&
+          hasMoreTransactions
+        ) {
+          await fetchSignatures();
+        }
+
+        const batchSignatures = filteredSignatures
+          .slice(currentIndex, currentIndex + pageSize)
+          .map((sig) => {
+            if ("signature" in sig) return sig.signature;
+            if ("transaction" in sig && sig.transaction.signatures.length > 0) {
+              return sig.transaction.signatures[0];
+            }
+            return "";
+          });
+
+        console.log(`Processing batch of ${batchSignatures.length} signatures`);
+
+        let parsedTransactions: TransactionData[] | null = null;
+        if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
+          parsedTransactions = await getParsedTransactions(
+            batchSignatures,
+            memoizedCluster,
+          );
+        }
+
+        for (let i = 0; i < batchSignatures.length; i++) {
+          const transaction =
+            parsedTransactions && parsedTransactions[i]
+              ? parsedTransactions[i]
+              : filteredSignatures[currentIndex + i];
+
+          if ("blockTime" in transaction && transaction.blockTime != null) {
+            console.log(
+              `Parsed transaction for page ${pageIndex}:`,
+              transaction,
+            );
+            parsedCount++;
+          }
+
+          if (!typeFilter || (transaction as any).type === typeFilter) {
+            result.push(transaction);
+            if (result.length === pageSize) break;
+          }
+        }
+
+        currentIndex += pageSize;
+      }
+
+      setParsedTransactionCount((prev) => prev + parsedCount);
+      setLoadedPages((prev) => new Set(prev).add(pageIndex));
+
+      // Replace the hasNextPage logic with lastPageNum logic
+      const remainingTransactions =
+        filteredSignatures.length - (startIndex + result.length);
+      if (remainingTransactions === 0 && lastPageNum === null) {
+        setLastPageNum(pageIndex);
+      }
+
       queryClient.setQueryData(
-        ["transactions", memoizedAddress, pageIndex, remountKey],
+        [
+          "transactions",
+          memoizedAddress,
+          pageIndex,
+          remountKey,
+          typeFilter,
+          dateRange,
+        ],
         result,
       );
+
+      console.log(`Transactions for page ${pageIndex + 1}:`, result);
+      console.log(`Last page number: ${lastPageNum}`);
       return result;
     },
     [
@@ -158,19 +250,16 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       queryClient,
       memoizedAddress,
       remountKey,
+      typeFilter,
+      dateRange,
+      lastPageNum,
     ],
   );
 
   useEffect(() => {
-    // This effect will run when the component mounts or when the address changes
     setRemountKey((prev) => prev + 1);
     setIsInitialDataLoaded(false);
-    // Reset other necessary state here
   }, [address]);
-
-  // useEffect(() => {
-  //   console.log("loadedPages updated:", Array.from(loadedPages));
-  // }, [loadedPages]);
 
   const queryKey = useMemo(
     () => [
@@ -179,13 +268,23 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       memoizedCluster,
       pagination.pageIndex,
       remountKey,
+      typeFilter,
+      dateRange,
     ],
-    [memoizedAddress, memoizedCluster, pagination.pageIndex, remountKey],
+    [
+      memoizedAddress,
+      memoizedCluster,
+      pagination.pageIndex,
+      remountKey,
+      typeFilter,
+      dateRange,
+    ],
   );
 
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
     queryKey,
     queryFn: () => {
+      console.log(`Fetching transactions for page ${pagination.pageIndex}`);
       return fetchTransactions(pagination.pageIndex, pagination.pageSize);
     },
     staleTime: 5 * 60 * 1000,
@@ -199,9 +298,13 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   useEffect(() => {
     if (data) {
+      console.log(
+        `Displaying transactions for page ${pagination.pageIndex}:`,
+        data,
+      );
       const prefetchPages = async () => {
         const currentPage = pagination.pageIndex;
-        for (let i = 1; i <= 2; i++) {
+        for (let i = 1; i <= PREFETCH_THRESHOLD; i++) {
           const pageIndex = currentPage + i;
           const prefetchQueryKey = [
             "transactions",
@@ -209,6 +312,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             memoizedCluster,
             pageIndex,
             remountKey,
+            typeFilter,
+            dateRange,
           ];
           const cachedData =
             queryClient.getQueryData<TransactionData[]>(prefetchQueryKey);
@@ -217,19 +322,26 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             await queryClient.prefetchQuery<TransactionData[]>({
               queryKey: prefetchQueryKey,
               queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
-              staleTime: 5 * 60 * 1000, // 5 minutes
+              staleTime: 5 * 60 * 1000,
             });
           } else {
-            // Update the displayed transactions with the cached data
             queryClient.setQueryData(prefetchQueryKey, cachedData);
-            // Update the loadedPages state
             setLoadedPages((prev) => new Set(prev).add(pageIndex));
           }
+        }
+
+        // Check if we need to fetch more signatures
+        const remainingParsedTransactions =
+          allSignatures.length - parsedTransactionCount;
+        const remainingPages = Math.floor(
+          remainingParsedTransactions / pagination.pageSize,
+        );
+        if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
+          fetchSignatures();
         }
       };
 
       prefetchPages();
-    } else {
     }
   }, [
     data,
@@ -240,23 +352,38 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     memoizedAddress,
     memoizedCluster,
     remountKey,
+    typeFilter,
+    dateRange,
+    parsedTransactionCount,
+    allSignatures.length,
+    fetchSignatures,
+    hasMoreTransactions,
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
+    console.log(`Changing to page ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
-
-    // Check if we need to fetch more signatures
-    const remainingPages = Math.floor(
-      (allSignatures.length - (newPageIndex + 1) * pagination.pageSize) /
-        pagination.pageSize,
-    );
-    if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
-      fetchSignatures();
-    }
   };
 
   const handleReturn = () => {
     router.push(`/?cluster=${memoizedCluster}`);
+  };
+
+  const handleDateRangeChange = (start: Date | null, end: Date | null) => {
+    setDateRange({
+      from: start || undefined,
+      to: end || undefined,
+    });
+    setLastPageNum(null); // Reset lastPageNum
+    // Clear the cache for transaction history
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
+  };
+
+  const handleTypeFilterChange = (value: ParserTransactionTypes | null) => {
+    setTypeFilter(value);
+    // Clear the cache for transaction history
+    setLastPageNum(null);
+    queryClient.removeQueries({ queryKey: ["transactions", memoizedAddress] });
   };
 
   if (isError) {
@@ -284,19 +411,25 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     <Card className="col-span-12 mx-[-1rem] mb-10 overflow-hidden md:mx-0">
       <CardContent className="pt-6">
         {data && data.length > 0 ? (
-          <TransactionCard
-            data={data}
-            pagination={pagination}
-            onPageChange={handlePageChange}
-            loadedPages={loadedPages}
-          />
+          <>
+            <div className="mb-4 flex justify-between">
+              <DateRangePicker onDateRangeChange={handleDateRangeChange} />
+              <TypeFilter
+                value={typeFilter}
+                onChange={handleTypeFilterChange}
+              />
+            </div>
+            <TransactionCard
+              data={data}
+              pagination={pagination}
+              onPageChange={handlePageChange}
+              loadedPages={loadedPages}
+              lastPageNum={lastPageNum}
+            />
+          </>
         ) : (
           <div className="text-center text-muted-foreground">
             No transaction history found for this address.
-            <p>
-              Debug: Data length: {data?.length}, All signatures:{" "}
-              {allSignatures.length}
-            </p>
           </div>
         )}
       </CardContent>
@@ -356,5 +489,30 @@ function LoadingSkeleton({ pageSize }: { pageSize: number }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function TypeFilter({
+  value,
+  onChange,
+}: {
+  value: ParserTransactionTypes | null;
+  onChange: (value: ParserTransactionTypes | null) => void;
+}) {
+  return (
+    <select
+      value={value || ""}
+      onChange={(e) =>
+        onChange((e.target.value as ParserTransactionTypes) || null)
+      }
+      className="rounded border p-2"
+    >
+      <option value="">All Types</option>
+      {Object.values(ParserTransactionTypes).map((type) => (
+        <option key={type} value={type}>
+          {type}
+        </option>
+      ))}
+    </select>
   );
 }

@@ -8,16 +8,38 @@ export function useGetSignaturesForAddress(
   limit: number = 200,
   before?: string,
   enabled: boolean = true,
+  startDate?: Date,
+  endDate?: Date,
 ) {
   const { endpoint } = useCluster();
 
   return useQuery<ConfirmedSignatureInfo[], Error>({
-    queryKey: [endpoint, "getSignaturesForAddress", address, limit, before],
+    queryKey: [
+      endpoint,
+      "getSignaturesForAddress",
+      address,
+      limit,
+      before,
+      startDate,
+      endDate,
+    ],
     queryFn: async () => {
-      return await getSignaturesForAddress(address, limit, endpoint, before);
+      const signatures = await getSignaturesForAddress(
+        address,
+        limit,
+        endpoint,
+        before,
+      );
+      return signatures.filter((sig) => {
+        const txnDate = new Date(sig.blockTime! * 1000);
+        return (
+          (!startDate || txnDate >= startDate) &&
+          (!endDate || txnDate <= endDate)
+        );
+      });
     },
     enabled,
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchInterval: 1000 * 60 * 10, // 10 minutes
+    refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 }
