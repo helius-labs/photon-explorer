@@ -27,6 +27,7 @@ export function DataTablePagination<TData>({
     if (loadedPages && !loadedPages.has(newPageIndex)) {
       return; // Prevent navigation to unloaded pages
     }
+
     if (manualPagination && onPageChange) {
       onPageChange(newPageIndex);
     } else {
@@ -35,7 +36,8 @@ export function DataTablePagination<TData>({
   };
 
   const isPageLoaded = (pageIndex: number) => {
-    return !loadedPages || loadedPages.has(pageIndex);
+    const isLoaded = !loadedPages || loadedPages.has(pageIndex);
+    return isLoaded;
   };
 
   const getLastLoadedPage = () => {

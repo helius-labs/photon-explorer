@@ -14,6 +14,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useGetSignaturesForAddress } from "@/hooks/useGetSignaturesForAddress";
+
 import { TransactionCard } from "@/components/account/transaction-card";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -30,125 +32,227 @@ interface AccountHistoryProps {
   address: string;
 }
 
+const INITIAL_PAGE_SIZE = 10;
+const INITIAL_FETCH_LIMIT = 500;
+const ADDITIONAL_FETCH_LIMIT = 200;
+const PREFETCH_THRESHOLD = 2; // Number of pages before running out to trigger a new fetch
+
 export default function AccountHistory({ address }: AccountHistoryProps) {
   const { cluster, endpoint } = useCluster();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: INITIAL_PAGE_SIZE,
+  });
   const [allSignatures, setAllSignatures] = useState<TransactionData[]>([]);
-  const [lastSignature, setLastSignature] = useState<string | undefined>(undefined);
+  const [lastSignature, setLastSignature] = useState<string | undefined>(
+    undefined,
+  );
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
+  const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
+
+  const [remountKey, setRemountKey] = useState(0);
 
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
-  const fetchSignatures = useCallback(
-    async (limit: number = 200): Promise<TransactionData[]> => {
-      try {
-        const newSignatures = await getSignaturesForAddress(
-          memoizedAddress,
-          limit,
-          endpoint,
-          lastSignature,
-        );
-        setAllSignatures((prevSignatures) => [
-          ...prevSignatures,
-          ...newSignatures,
-        ]);
-        if (newSignatures.length > 0) {
-          setLastSignature(newSignatures[newSignatures.length - 1].signature);
-        }
-        return newSignatures;
-      } catch (error) {
-        console.error("Error fetching signatures:", error);
-        throw error;
-      }
-    },
-    [memoizedAddress, endpoint, lastSignature],
+  const {
+    data: newSignatures,
+    refetch: refetchSignatures,
+    error,
+  } = useGetSignaturesForAddress(
+    memoizedAddress,
+    INITIAL_FETCH_LIMIT,
+    lastSignature,
+    !isInitialDataLoaded,
   );
 
+  const fetchSignatures = useCallback(async () => {
+    if (!hasMoreTransactions) return [];
+
+    try {
+      await refetchSignatures();
+
+      if (error) {
+        throw error;
+      }
+
+      if (newSignatures && newSignatures.length > 0) {
+        setAllSignatures((prev) => [...prev, ...newSignatures]);
+        setLastSignature(newSignatures[newSignatures.length - 1].signature);
+      } else {
+        setHasMoreTransactions(false);
+      }
+
+      return newSignatures || [];
+    } catch (error) {
+      throw error;
+    }
+  }, [refetchSignatures, newSignatures, error, hasMoreTransactions]);
+
+  useEffect(() => {
+    if (!isInitialDataLoaded && newSignatures) {
+      setAllSignatures(newSignatures);
+      setLastSignature(newSignatures[newSignatures.length - 1].signature);
+      setIsInitialDataLoaded(true);
+    }
+  }, [newSignatures, isInitialDataLoaded]);
+
   const fetchTransactions = useCallback(
-    async (pageIndex: number, pageSize: number): Promise<TransactionData[]> => {
+    async (pageIndex: number, pageSize: number) => {
       const startIndex = pageIndex * pageSize;
       const endIndex = startIndex + pageSize;
 
-      if (endIndex + pageSize * 2 > allSignatures.length) {
-        await fetchSignatures(200);
+      const remainingPages = Math.floor(
+        (allSignatures.length - endIndex) / pageSize,
+      );
+
+      if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
+        await fetchSignatures();
       }
 
       const pageSignatures = allSignatures
-      .slice(startIndex, endIndex)
-      .map((sig) => {
-        if ('signature' in sig) {
-          return sig.signature;
-        } else if ('transaction' in sig && sig.transaction.signatures.length > 0) {
-          return sig.transaction.signatures[0];
-        }
-        return ''; // or handle the case where there is no signature
-      });
-    
+        .slice(startIndex, endIndex)
+        .map((sig) => {
+          if ("signature" in sig) return sig.signature;
+          if ("transaction" in sig && sig.transaction.signatures.length > 0) {
+            return sig.transaction.signatures[0];
+          }
+          return "";
+        });
 
       let parsedTransactions: TransactionData[] | null = null;
-      if (
-        memoizedCluster === Cluster.MainnetBeta ||
-        memoizedCluster === Cluster.Devnet
-      ) {
+      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
         parsedTransactions = await getParsedTransactions(
           pageSignatures,
           memoizedCluster,
         );
       }
 
-      setLoadedPages((prevLoadedPages) =>
-        new Set(prevLoadedPages).add(pageIndex),
+      setLoadedPages((prev) => {
+        const newSet = new Set(prev).add(pageIndex);
+        return newSet;
+      });
+
+      const result = pageSignatures.map((signature, index) =>
+        parsedTransactions && parsedTransactions[index]
+          ? parsedTransactions[index]
+          : allSignatures[startIndex + index],
       );
 
-      return pageSignatures.map((signature, index) => {
-        if (parsedTransactions && parsedTransactions[index]) {
-          return parsedTransactions[index];
-        } else {
-          return allSignatures[startIndex + index];
-        }
-      });
+      // Cache the result for this page
+      queryClient.setQueryData(
+        ["transactions", memoizedAddress, pageIndex, remountKey],
+        result,
+      );
+      return result;
     },
-    [allSignatures, memoizedCluster, fetchSignatures],
+    [
+      allSignatures,
+      memoizedCluster,
+      fetchSignatures,
+      hasMoreTransactions,
+      queryClient,
+      memoizedAddress,
+      remountKey,
+    ],
   );
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      await fetchSignatures(200);
-      setIsInitialDataLoaded(true);
-    };
-    fetchInitialData();
-  }, [fetchSignatures, pagination.pageSize]);
+    // This effect will run when the component mounts or when the address changes
+    setRemountKey((prev) => prev + 1);
+    setIsInitialDataLoaded(false);
+    // Reset other necessary state here
+  }, [address]);
+
+  // useEffect(() => {
+  //   console.log("loadedPages updated:", Array.from(loadedPages));
+  // }, [loadedPages]);
+
+  const queryKey = useMemo(
+    () => [
+      "transactions",
+      memoizedAddress,
+      memoizedCluster,
+      pagination.pageIndex,
+      remountKey,
+    ],
+    [memoizedAddress, memoizedCluster, pagination.pageIndex, remountKey],
+  );
 
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
-    queryKey: ["transactions", memoizedAddress, pagination.pageIndex],
-    queryFn: () => fetchTransactions(pagination.pageIndex, pagination.pageSize),
-    placeholderData: (previousData) => previousData,
-    staleTime: Infinity,
+    queryKey,
+    queryFn: () => {
+      return fetchTransactions(pagination.pageIndex, pagination.pageSize);
+    },
+    staleTime: 5 * 60 * 1000,
+    initialData: () => {
+      const existingData =
+        queryClient.getQueryData<TransactionData[]>(queryKey);
+      return existingData || undefined;
+    },
     enabled: isInitialDataLoaded,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (data) {
-      const prefetchPage = async (pageIndex: number) => {
-        await queryClient.prefetchQuery<TransactionData[]>({
-          queryKey: ["transactions", memoizedAddress, pageIndex],
-          queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
-          staleTime: Infinity,
-        });
+      const prefetchPages = async () => {
+        const currentPage = pagination.pageIndex;
+        for (let i = 1; i <= 2; i++) {
+          const pageIndex = currentPage + i;
+          const prefetchQueryKey = [
+            "transactions",
+            memoizedAddress,
+            memoizedCluster,
+            pageIndex,
+            remountKey,
+          ];
+          const cachedData =
+            queryClient.getQueryData<TransactionData[]>(prefetchQueryKey);
+
+          if (!cachedData) {
+            await queryClient.prefetchQuery<TransactionData[]>({
+              queryKey: prefetchQueryKey,
+              queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
+              staleTime: 5 * 60 * 1000, // 5 minutes
+            });
+          } else {
+            // Update the displayed transactions with the cached data
+            queryClient.setQueryData(prefetchQueryKey, cachedData);
+            // Update the loadedPages state
+            setLoadedPages((prev) => new Set(prev).add(pageIndex));
+          }
+        }
       };
 
-      prefetchPage(pagination.pageIndex + 1);
-      prefetchPage(pagination.pageIndex + 2);
+      prefetchPages();
+    } else {
     }
-  }, [data, pagination.pageIndex, pagination.pageSize, queryClient, fetchTransactions, memoizedAddress]);
+  }, [
+    data,
+    pagination.pageIndex,
+    pagination.pageSize,
+    queryClient,
+    fetchTransactions,
+    memoizedAddress,
+    memoizedCluster,
+    remountKey,
+  ]);
 
   const handlePageChange = (newPageIndex: number) => {
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
+
+    // Check if we need to fetch more signatures
+    const remainingPages = Math.floor(
+      (allSignatures.length - (newPageIndex + 1) * pagination.pageSize) /
+        pagination.pageSize,
+    );
+    if (remainingPages <= PREFETCH_THRESHOLD && hasMoreTransactions) {
+      fetchSignatures();
+    }
   };
 
   const handleReturn = () => {
@@ -173,62 +277,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   }
 
   if (isLoading || !isInitialDataLoaded) {
-    const skeletonRows = Array.from({ length: pagination.pageSize }, (_, i) => (
-      <div key={i}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-3">
-          {/* Type Section Skeleton */}
-          <div className="flex flex-1 items-center space-x-2 mb-4 md:mb-0">
-            <Skeleton className="h-7 w-7 rounded-[8px]" />
-            <div className="flex flex-col space-y-2">
-              <Skeleton className="h-5 w-32" /> {/* Title Skeleton */}
-              <Skeleton className="h-3 w-24" /> {/* Timestamp Skeleton */}
-            </div>
-          </div>
-          {/* Balance Changes Section Skeleton with Circle */}
-          <div className="flex flex-1 items-center justify-center space-x-2">
-            <Skeleton className="h-6 w-6 rounded-full" /> {/* Circle Skeleton */}
-            <Skeleton className="h-4 w-36 md:w-28" /> {/* Info Text Skeleton */}
-          </div>
-          {/* Signature Section Skeleton */}
-          <div className="flex flex-1 items-center justify-center">
-            <Skeleton className="h-4 w-32 md:w-24" /> {/* Signature Skeleton */}
-          </div>
-        </div>
-        {i < pagination.pageSize - 1 && (
-          <div className="border-t border-bg-popover" />
-        )}
-      </div>
-    ));
-  
-    return (
-      <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
-        <CardContent className="pt-4">
-          <div className="hidden md:flex items-center p-6 border-b">
-            <div className="flex-1 flex justify-start">
-              <Skeleton className="md:ml-6 h-4 w-16" /> {/* Type Header */}
-            </div>
-            <div className="flex-1 flex justify-center">
-              <Skeleton className="h-4 w-32" /> {/* Centered Info Header */}
-            </div>
-            <div className="flex-1 flex justify-center">
-              <Skeleton className="h-4 w-24" /> {/* Signature Header */}
-            </div>
-          </div>
-          {/* Data Row Skeletons */}
-          <div className="flex flex-col space-y-4">
-            {skeletonRows}
-          </div>
-          {/* Pagination Skeleton */}
-          <div className="flex justify-center items-center mt-2">
-            <div className="flex space-x-4">
-              <Skeleton className="h-7 w-7 rounded-full" /> {/* Left Arrow */}
-              <Skeleton className="h-7 w-16" /> {/* Page Number */}
-              <Skeleton className="h-7 w-7 rounded-full" /> {/* Right Arrow */}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <LoadingSkeleton pageSize={pagination.pageSize} />;
   }
 
   return (
@@ -244,8 +293,67 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         ) : (
           <div className="text-center text-muted-foreground">
             No transaction history found for this address.
+            <p>
+              Debug: Data length: {data?.length}, All signatures:{" "}
+              {allSignatures.length}
+            </p>
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function LoadingSkeleton({ pageSize }: { pageSize: number }) {
+  const skeletonRows = Array.from({ length: pageSize }, (_, i) => (
+    <div key={i}>
+      <div className="flex flex-col justify-between px-6 py-3 md:flex-row md:items-center">
+        {/* Type Section Skeleton */}
+        <div className="mb-4 flex flex-1 items-center space-x-2 md:mb-0">
+          <Skeleton className="h-7 w-7 rounded-[8px]" />
+          <div className="flex flex-col space-y-2">
+            <Skeleton className="h-5 w-32" /> {/* Title Skeleton */}
+            <Skeleton className="h-3 w-24" /> {/* Timestamp Skeleton */}
+          </div>
+        </div>
+        {/* Balance Changes Section Skeleton with Circle */}
+        <div className="flex flex-1 items-center justify-center space-x-2">
+          <Skeleton className="h-6 w-6 rounded-full" /> {/* Circle Skeleton */}
+          <Skeleton className="h-4 w-36 md:w-28" /> {/* Info Text Skeleton */}
+        </div>
+        {/* Signature Section Skeleton */}
+        <div className="flex flex-1 items-center justify-center">
+          <Skeleton className="h-4 w-32 md:w-24" /> {/* Signature Skeleton */}
+        </div>
+      </div>
+      {i < pageSize - 1 && <div className="border-bg-popover border-t" />}
+    </div>
+  ));
+
+  return (
+    <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
+      <CardContent className="pt-4">
+        <div className="hidden items-center border-b p-6 md:flex">
+          <div className="flex flex-1 justify-start">
+            <Skeleton className="h-4 w-16 md:ml-6" /> {/* Type Header */}
+          </div>
+          <div className="flex flex-1 justify-center">
+            <Skeleton className="h-4 w-32" /> {/* Centered Info Header */}
+          </div>
+          <div className="flex flex-1 justify-center">
+            <Skeleton className="h-4 w-24" /> {/* Signature Header */}
+          </div>
+        </div>
+        {/* Data Row Skeletons */}
+        <div className="flex flex-col space-y-4">{skeletonRows}</div>
+        {/* Pagination Skeleton */}
+        <div className="mt-2 flex items-center justify-center">
+          <div className="flex space-x-4">
+            <Skeleton className="h-7 w-7 rounded-full" /> {/* Left Arrow */}
+            <Skeleton className="h-7 w-16" /> {/* Page Number */}
+            <Skeleton className="h-7 w-7 rounded-full" /> {/* Right Arrow */}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
