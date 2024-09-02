@@ -9,6 +9,7 @@ import { CircleHelp } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import debounce from "lodash.debounce";
 
 import { useGetNFTsByOwner } from "@/hooks/useGetNFTsByOwner";
 
@@ -45,12 +46,59 @@ const AccountNFTs = ({ address }: { address: string }) => {
   const [showMetaplexVerified, setShowMetaplexVerified] = useState(false);
   const [showCompressed] = useState(false);
   const [selectedNft, setSelectedNft] = useState<NFT | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [collections, setCollections] = useState<string[]>([]);
-  const [filterSpam, setFilterSpam] = useState(true);
+  const [filterSpam, setFilterSpam] = useState<boolean>(true);
   const [spamFilteredNfts, setSpamFilteredNfts] = useState<NFT[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
+  const [filteredNfts, setFilteredNfts] = useState<NFT[]>([]);
 
   const { data: nfts, isLoading, isError } = useGetNFTsByOwner(address);
+
+  const filterNFTs = useCallback(() => {
+    if (!spamFilteredNfts) return;
+
+    const filtered = spamFilteredNfts.filter((nft) => {
+      const matchesVerified = !showMetaplexVerified || nft.verified;
+      const matchesCollection =
+        !collectionFilter ||
+        collectionFilter === "All Collections" ||
+        nft.collectionName === collectionFilter;
+      const matchesCompressed =
+        !showCompressed || (nft.compression && nft.compression.compressed);
+      const matchesSearch = nft.name
+        ?.toLowerCase()
+        .includes(debouncedSearchTerm.toLowerCase());
+      return (
+        matchesVerified &&
+        matchesCollection &&
+        matchesCompressed &&
+        matchesSearch
+      );
+    });
+    setFilteredNfts(filtered);
+  }, [
+    spamFilteredNfts,
+    showMetaplexVerified,
+    collectionFilter,
+    showCompressed,
+    debouncedSearchTerm,
+  ]);
+
+  const debouncedSetSearchTerm = useMemo(
+    () =>
+      debounce((value: string) => {
+        setDebouncedSearchTerm(value);
+      }, 450),
+    [],
+  );
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+    debouncedSetSearchTerm(value);
+  };
 
   useEffect(() => {
     const applySpamFilter = async () => {
@@ -177,21 +225,23 @@ const AccountNFTs = ({ address }: { address: string }) => {
     setIsModalOpen(true);
   }, []);
 
-  const filteredNfts = useMemo(() => {
-    return spamFilteredNfts.filter((nft) => {
-      const matchesVerified = !showMetaplexVerified || nft.verified;
-      const matchesCollection =
-        !collectionFilter || nft.collectionName === collectionFilter;
-      const matchesCompressed =
-        !showCompressed || (nft.compression && nft.compression.compressed);
-      return matchesVerified && matchesCollection && matchesCompressed;
-    });
+  useEffect(() => {
+    filterNFTs();
   }, [
+    filterNFTs,
+    debouncedSearchTerm,
     spamFilteredNfts,
     showMetaplexVerified,
     collectionFilter,
     showCompressed,
   ]);
+
+  // Cleanup any pending debounced calls when the component unmounts
+  useEffect(() => {
+    return () => {
+      debouncedSetSearchTerm.cancel();
+    };
+  }, [debouncedSetSearchTerm]);
 
   const handleSpamFilterToggle = useCallback(() => {
     setFilterSpam((prev) => !prev);
@@ -312,9 +362,9 @@ const AccountNFTs = ({ address }: { address: string }) => {
                   <span>Total NFTs: {filteredNfts.length}</span>
                 </div>
                 <div className="flex flex-col space-y-4 sm:mt-0 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                  <div className="flex cursor-pointer items-center space-x-2">
+                  <div className="flex h-9 cursor-pointer items-center space-x-2">
                     <Badge
-                      className="mt-3 flex items-center space-x-2 md:mt-0"
+                      className="mt-3 flex h-9 items-center space-x-2 md:mt-0"
                       variant="outline"
                     >
                       Filter Out Spam
@@ -336,7 +386,7 @@ const AccountNFTs = ({ address }: { address: string }) => {
                       />
                     </Badge>
                     <Badge
-                      className="mt-3 flex items-center space-x-2 md:mt-0"
+                      className="mt-3 flex h-9 items-center space-x-2 md:mt-0"
                       variant="verified"
                     >
                       Filter by Verified
@@ -364,6 +414,15 @@ const AccountNFTs = ({ address }: { address: string }) => {
                         style={{ transform: "scale(0.85)" }}
                       />
                     </Badge>
+                  </div>
+                  <div className="relative w-[200px]">
+                    <input
+                      type="text"
+                      placeholder="Search NFTs"
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                      className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    />
                   </div>
                   <Select
                     value={collectionFilter || "All Collections"}
