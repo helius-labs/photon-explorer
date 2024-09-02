@@ -37,28 +37,54 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [allSignatures, setAllSignatures] = useState<TransactionData[]>([]);
-  const [lastSignature, setLastSignature] = useState<string | undefined>(undefined);
+  const [lastSignature, setLastSignature] = useState<string | undefined>(
+    undefined,
+  );
   const [isInitialDataLoaded, setIsInitialDataLoaded] = useState(false);
   const [loadedPages, setLoadedPages] = useState<Set<number>>(new Set([0]));
 
   const memoizedAddress = useMemo(() => address, [address]);
   const memoizedCluster = useMemo(() => cluster, [cluster]);
 
+  // Reset state and invalidate cache when endpoint changes
+  useEffect(() => {
+    setAllSignatures([]);
+    setLastSignature(undefined);
+    setIsInitialDataLoaded(false);
+    setLoadedPages(new Set([0]));
+    setPagination({ pageIndex: 0, pageSize: 10 });
+
+    // Invalidate and refetch the query
+    queryClient.invalidateQueries({
+      queryKey: ["transactions", memoizedAddress],
+    });
+  }, [endpoint, memoizedAddress, queryClient]);
+
   const fetchSignatures = useCallback(
     async (limit: number = 200): Promise<TransactionData[]> => {
       try {
+        console.log(
+          `Fetching new signatures. Limit: ${limit}, Last signature: ${lastSignature}`,
+        );
         const newSignatures = await getSignaturesForAddress(
           memoizedAddress,
           limit,
           endpoint,
           lastSignature,
         );
+        console.log(
+          `Fetched ${newSignatures.length} new signatures:`,
+          newSignatures,
+        );
         setAllSignatures((prevSignatures) => [
           ...prevSignatures,
           ...newSignatures,
         ]);
         if (newSignatures.length > 0) {
-          setLastSignature(newSignatures[newSignatures.length - 1].signature);
+          const newLastSignature =
+            newSignatures[newSignatures.length - 1].signature;
+          console.log(`Setting new last signature: ${newLastSignature}`);
+          setLastSignature(newLastSignature);
         }
         return newSignatures;
       } catch (error) {
@@ -75,20 +101,30 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       const endIndex = startIndex + pageSize;
 
       if (endIndex + pageSize * 2 > allSignatures.length) {
+        console.log(
+          `Fetching more signatures. Current count: ${allSignatures.length}, Required: ${endIndex + pageSize * 2}`,
+        );
         await fetchSignatures(200);
       }
 
       const pageSignatures = allSignatures
-      .slice(startIndex, endIndex)
-      .map((sig) => {
-        if ('signature' in sig) {
-          return sig.signature;
-        } else if ('transaction' in sig && sig.transaction.signatures.length > 0) {
-          return sig.transaction.signatures[0];
-        }
-        return ''; // or handle the case where there is no signature
-      });
-    
+        .slice(startIndex, endIndex)
+        .map((sig) => {
+          if ("signature" in sig) {
+            return sig.signature;
+          } else if (
+            "transaction" in sig &&
+            sig.transaction.signatures.length > 0
+          ) {
+            return sig.transaction.signatures[0];
+          }
+          return ""; // or handle the case where there is no signature
+        });
+
+      console.log(
+        `Fetching transactions for page ${pageIndex}. Signatures:`,
+        pageSignatures,
+      );
 
       let parsedTransactions: TransactionData[] | null = null;
       if (
@@ -98,6 +134,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         parsedTransactions = await getParsedTransactions(
           pageSignatures,
           memoizedCluster,
+        );
+        console.log(
+          `Parsed ${parsedTransactions?.length} transactions for page ${pageIndex}`,
         );
       }
 
@@ -118,14 +157,16 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      console.log("Fetching initial data");
       await fetchSignatures(200);
       setIsInitialDataLoaded(true);
+      console.log("Initial data loaded");
     };
     fetchInitialData();
   }, [fetchSignatures, pagination.pageSize]);
 
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
-    queryKey: ["transactions", memoizedAddress, pagination.pageIndex],
+    queryKey: ["transactions", memoizedAddress, pagination.pageIndex, endpoint],
     queryFn: () => fetchTransactions(pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
     staleTime: Infinity,
@@ -135,6 +176,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   React.useEffect(() => {
     if (data) {
       const prefetchPage = async (pageIndex: number) => {
+        console.log(`Prefetching page ${pageIndex}`);
         await queryClient.prefetchQuery<TransactionData[]>({
           queryKey: ["transactions", memoizedAddress, pageIndex],
           queryFn: () => fetchTransactions(pageIndex, pagination.pageSize),
@@ -145,9 +187,17 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       prefetchPage(pagination.pageIndex + 1);
       prefetchPage(pagination.pageIndex + 2);
     }
-  }, [data, pagination.pageIndex, pagination.pageSize, queryClient, fetchTransactions, memoizedAddress]);
+  }, [
+    data,
+    pagination.pageIndex,
+    pagination.pageSize,
+    queryClient,
+    fetchTransactions,
+    memoizedAddress,
+  ]);
 
   const handlePageChange = (newPageIndex: number) => {
+    console.log(`Changing to page ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
   };
 
@@ -175,9 +225,9 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   if (isLoading || !isInitialDataLoaded) {
     const skeletonRows = Array.from({ length: pagination.pageSize }, (_, i) => (
       <div key={i}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between px-6 py-3">
+        <div className="flex flex-col justify-between px-6 py-3 md:flex-row md:items-center">
           {/* Type Section Skeleton */}
-          <div className="flex flex-1 items-center space-x-2 mb-4 md:mb-0">
+          <div className="mb-4 flex flex-1 items-center space-x-2 md:mb-0">
             <Skeleton className="h-7 w-7 rounded-[8px]" />
             <div className="flex flex-col space-y-2">
               <Skeleton className="h-5 w-32" /> {/* Title Skeleton */}
@@ -186,7 +236,8 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           </div>
           {/* Balance Changes Section Skeleton with Circle */}
           <div className="flex flex-1 items-center justify-center space-x-2">
-            <Skeleton className="h-6 w-6 rounded-full" /> {/* Circle Skeleton */}
+            <Skeleton className="h-6 w-6 rounded-full" />{" "}
+            {/* Circle Skeleton */}
             <Skeleton className="h-4 w-36 md:w-28" /> {/* Info Text Skeleton */}
           </div>
           {/* Signature Section Skeleton */}
@@ -195,31 +246,29 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
           </div>
         </div>
         {i < pagination.pageSize - 1 && (
-          <div className="border-t border-bg-popover" />
+          <div className="border-bg-popover border-t" />
         )}
       </div>
     ));
-  
+
     return (
       <Card className="col-span-12 mx-[-1rem] overflow-hidden md:mx-0">
         <CardContent className="pt-4">
-          <div className="hidden md:flex items-center p-6 border-b">
-            <div className="flex-1 flex justify-start">
-              <Skeleton className="md:ml-6 h-4 w-16" /> {/* Type Header */}
+          <div className="hidden items-center border-b p-6 md:flex">
+            <div className="flex flex-1 justify-start">
+              <Skeleton className="h-4 w-16 md:ml-6" /> {/* Type Header */}
             </div>
-            <div className="flex-1 flex justify-center">
+            <div className="flex flex-1 justify-center">
               <Skeleton className="h-4 w-32" /> {/* Centered Info Header */}
             </div>
-            <div className="flex-1 flex justify-center">
+            <div className="flex flex-1 justify-center">
               <Skeleton className="h-4 w-24" /> {/* Signature Header */}
             </div>
           </div>
           {/* Data Row Skeletons */}
-          <div className="flex flex-col space-y-4">
-            {skeletonRows}
-          </div>
+          <div className="flex flex-col space-y-4">{skeletonRows}</div>
           {/* Pagination Skeleton */}
-          <div className="flex justify-center items-center mt-2">
+          <div className="mt-2 flex items-center justify-center">
             <div className="flex space-x-4">
               <Skeleton className="h-7 w-7 rounded-full" /> {/* Left Arrow */}
               <Skeleton className="h-7 w-16" /> {/* Page Number */}
