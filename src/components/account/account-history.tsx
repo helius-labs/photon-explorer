@@ -108,7 +108,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
     if (!hasMoreTransactions) return [];
 
     try {
-      console.log("Fetching signatures..."); // Added log
       await refetchSignatures();
 
       if (error) {
@@ -118,13 +117,11 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
       if (newSignatures && newSignatures.length > 0) {
         setAllSignatures((prev) => {
           const updatedSignatures = [...prev, ...newSignatures];
-          console.log(`Signatures: ${updatedSignatures}`);
           return updatedSignatures;
         });
         setLastSignature(newSignatures[newSignatures.length - 1].signature);
       } else {
         setHasMoreTransactions(false);
-        console.log("No more signatures to fetch.");
       }
 
       return newSignatures || [];
@@ -144,7 +141,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   const fetchTransactions = useCallback(
     async (pageIndex: number, pageSize: number) => {
-      console.log(`Fetching transactions for page ${pageIndex}`);
       const startIndex = pageIndex * pageSize;
 
       let result: TransactionData[] = [];
@@ -156,10 +152,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         const txDate = new Date((sig as any).blockTime * 1000);
         return txDate >= dateRange.from && txDate <= dateRange.to;
       });
-
-      console.log(
-        `Working with ${filteredSignatures.length} filtered signatures`,
-      );
 
       let parsedCount = 0;
       while (
@@ -183,8 +175,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
             return "";
           });
 
-        console.log(`Processing batch of ${batchSignatures.length} signatures`);
-
         let parsedTransactions: TransactionData[] | null = null;
         if ([Cluster.MainnetBeta, Cluster.Devnet].includes(memoizedCluster)) {
           parsedTransactions = await getParsedTransactions(
@@ -200,10 +190,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
               : filteredSignatures[currentIndex + i];
 
           if ("blockTime" in transaction && transaction.blockTime != null) {
-            console.log(
-              `Parsed transaction for page ${pageIndex}:`,
-              transaction,
-            );
             parsedCount++;
           }
 
@@ -238,8 +224,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         result,
       );
 
-      console.log(`Transactions for page ${pageIndex + 1}:`, result);
-      console.log(`Last page number: ${lastPageNum}`);
       return result;
     },
     [
@@ -284,7 +268,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   const { data, isLoading, isError } = useQuery<TransactionData[]>({
     queryKey,
     queryFn: () => {
-      console.log(`Fetching transactions for page ${pagination.pageIndex}`);
       return fetchTransactions(pagination.pageIndex, pagination.pageSize);
     },
     staleTime: 5 * 60 * 1000,
@@ -298,10 +281,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
 
   useEffect(() => {
     if (data) {
-      console.log(
-        `Displaying transactions for page ${pagination.pageIndex}:`,
-        data,
-      );
       const prefetchPages = async () => {
         const currentPage = pagination.pageIndex;
         for (let i = 1; i <= PREFETCH_THRESHOLD; i++) {
@@ -361,7 +340,6 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
   ]);
 
   const handlePageChange = (newPageIndex: number) => {
-    console.log(`Changing to page ${newPageIndex}`);
     setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
   };
 

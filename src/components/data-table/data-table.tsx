@@ -41,8 +41,6 @@ export function DataTable<TData, TValue>({
   loadedPages,
   lastPageNum,
 }: DataTableProps<TData, TValue>) {
-  console.log("DataTable received lastPageNum:", lastPageNum);
-
   const [paginationState, setPaginationState] = React.useState({
     pageIndex: 0,
     pageSize: 10,
