@@ -118,6 +118,7 @@ export enum PROGRAM_NAMES {
   SANCTUM_MULTI_VALIDATOR_SPL_STAKE_POOL = "Sanctum Multi-Validator SPL Stake Pool Program",
   SANCTUM_ROUTER = "Sanctum Router Program",
   SANCTUM_UNSTAKE = "Sanctum Unstake Program",
+  SAROS_AMM = "Saros AMM Program",
   SERUM_1 = "Serum Dex Program V1",
   SERUM_2 = "Serum Dex Program V2",
   SERUM_3 = "Serum Dex Program V3",
@@ -729,6 +730,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.JUPITER_PERPS,
+  },
+  SSwapUtytfBdBn1b9NUGG6foMVPtcWgpRU32HToDUZr: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SAROS_AMM,
   },
 };
 
