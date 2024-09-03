@@ -122,6 +122,7 @@ export enum PROGRAM_NAMES {
   SOLIDO = "Lido for Solana Program",
   SQUADS_MULTISIG = "Squads MultiSig Program",
   STEP_SWAP = "Step Finance Swap Program",
+  STREAMFLOW = "Streamflow Program",
   SWIM_SWAP = "Swim Swap Program",
   SWITCHBOARD = "Switchboard Oracle Program",
   TENSOR_CNFT = "Tensor cNFT Program",
@@ -699,6 +700,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.ZETA,
+  },
+  strmRqUCoQUgGUan5YhzUZa6KqdzwX5L6FpUxfmKg5m: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.STREAMFLOW,
   },
 };
 
