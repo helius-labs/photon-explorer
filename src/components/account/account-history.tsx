@@ -194,6 +194,7 @@ export default function AccountHistory({ address }: AccountHistoryProps) {
         queryClient.getQueryData<TransactionData[]>(queryKey);
       return existingData || undefined;
     },
+
     enabled: isInitialDataLoaded,
   });
 

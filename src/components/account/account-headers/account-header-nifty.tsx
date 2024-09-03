@@ -1,19 +1,30 @@
-import React from 'react';
-import { PublicKey } from '@solana/web3.js';
-import { Asset, ExtensionType, getExtension } from '@nifty-oss/asset';
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import Link from "next/link";
+import { useCluster } from "@/providers/cluster-provider";
 import { shorten, shortenLong } from "@/utils/common";
+import { Asset, ExtensionType, getExtension } from "@nifty-oss/asset";
+import { PublicKey } from "@solana/web3.js";
+import Link from "next/link";
+import React from "react";
+
 import ViewMediaButton from "@/components/common/view-media-button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface AccountHeaderNiftyAssetProps {
   address: PublicKey;
   asset: Asset;
 }
 
-const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({ address, asset }) => {
+const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({
+  address,
+  asset,
+}) => {
+  const { cluster } = useCluster();
   const metadata = getExtension(asset, ExtensionType.Metadata);
 
   return (
@@ -21,7 +32,7 @@ const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({ addre
       <div className="mx-[-1rem] md:mx-0">
         <Card className="mb-8 w-full space-y-4 p-6 md:h-auto md:space-y-6">
           <CardHeader className="relative flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-6">
-            <div className="relative flex-shrink-0 w-full md:w-72 h-72">
+            <div className="relative h-72 w-full flex-shrink-0 md:w-72">
               <ViewMediaButton nft={asset} />
             </div>
             <div className="flex w-full flex-col">
@@ -30,12 +41,20 @@ const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({ addre
                   <CardTitle className="text-3xl font-medium leading-none">
                     <div className="flex flex-col items-center md:flex-row md:justify-start">
                       <span className="max-w-full md:max-w-none">
-                        {asset.name || <span>{shortenLong(address.toString())}</span>}
+                        {asset.name || (
+                          <span>{shortenLong(address.toString())}</span>
+                        )}
                       </span>
                       <div className="mt-2 flex space-x-2 md:ml-2 md:mt-0">
                         <Badge variant="success">Nifty Asset</Badge>
-                        <Badge variant="outline">{asset.standard === 0 ? "Non-Fungible" : asset.standard}</Badge>
-                        {asset.mutable && <Badge variant="outline">Mutable</Badge>}
+                        <Badge variant="outline">
+                          {asset.standard === 0
+                            ? "Non-Fungible"
+                            : asset.standard}
+                        </Badge>
+                        {asset.mutable && (
+                          <Badge variant="outline">Mutable</Badge>
+                        )}
                       </div>
                     </div>
                   </CardTitle>
@@ -59,7 +78,10 @@ const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({ addre
                 <span className="font-semibold text-foreground">Owner: </span>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link href={`/address/${asset.owner.toString()}`} className="hover:underline">
+                    <Link
+                      href={`/address/${asset.owner.toString()}?cluster=${cluster}`}
+                      className="hover:underline"
+                    >
                       {shorten(asset.owner.toString())}
                     </Link>
                   </TooltipTrigger>
@@ -67,10 +89,15 @@ const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({ addre
                 </Tooltip>
               </div>
               <div>
-                <span className="font-semibold text-foreground">Authority: </span>
+                <span className="font-semibold text-foreground">
+                  Authority:{" "}
+                </span>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link href={`/address/${asset.authority.toString()}`} className="hover:underline">
+                    <Link
+                      href={`/address/${asset.authority.toString()}?cluster=${cluster}`}
+                      className="hover:underline"
+                    >
                       {shorten(asset.authority.toString())}
                     </Link>
                   </TooltipTrigger>
@@ -83,14 +110,21 @@ const AccountHeaderNiftyAsset: React.FC<AccountHeaderNiftyAssetProps> = ({ addre
               </div>
               {asset.delegate && (
                 <div>
-                  <span className="font-semibold text-foreground">Delegate: </span>
+                  <span className="font-semibold text-foreground">
+                    Delegate:{" "}
+                  </span>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link href={`/address/${asset.delegate.address?.toString()}`} className="hover:underline">
-                        {shorten(asset.delegate.address?.toString() || '')}
+                      <Link
+                        href={`/address/${asset.delegate.address?.toString()}?cluster=${cluster}`}
+                        className="hover:underline"
+                      >
+                        {shorten(asset.delegate.address?.toString() || "")}
                       </Link>
                     </TooltipTrigger>
-                    <TooltipContent>{asset.delegate.address?.toString()}</TooltipContent>
+                    <TooltipContent>
+                      {asset.delegate.address?.toString()}
+                    </TooltipContent>
                   </Tooltip>
                 </div>
               )}
