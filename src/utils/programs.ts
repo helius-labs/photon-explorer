@@ -125,6 +125,7 @@ export enum PROGRAM_NAMES {
   TENSOR_CNFT = "Tensor cNFT Program",
   TENSOR_SWAP = "Tensor Swap Program",
   TENSOR_WHITELIST = "Tensor Whitelist Program",
+  TRUFFLE = "Truffle Program",
   WORMHOLE = "Wormhole",
   WORMHOLE_CORE = "Wormhole Core Bridge",
   WORMHOLE_TOKEN = "Wormhole Token Bridge",
@@ -679,6 +680,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   F9SixdqdmEBP5kprp2gZPZNeMmfHJRCTMFjN22dx3akf: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.LAUNCH_MY_NFT,
+  },
+  CSGrdwbJ5z58tLGKjjcmiNMj8bG1Zazthk3cXMrbSZoX: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TRUFFLE,
   },
 };
 
