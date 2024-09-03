@@ -137,6 +137,7 @@ export enum PROGRAM_NAMES {
   STEPN_DEX = "STEPN Dex",
   OPENBOOK_DEX = "OpenBook Dex",
   OPENBOOK_DEX_V2 = "OpenBook Dex V2",
+  ZETA = "Zeta Program",
 };
 
 const ALL_CLUSTERS = [
@@ -694,6 +695,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   "8LPjGDbxhW4G2Q8S6FvdvUdfGWssgtqmvsc63bwNFA7E": {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.MAYAN,
+  },
+  ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ZETA,
   },
 };
 
