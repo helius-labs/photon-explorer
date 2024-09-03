@@ -25,7 +25,7 @@ export enum PROGRAM_NAMES {
   SWAP = "Swap Program",
   TOKEN = "Token Program",
   TOKEN_2022 = "Token-2022 Program",
-  TOKEN_METADATA = "Token Metadata Program",
+  TOKEN_METADATA = "Metaplex Token Metadata Program",
   TOKEN_VAULT = "Token Vault Program",
 
   // other
@@ -72,6 +72,10 @@ export enum PROGRAM_NAMES {
   METADAO_CONDITIONAL_VAULT = "MetaDAO Conditional Vault Program",
   METADAO_OPTIMISTIC_TIMELOCK = "MetaDAO Optimistic Timelock Program",
   METAPLEX = "Metaplex Program",
+  METAPLEX_CORE = "Metaplex Core Program",
+  METAPLEX_CORE_CANDY_GUARD = "Metaplex Core Candy Guard Program",
+  METAPLEX_CORE_CANDY_MACHINE = "Metaplex Core Candy Machine Program",
+  METAPLEX_METADATA_AUTH = "Metaplex Metadata Auth Program",
   METEORA_DLMM = "Meteora DLMM Program",
   METEORA_POOLS = "Meteora Pools Program",
   NFT_AUCTION = "NFT Auction Program",
@@ -654,6 +658,22 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.OPENBOOK_DEX_V2,
+  },
+  CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_CORE,
+  },
+  CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_CORE_CANDY_MACHINE,
+  },
+  auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_METADATA_AUTH,
+  },
+  CMAGAKJ67e9hRZgfC5SFTbZH8MgEmtqazKXjmkaJjWTJ: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_CORE_CANDY_GUARD,
   },
 };
 
