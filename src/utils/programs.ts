@@ -57,6 +57,7 @@ export enum PROGRAM_NAMES {
   JUPITER_APE = "Jupiter Ape Program",
   JUPITER_DCA = "Jupiter DCA Program",
   JUPITER_GOVERNANCE = "Jupiter Governance Program",
+  JUPITER_PERPS = "Jupiter Perpetuals Program",
   KAMINO = "Kamino Program",
   LAUNCH_MY_NFT = "LaunchMyNFT Program",
   LIFINITY_SWAP_V2 = "Lifinity Swap V2 Program",
@@ -724,6 +725,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.RAYDIUM_CONCENTRATED_LIQUIDITY,
+  },
+  PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_PERPS,
   },
 };
 
