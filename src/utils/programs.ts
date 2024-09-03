@@ -67,6 +67,7 @@ export enum PROGRAM_NAMES {
   MANGO_3 = "Mango Program V3",
   MARGINFI_V2 = "Marginfi V2 Program",
   MARINADE = "Marinade Staking Program",
+  MAYAN = "Mayan Program",
   MERCURIAL = "Mercurial Stable Swap Program",
   METADAO_AMM = "MetaDAO AMM Program",
   METADAO_AUTOCRAT = "MetaDAO Autocrat Program",
@@ -689,6 +690,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   "6LtLpnUFNByNXLyCoK9wA2MykKAmQNZKBdY8s47dehDc": {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.KAMINO,
+  },
+  "8LPjGDbxhW4G2Q8S6FvdvUdfGWssgtqmvsc63bwNFA7E": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.MAYAN,
   },
 };
 
