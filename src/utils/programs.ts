@@ -56,6 +56,7 @@ export enum PROGRAM_NAMES {
   JUPITER_APE = "Jupiter Ape Program",
   JUPITER_DCA = "Jupiter DCA Program",
   JUPITER_GOVERNANCE = "Jupiter Governance Program",
+  LAUNCH_MY_NFT = "LaunchMyNFT Program",
   MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
   MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
@@ -674,6 +675,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   CMAGAKJ67e9hRZgfC5SFTbZH8MgEmtqazKXjmkaJjWTJ: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.METAPLEX_CORE_CANDY_GUARD,
+  },
+  F9SixdqdmEBP5kprp2gZPZNeMmfHJRCTMFjN22dx3akf: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.LAUNCH_MY_NFT,
   },
 };
 
