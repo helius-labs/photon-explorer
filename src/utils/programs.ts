@@ -109,6 +109,7 @@ export enum PROGRAM_NAMES {
   RAYDIUM_LP_2 = "Raydium Liquidity Pool Program V2",
   RAYDIUM_STAKING = "Raydium Staking Program",
   RAYDIUM_CP_SWAP = "Raydium CP Swap",
+  RAYDIUM_CONCENTRATED_LIQUIDITY = "Raydium Concentrated Liquidity Program",
   SABER_DECIMAL_WRAPPER = "Saber Decimal Wrapper Program",
   SABER_ROUTER = "Saber Router Program",
   SABER_SWAP = "Saber Stable Swap Program",
@@ -719,6 +720,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   "2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c": {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.LIFINITY_SWAP_V2,
+  },
+  CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.RAYDIUM_CONCENTRATED_LIQUIDITY,
   },
 };
 
