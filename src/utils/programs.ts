@@ -40,6 +40,7 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_1 = "Clockwork Thread Program V1",
   CLOCKWORK_2 = "Clockwork Thread Program V2",
   CROPPER_WHIRLPOOL = "Cropper Whirlpool Program",
+  DRADEX = "Dradex Program",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
   FLUXBEAM = "FluxBeam Program",
@@ -704,6 +705,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   strmRqUCoQUgGUan5YhzUZa6KqdzwX5L6FpUxfmKg5m: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.STREAMFLOW,
+  },
+  dp2waEWSBy5yKmq65ergoU3G6qRLmqa6K7We4rZSKph: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.DRADEX,
   },
 };
 
