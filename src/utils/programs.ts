@@ -59,6 +59,7 @@ export enum PROGRAM_NAMES {
   JUPITER_GOVERNANCE = "Jupiter Governance Program",
   KAMINO = "Kamino Program",
   LAUNCH_MY_NFT = "LaunchMyNFT Program",
+  LIFINITY_SWAP_V2 = "Lifinity Swap V2 Program",
   MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
   MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
@@ -714,6 +715,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   "5XDdQrpNCD89LtrXDBk5qy4v1BW1zRCPyizTahpxDTcZ": {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.ONLY1,
+  },
+  "2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.LIFINITY_SWAP_V2,
   },
 };
 
