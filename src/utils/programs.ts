@@ -85,6 +85,7 @@ export enum PROGRAM_NAMES {
   NFT_AUCTION = "NFT Auction Program",
   NFT_CANDY_MACHINE = "NFT Candy Machine Program",
   NFT_CANDY_MACHINE_V2 = "NFT Candy Machine Program V2",
+  ONLY1 = "Only1 Program",
   ORCA_SWAP_1 = "Orca Swap Program V1",
   ORCA_SWAP_2 = "Orca Swap Program V2",
   ORCA_AQUAFARM = "Orca Aquafarm Program",
@@ -709,6 +710,10 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   dp2waEWSBy5yKmq65ergoU3G6qRLmqa6K7We4rZSKph: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.DRADEX,
+  },
+  "5XDdQrpNCD89LtrXDBk5qy4v1BW1zRCPyizTahpxDTcZ": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ONLY1,
   },
 };
 
