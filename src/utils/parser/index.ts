@@ -4,8 +4,8 @@ import { XrayParsers } from "./types";
 export * from "./types";
 
 export const parseTransaction: XrayParser = (transaction, address) => {
-  let parser: XrayParser = XrayParsers.UNKNOWN;
 
+  let parser: XrayParser = XrayParsers.UNKNOWN;
   var transactionType = transaction.type as XrayType;
 
   if (typeof XrayParsers[transactionType] === "undefined") {
@@ -15,12 +15,9 @@ export const parseTransaction: XrayParser = (transaction, address) => {
   parser = XrayParsers[transactionType];
 
   try {
-    return parser(transaction, address);
+    const result = parser(transaction, address);
+    return result;
   } catch (error) {
-    // eslint-disable-next-line no-console
-
-    console.error(error);
-
     return XrayParsers.UNKNOWN(transaction, address);
   }
 };
