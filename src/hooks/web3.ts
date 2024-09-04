@@ -2,8 +2,15 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 import { getTokenPrices } from "@/server/getTokenPrice";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, VersionedBlockResponse } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
+
+interface ExtendedBlockInfo extends VersionedBlockResponse {
+  blockLeader?: PublicKey;
+  childSlot?: number;
+  childLeader?: PublicKey;
+  parentLeader?: PublicKey;
+}
 
 export function useGetSlot(enabled: boolean = true) {
   const { endpoint } = useCluster();
@@ -22,14 +29,42 @@ export function useGetSlot(enabled: boolean = true) {
 export function useGetBlock(slot: number, enabled: boolean = true) {
   const { endpoint } = useCluster();
 
-  return useQuery({
+  return useQuery<ExtendedBlockInfo, Error>({
     queryKey: [endpoint, "getBlock", slot],
     queryFn: async () => {
       const connection = new Connection(endpoint, "confirmed");
 
-      return await connection.getBlock(Number(slot), {
+      const block = await connection.getBlock(Number(slot), {
         maxSupportedTransactionVersion: 0,
       });
+
+      if (!block) {
+        throw new Error("Block not found");
+      }
+
+      const childSlot = (await connection.getBlocks(slot + 1, slot + 100)).shift();
+      const firstLeaderSlot = block.parentSlot;
+      let leaders: PublicKey[] = [];
+
+      try {
+        const lastLeaderSlot = childSlot !== undefined ? childSlot : slot;
+        const slotLeadersLimit = lastLeaderSlot - block.parentSlot + 1;
+        leaders = await connection.getSlotLeaders(firstLeaderSlot, slotLeadersLimit);
+      } catch (err) {
+        console.error('Error fetching slot leaders:', err);
+      }
+
+      const getLeader = (leaderSlot: number) => {
+        return leaders[leaderSlot - firstLeaderSlot];
+      };
+
+      return {
+        ...block,
+        blockLeader: getLeader(slot),
+        childLeader: childSlot !== undefined ? getLeader(childSlot) : undefined,
+        childSlot,
+        parentLeader: getLeader(block.parentSlot),
+      };
     },
     enabled,
   });
@@ -189,5 +224,17 @@ export function useGetRecentPerformanceSamples(options = {}) {
       return { avgTps, latency };
     },
     ...options,
+  });
+}
+
+export function useGetEpochInfo() {
+  const { endpoint } = useCluster();
+
+  return useQuery({
+    queryKey: [endpoint, "getEpochInfo"],
+    queryFn: async () => {
+      const connection = new Connection(endpoint, "confirmed");
+      return await connection.getEpochInfo();
+    },
   });
 }
