@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { lamportsToSolString } from "@/utils/common";
-import {
-  VOTE_PROGRAM_ID,
-  VersionedTransactionResponse,
-} from "@solana/web3.js";
+import { VOTE_PROGRAM_ID, ConfirmedTransactionMeta, VersionedTransactionResponse } from "@solana/web3.js";
 import { useGetBlock } from "@/hooks/web3";
 import Signature from "../common/signature";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,73 +10,179 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { parseTransaction, XrayTransaction, ParserTransactionTypes } from "@/utils/parser";
+import { XrayTransaction, ParserTransactionTypes, TransactionErrorOrNull } from "@/utils/parser";
+import { getParsedTransactions } from "@/server/getParsedTransactions";
+import { useCluster } from "@/providers/cluster-provider";
+import { Cluster } from "@/utils/cluster";
+import { Source } from "@/types/helius-sdk";
 
-type TransactionWithParsedInfo = Omit<VersionedTransactionResponse, 'slot'> & {
+type TransactionWithParsedInfo = {
   index: number;
   parsedInfo: XrayTransaction;
   slot: number;
+  meta: ConfirmedTransactionMeta | null;
+  signature: string;
 };
 
 const ITEMS_PER_PAGE = 25;
+const BATCH_SIZE = 100;
 
-type TransactionStatus = 'all' | 'successful' | 'failed';
+type TransactionStatus = "all" | "successful" | "failed";
 
 export default function BlockHistory({ slot }: { slot: string }) {
   const { data: blockInfo, isLoading, isError } = useGetBlock(Number(slot));
   const [page, setPage] = useState(1);
   const [showVoteTransactions, setShowVoteTransactions] = useState<boolean>(false);
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>('all');
+  const { cluster } = useCluster();
+  const [transactionState, setTransactionState] = useState<{
+    parsedTransactions: TransactionWithParsedInfo[];
+    isProcessing: boolean;
+    processedCount: number;
+    totalTransactions: number;
+  }>({
+    parsedTransactions: [],
+    isProcessing: false,
+    processedCount: 0,
+    totalTransactions: 0,
+  });
 
-  const { transactions, totalTransactions, blockTime } = useMemo(() => {
-    if (!blockInfo) {
-      return { transactions: [], totalTransactions: 0, blockTime: 0 };
+  const isVoteTransaction = useCallback((transaction: VersionedTransactionResponse["transaction"]): boolean => {
+    const message = transaction.message;
+    if ("accountKeys" in message) {
+      return message.accountKeys.some(key => key.equals(VOTE_PROGRAM_ID));
     }
-    const allTransactions: TransactionWithParsedInfo[] = blockInfo.transactions.map(
-      (tx, index) => {
-        let parsedInfo: XrayTransaction;
+    if ("staticAccountKeys" in message) {
+      return message.staticAccountKeys.some(key => key.equals(VOTE_PROGRAM_ID));
+    }
+    return false;
+  }, []);
 
-        try {
-          parsedInfo = parseTransaction(tx as any);
-        } catch (error) {
-          console.error("Error parsing transaction:", error);
-          parsedInfo = {
-            type: ParserTransactionTypes.UNKNOWN,
-          } as XrayTransaction;
+  const processTransactionBatch = useCallback(async (batch: string[]) => {
+    try {
+      const parsedBatch = await getParsedTransactions(batch, cluster as Cluster);
+      if (parsedBatch) {
+        console.log(`Processed batch of ${parsedBatch.length} transactions`);
+        return parsedBatch.map((tx) => {
+          const originalTx = blockInfo!.transactions.find(t => t.transaction.signatures[0] === tx.signature);
+          return {
+            index: 0, // We'll set this later when we know the final order
+            parsedInfo: {
+              ...tx,
+              transactionError: originalTx?.meta?.err as TransactionErrorOrNull || null,
+            },
+            slot: blockInfo!.parentSlot + 1,
+            meta: originalTx?.meta || null,
+            signature: tx.signature,
+          };
+        });
+      }
+      return [];
+    } catch (error) {
+      console.error("Error processing batch:", error);
+      return [];
+    }
+  }, [cluster, blockInfo]);
+
+  useEffect(() => {
+    if (blockInfo && !transactionState.isProcessing) {
+      const processTransactions = async () => {
+        setTransactionState(prev => ({ ...prev, isProcessing: true }));
+        const voteTransactions: TransactionWithParsedInfo[] = [];
+        const nonVoteTransactions: string[] = [];
+
+        blockInfo.transactions.forEach((tx, index) => {
+          if (isVoteTransaction(tx.transaction)) {
+            voteTransactions.push({
+              index,
+              parsedInfo: {
+                type: ParserTransactionTypes.VOTE,
+                source: Source.VOTE_PROGRAM,
+                signature: tx.transaction.signatures[0],
+                fee: tx.meta?.fee || 0,
+                timestamp: blockInfo.blockTime ? blockInfo.blockTime * 1000 : 0,
+                slot: blockInfo.parentSlot + 1,
+                transactionError: tx.meta?.err as TransactionErrorOrNull || null,
+                account: "",
+                actions: [],
+                tokenTransfers: [],
+                nativeTransfers: [],
+              },
+              slot: blockInfo.parentSlot + 1,
+              meta: tx.meta,
+              signature: tx.transaction.signatures[0],
+            });
+          } else {
+            nonVoteTransactions.push(tx.transaction.signatures[0]);
+          }
+        });
+
+        console.log(`Vote transactions: ${voteTransactions.length}`);
+        console.log(`Non-vote transactions: ${nonVoteTransactions.length}`);
+
+        let allParsedTransactions = [...voteTransactions];
+
+        for (let i = 0; i < nonVoteTransactions.length; i += BATCH_SIZE) {
+          const batch = nonVoteTransactions.slice(i, i + BATCH_SIZE);
+          const parsedBatch = await processTransactionBatch(batch);
+          allParsedTransactions = [...allParsedTransactions, ...parsedBatch];
         }
 
-        return {
+        // Sort transactions based on their original order in the block
+        allParsedTransactions.sort((a, b) => {
+          const indexA = blockInfo.transactions.findIndex(tx => tx.transaction.signatures[0] === a.signature);
+          const indexB = blockInfo.transactions.findIndex(tx => tx.transaction.signatures[0] === b.signature);
+          return indexA - indexB;
+        });
+
+        // Update indices after sorting
+        allParsedTransactions = allParsedTransactions.map((tx, index) => ({
           ...tx,
           index,
-          parsedInfo,
-          slot: blockInfo.parentSlot + 1,
-        };
-      }
-    );
+        }));
 
-    let filteredTransactions = allTransactions;
+        setTransactionState(prev => ({
+          ...prev,
+          parsedTransactions: allParsedTransactions,
+          processedCount: allParsedTransactions.length,
+          totalTransactions: blockInfo.transactions.length,
+          isProcessing: false,
+        }));
+      };
+
+      processTransactions();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockInfo, cluster, isVoteTransaction, processTransactionBatch]);
+
+  const { filteredTransactions, totalTransactions } = useMemo(() => {
+    let filtered = transactionState.parsedTransactions;
+
+    console.log(`Total parsed transactions: ${filtered.length}`);
+    console.log(`Total transactions in block: ${transactionState.totalTransactions}`);
 
     if (!showVoteTransactions) {
-      filteredTransactions = filteredTransactions.filter(tx => !isVoteTransaction(tx));
+      filtered = filtered.filter(tx => tx.parsedInfo.type !== ParserTransactionTypes.VOTE);
+      console.log(`Transactions after vote filtering: ${filtered.length}`);
     }
 
     if (transactionStatus !== 'all') {
-      filteredTransactions = filteredTransactions.filter(tx => 
-        transactionStatus === 'successful' ? !tx.meta?.err : !!tx.meta?.err
+      filtered = filtered.filter(tx => 
+        transactionStatus === 'successful' ? tx.parsedInfo.transactionError === null : tx.parsedInfo.transactionError !== null
       );
+      console.log(`Transactions after status filtering (${transactionStatus}): ${filtered.length}`);
     }
 
     return { 
-      transactions: filteredTransactions, 
-      totalTransactions: filteredTransactions.length,
-      blockTime: blockInfo.blockTime || 0
+      filteredTransactions: filtered, 
+      totalTransactions: filtered.length,
     };
-  }, [blockInfo, showVoteTransactions, transactionStatus]);
+  }, [transactionState.parsedTransactions, showVoteTransactions, transactionStatus, transactionState.totalTransactions]);
 
   const paginatedTransactions = useMemo(() => {
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    return transactions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [transactions, page]);
+    return filteredTransactions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredTransactions, page]);
 
   const totalPages = Math.ceil(totalTransactions / ITEMS_PER_PAGE);
 
@@ -125,7 +228,7 @@ export default function BlockHistory({ slot }: { slot: string }) {
             </thead>
             <tbody>
               {paginatedTransactions.map((tx) => (
-                <tr key={tx.transaction.signatures[0]} className="border-b border-gray-700">
+                <tr key={tx.signature} className="border-b border-gray-700">
                   <td className="py-4">
                     <div className="flex items-center">
                       <span className="text-sm font-medium text-white">{tx.parsedInfo.type}</span>
@@ -140,7 +243,7 @@ export default function BlockHistory({ slot }: { slot: string }) {
                     </span>
                   </td>
                   <td className="py-4">
-                    <Signature signature={tx.transaction.signatures[0]} />
+                    <Signature signature={tx.signature} />
                   </td>
                 </tr>
               ))}
@@ -193,19 +296,3 @@ export default function BlockHistory({ slot }: { slot: string }) {
     </Card>
   );
 }
-
-const isVoteTransaction = (tx: TransactionWithParsedInfo): boolean => {
-  const message = tx.transaction.message;
-  
-  // For legacy transactions
-  if ('accountKeys' in message) {
-    return message.accountKeys.some(key => key.equals(VOTE_PROGRAM_ID));
-  }
-  
-  // For versioned transactions
-  if ('staticAccountKeys' in message) {
-    return message.staticAccountKeys.some(key => key.equals(VOTE_PROGRAM_ID));
-  }
-
-  return false;
-};
