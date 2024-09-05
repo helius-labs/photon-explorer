@@ -25,7 +25,7 @@ export enum PROGRAM_NAMES {
   SWAP = "Swap Program",
   TOKEN = "Token Program",
   TOKEN_2022 = "Token-2022 Program",
-  TOKEN_METADATA = "Token Metadata Program",
+  TOKEN_METADATA = "Metaplex Token Metadata Program",
   TOKEN_VAULT = "Token Vault Program",
 
   // other
@@ -40,6 +40,7 @@ export enum PROGRAM_NAMES {
   CLOCKWORK_1 = "Clockwork Thread Program V1",
   CLOCKWORK_2 = "Clockwork Thread Program V2",
   CROPPER_WHIRLPOOL = "Cropper Whirlpool Program",
+  DRADEX = "Dradex Program",
   DRIFT_V2 = "Drift V2 Program",
   DRIP = "Drip Program",
   FLUXBEAM = "FluxBeam Program",
@@ -56,6 +57,10 @@ export enum PROGRAM_NAMES {
   JUPITER_APE = "Jupiter Ape Program",
   JUPITER_DCA = "Jupiter DCA Program",
   JUPITER_GOVERNANCE = "Jupiter Governance Program",
+  JUPITER_PERPS = "Jupiter Perpetuals Program",
+  KAMINO = "Kamino Program",
+  LAUNCH_MY_NFT = "LaunchMyNFT Program",
+  LIFINITY_SWAP_V2 = "Lifinity Swap V2 Program",
   MAGIC_EDEN_NFT_MARKETPLACE = "Magic Eden NFT Marketplace",
   MAGIC_EDEN_V2 = "Magic Eden V2 Program",
   MANGO_GOVERNANCE = "Mango Governance Program",
@@ -65,6 +70,7 @@ export enum PROGRAM_NAMES {
   MANGO_3 = "Mango Program V3",
   MARGINFI_V2 = "Marginfi V2 Program",
   MARINADE = "Marinade Staking Program",
+  MAYAN = "Mayan Program",
   MERCURIAL = "Mercurial Stable Swap Program",
   METADAO_AMM = "MetaDAO AMM Program",
   METADAO_AUTOCRAT = "MetaDAO Autocrat Program",
@@ -72,11 +78,16 @@ export enum PROGRAM_NAMES {
   METADAO_CONDITIONAL_VAULT = "MetaDAO Conditional Vault Program",
   METADAO_OPTIMISTIC_TIMELOCK = "MetaDAO Optimistic Timelock Program",
   METAPLEX = "Metaplex Program",
+  METAPLEX_CORE = "Metaplex Core Program",
+  METAPLEX_CORE_CANDY_GUARD = "Metaplex Core Candy Guard Program",
+  METAPLEX_CORE_CANDY_MACHINE = "Metaplex Core Candy Machine Program",
+  METAPLEX_METADATA_AUTH = "Metaplex Metadata Auth Program",
   METEORA_DLMM = "Meteora DLMM Program",
   METEORA_POOLS = "Meteora Pools Program",
   NFT_AUCTION = "NFT Auction Program",
   NFT_CANDY_MACHINE = "NFT Candy Machine Program",
   NFT_CANDY_MACHINE_V2 = "NFT Candy Machine Program V2",
+  ONLY1 = "Only1 Program",
   ORCA_SWAP_1 = "Orca Swap Program V1",
   ORCA_SWAP_2 = "Orca Swap Program V2",
   ORCA_AQUAFARM = "Orca Aquafarm Program",
@@ -99,6 +110,7 @@ export enum PROGRAM_NAMES {
   RAYDIUM_LP_2 = "Raydium Liquidity Pool Program V2",
   RAYDIUM_STAKING = "Raydium Staking Program",
   RAYDIUM_CP_SWAP = "Raydium CP Swap",
+  RAYDIUM_CONCENTRATED_LIQUIDITY = "Raydium Concentrated Liquidity Program",
   SABER_DECIMAL_WRAPPER = "Saber Decimal Wrapper Program",
   SABER_ROUTER = "Saber Router Program",
   SABER_SWAP = "Saber Stable Swap Program",
@@ -106,6 +118,7 @@ export enum PROGRAM_NAMES {
   SANCTUM_MULTI_VALIDATOR_SPL_STAKE_POOL = "Sanctum Multi-Validator SPL Stake Pool Program",
   SANCTUM_ROUTER = "Sanctum Router Program",
   SANCTUM_UNSTAKE = "Sanctum Unstake Program",
+  SAROS_AMM = "Saros AMM Program",
   SERUM_1 = "Serum Dex Program V1",
   SERUM_2 = "Serum Dex Program V2",
   SERUM_3 = "Serum Dex Program V3",
@@ -115,11 +128,13 @@ export enum PROGRAM_NAMES {
   SOLIDO = "Lido for Solana Program",
   SQUADS_MULTISIG = "Squads MultiSig Program",
   STEP_SWAP = "Step Finance Swap Program",
+  STREAMFLOW = "Streamflow Program",
   SWIM_SWAP = "Swim Swap Program",
   SWITCHBOARD = "Switchboard Oracle Program",
   TENSOR_CNFT = "Tensor cNFT Program",
   TENSOR_SWAP = "Tensor Swap Program",
   TENSOR_WHITELIST = "Tensor Whitelist Program",
+  TRUFFLE = "Truffle Program",
   WORMHOLE = "Wormhole",
   WORMHOLE_CORE = "Wormhole Core Bridge",
   WORMHOLE_TOKEN = "Wormhole Token Bridge",
@@ -129,6 +144,7 @@ export enum PROGRAM_NAMES {
   STEPN_DEX = "STEPN Dex",
   OPENBOOK_DEX = "OpenBook Dex",
   OPENBOOK_DEX_V2 = "OpenBook Dex V2",
+  ZETA = "Zeta Program",
 };
 
 const ALL_CLUSTERS = [
@@ -654,6 +670,70 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb: {
     deployments: [Cluster.MainnetBeta],
     name: PROGRAM_NAMES.OPENBOOK_DEX_V2,
+  },
+  CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_CORE,
+  },
+  CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_CORE_CANDY_MACHINE,
+  },
+  auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_METADATA_AUTH,
+  },
+  CMAGAKJ67e9hRZgfC5SFTbZH8MgEmtqazKXjmkaJjWTJ: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.METAPLEX_CORE_CANDY_GUARD,
+  },
+  F9SixdqdmEBP5kprp2gZPZNeMmfHJRCTMFjN22dx3akf: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.LAUNCH_MY_NFT,
+  },
+  CSGrdwbJ5z58tLGKjjcmiNMj8bG1Zazthk3cXMrbSZoX: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.TRUFFLE,
+  },
+  "6LtLpnUFNByNXLyCoK9wA2MykKAmQNZKBdY8s47dehDc": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.KAMINO,
+  },
+  "8LPjGDbxhW4G2Q8S6FvdvUdfGWssgtqmvsc63bwNFA7E": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.MAYAN,
+  },
+  ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ZETA,
+  },
+  strmRqUCoQUgGUan5YhzUZa6KqdzwX5L6FpUxfmKg5m: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.STREAMFLOW,
+  },
+  dp2waEWSBy5yKmq65ergoU3G6qRLmqa6K7We4rZSKph: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.DRADEX,
+  },
+  "5XDdQrpNCD89LtrXDBk5qy4v1BW1zRCPyizTahpxDTcZ": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.ONLY1,
+  },
+  "2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c": {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.LIFINITY_SWAP_V2,
+  },
+  CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.RAYDIUM_CONCENTRATED_LIQUIDITY,
+  },
+  PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.JUPITER_PERPS,
+  },
+  SSwapUtytfBdBn1b9NUGG6foMVPtcWgpRU32HToDUZr: {
+    deployments: [Cluster.MainnetBeta],
+    name: PROGRAM_NAMES.SAROS_AMM,
   },
 };
 
