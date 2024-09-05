@@ -10,7 +10,7 @@ export async function getParsedTransactions(
   if (!process.env.HELIUS_API_KEY) {
     throw new Error("HELIUS_API_KEY is not set");
   }
-  
+
   let url;
 
   if (cluster === Cluster.MainnetBeta) {
@@ -35,13 +35,14 @@ export async function getParsedTransactions(
 
     if (!response.ok) {
       console.error("API response not ok:", response.status, response.statusText);
+
       const text = await response.text();
       console.error("Response body:", text);
+      
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("API Response:", data);
 
     if (!Array.isArray(data)) {
       console.error("API did not return an array:", data);
