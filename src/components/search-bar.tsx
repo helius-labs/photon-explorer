@@ -697,6 +697,21 @@ function buildOptions(rawSearch: string, cluster: Cluster) {
 
   const options = [];
 
+  // For blocks
+  if (/^\d+$/.test(search)) {
+    options.push({
+      label: "Blocks",
+      options: [
+        {
+          label: `Block #${search}`,
+          pathname: `/block/${search}`,
+          value: [search],
+          icon: <SquareGanttChart strokeWidth={0.5} className="h-8 w-8" />,
+        },
+      ],
+    });
+  }
+
   const programOptions = buildProgramOptions(search, cluster);
   if (programOptions) {
     options.push(programOptions);

@@ -42,3 +42,11 @@ export const formatDate = (dateString: string): string => {
   // Reconstruct the date string with the ordinal day
   return `${month} ${day}${daySuffix}, ${year.trim()} at ${time.trim()}`;
 };
+
+export function displayTimestamp(timestamp: number): string {
+  return new Date(timestamp).toLocaleString();
+}
+
+export function displayTimestampUtc(timestamp: number): string {
+  return new Date(timestamp).toUTCString();
+}

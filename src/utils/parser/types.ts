@@ -34,6 +34,7 @@ export enum ParserTransactionTypes {
   NFT_BID = "NFT Bid",
   NFT_LISTING = "NFT Listing",
   NFT_MINT = "NFT Mint",
+  VOTE = "Vote",
 }
 
 type InstructionError = [number, string[]];
