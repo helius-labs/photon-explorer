@@ -188,21 +188,11 @@ export function useGetTransactionWithCompressionInfo(
       signature,
     ],
     queryFn: async () => {
-      if (
-        [
-          Cluster.Custom,
-          Cluster.Localnet,
-          Cluster.Testnet,
-          Cluster.Devnet,
-        ].includes(cluster)
-      ) {
-        const connection = createRpc(endpoint, compressionEndpoint, undefined, {
-          commitment: "processed",
-        });
+      const connection = createRpc(endpoint, compressionEndpoint, undefined, {
+        commitment: "processed",
+      });
 
-        return await connection.getTransactionWithCompressionInfo(signature);
-      }
-      return null;
+      return await connection.getTransactionWithCompressionInfo(signature);
     },
     enabled,
   });

@@ -33,24 +33,13 @@ export function useGetTokensByOwner(address: string, enabled: boolean = true) {
         tokens = await getTokensByOwnerMetaplex(publicKey.toBase58(), endpoint);
       }
 
-      // Compressed tokens are not yet supported on mainnet
-      // Once they are supported, we can remove this conditional
-      if (
-        [
-          Cluster.Custom,
-          Cluster.Localnet,
-          Cluster.Testnet,
-          Cluster.Devnet,
-        ].includes(cluster)
-      ) {
-        const compressed = await getTokensByOwnerCompressed(
-          publicKey.toBase58(),
-          endpoint,
-          compressionEndpoint,
-        );
+      const compressed = await getTokensByOwnerCompressed(
+        publicKey.toBase58(),
+        endpoint,
+        compressionEndpoint,
+      );
 
-        tokens = tokens.concat(compressed);
-      }
+      tokens = tokens.concat(compressed);
 
       tokens.sort((a, b) => (b.value || 0) - (a.value || 0));
 
