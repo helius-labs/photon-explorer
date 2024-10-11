@@ -2,20 +2,25 @@
 
 import { RotateCw } from "lucide-react";
 
-import { useGetCompressedAccount, useGetCompressedAccountsByOwner, useGetCompressionSignaturesForAccount, useGetCompressionSignaturesForOwner } from "@/hooks/compression";
+import {
+  useGetCompressedAccount,
+  useGetCompressedAccountsByOwner,
+  useGetCompressionSignaturesForAccount,
+  useGetCompressionSignaturesForOwner,
+} from "@/hooks/compression";
+import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 import { useGetAccountInfo, useGetSignaturesForAddress } from "@/hooks/web3";
 
-import AccountOverview from "@/components/account/account-overview";
-import CompressedAccountOverview from "@/components/account/compressed-account-overview";
 import CompressedAccounts from "@/components/account/account-compressed-accounts";
 import CompressedTransactionsByHash from "@/components/account/account-compressed-transactions-by-hash";
+import AccountOverview from "@/components/account/account-overview";
 import AccountTokens from "@/components/account/account-tokens";
 import Transactions from "@/components/account/account-transactions";
+import CompressedAccountOverview from "@/components/account/compressed-account-overview";
 import Loading from "@/components/common/loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetTokensByOwner } from "@/hooks/useGetTokensByOwner";
 
 export default function AccountDetails({ address }: { address: string }) {
   // Preload tab data
@@ -55,31 +60,11 @@ export default function AccountDetails({ address }: { address: string }) {
         </CardContent>
       </Card>
     );
-  if (!accountInfo.data?.value && !compressedAccount.data) {
-    return (
-      <Card className="w-full">
-        <CardContent className="pt-6">
-          <span>Account or hash not found</span>
-          <Button
-            size="sm"
-            className="ml-4"
-            onClick={() => {
-              accountInfo.refetch();
-              compressedAccount.refetch();
-            }}
-          >
-            <RotateCw className="mr-1 h-4 w-4" />
-            Refresh
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
-  if (accountInfo.data?.value) {
+  if (accountInfo.data) {
     return (
       <>
-        <AccountOverview address={address} account={accountInfo.data.value} />
+        <AccountOverview address={address} accountData={accountInfo.data} />
 
         <Tabs defaultValue="transactions">
           <TabsList>
@@ -113,9 +98,7 @@ export default function AccountDetails({ address }: { address: string }) {
 
         <Tabs defaultValue="transactions">
           <TabsList>
-            <TabsTrigger value="transactions">
-              Transactions
-            </TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="transactions">
