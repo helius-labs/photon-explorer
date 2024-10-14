@@ -39,7 +39,10 @@ export default function TransactionCompressionTokenBalances({
           return {
             owner: item.maybeTokenData.owner,
             delta: new BigNumber(
-              normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9),
+              normalizeTokenAmount(
+                item.maybeTokenData.amount.toNumber(),
+                (item.maybeTokenData as any).decimals ?? 0,
+              ),
             ),
             mint: item.maybeTokenData.mint,
           };
@@ -54,8 +57,10 @@ export default function TransactionCompressionTokenBalances({
           return {
             owner: item.maybeTokenData.owner,
             delta: new BigNumber(
-              normalizeTokenAmount(item.maybeTokenData.amount.toNumber(), 9) *
-              -1,
+              normalizeTokenAmount(
+                item.maybeTokenData.amount.toNumber(),
+                (item.maybeTokenData as any).decimals ?? 0,
+              ) * -1,
             ),
             mint: item.maybeTokenData.mint,
           };

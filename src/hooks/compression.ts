@@ -2,7 +2,7 @@
 
 import { useCluster } from "@/providers/cluster-provider";
 import { Cluster } from "@/utils/cluster";
-import { createBN254, createRpc } from "@lightprotocol/stateless.js";
+import { createBN254, createRpc, TokenData } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
 
@@ -196,11 +196,66 @@ export function useGetTransactionWithCompressionInfo(
         commitment: "processed",
       });
 
-      return await connection.getTransactionWithCompressionInfo(signature);
+      const transactionWithCompressionInfo = await connection.getTransactionWithCompressionInfo(signature);
+      if (!transactionWithCompressionInfo) {
+        return null;
+      }
+
+      // Fetch decimals for each token
+      if ([Cluster.MainnetBeta, Cluster.Devnet].includes(cluster)) {
+
+        const mintAddresses = [
+          ...transactionWithCompressionInfo.compressionInfo.openedAccounts,
+          ...transactionWithCompressionInfo.compressionInfo.closedAccounts
+        ]
+          .map((item) => item.maybeTokenData?.mint?.toBase58())
+          .filter((mint): mint is string => mint !== undefined);
+
+        const assetData = await getAssetBatch(mintAddresses, endpoint);
+
+        // Add token_info decimals to the transactions
+        transactionWithCompressionInfo.compressionInfo.openedAccounts = transactionWithCompressionInfo.compressionInfo.openedAccounts.map(transaction => {
+          const asset = assetData.find((asset: { id: string }) => asset.id === transaction.maybeTokenData?.mint?.toBase58());
+          if (transaction.maybeTokenData && asset?.token_info?.decimals !== undefined) {
+            (transaction.maybeTokenData as TokenData & { decimals?: number }).decimals = asset.token_info.decimals;
+          }
+          return transaction;
+        });
+
+        transactionWithCompressionInfo.compressionInfo.closedAccounts = transactionWithCompressionInfo.compressionInfo.closedAccounts.map(transaction => {
+          const asset = assetData.find((asset: { id: string }) => asset.id === transaction.maybeTokenData?.mint?.toBase58());
+          if (transaction.maybeTokenData && asset?.token_info?.decimals !== undefined) {
+            (transaction.maybeTokenData as TokenData & { decimals?: number }).decimals = asset.token_info.decimals;
+          }
+          return transaction;
+        });
+
+      }
+
+      return transactionWithCompressionInfo;
     },
     enabled,
   });
 }
+
+const getAssetBatch = async (ids: string[], endpoint: string) => {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'helius-airship',
+      method: 'getAssetBatch',
+      params: {
+        ids: ids
+      },
+    }),
+  });
+  const { result } = await response.json();
+  return result;
+};
 
 
 export function useGetLatestCompressionSignatures(enabled: boolean = true) {
