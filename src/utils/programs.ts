@@ -93,6 +93,7 @@ export enum PROGRAM_NAMES {
   ZK_SHARED_PUBLIC_NULLIFIER_QUEUE = "Shared Public Nullifier Queue",
   ZK_SHARED_PUBLIC_ADDRESS_TREE = "Shared Public Address Tree",
   ZK_SHARED_PUBLIC_ADDRESS_QUEUE = "Shared Public Address Queue",
+  ZK_COMPRESSED_TOKEN_ESCROW_OWNER_PDA = "Compressed Token Escrow Owner PDA",
 }
 
 const ALL_CLUSTERS = [
@@ -466,7 +467,11 @@ export const PROGRAM_INFO_BY_ID: { [address: string]: ProgramInfo } = {
   aq1S9z4reTSQAdgWHGD2zDaS39sjGrAxbR31vxJ2F4F: {
     deployments: [Cluster.MainnetBeta, Cluster.Devnet],
     name: PROGRAM_NAMES.ZK_SHARED_PUBLIC_ADDRESS_QUEUE,
-  }
+  },
+  GXtd2izAiMJPwMEjfgTRH3d7k9mjn4Jq3JrWFv9gySYy: {
+    deployments: [Cluster.MainnetBeta, Cluster.Devnet],
+    name: PROGRAM_NAMES.ZK_COMPRESSED_TOKEN_ESCROW_OWNER_PDA,
+  },
 };
 
 export const SPECIAL_IDS: { [key: string]: string } = {
