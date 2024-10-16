@@ -61,6 +61,27 @@ export default function AccountDetails({ address }: { address: string }) {
       </Card>
     );
 
+  if (compressedAccount.data) {
+    return (
+      <>
+        <CompressedAccountOverview
+          address={address}
+          account={compressedAccount.data}
+        />
+
+        <Tabs defaultValue="transactions">
+          <TabsList>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="transactions">
+            <CompressedTransactionsByHash hash={address} />
+          </TabsContent>
+        </Tabs>
+      </>
+    );
+  }
+
   if (accountInfo.data) {
     return (
       <>
@@ -82,27 +103,6 @@ export default function AccountDetails({ address }: { address: string }) {
           </TabsContent>
           <TabsContent value="compressed-accounts">
             <CompressedAccounts address={address} />
-          </TabsContent>
-        </Tabs>
-      </>
-    );
-  }
-
-  if (compressedAccount.data) {
-    return (
-      <>
-        <CompressedAccountOverview
-          address={address}
-          account={compressedAccount.data}
-        />
-
-        <Tabs defaultValue="transactions">
-          <TabsList>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="transactions">
-            <CompressedTransactionsByHash hash={address} />
           </TabsContent>
         </Tabs>
       </>
