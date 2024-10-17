@@ -93,7 +93,7 @@ export enum PROGRAM_NAMES {
   ZK_SHARED_PUBLIC_NULLIFIER_QUEUE = "Shared Public Nullifier Queue",
   ZK_SHARED_PUBLIC_ADDRESS_TREE = "Shared Public Address Tree",
   ZK_SHARED_PUBLIC_ADDRESS_QUEUE = "Shared Public Address Queue",
-  ZK_COMPRESSED_TOKEN_ESCROW_OWNER_PDA = "Compressed Token Escrow Owner PDA",
+  ZK_COMPRESSED_TOKEN_ESCROW_OWNER_PDA = "ZK Compression Token Escrow",
 }
 
 const ALL_CLUSTERS = [
