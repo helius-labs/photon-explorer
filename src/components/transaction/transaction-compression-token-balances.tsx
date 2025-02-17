@@ -40,7 +40,7 @@ export default function TransactionCompressionTokenBalances({
             owner: item.maybeTokenData.owner,
             delta: new BigNumber(
               normalizeTokenAmount(
-                item.maybeTokenData.amount.toNumber(),
+                item.maybeTokenData.amount.toString(),
                 (item.maybeTokenData as any).decimals ?? 0,
               ),
             ),
@@ -58,7 +58,7 @@ export default function TransactionCompressionTokenBalances({
             owner: item.maybeTokenData.owner,
             delta: new BigNumber(
               normalizeTokenAmount(
-                item.maybeTokenData.amount.toNumber(),
+                item.maybeTokenData.amount.toString(),
                 (item.maybeTokenData as any).decimals ?? 0,
               ) * -1,
             ),
@@ -71,7 +71,7 @@ export default function TransactionCompressionTokenBalances({
   }
 
   const rows = [...openedTokenAccounts, ...closedTokenAccounts]
-    .sort((a, b) => b.delta.toNumber() - a.delta.toNumber())
+    .sort((a, b) => b.delta.minus(a.delta).toNumber())
     .map((item, index) => {
       return (
         <TableRow key={`account-rows-${index}`} className="font-mono">
