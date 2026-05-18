@@ -1,4 +1,6 @@
-import { Cluster, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
+
+import type { Cluster } from "./cluster";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
