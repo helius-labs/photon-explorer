@@ -1,4 +1,3 @@
-import noLogoImg from "@/../public/assets/noLogoImg.svg";
 import cloudflareLoader from "@/utils/imageLoader";
 import { PublicKey } from "@solana/web3.js";
 import { BigNumber } from "bignumber.js";
@@ -6,6 +5,8 @@ import Image from "next/image";
 import React from "react";
 
 import { useGetTokenListVerified } from "@/hooks/jupiterTokenList";
+
+const NO_LOGO_SRC = "/assets/noLogoImg.svg";
 
 export function TokenBalanceDelta({
   mint,
@@ -37,7 +38,7 @@ export function TokenBalanceDelta({
             loading="eager"
             onError={(event: any) => {
               event.target.id = "noLogoImg";
-              event.target.srcset = noLogoImg.src;
+              event.target.srcset = NO_LOGO_SRC;
             }}
             className="h-6 w-6 rounded-full"
           />
