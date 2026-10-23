@@ -34,7 +34,7 @@ export function useGetBlock(slot: number, enabled: boolean = true) {
       const connection = new Connection(endpoint, "confirmed");
 
       const block = await connection.getBlock(Number(slot), {
-        maxSupportedTransactionVersion: 0,
+        maxSupportedTransactionVersion: 1,
       });
 
       if (!block) {
@@ -78,7 +78,7 @@ export function useGetTransaction(signature: string, enabled: boolean = true) {
       const connection = new Connection(endpoint, "confirmed");
 
       return await connection.getParsedTransaction(signature, {
-        maxSupportedTransactionVersion: 0,
+        maxSupportedTransactionVersion: 1,
       });
     },
     enabled,
